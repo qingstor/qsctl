@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'qsctl',
-    version = '1.0.2',
+    version = '1.0.3',
     description = 'Advanced command line tool for QingStor.',
     long_description = open('README.rst', 'rb').read().decode('utf-8'),
     keywords = 'qingcloud qingstor qsctl',
