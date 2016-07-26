@@ -1,5 +1,4 @@
 import os
-import platform
 import unittest
 
 from qingstor.qsctl.helper.qsdocutils import (

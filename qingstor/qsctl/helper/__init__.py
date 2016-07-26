@@ -14,7 +14,6 @@
 # limitations under the License.
 # =========================================================================
 
-import os
 from subprocess import Popen, PIPE
 
 from docutils.core import publish_string

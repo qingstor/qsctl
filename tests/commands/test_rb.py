@@ -1,5 +1,3 @@
-import os
-import sys
 import unittest
 
 from qingstor.qsctl.commands.rb import RbCommand

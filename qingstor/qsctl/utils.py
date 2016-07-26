@@ -19,12 +19,12 @@ import os
 import sys
 import json
 import platform
-from yaml import load, dump
+from yaml import load
 
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
 
 from .constants import PART_SIZE
 
@@ -122,7 +122,6 @@ def json_loads(s):
 def format_size(value):
     """Convert a size in number into: 'Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'.
     """
-    one_decimal_point = '%.1f'
     base = 1024
     bytes_int = float(value)
 

@@ -1,5 +1,3 @@
-import os
-import sys
 import unittest
 
 from mock import MockOptions
@@ -62,7 +60,7 @@ class TestRmCommand(unittest.TestCase):
         )
         self.Rm.send_request(options)
 
-    def test_remove_mutiple_keys_2(self):
+    def test_remove_mutiple_keys_3(self):
         for i in range(0, 10):
             key = "prefix/" + str(i) + ".txt"
             resp = self.Rm.conn.make_request("PUT", self.valid_bucket, key)
