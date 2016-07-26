@@ -23,10 +23,11 @@ from qingcloud.qingstor.connection import QSConnection
 from ..constants import ENDPOINT, HTTP_OK, HTTP_OK_NO_CONTENT
 from ..utils import (
     load_conf,
-    is_pattern_match,
-    to_unix_path,
     uni_print,
     json_loads,
+    to_unix_path,
+    is_pattern_match,
+    validate_bucket_name,
 )
 
 class BaseCommand(object):
@@ -122,6 +123,9 @@ class BaseCommand(object):
             bucket, prefix = qs_path_split[0], ""
         elif len(qs_path_split) == 2:
             bucket, prefix = qs_path_split[0], qs_path_split[1]
+        if not validate_bucket_name(bucket):
+            print("Error: Invalid Bucket name")
+            sys.exit(-1)
         if cls.command not in ("mb", "rb"):
             cls.validate_bucket(bucket)
         return bucket, prefix

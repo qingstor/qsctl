@@ -14,6 +14,7 @@
 # limitations under the License.
 # =========================================================================
 
+import re
 import os
 import sys
 import json
@@ -231,3 +232,28 @@ class FileChunk(object):
         if it is a file like object.
         '''
         return iter([])
+
+def validate_bucket_name(bucket_name):
+    """
+    Validate bucket name
+
+    Bucket name must be compatible with DNS name (RFC 1123):
+
+      - Less than 63 characters
+      - Valid character set [a-z0-9-]
+      - Can not begin and end with "-"
+
+    Returns Trues if valid, False otherwise
+    """
+    if len(bucket_name) < 6 or len(bucket_name) > 63:
+        return False
+
+    if bucket_name.startswith("-") or bucket_name.endswith("-"):
+        return False
+
+    pattern = re.compile("^[0-9a-z]([0-9a-z-]{0,61})[0-9a-z]$")
+
+    if not pattern.match(bucket_name):
+        return False
+
+    return True

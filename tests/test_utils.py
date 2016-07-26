@@ -16,6 +16,7 @@ from qingstor.qsctl.utils import (
     join_local_path,
     is_pattern_match,
     get_part_numbers,
+    validate_bucket_name,
     FileChunk,
 )
 
@@ -136,6 +137,19 @@ class TestUtils(unittest.TestCase):
         part0.close()
         part1.close()
         part2.close()
+
+    def test_validate_bucket_name(self):
+        self.assertFalse(validate_bucket_name("-abcd"))
+        self.assertFalse(validate_bucket_name("abcd-"))
+        self.assertFalse(validate_bucket_name("ab.cd"))
+        self.assertFalse(validate_bucket_name("Abcd"))
+        self.assertFalse(validate_bucket_name("Abcd"))
+        self.assertFalse(validate_bucket_name("Ab!cd"))
+        self.assertFalse(validate_bucket_name("Ab%cd"))
+        self.assertFalse(validate_bucket_name("Ab$cd"))
+        self.assertFalse(validate_bucket_name("a"*64))
+        self.assertTrue(validate_bucket_name("0ab-cd"))
+        self.assertTrue(validate_bucket_name("0ab-cd1"))
 
     def tearDown(self):
         if os.path.exists(self.large_file):
