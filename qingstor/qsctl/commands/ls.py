@@ -107,27 +107,27 @@ class LsCommand(BaseCommand):
 
     @classmethod
     def list_keys(cls, options):
-            bucket, prefix = cls.validate_qs_path(options.qs_path)
+        bucket, prefix = cls.validate_qs_path(options.qs_path)
 
-            params = {}
-            if prefix != "":
-                params["prefix"] = prefix
-            if options.recursive is False:
-                params["delimiter"] = "/"
-            if options.page_size is not None:
-                params["limit"] = str(options.page_size)
+        params = {}
+        if prefix != "":
+            params["prefix"] = prefix
+        if options.recursive is False:
+            params["delimiter"] = "/"
+        if options.page_size is not None:
+            params["limit"] = str(options.page_size)
 
-            marker = ""
-            while True:
-                keys, marker, dirs = cls.list_multiple_keys(
-                    bucket,
-                    marker,
-                    params=params
-                )
+        marker = ""
+        while True:
+            keys, marker, dirs = cls.list_multiple_keys(
+                bucket,
+                marker,
+                params=params
+            )
 
-                cls.print_to_console(keys, dirs)
-                if marker == "":
-                    break
+            cls.print_to_console(keys, dirs)
+            if marker == "":
+                break
 
     @classmethod
     def send_request(cls, options):
