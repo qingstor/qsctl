@@ -20,7 +20,7 @@ ENDPOINT = "qingstor.com"
 BUFFER_SIZE = 4*1024*1024
 
 # Size of one part of the large file, used by Multipart-upload
-PART_SIZE = 4*1024*1024
+PART_SIZE = 32*1024*1024
 
 # HTTP response status
 HTTP_OK = 200

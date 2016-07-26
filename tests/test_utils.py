@@ -1,21 +1,22 @@
 import os
 import platform
 import unittest
+import subprocess
 
 from qingstor.qsctl.utils import (
     yaml_load,
     load_conf,
-    is_windows,
-    to_unix_path,
-    join_local_path,
-    encode_to_utf8,
-    encode_to_gbk,
     uni_print,
+    is_windows,
     format_size,
+    to_unix_path,
     pattern_match,
+    encode_to_gbk,
+    encode_to_utf8,
+    join_local_path,
     is_pattern_match,
     get_part_numbers,
-    FileChunk
+    FileChunk,
 )
 
 from qingstor.qsctl.constants import PART_SIZE
@@ -33,7 +34,7 @@ bad_sample: 'this is an invalid config'
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
-        # write conf_file and bad conf_file
+        # Write conf_file and bad_conf_file
         current_path = os.path.split(os.path.realpath(__file__))[0]
 
         conf_file = os.path.join(current_path, "data/config/conf_file")
@@ -50,12 +51,15 @@ class TestUtils(unittest.TestCase):
         self.conf_file= conf_file
         self.bad_conf_file= bad_conf_file
 
-        # create a large file(~8MB)
-        large_file = os.path.join(current_path, "data/large_file")
-        with open(large_file, 'w') as f:
-            f.seek(8*1024*1024)
+        # Create a large file(~64MB)
+        self.large_file = os.path.join(current_path, "data/large_file")
+        command = ("dd if=/dev/urandom of=%s bs=%s count=2 > /dev/null 2>&1" %
+                   (self.large_file, PART_SIZE))
+        subprocess.check_call(command, shell=True)
+
+        with open(self.large_file, 'w') as f:
+            f.seek(2 * PART_SIZE)
             f.write("just for testing")
-        self.large_file = large_file
 
     def test_yaml_load(self):
         with open(self.conf_file, 'r') as f:
@@ -102,7 +106,7 @@ class TestUtils(unittest.TestCase):
 
     def test_format_size(self):
         size = os.path.getsize(self.large_file)
-        self.assertEqual(format_size(size), "8.0 MiB")
+        self.assertEqual(format_size(size), "64.0 MiB")
 
     def test_pattern_match(self):
         self.assertTrue(pattern_match("xyz", "x?z"))
