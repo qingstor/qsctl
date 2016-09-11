@@ -37,6 +37,7 @@ from ..utils import(
     get_part_numbers,
     FileChunk,
     json_loads,
+    get_file_mime_type,
 )
 
 class TransferCommand(BaseCommand):
@@ -234,8 +235,11 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def send_file(cls, local_path, bucket, key):
+        headers = {
+            "Content-Type": get_file_mime_type(local_path),
+        }
         with open(local_path, "rb") as data:
-            resp = cls.conn.make_request("PUT", bucket, key, data=data)
+            resp = cls.conn.make_request("PUT", bucket, key, headers, data)
         if resp.status == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             uni_print(statement)
@@ -246,24 +250,27 @@ class TransferCommand(BaseCommand):
         resp.close()
 
     @classmethod
-    def multipart_upload_file(cls, filepath, bucket, key):
+    def multipart_upload_file(cls, local_path, bucket, key):
         global upload_failed
         upload_failed = False
-        upload_id = cls.init_multipart(bucket, key)
+        headers = {
+            "Content-Type": get_file_mime_type(local_path),
+        }
+        upload_id = cls.init_multipart(bucket, key, headers)
         if upload_id == "":
             statement = "Error: key <%s> already exists" % key
             uni_print(statement)
         else:
-            cls.upload_multipart(upload_id, filepath, bucket, key)
+            cls.upload_multipart(upload_id, local_path, bucket, key)
             if not upload_failed:
-                cls.complete_multipart(filepath, upload_id, bucket, key)
+                cls.complete_multipart(local_path, upload_id, bucket, key)
             else:
-                print("Error: Failed to upload file '%s'" % filepath)
+                print("Error: Failed to upload file '%s'" % local_path)
 
     @classmethod
-    def init_multipart(cls, bucket, key):
+    def init_multipart(cls, bucket, key, headers):
         params = {"uploads": None}
-        resp = cls.conn.make_request("POST", bucket, key, params=params)
+        resp = cls.conn.make_request("POST", bucket, key, headers, params=params)
         if resp.status != HTTP_OK:
             upload_id = ""
         else:
@@ -345,3 +352,4 @@ class TransferCommand(BaseCommand):
                 cls.download_files(options)
             else:
                 cls.download_file(options)
+

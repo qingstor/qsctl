@@ -19,6 +19,7 @@ import os
 import sys
 import json
 import platform
+import mimetypes
 from yaml import load
 
 try:
@@ -256,3 +257,9 @@ def validate_bucket_name(bucket_name):
         return False
 
     return True
+
+def get_file_mime_type(local_filepath):
+    mime_type = mimetypes.guess_type(local_filepath, strict=True)[0]
+    if not mime_type:
+        mime_type = "application/octet-stream"
+    return mime_type
