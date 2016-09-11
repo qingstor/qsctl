@@ -61,7 +61,7 @@ def check_argument(args):
         print('qsctl %s' % version)
         sys.exit(0)
 
-    if args[-1].lower() in ('help'):
+    if args[-1].lower() == 'help' and len(args) <= 3:
         args[0] = "qsctl"
         command = "-".join(args[:-1])
         renderer = get_renderer(command)
