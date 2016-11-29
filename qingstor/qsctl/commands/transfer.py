@@ -17,6 +17,7 @@
 import os
 import sys
 import json
+import errno
 
 from .base import BaseCommand
 
@@ -228,10 +229,15 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def send_local_file(cls, local_path, bucket, key):
-        if os.path.getsize(local_path) > PART_SIZE:
-            cls.multipart_upload_file(local_path, bucket, key)
-        else:
-            cls.send_file(local_path, bucket, key)
+        try:
+            if os.path.getsize(local_path) > PART_SIZE:
+                cls.multipart_upload_file(local_path, bucket, key)
+            else:
+                cls.send_file(local_path, bucket, key)
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                print "WARN: file %s not found, perhaps it's removed during " \
+                    "qsctl operation" % local_path
 
     @classmethod
     def send_file(cls, local_path, bucket, key):
