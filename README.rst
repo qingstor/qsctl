@@ -26,15 +26,23 @@ privileges, and leave out sudo.
 Getting Started
 ---------------
 
-To use qsctl, there must be a configuration file to configure your own
-``qy_access_key_id``, ``qy_secret_access_key``, and ``zone``, for example::
+To use qsctl, there must be a configuration file , for example::
 
-  qy_access_key_id: 'QINGCLOUDACCESSKEYID'
-  qy_secret_access_key: 'QINGCLOUDSECRETACCESSKEYEXAMPLE'
-  zone: 'pek3a'
+  access_key_id: 'ACCESS_KEY_ID_EXAMPLE'
+  secret_access_key: 'SECRET_ACCESS_KEY_EXAMPLE'
 
-The configuration file is ``~/.qingcloud/config.yaml`` by default, it also
+The configuration file is ``~/.qingstor/config.yaml`` by default, it also
 can be specified by the option ``-c /path/to/config``.
+
+You can also config other option like ``host`` , ``port`` and so on, just
+add lines below into configuration file.
+
+  host: 'qingstor.com'
+  port: 443
+  protocol: 'https'
+  connection_retries: 3
+  # Valid levels are 'debug', 'info', 'warn', 'error', and 'fatal'.
+  log_level: 'debug'
 
 ------------------
 Available Commands
@@ -47,25 +55,25 @@ Commands supported by qsctl are listed below:
   :header-rows: 0
 
   * - ls
-    - List qingstor keys under a prefix or all qingstor buckets.
+    - List QingStor keys under a prefix or all QingStor buckets.
 
   * - cp
-    - Copy local file(s) to qingstor or qingstor key(s) to local.
+    - Copy local file(s) to QingStor or QingStor key(s) to local.
 
   * - mb
-    - Create a qingstor bucket.
+    - Create a QingStor bucket.
 
   * - rb
-    - Delete an empty qingstor bucket or forcibly delete nonempty qingstor bucket.
+    - Delete an empty QingStor bucket or forcibly delete nonempty QingStor bucket.
 
   * - mv
-    - Move local file(s) to qingstor or qingstor keys(s) to local.
+    - Move local file(s) to QingStor or QingStor keys(s) to local.
 
   * - rm
-    - Delete a qingstor key or keys under a prefix.
+    - Delete a QingStor key or keys under a prefix.
 
   * - sync
-    - Sync between local directory and qingstor prefix.
+    - Sync between local directory and QingStor prefix.
 
 --------
 Examples
@@ -78,7 +86,7 @@ List keys in bucket <mybucket> by running::
   2016-04-03 11:16:04     4 Bytes    test1.txt
   2016-04-03 11:16:04     4 Bytes    test2.txt
 
-Sync from qingstor prefix to local directory::
+Sync from QingStor prefix to local directory::
 
   $ qsctl sync qs://mybucket3/test/ test/
   File 'test/README.md' written
