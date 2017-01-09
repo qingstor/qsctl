@@ -20,16 +20,13 @@ from .transfer import TransferCommand
 
 from ..utils import is_pattern_match, to_unix_path
 
+
 class MvCommand(TransferCommand):
 
     command = "mv"
-    usage = ("%(prog)s <source-path> <dest-path> [-c <conf_file> "
-             "-r <recusively> --exclude <pattern value> --include <pattern value>]")
-
-    @classmethod
-    def cleanup(cls, transfer_method, options, bucket, prefix):
-        if transfer_method == "PUT":
-            cls.clean_empty_dirs(options)
+    usage = (
+        "%(prog)s <source-path> <dest-path> [-c <conf_file> "
+        "-r <recusively> --exclude <pattern value> --include <pattern value>]")
 
     @classmethod
     def clean_empty_dirs(cls, options):
@@ -43,7 +40,7 @@ class MvCommand(TransferCommand):
             key_path = to_unix_path(key_path)
 
             # Delete empty directory.
-            if not os.listdir(local_dir) and is_pattern_match(key_path, \
-                options.exclude, options.include):
+            if not os.listdir(local_dir) and is_pattern_match(
+                    key_path, options.exclude, options.include):
                 os.rmdir(local_dir)
                 print("Local directory '%s' deleted" % local_dir)
