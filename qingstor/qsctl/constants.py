@@ -14,13 +14,11 @@
 # limitations under the License.
 # =========================================================================
 
-ENDPOINT = "qingstor.com"
-
 # Buffer size
-BUFFER_SIZE = 4*1024*1024
+BUFFER_SIZE = 4 * 1024 * 1024
 
 # Size of one part of the large file, used by Multipart-upload
-PART_SIZE = 32*1024*1024
+PART_SIZE = 32 * 1024 * 1024
 
 # HTTP response status
 HTTP_OK = 200
