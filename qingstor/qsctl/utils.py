@@ -31,6 +31,7 @@ from .constants import PART_SIZE
 
 UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')
 
+
 def yaml_load(stream):
     '''
     Load from yaml stream and create a new python object
@@ -44,12 +45,9 @@ def yaml_load(stream):
         obj = None
     return obj
 
+
 def load_conf(conf_file):
-    require_params = [
-        "qy_access_key_id",
-        "qy_secret_access_key",
-        "zone",
-    ]
+    require_params = ["access_key_id", "secret_access_key"]
 
     if conf_file == "":
         print("Config file should be specified")
@@ -73,6 +71,7 @@ def load_conf(conf_file):
                 return None
     return conf
 
+
 def confirm_by_user(notice):
     while True:
         inp = input(notice) if sys.version > "3" else raw_input(notice)
@@ -81,26 +80,31 @@ def confirm_by_user(notice):
         if inp == "n":
             return False
 
+
 def to_unix_path(path):
     if path is not None:
         if is_windows() and sys.version < "3":
             path = encode_to_utf8(path)
-        path = path.replace("\\","/")
+        path = path.replace("\\", "/")
     return path
+
 
 def join_local_path(local_path, key_name):
     if is_windows():
         if sys.version < "3":
             key_name = encode_to_gbk(key_name)
-        key_name = key_name.replace("/","\\")
+        key_name = key_name.replace("/", "\\")
     local_path = os.path.join(local_path, key_name)
     return local_path
+
 
 def encode_to_utf8(s):
     return s.decode('gbk').encode('utf8')
 
+
 def encode_to_gbk(s):
     return s.decode('utf8').encode('gbk')
+
 
 def uni_print(statement):
     """This function is used to properly write unicode to console.
@@ -110,8 +114,10 @@ def uni_print(statement):
         statement = statement.decode('utf8')
     print(statement)
 
+
 def is_windows():
     return platform.system().lower() == 'windows'
+
 
 def json_loads(s):
     try:
@@ -119,6 +125,7 @@ def json_loads(s):
     except:
         obj = json.loads(s.decode())
     return obj
+
 
 def format_size(value):
     """Convert a size in number into: 'Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'.
@@ -132,9 +139,10 @@ def format_size(value):
         return '%d Bytes' % bytes_int
 
     for i, unit in enumerate(UNITS):
-        unit_size = base ** (i+2)
+        unit_size = base**(i + 2)
         if round((bytes_int / unit_size) * base) < base:
             return '%.1f %s' % ((base * bytes_int / unit_size), unit)
+
 
 def pattern_match(s, p):
     '''pattern match used in 'include' and 'exclude' option
@@ -151,8 +159,10 @@ def pattern_match(s, p):
             j = last_star_pos + 1
         else:
             return False
-    while j < len(p) and p[j] == '*': j += 1
+    while j < len(p) and p[j] == '*':
+        j += 1
     return j == len(p)
+
 
 def is_pattern_match(s, exclude, include):
     '''check if pattern match with 'include' and 'exclude' option
@@ -167,6 +177,7 @@ def is_pattern_match(s, exclude, include):
     else:
         return (not pattern_match(s, exclude) or pattern_match(s, include))
 
+
 def get_part_numbers(filename):
     '''return a list of part numbers, will be used in multipart upload.
     '''
@@ -179,7 +190,9 @@ def get_part_numbers(filename):
         part_numbers.append(i)
     return part_numbers
 
+
 class FileChunk(object):
+
     def __init__(self, filepath, part_number):
         self._filepath = filepath
         self._start_byte = PART_SIZE * part_number
@@ -233,6 +246,7 @@ class FileChunk(object):
         '''
         return iter([])
 
+
 def validate_bucket_name(bucket_name):
     """
     Validate bucket name
@@ -257,9 +271,3 @@ def validate_bucket_name(bucket_name):
         return False
 
     return True
-
-def get_file_mime_type(local_filepath):
-    mime_type = mimetypes.guess_type(local_filepath, strict=True)[0]
-    if not mime_type:
-        mime_type = "application/octet-stream"
-    return mime_type

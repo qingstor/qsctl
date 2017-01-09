@@ -33,6 +33,7 @@ COMMANDS = ('ls', 'cp', 'mb', 'mv', 'rb', 'rm', 'sync')
 INDENT = ' ' * 2
 NEWLINE = '\n' + INDENT
 
+
 def exit_due_to_invalid_command(suggest_commands=None):
     usage = NEWLINE + '%(prog)s <command> [parameters]\n\n' \
         + 'To see help text, you can run:\n\n' \
@@ -47,10 +48,10 @@ def exit_due_to_invalid_command(suggest_commands=None):
 
     parser = argparse.ArgumentParser(
         prog='qsctl',
-        usage=usage,
-    )
+        usage=usage,)
     parser.print_help()
     sys.exit(-1)
+
 
 def check_argument(args):
     if len(args) < 2:
@@ -74,11 +75,13 @@ def check_argument(args):
         suggest_commands = get_close_matches(command, COMMANDS)
         exit_due_to_invalid_command(suggest_commands)
 
+
 def get_command(command):
     if command in COMMANDS:
         return globals()[command.capitalize() + "Command"]
     else:
         exit_due_to_invalid_command()
+
 
 def main():
     args = sys.argv
