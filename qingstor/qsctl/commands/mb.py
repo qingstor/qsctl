@@ -20,6 +20,7 @@ from .base import BaseCommand
 
 from ..constants import HTTP_OK_CREATED
 
+
 class MbCommand(BaseCommand):
 
     command = "mb"
@@ -27,17 +28,13 @@ class MbCommand(BaseCommand):
 
     @classmethod
     def add_extra_arguments(cls, parser):
-        parser.add_argument(
-            "bucket",
-            help="Name of the bucket to be created"
-        )
+        parser.add_argument("bucket", help="Name of the bucket to be created")
 
         parser.add_argument(
             "-z",
             "--zone",
             dest="zone",
-            help="In which zone to create the bucket"
-        )
+            help="In which zone to create the bucket")
         return parser
 
     @classmethod
@@ -46,12 +43,12 @@ class MbCommand(BaseCommand):
         if prefix != "":
             print("Error: Invalid bucket name")
             sys.exit(-1)
-        headers = {}
+        zone = ""
         if options.zone:
-            headers["Location"] = options.zone
-        resp = cls.conn.make_request("PUT", bucket, headers=headers)
-        if resp.status == HTTP_OK_CREATED:
+            zone = options.zone
+        current_bucket = cls.client.Bucket(bucket, zone)
+        resp = current_bucket.put()
+        if resp.status_code == HTTP_OK_CREATED:
             print("Bucket <%s> created" % bucket)
         else:
-            print(resp.read())
-        resp.close()
+            print(resp.content)
