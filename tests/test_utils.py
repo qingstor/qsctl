@@ -17,20 +17,25 @@ from qingstor.qsctl.utils import (
     is_pattern_match,
     get_part_numbers,
     validate_bucket_name,
-    FileChunk,
-)
+    FileChunk,)
 
 from qingstor.qsctl.constants import PART_SIZE
 
 config_sample = '''
-qy_access_key_id: 'QINGCLOUDACCESSKEYID'
-qy_secret_access_key: 'QINGCLOUDSECRETACCESSKEYEXAMPLE'
-zone: 'ZONEID'
+access_key_id: 'ACCESS_KEY_ID_EXAMPLE'
+secret_access_key: 'SECRET_ACCESS_KEY_EXAMPLE'
+host: 'qingstor.com'
+port: 443
+protocol: 'https'
+connection_retries: 3
+# Valid levels are 'debug', 'info', 'warn', 'error', and 'fatal'.
+log_level: 'debug'
 '''
 
 bad_config_sample = '''
 bad_sample: 'this is an invalid config'
 '''
+
 
 class TestUtils(unittest.TestCase):
 
@@ -49,8 +54,8 @@ class TestUtils(unittest.TestCase):
             with open(bad_conf_file, 'w') as f:
                 f.write(bad_config_sample)
 
-        self.conf_file= conf_file
-        self.bad_conf_file= bad_conf_file
+        self.conf_file = conf_file
+        self.bad_conf_file = bad_conf_file
 
         # Create a large file(~64MB)
         self.large_file = os.path.join(current_path, "data/large_file")
@@ -88,17 +93,18 @@ class TestUtils(unittest.TestCase):
     def test_join_local_path(self):
         if is_windows():
             path1, path2 = "foo\\", "bar/test.txt"
-            self.assertEqual(join_local_path(path1, path2), "foo\\bar\\test.txt")
+            self.assertEqual(
+                join_local_path(path1, path2), "foo\\bar\\test.txt")
         else:
             path1, path2 = "foo/", "bar/test.txt"
             self.assertEqual(join_local_path(path1, path2), "foo/bar/test.txt")
 
     def test_encode_to_utf8(self):
-        s = b'\xd6\xd0\xce\xc4' # GBK encoded
+        s = b'\xd6\xd0\xce\xc4'  # GBK encoded
         self.assertEqual(encode_to_utf8(s), b'\xe4\xb8\xad\xe6\x96\x87')
 
     def test_encode_to_gbk(self):
-        s = b'\xe4\xb8\xad\xe6\x96\x87' # utf8 encoded
+        s = b'\xe4\xb8\xad\xe6\x96\x87'  # utf8 encoded
         self.assertEqual(encode_to_gbk(s), b'\xd6\xd0\xce\xc4')
 
     def test_uni_print(self):
@@ -147,13 +153,14 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(validate_bucket_name("Ab!cd"))
         self.assertFalse(validate_bucket_name("Ab%cd"))
         self.assertFalse(validate_bucket_name("Ab$cd"))
-        self.assertFalse(validate_bucket_name("a"*64))
+        self.assertFalse(validate_bucket_name("a" * 64))
         self.assertTrue(validate_bucket_name("0ab-cd"))
         self.assertTrue(validate_bucket_name("0ab-cd1"))
 
     def tearDown(self):
         if os.path.exists(self.large_file):
             os.remove(self.large_file)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

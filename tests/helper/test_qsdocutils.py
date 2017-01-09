@@ -1,14 +1,11 @@
 import os
 import unittest
 
-from qingstor.qsctl.helper.qsdocutils import (
-    to_rst_style_title,
-    gen_rst_doc,
-    gen_sphinx_doc,
-    RstDocument
-)
+from qingstor.qsctl.helper.qsdocutils import (to_rst_style_title, gen_rst_doc,
+                                              gen_sphinx_doc, RstDocument)
 
 RST_STYLE_TITLE = "=========\nTESTTITLE\n========="
+
 
 class TestQsdocutils(unittest.TestCase):
 
@@ -39,6 +36,7 @@ class TestQsdocutils(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.tmp_file):
             os.remove(self.tmp_file)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
