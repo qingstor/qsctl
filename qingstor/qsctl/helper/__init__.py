@@ -21,10 +21,8 @@ from docutils.writers import manpage
 
 from qingstor.qsctl.utils import is_windows
 from qingstor.qsctl.helper.textwriter import TextWriter
-from qingstor.qsctl.helper.qsdocutils import (
-    ignore_ctrl_c,
-    gen_rst_doc
-)
+from qingstor.qsctl.helper.qsdocutils import (ignore_ctrl_c, gen_rst_doc)
+
 
 def get_renderer(command):
     """
@@ -34,6 +32,7 @@ def get_renderer(command):
         return WindowsHelpRenderer(command)
     else:
         return PosixHelpRenderer(command)
+
 
 class HelpRenderer(object):
 
@@ -49,6 +48,7 @@ class HelpRenderer(object):
     def render(self):
         usage = self._build_usage(self.command)
         self._print_usage(usage)
+
 
 class PosixHelpRenderer(HelpRenderer):
 
@@ -67,6 +67,7 @@ class PosixHelpRenderer(HelpRenderer):
             # out of a manpage).
             p = Popen(cmdline, stdin=PIPE)
             p.communicate(input=usage)
+
 
 class WindowsHelpRenderer(HelpRenderer):
 

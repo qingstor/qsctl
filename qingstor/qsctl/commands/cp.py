@@ -16,8 +16,10 @@
 
 from .transfer import TransferCommand
 
+
 class CpCommand(TransferCommand):
 
     command = "cp"
-    usage = ("%(prog)s <source-path> <dest-path> [-c <conf_file> "
-             "-r <recusively> --exclude <pattern value> --include <pattern value>]")
+    usage = (
+        "%(prog)s <source-path> <dest-path> [-c <conf_file> "
+        "-r <recusively> --exclude <pattern value> --include <pattern value>]")
