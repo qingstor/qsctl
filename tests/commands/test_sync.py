@@ -5,31 +5,30 @@ import unittest
 
 from mock import MockOptions
 
+from tests.test_data import zone, test_bucket1, test_bucket2
+
 from qingstor.qsctl.commands.sync import SyncCommand
 from qingstor.qsctl.utils import load_conf
+
 
 class TestSyncCommand(unittest.TestCase):
     Sync = SyncCommand
 
     def setUp(self):
         # Set the http connection
-        conf = load_conf("~/.qingcloud/config.yaml")
+        conf = load_conf("~/.qingstor/config.yaml")
         options = MockOptions()
-        self.Sync.conn = self.Sync.get_connection(conf, options)
+        self.Sync.client = self.Sync.get_client(conf)
 
-        # We need a bucket and some keys for testing.
-        valid_bucket = "validbucket"
-        resp = self.Sync.conn.make_request("PUT", valid_bucket)
-        resp = self.Sync.conn.make_request("HEAD", valid_bucket)
-        if resp.status != 200:
+        self.test_bucket = self.Sync.client.Bucket(test_bucket1, zone)
+        self.test_bucket.put()
+        resp = self.test_bucket.head()
+        if resp.status_code != 200:
             self.fail("setUp failed: please use another bucket name")
-        resp.close()
 
         # Temp directory for testing
         if not os.path.exists("tmp/"):
             os.mkdir("tmp/")
-
-        self.valid_bucket = valid_bucket
 
     def test_confirm_key_remove(self):
         # Test case 1: key exists in bucket but not exsits in source
@@ -39,8 +38,7 @@ class TestSyncCommand(unittest.TestCase):
         options = MockOptions(
             source_path="tmp/",
             exclude=None,
-            include=None,
-        )
+            include=None,)
         key1 = "test.file1"
         key2 = "test.file2"
         self.assertTrue(self.Sync.confirm_key_remove(key1, options))
@@ -54,8 +52,7 @@ class TestSyncCommand(unittest.TestCase):
         options = MockOptions(
             source_path="tmp/",
             exclude="*",
-            include="*.jpg",
-        )
+            include="*.jpg",)
         key1 = "test.txt"
         key2 = "test.jpg"
         self.assertTrue(self.Sync.confirm_key_remove(key1, options))
@@ -73,21 +70,12 @@ class TestSyncCommand(unittest.TestCase):
 
         # Testing begin
         options = MockOptions()
-        confirm_1 = self.Sync.confirm_key_download(
-            options,
-            local_path,
-            time_stamp_1
-        )
-        confirm_2 = self.Sync.confirm_key_download(
-            options,
-            local_path,
-            time_stamp_2
-        )
+        confirm_1 = self.Sync.confirm_key_download(options, local_path,
+                                                   time_stamp_1)
+        confirm_2 = self.Sync.confirm_key_download(options, local_path,
+                                                   time_stamp_2)
         confirm_3 = self.Sync.confirm_key_download(
-            options,
-            "tmp/noneexistsfile",
-            time_stamp_1
-        )
+            options, "tmp/noneexistsfile", time_stamp_1)
 
         self.assertFalse(confirm_1)
         self.assertTrue(confirm_2)
@@ -103,17 +91,12 @@ class TestSyncCommand(unittest.TestCase):
 
         # Prepare key
         key = "testkey"
-        resp = self.Sync.conn.make_request("PUT", self.valid_bucket, key)
-        resp.close()
+        self.test_bucket.put_object(key)
 
         # Testing begin
         options = MockOptions()
-        confirm_1 = self.Sync.confirm_key_upload(
-            options,
-            local_path,
-            self.valid_bucket,
-            key
-        )
+        confirm_1 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, key)
 
         time.sleep(3)
 
@@ -121,19 +104,11 @@ class TestSyncCommand(unittest.TestCase):
         with open(local_path, 'w') as f:
             f.write("write something new")
 
-        confirm_2 = self.Sync.confirm_key_upload(
-            options,
-            local_path,
-            self.valid_bucket,
-            key
-        )
+        confirm_2 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, key)
 
-        confirm_3 = self.Sync.confirm_key_upload(
-            options,
-            local_path,
-            self.valid_bucket,
-            "noneexistskey"
-        )
+        confirm_3 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, "noneexistskey")
 
         self.assertFalse(confirm_1)
         self.assertTrue(confirm_2)
@@ -147,8 +122,10 @@ class TestSyncCommand(unittest.TestCase):
             f.write("just for testing")
         time.sleep(3)
         time_stamp_2 = time.mktime(time.gmtime(time.time()))
-        is_modified_1 = self.Sync.is_local_file_modified(local_path, time_stamp_1)
-        is_modified_2 = self.Sync.is_local_file_modified(local_path, time_stamp_2)
+        is_modified_1 = self.Sync.is_local_file_modified(local_path,
+                                                         time_stamp_1)
+        is_modified_2 = self.Sync.is_local_file_modified(local_path,
+                                                         time_stamp_2)
         self.assertTrue(is_modified_1)
         self.assertFalse(is_modified_2)
 
@@ -159,34 +136,30 @@ class TestSyncCommand(unittest.TestCase):
                 f.write("just for testing")
         options = MockOptions(
             source_path="tmp/",
-            dest_path="qs://validbucket",
+            dest_path="qs://" + test_bucket1,
             exclude="*",
             include="*",
-            delete=True
-        )
+            delete=True)
         print(options.exclude)
         self.Sync.upload_files(options)
 
     def test_download_files(self):
         for i in range(0, 10):
             key = "test" + str(i)
-            resp = self.Sync.conn.make_request("PUT", self.valid_bucket, key)
-        resp.close()
+            self.test_bucket.put_object(key)
         options = MockOptions(
-            source_path="qs://validbucket",
+            source_path="qs://" + test_bucket1,
             dest_path="tmp/",
             exclude=None,
             include=None,
-            delete=True
-            )
+            delete=True)
         self.Sync.download_files(options)
 
     def tearDown(self):
         shutil.rmtree("tmp/")
         options = MockOptions(exclude=None, include=None, source_path="tmp/")
-        self.Sync.remove_multiple_keys(self.valid_bucket, options=options)
-        resp = self.Sync.conn.make_request("DELETE", self.valid_bucket)
-        resp.close()
+        self.Sync.remove_multiple_keys(test_bucket1, options=options)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

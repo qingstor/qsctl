@@ -2,8 +2,11 @@ import unittest
 
 from mock import MockOptions
 
+from tests.test_data import zone, test_bucket1, test_bucket2
+
 from qingstor.qsctl.commands.rm import RmCommand
 from qingstor.qsctl.utils import load_conf
+
 
 class TestRmCommand(unittest.TestCase):
     Rm = RmCommand
@@ -11,75 +14,64 @@ class TestRmCommand(unittest.TestCase):
     def setUp(self):
 
         # Set the http connection
-        conf = load_conf("~/.qingcloud/config.yaml")
+        conf = load_conf("~/.qingstor/config.yaml")
         options = MockOptions()
-        self.Rm.conn = self.Rm.get_connection(conf, options)
+        self.Rm.client = self.Rm.get_client(conf)
 
-        # We need a bucket for testing.
-        valid_bucket = "validbucket"
-        resp = self.Rm.conn.make_request("PUT", valid_bucket)
-        resp = self.Rm.conn.make_request("HEAD", valid_bucket)
-        if resp.status != 200:
+        self.test_bucket = self.Rm.client.Bucket(test_bucket1, zone)
+        self.test_bucket.put()
+        resp = self.test_bucket.head()
+        if resp.status_code != 200:
             self.fail("setUp failed: please use another bucket name")
-        resp.close()
-
-        self.valid_bucket = valid_bucket
 
     def test_remove_one_key(self):
-        resp = self.Rm.conn.make_request("PUT", self.valid_bucket, "testkey")
-        resp.close()
-        options = MockOptions(qs_path="qs://validbucket/testkey", recursive=False)
+        self.test_bucket.put_object("testkey")
+        options = MockOptions(
+            qs_path="qs://" + test_bucket1 + "/testkey", recursive=False)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_1(self):
         for i in range(0, 10):
             key = "prefix/" + str(i)
-            resp = self.Rm.conn.make_request("PUT", self.valid_bucket, key)
-        resp.close()
+            self.test_bucket.put_object(key)
 
         options = MockOptions(
-            qs_path="qs://validbucket/prefix/",
+            qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude=None,
-            include=None
-        )
+            include=None)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_2(self):
         for i in range(0, 10):
             key = "prefix/" + str(i) + ".txt"
-            resp = self.Rm.conn.make_request("PUT", self.valid_bucket, key)
-        resp = self.Rm.conn.make_request("PUT", self.valid_bucket, "prefix/test.jpg")
-        resp.close()
+            self.test_bucket.put_object(key)
+        self.test_bucket.put_object("prefix/test.jpg")
 
         options = MockOptions(
-            qs_path="qs://validbucket/prefix/",
+            qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude="*.txt",
-            include=None
-        )
+            include=None)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_3(self):
         for i in range(0, 10):
             key = "prefix/" + str(i) + ".txt"
-            resp = self.Rm.conn.make_request("PUT", self.valid_bucket, key)
-        resp = self.Rm.conn.make_request("PUT", self.valid_bucket, "prefix/test.jpg")
-        resp.close()
+            self.test_bucket.put_object(key)
+        self.test_bucket.put_object("prefix/test.jpg")
 
         options = MockOptions(
-            qs_path="qs://validbucket/prefix/",
+            qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude="*",
-            include="*.txt"
-        )
+            include="*.txt")
         self.Rm.send_request(options)
 
     def tearDown(self):
         options = MockOptions(exclude=None, include=None)
-        self.Rm.remove_multiple_keys(self.valid_bucket, options=options)
-        resp = self.Rm.conn.make_request("DELETE", self.valid_bucket)
-        resp.close()
+        self.Rm.remove_multiple_keys(test_bucket1, options=options)
+
 
 if __name__ == "__main__":
     unittest.main()
