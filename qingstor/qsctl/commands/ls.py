@@ -16,15 +16,17 @@
 
 import time
 
-from qingcloud.qingstor.connection import QSConnection
+from qingstor.sdk.config import Config
+from qingstor.sdk.service.qingstor import QingStor
 
 from .base import BaseCommand
 
 from ..utils import format_size, json_loads
-from ..constants import ENDPOINT, HTTP_OK
+from ..constants import HTTP_OK
 
 # Format used to pretty print directories.
 format_directory = " " * 30
+
 
 class LsCommand(BaseCommand):
 
@@ -37,15 +39,10 @@ class LsCommand(BaseCommand):
             "-z",
             "--zone",
             dest="zone",
-            help="List buckets located in this zone"
-        )
+            help="List buckets located in this zone")
 
         parser.add_argument(
-            "qs_path",
-            nargs="?",
-            default="qs://",
-            help="The qs-path to list"
-        )
+            "qs_path", nargs="?", default="qs://", help="The qs-path to list")
 
         parser.add_argument(
             "-p",
@@ -53,78 +50,58 @@ class LsCommand(BaseCommand):
             dest="page_size",
             type=int,
             default=20,
-            help="The number of results to return in each response"
-        )
+            help="The number of results to return in each response")
 
         parser.add_argument(
             "-r",
             "--recursive",
             action="store_true",
             dest="recursive",
-            help="Recursively list keys"
-        )
+            help="Recursively list keys")
         return parser
 
     @classmethod
-    def get_connection(cls, conf, options):
-        if options.qs_path == "qs://":
-            host = ENDPOINT
-        else:
-            host = "%s.%s" % (conf["zone"], ENDPOINT)
-
-        return QSConnection(
-            qy_access_key_id=conf["qy_access_key_id"],
-            qy_secret_access_key=conf["qy_secret_access_key"],
-            host=host
-        )
-
-    @classmethod
     def list_buckets(cls, options):
-        headers = {}
+        location = ""
         if options.zone:
-            headers["Location"] = options.zone
-        resp = cls.conn.make_request("GET", headers=headers)
-        if resp.status == HTTP_OK:
-            body = json_loads(resp.read())
-            buckets = body["buckets"]
-            for bucket in sorted(buckets, key = lambda x: x["name"]):
+            location = options.zone
+        resp = cls.client.list_buckets(location=location)
+        if resp.status_code == HTTP_OK:
+            buckets = resp['buckets']
+            for bucket in sorted(buckets, key=lambda x: x["name"]):
                 print(bucket["name"])
-        resp.close()
 
     @classmethod
     def print_to_console(cls, keys, dirs):
         for d in sorted(dirs):
             print("Directory" + format_directory + d)
-        for key in sorted(keys, key = lambda x: x["key"]):
-            created_time = time.strftime("%Y-%m-%d %X UTC", \
+        for key in sorted(keys, key=lambda x: x["key"]):
+            created_time = time.strftime(
+                "%Y-%m-%d %X UTC",
                 time.strptime(key["created"], "%Y-%m-%dT%H:%M:%S.000Z"))
-            if key["mime_type"] == "qs-directory":
-                print(created_time + format_size(key["size"]).rjust(12) + \
-                    " " * 4 + key["key"] + "  (qs-directory)")
+            if key["mime_type"] == "application/x-directory":
+                print(created_time + format_size(key["size"]).rjust(12) + " " *
+                      4 + key["key"] + "  (application/x-directory)")
             else:
-                print(created_time + format_size(key["size"]).rjust(12) + \
-                    " " * 4 + key["key"])
+                print(created_time + format_size(key["size"]).rjust(12) + " " *
+                      4 + key["key"])
 
     @classmethod
     def list_keys(cls, options):
         bucket, prefix = cls.validate_qs_path(options.qs_path)
 
-        params = {}
-        if prefix != "":
-            params["prefix"] = prefix
-        if options.recursive is False:
-            params["delimiter"] = "/"
-        if options.page_size is not None:
-            params["limit"] = str(options.page_size)
-
+        delimiter = ""
+        limit = 200
         marker = ""
+
+        if options.recursive is False:
+            delimiter = "/"
+        if options.page_size is not None:
+            limit = options.page_size
+
         while True:
             keys, marker, dirs = cls.list_multiple_keys(
-                bucket,
-                marker,
-                params=params
-            )
-
+                bucket, marker=marker, delimiter=delimiter, limit=limit)
             cls.print_to_console(keys, dirs)
             if marker == "":
                 break
