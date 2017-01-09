@@ -69,3 +69,6 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+
+tests/test_data.py
+tests/data/large_file
