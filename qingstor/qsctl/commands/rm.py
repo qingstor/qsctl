@@ -18,6 +18,7 @@ import sys
 
 from .base import BaseCommand
 
+
 class RmCommand(BaseCommand):
 
     command = "rm"
@@ -27,29 +28,24 @@ class RmCommand(BaseCommand):
     @classmethod
     def add_extra_arguments(cls, parser):
         parser.add_argument(
-            "qs_path",
-            help="Key or keys under a specific prefix to be deleted"
-        )
+            "qs_path", help="Key or keys under a specific prefix to be deleted")
 
         parser.add_argument(
             "-r",
             "--recursive",
             action="store_true",
             dest="recursive",
-            help="Recursively delete keys under a specific prefix"
-        )
+            help="Recursively delete keys under a specific prefix")
 
         parser.add_argument(
             "--exclude",
             type=str,
-            help="Exclude all files or keys that match the specified pattern"
-        )
+            help="Exclude all files or keys that match the specified pattern")
 
         parser.add_argument(
             "--include",
             type=str,
-            help="Do not exclude files or keys that match the specified pattern"
-        )
+            help="Do not exclude files or keys that match the specified pattern")
         return parser
 
     @classmethod
@@ -61,6 +57,6 @@ class RmCommand(BaseCommand):
             key = prefix
             if key == "":
                 print("Error: You must give a correct and complete qs_path, "
-                    "such as 'qs://testbucket/testfile'.")
+                      "such as 'qs://testbucket/testfile'.")
                 sys.exit(-1)
             cls.remove_key(bucket, key)

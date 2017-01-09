@@ -20,6 +20,7 @@ from .base import BaseCommand
 
 from ..constants import HTTP_OK_NO_CONTENT
 
+
 class RbCommand(BaseCommand):
 
     command = "rb"
@@ -27,17 +28,13 @@ class RbCommand(BaseCommand):
 
     @classmethod
     def add_extra_arguments(cls, parser):
-        parser.add_argument(
-            "bucket",
-            help="Name of the bucket to be deleted"
-        )
+        parser.add_argument("bucket", help="Name of the bucket to be deleted")
 
         parser.add_argument(
             "--force",
             action="store_true",
             dest="force",
-            help="Forcely delete a nonempty bucket"
-        )
+            help="Forcely delete a nonempty bucket")
         return parser
 
     @classmethod
@@ -48,9 +45,10 @@ class RbCommand(BaseCommand):
             sys.exit(-1)
         if options.force == True:
             cls.remove_multiple_keys(bucket)
-        resp = cls.conn.make_request("DELETE", bucket)
-        if resp.status != HTTP_OK_NO_CONTENT:
-            print(resp.read())
+        cls.validate_bucket(bucket)
+        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+        resp = current_bucket.delete()
+        if resp.status_code != HTTP_OK_NO_CONTENT:
+            print(resp.content)
         else:
             print("Bucket <%s> deleted" % bucket)
-        resp.close()
