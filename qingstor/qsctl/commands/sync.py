@@ -23,6 +23,7 @@ from .transfer import TransferCommand
 from ..constants import HTTP_OK
 from ..utils import is_pattern_match, to_unix_path, join_local_path, uni_print
 
+
 class SyncCommand(TransferCommand):
 
     command = "sync"
@@ -35,34 +36,34 @@ class SyncCommand(TransferCommand):
             "--delete",
             action="store_true",
             dest="delete",
-            help="Any files or keys existing under the destination directory "
-                "but not existing in the source directory will be deleted if "
-                "--delete option is specified."
-        )
+            help=("Any files or keys existing under the destination directory "
+                  "but not existing in the source directory will be deleted if "
+                  "--delete option is specified."))
         return parser
 
     @classmethod
-    def cleanup(cls, transfer_method, options, bucket, prefix):
+    def cleanup(cls, transfer_flow, options, bucket, prefix):
         if options.delete == True:
-            if transfer_method == "PUT":
+            if transfer_flow == "LOCAL_TO_QS":
                 cls.clean_keys(options, bucket, prefix)
-            elif transfer_method == "GET":
+            elif transfer_flow == "QS_TO_LOCAL":
                 cls.clean_files(options, bucket, prefix)
 
     @classmethod
     def clean_files(cls, options, bucket, prefix):
+        cls.validate_bucket(bucket)
+        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         for rt, dirs, files in os.walk(options.dest_path):
             for f in files:
                 local_path = os.path.join(rt, f)
                 key_path = os.path.relpath(local_path, options.dest_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                resp = cls.conn.make_request("HEAD", bucket, key)
-                if (resp.status != HTTP_OK) or (not is_pattern_match(key_path, \
-                    options.exclude, options.include)):
+                resp = current_bucket.head_object(key)
+                if (resp.status_code != HTTP_OK) or (not is_pattern_match(
+                        key_path, options.exclude, options.include)):
                     os.remove(local_path)
                     print("File '%s' deleted" % local_path)
-                resp.close()
 
         for rt, dirs, files in os.walk(options.dest_path):
             for d in dirs:
@@ -70,13 +71,12 @@ class SyncCommand(TransferCommand):
                 key_path = os.path.relpath(local_path, options.dest_path) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                resp = cls.conn.make_request("HEAD", bucket, key)
-                if (resp.status != HTTP_OK) or (not is_pattern_match(key_path, \
-                    options.exclude, options.include)):
+                resp = current_bucket.head_object(key)
+                if (resp.status_code != HTTP_OK) or (not is_pattern_match(
+                        key_path, options.exclude, options.include)):
                     if not os.listdir(local_path):
                         os.rmdir(local_path)
                         print("Directory '%s' deleted" % local_path)
-                resp.close()
 
     @classmethod
     def clean_keys(cls, options, bucket, prefix):
@@ -92,12 +92,13 @@ class SyncCommand(TransferCommand):
 
     @classmethod
     def get_time_key_modified(cls, bucket, key):
-        resp = cls.conn.make_request("HEAD", bucket, key)
-        status = resp.status
-        resp.close()
-        if status == HTTP_OK:
-            time_str_key = resp.getheader("last-modified")
-            return time.mktime(time.strptime(time_str_key, "%a, %d %b %Y %X GMT"))
+        cls.validate_bucket(bucket)
+        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+        resp = current_bucket.head_object(key)
+        if resp.status_code == HTTP_OK:
+            time_str_key = resp.headers["Last-Modified"]
+            return time.mktime(
+                time.strptime(time_str_key, "%a, %d %b %Y %X GMT"))
         else:
             statement = "Error: Failed to head key <%s>" % key
             uni_print(statement)
@@ -110,7 +111,7 @@ class SyncCommand(TransferCommand):
         return time_file_modified > time_key_modified
 
     @classmethod
-    def confirm_key_download(cls, options, local_path, time_key_modified):
+    def confirm_key_download(cls, options, local_path, time_key_modified=None):
         if os.path.isfile(local_path):
             time_file_modified = os.stat(local_path).st_mtime
             return time_key_modified > time_file_modified
@@ -120,5 +121,5 @@ class SyncCommand(TransferCommand):
     @classmethod
     def confirm_key_remove(cls, key, options):
         file_path = join_local_path(options.source_path, key)
-        return (not os.path.exists(file_path)) or (not is_pattern_match(key, \
-            options.exclude, options.include))
+        return (not os.path.exists(file_path)) or (
+            not is_pattern_match(key, options.exclude, options.include))
