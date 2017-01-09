@@ -6,20 +6,14 @@ import contextlib
 AUTHOR = "daniel@yunify.com"
 COPYRIGHT = "Copyright (C) 2016 Yunify, Inc"
 
-COMMANDS = (
-    'qsctl',
-    'qsctl-ls',
-    'qsctl-cp',
-    'qsctl-mb',
-    'qsctl-mv',
-    'qsctl-rb',
-    'qsctl-rm',
-    'qsctl-sync'
-)
+COMMANDS = ('qsctl', 'qsctl-ls', 'qsctl-cp', 'qsctl-mb', 'qsctl-mv', 'qsctl-rb',
+            'qsctl-rm', 'qsctl-sync')
+
 
 def to_rst_style_title(title):
     style = "=" * len(title)
     return "%s\n%s\n%s" % (style, title, style)
+
 
 def gen_see_also(command):
     content = ""
@@ -27,6 +21,7 @@ def gen_see_also(command):
         if c != command:
             content += "* ``%s help``\n\n" % c.replace("-", " ")
     return content
+
 
 class RstDocument(object):
 
@@ -58,6 +53,7 @@ class RstDocument(object):
     def getvalue(self):
         return self.rst_source
 
+
 def gen_rst_doc(command):
     rst_doc = RstDocument()
 
@@ -73,6 +69,7 @@ def gen_rst_doc(command):
     rst_doc.add_copyright()
     return rst_doc.getvalue()
 
+
 def gen_sphinx_doc(command):
     # Generating ReST documents for sphinx
     sphinx_doc = RstDocument()
@@ -85,6 +82,7 @@ def gen_sphinx_doc(command):
 
     sphinx_doc.from_file(filepath)
     return sphinx_doc.getvalue()
+
 
 @contextlib.contextmanager
 def ignore_ctrl_c():
