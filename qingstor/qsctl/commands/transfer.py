@@ -151,7 +151,8 @@ class TransferCommand(BaseCommand):
         else:
             key = prefix
         if os.path.isfile(options.source_path):
-            if cls.confirm_key_upload(options, options.source_path, bucket, key):
+            if cls.confirm_key_upload(options, options.source_path, bucket,
+                                      key):
                 cls.send_local_file(options.source_path, bucket, key)
         elif options.source_path == '-':
             cls.send_data_from_stdin(bucket, key)
@@ -272,7 +273,6 @@ class TransferCommand(BaseCommand):
                 cls.complete_multipart('-', upload_id, bucket, key)
             else:
                 print("Error: Failed to upload file '%s'" % '-')
-
 
     @classmethod
     def send_file(cls, local_path, bucket, key):
