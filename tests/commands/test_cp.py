@@ -7,7 +7,7 @@ from tests.test_data import zone, test_bucket1, test_bucket2
 from qingstor.qsctl.commands.cp import CpCommand
 from qingstor.qsctl.utils import load_conf
 
-from mock import MockOptions
+from mock_options import MockOptions
 
 
 class TestCpCommand(unittest.TestCase):

@@ -5,7 +5,7 @@ from tests.test_data import zone, test_bucket1, test_bucket2
 from qingstor.qsctl.commands.rb import RbCommand
 from qingstor.qsctl.utils import load_conf
 
-from mock import MockOptions
+from mock_options import MockOptions
 
 
 class TestMbCommand(unittest.TestCase):
