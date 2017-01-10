@@ -77,15 +77,14 @@ class TestTransferCommand(unittest.TestCase):
     def test_upload_file_from_stdin(self):
         # Create a large file(~8MB)
         with open("tmp/large_file", 'w') as f:
-            f.seek(8*1024*1024)
+            f.seek(8 * 1024 * 1024)
             f.write("just for testing")
         options = MockOptions(
             source_path="-",
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         with open("tmp/large_file", 'rb') as f:
             with patch("qingstor.qsctl.utils.sys.stdin", f):
                 self.Transfer.upload_file(options)
@@ -98,8 +97,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         with open("tmp/small_file", 'rb') as f:
             with patch("qingstor.qsctl.utils.sys.stdin", f):
                 self.Transfer.upload_file(options)

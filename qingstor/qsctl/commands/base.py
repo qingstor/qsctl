@@ -101,8 +101,8 @@ class BaseCommand(object):
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             resp = current_bucket.head()
             if resp.status_code != HTTP_OK:
-                print("Error: Please check if you have "
-                      "enough permission to access it." % bucket)
+                print("Error: Please check if you have enough"
+                      " permission to access bucket <%s>." % bucket)
                 sys.exit(-1)
 
     @classmethod
