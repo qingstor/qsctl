@@ -35,7 +35,7 @@ The configuration file is ``~/.qingstor/config.yaml`` by default, it also
 can be specified by the option ``-c /path/to/config``.
 
 You can also config other option like ``host`` , ``port`` and so on, just
-add lines below into configuration file.
+add lines below into configuration file, for example::
 
   host: 'qingstor.com'
   port: 443
@@ -67,7 +67,7 @@ Commands supported by qsctl are listed below:
     - Delete an empty QingStor bucket or forcibly delete nonempty QingStor bucket.
 
   * - mv
-    - Move local file(s) to QingStor or QingStor keys(s) to local.
+    - Move local file(s) to QingStor or QingStor key(s) to local.
 
   * - rm
     - Delete a QingStor key or keys under a prefix.
