@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from mock import MockOptions
+from mock_options import MockOptions
 
 from tests.test_data import zone, test_bucket1, test_bucket2
 
