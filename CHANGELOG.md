@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2017-01-10
+
+### Added
+
+- Support to upload file from stdin
+
+### Fixed
+
+- Fix bug that list_keys do not respect prefix
+- Fix empty output while access_key_id is invalid
+
 ## [1.1.0] - 2017-01-09
 
 ### Changed
@@ -51,6 +62,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.2.0]: https://github.com/yunify/qsctl/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/yunify/qsctl/compare/2cc5fe3c912dc37356d332b103c0f132e1058c63...1.1.0
 [1.0.5]: https://github.com/yunify/qsctl/compare/82d42dcaaec9d58c8fdd6cad82bac56092416ff6...2cc5fe3c912dc37356d332b103c0f132e1058c63
 [1.0.4]: https://github.com/yunify/qsctl/compare/3073a03e7d2d801226c525e574f9bba295e12ddd...82d42dcaaec9d58c8fdd6cad82bac56092416ff6
