@@ -21,6 +21,7 @@ import json
 import platform
 import mimetypes
 from yaml import load
+from StringIO import StringIO
 
 try:
     from yaml import CLoader as Loader
@@ -245,6 +246,21 @@ class FileChunk(object):
         if it is a file like object.
         '''
         return iter([])
+
+
+class StdinFileChunk(StringIO):
+
+    def __init__(self, max_size):
+        StringIO.__init__(self)
+        self.write(sys.stdin.read(max_size))
+        self.seek(0, os.SEEK_SET)
+
+    def __len__(self):
+        pos = self.tell()
+        self.seek(0, os.SEEK_END)
+        l = self.tell()
+        self.seek(pos, os.SEEK_SET)
+        return l
 
 
 def validate_bucket_name(bucket_name):
