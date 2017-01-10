@@ -2,6 +2,7 @@ import os
 import shutil
 import unittest
 
+from mock import patch
 
 from mock_options import MockOptions
 
@@ -72,6 +73,36 @@ class TestTransferCommand(unittest.TestCase):
             include=None,
             force=True)
         self.Transfer.upload_file(options)
+
+    def test_upload_file_from_stdin(self):
+        # Create a large file(~8MB)
+        with open("tmp/large_file", 'w') as f:
+            f.seek(8*1024*1024)
+            f.write("just for testing")
+        options = MockOptions(
+            source_path="-",
+            dest_path="qs://" + test_bucket1,
+            exclude=None,
+            include=None,
+            force=True
+        )
+        with open("tmp/large_file", 'rb') as f:
+            with patch("qingstor.qsctl.utils.sys.stdin", f):
+                self.Transfer.upload_file(options)
+
+        # Create a small file
+        with open("tmp/small_file", 'w') as f:
+            f.write("just for testing")
+        options = MockOptions(
+            source_path="-",
+            dest_path="qs://" + test_bucket1,
+            exclude=None,
+            include=None,
+            force=True
+        )
+        with open("tmp/small_file", 'rb') as f:
+            with patch("qingstor.qsctl.utils.sys.stdin", f):
+                self.Transfer.upload_file(options)
 
     def test_download_files(self):
         for i in range(0, 10):

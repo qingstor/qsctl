@@ -17,9 +17,11 @@ from qingstor.qsctl.utils import (
     is_pattern_match,
     get_part_numbers,
     validate_bucket_name,
-    FileChunk,)
+    FileChunk,
+    StdinFileChunk,)
 
 from qingstor.qsctl.constants import PART_SIZE
+from mock import patch
 
 config_sample = '''
 access_key_id: 'ACCESS_KEY_ID_EXAMPLE'
@@ -143,6 +145,12 @@ class TestUtils(unittest.TestCase):
         part0.close()
         part1.close()
         part2.close()
+
+    @patch('qingstor.qsctl.utils.sys.stdin.read')
+    def test_Stdin_File_Chunk(self, read):
+        read.return_value = '\037\213'
+        part = StdinFileChunk(PART_SIZE)
+        self.assertEqual(2, len(part), 'wrong length: %d' % len(part))
 
     def test_validate_bucket_name(self):
         self.assertFalse(validate_bucket_name("-abcd"))

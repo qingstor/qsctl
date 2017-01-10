@@ -36,6 +36,7 @@ from ..utils import (
     uni_print,
     get_part_numbers,
     FileChunk,
+    StdinFileChunk,
     json_loads,)
 
 
@@ -149,11 +150,14 @@ class TransferCommand(BaseCommand):
             key = prefix + os.path.basename(options.source_path)
         else:
             key = prefix
-        if not os.path.isfile(options.source_path):
+        if os.path.isfile(options.source_path):
+            if cls.confirm_key_upload(options, options.source_path, bucket, key):
+                cls.send_local_file(options.source_path, bucket, key)
+        elif options.source_path == '-':
+            cls.send_data_from_stdin(bucket, key)
+        else:
             print("Error: No such file: %s" % options.source_path)
             sys.exit(-1)
-        if cls.confirm_key_upload(options, options.source_path, bucket, key):
-            cls.send_local_file(options.source_path, bucket, key)
 
     @classmethod
     def download_files(cls, options):
@@ -235,6 +239,42 @@ class TransferCommand(BaseCommand):
                       "qsctl operation" % local_path)
 
     @classmethod
+    def upload_multipart_from_stdin(cls, upload_id, bucket, key):
+        global upload_failed
+        global part_numbers
+        part_numbers = []
+        next_part_number = 0
+        while True:
+            if upload_failed == True:
+                break
+
+            data = StdinFileChunk(PART_SIZE)
+            done = len(data)
+            part_numbers.append(next_part_number)
+            cls.upload_part(upload_id, next_part_number, data, bucket, key)
+            next_part_number = next_part_number + 1
+
+            if done != PART_SIZE:
+                break
+
+    @classmethod
+    def send_data_from_stdin(cls, bucket, key):
+        global upload_failed
+        upload_failed = False
+        upload_id = cls.init_multipart(bucket, key)
+
+        if upload_id == "":
+            statement = "Error: key <%s> already exists" % key
+            uni_print(statement)
+        else:
+            cls.upload_multipart_from_stdin(upload_id, bucket, key)
+            if not upload_failed:
+                cls.complete_multipart('-', upload_id, bucket, key)
+            else:
+                print("Error: Failed to upload file '%s'" % '-')
+
+
+    @classmethod
     def send_file(cls, local_path, bucket, key):
         with open(local_path, "rb") as data:
             cls.validate_bucket(bucket)
@@ -282,14 +322,16 @@ class TransferCommand(BaseCommand):
         for part_number in part_numbers:
             if upload_failed == True:
                 break
-            cls.upload_part(upload_id, part_number, filepath, bucket, key)
+
+            data = FileChunk(filepath, part_number)
+            cls.upload_part(upload_id, part_number, data, bucket, key)
 
     @classmethod
-    def upload_part(cls, upload_id, part_number, filepath, bucket, key):
+    def upload_part(cls, upload_id, part_number, data, bucket, key):
         '''upload one part of large file.
         '''
         global upload_failed
-        data = FileChunk(filepath, part_number)
+
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.upload_multipart(
