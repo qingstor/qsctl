@@ -14,6 +14,7 @@
 # limitations under the License.
 # =========================================================================
 
+import sys
 import time
 
 from qingstor.sdk.config import Config
@@ -70,6 +71,10 @@ class LsCommand(BaseCommand):
             buckets = resp['buckets']
             for bucket in sorted(buckets, key=lambda x: x["name"]):
                 print(bucket["name"])
+        else:
+            print("Error: Please check if you have "
+                  "enough permission to access QingStor.")
+            sys.exit(-1)
 
     @classmethod
     def print_to_console(cls, keys, dirs):
