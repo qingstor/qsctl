@@ -16,13 +16,11 @@
 
 import os
 import sys
-import json
 import errno
 
 from .base import BaseCommand
 
 from ..constants import (
-    BUFFER_SIZE,
     PART_SIZE,
     HTTP_OK,
     HTTP_OK_CREATED,
@@ -36,8 +34,7 @@ from ..utils import (
     uni_print,
     get_part_numbers,
     FileChunk,
-    StdinFileChunk,
-    json_loads,)
+    StdinFileChunk,)
 
 
 class TransferCommand(BaseCommand):

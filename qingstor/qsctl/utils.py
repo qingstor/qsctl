@@ -19,14 +19,16 @@ import os
 import sys
 import json
 import platform
-import mimetypes
 from yaml import load
-from StringIO import StringIO
+
 
 try:
     from yaml import CLoader as Loader
+    from StringIO import StringIO
 except ImportError:
     from yaml import Loader
+    from io import StringIO
+
 
 from .constants import PART_SIZE
 
