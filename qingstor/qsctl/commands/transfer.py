@@ -24,7 +24,8 @@ from ..constants import (
     PART_SIZE,
     HTTP_OK,
     HTTP_OK_CREATED,
-    HTTP_OK_PARTIAL_CONTENT,)
+    HTTP_OK_PARTIAL_CONTENT,
+)
 
 from ..utils import (
     confirm_by_user,
@@ -34,7 +35,8 @@ from ..utils import (
     uni_print,
     get_part_numbers,
     FileChunk,
-    StdinFileChunk,)
+    StdinFileChunk,
+)
 
 
 class TransferCommand(BaseCommand):
@@ -51,12 +53,14 @@ class TransferCommand(BaseCommand):
         parser.add_argument(
             "--exclude",
             type=str,
-            help="Exclude all files or keys that match the specified pattern.")
+            help="Exclude all files or keys that match the specified pattern."
+        )
 
         parser.add_argument(
             "--include",
             type=str,
-            help="Do not exclude files or keys that match the specified pattern")
+            help="Do not exclude files or keys that match the specified pattern"
+        )
 
     @classmethod
     def add_transfer_arguments(cls, parser):
@@ -65,14 +69,16 @@ class TransferCommand(BaseCommand):
             "--recursive",
             action="store_true",
             dest="recursive",
-            help="Recursively transfer keys")
+            help="Recursively transfer keys"
+        )
 
         parser.add_argument(
             "-f",
             "--force",
             action="store_true",
             dest="force",
-            help="Forcely overwrite existing key or file without asking")
+            help="Forcely overwrite existing key or file without asking"
+        )
         return parser
 
     @classmethod
@@ -83,8 +89,10 @@ class TransferCommand(BaseCommand):
         elif dest.startswith("qs://") and not (source.startswith("qs://")):
             return "LOCAL_TO_QS"
         else:
-            print("Error: please give correct local path and qs-path. "
-                  "The qs_path must start with 'qs://'.")
+            print(
+                "Error: please give correct local path and qs-path. "
+                "The qs_path must start with 'qs://'."
+            )
             sys.exit(-1)
 
     @classmethod
@@ -92,8 +100,9 @@ class TransferCommand(BaseCommand):
         if options.force or not cls.key_exists(bucket, key):
             return True
         else:
-            notice = "Key <%s> already existed in bucket <%s>.\n" % (key,
-                                                                     bucket)
+            notice = "Key <%s> already existed in bucket <%s>.\n" % (
+                key, bucket
+            )
             notice += "Overwrite key <%s>? (y or n) " % key
             return confirm_by_user(notice)
 
@@ -119,8 +128,9 @@ class TransferCommand(BaseCommand):
         for rt, dirs, files in os.walk(options.source_path):
             for d in dirs:
                 local_path = os.path.join(rt, d)
-                key_path = os.path.relpath(local_path,
-                                           options.source_path) + "/"
+                key_path = os.path.relpath(
+                    local_path, options.source_path
+                ) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 if (is_pattern_match(key_path, options.exclude, options.include)
@@ -148,8 +158,9 @@ class TransferCommand(BaseCommand):
         else:
             key = prefix
         if os.path.isfile(options.source_path):
-            if cls.confirm_key_upload(options, options.source_path, bucket,
-                                      key):
+            if cls.confirm_key_upload(
+                    options, options.source_path, bucket, key
+            ):
                 cls.send_local_file(options.source_path, bucket, key)
         elif options.source_path == '-':
             cls.send_data_from_stdin(bucket, key)
@@ -165,10 +176,12 @@ class TransferCommand(BaseCommand):
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
-                bucket, marker=marker, prefix=prefix)
+                bucket, marker=marker, prefix=prefix
+            )
             for item in keys:
                 key = item["key"] if sys.version > "3" else item["key"].encode(
-                    'utf8')
+                    'utf8'
+                )
                 key_name = key[len(prefix):]
                 local_path = join_local_path(options.dest_path, key_name)
                 if (is_pattern_match(key_name, options.exclude, options.include)
@@ -184,8 +197,10 @@ class TransferCommand(BaseCommand):
     def download_file(cls, options):
         bucket, key = cls.validate_qs_path(options.source_path)
         if key == "":
-            print("Error: Please give correct and complete key qs-path, such "
-                  "as 'qs://yourbucket/key'.")
+            print(
+                "Error: Please give correct and complete key qs-path, such "
+                "as 'qs://yourbucket/key'."
+            )
             sys.exit(-1)
         if os.path.isdir(options.dest_path):
             local_path = join_local_path(options.dest_path, key)
@@ -233,8 +248,10 @@ class TransferCommand(BaseCommand):
                 cls.send_file(local_path, bucket, key)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                print("WARN: file %s not found, perhaps it's removed during "
-                      "qsctl operation" % local_path)
+                print(
+                    "WARN: file %s not found, perhaps it's removed during "
+                    "qsctl operation" % local_path
+                )
 
     @classmethod
     def upload_multipart_from_stdin(cls, upload_id, bucket, key):
@@ -332,7 +349,8 @@ class TransferCommand(BaseCommand):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.upload_multipart(
-            key, upload_id=upload_id, part_number=part_number, body=data)
+            key, upload_id=upload_id, part_number=part_number, body=data
+        )
         if resp.status_code != HTTP_OK_CREATED:
             print(resp.content)
             upload_failed = True
@@ -347,7 +365,8 @@ class TransferCommand(BaseCommand):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.complete_multipart_upload(
-            key, upload_id=upload_id, object_parts=parts)
+            key, upload_id=upload_id, object_parts=parts
+        )
         if resp.status_code != HTTP_OK_CREATED:
             print(resp.content)
         else:

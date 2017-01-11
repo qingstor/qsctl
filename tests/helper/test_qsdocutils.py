@@ -1,8 +1,9 @@
 import os
 import unittest
 
-from qingstor.qsctl.helper.qsdocutils import (to_rst_style_title, gen_rst_doc,
-                                              gen_sphinx_doc, RstDocument)
+from qingstor.qsctl.helper.qsdocutils import (
+    to_rst_style_title, gen_rst_doc, gen_sphinx_doc, RstDocument
+)
 
 RST_STYLE_TITLE = "=========\nTESTTITLE\n========="
 

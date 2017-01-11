@@ -6,8 +6,10 @@ import contextlib
 AUTHOR = "daniel@yunify.com"
 COPYRIGHT = "Copyright (C) 2016 Yunify, Inc"
 
-COMMANDS = ('qsctl', 'qsctl-ls', 'qsctl-cp', 'qsctl-mb', 'qsctl-mv', 'qsctl-rb',
-            'qsctl-rm', 'qsctl-sync')
+COMMANDS = (
+    'qsctl', 'qsctl-ls', 'qsctl-cp', 'qsctl-mb', 'qsctl-mv', 'qsctl-rb',
+    'qsctl-rm', 'qsctl-sync'
+)
 
 
 def to_rst_style_title(title):
