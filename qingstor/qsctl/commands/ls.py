@@ -17,12 +17,9 @@
 import sys
 import time
 
-from qingstor.sdk.config import Config
-from qingstor.sdk.service.qingstor import QingStor
-
 from .base import BaseCommand
 
-from ..utils import format_size, json_loads
+from ..utils import format_size
 from ..constants import HTTP_OK
 
 # Format used to pretty print directories.
@@ -40,10 +37,12 @@ class LsCommand(BaseCommand):
             "-z",
             "--zone",
             dest="zone",
-            help="List buckets located in this zone")
+            help="List buckets located in this zone"
+        )
 
         parser.add_argument(
-            "qs_path", nargs="?", default="qs://", help="The qs-path to list")
+            "qs_path", nargs="?", default="qs://", help="The qs-path to list"
+        )
 
         parser.add_argument(
             "-p",
@@ -51,14 +50,16 @@ class LsCommand(BaseCommand):
             dest="page_size",
             type=int,
             default=20,
-            help="The number of results to return in each response")
+            help="The number of results to return in each response"
+        )
 
         parser.add_argument(
             "-r",
             "--recursive",
             action="store_true",
             dest="recursive",
-            help="Recursively list keys")
+            help="Recursively list keys"
+        )
         return parser
 
     @classmethod
@@ -72,8 +73,10 @@ class LsCommand(BaseCommand):
             for bucket in sorted(buckets, key=lambda x: x["name"]):
                 print(bucket["name"])
         else:
-            print("Error: Please check if you have "
-                  "enough permission to access QingStor.")
+            print(
+                "Error: Please check if you have "
+                "enough permission to access QingStor."
+            )
             sys.exit(-1)
 
     @classmethod
@@ -83,13 +86,18 @@ class LsCommand(BaseCommand):
         for key in sorted(keys, key=lambda x: x["key"]):
             created_time = time.strftime(
                 "%Y-%m-%d %X UTC",
-                time.strptime(key["created"], "%Y-%m-%dT%H:%M:%S.000Z"))
+                time.strptime(key["created"], "%Y-%m-%dT%H:%M:%S.000Z")
+            )
             if key["mime_type"] == "application/x-directory":
-                print(created_time + format_size(key["size"]).rjust(12) + " " *
-                      4 + key["key"] + "  (application/x-directory)")
+                print(
+                    created_time + format_size(key["size"]).rjust(12) + " " * 4
+                    + key["key"] + "  (application/x-directory)"
+                )
             else:
-                print(created_time + format_size(key["size"]).rjust(12) + " " *
-                      4 + key["key"])
+                print(
+                    created_time + format_size(key["size"]).rjust(12) + " " * 4
+                    + key["key"]
+                )
 
     @classmethod
     def list_keys(cls, options):
@@ -106,7 +114,8 @@ class LsCommand(BaseCommand):
 
         while True:
             keys, marker, dirs = cls.list_multiple_keys(
-                bucket, prefix, delimiter, marker, limit)
+                bucket, prefix, delimiter, marker, limit
+            )
             cls.print_to_console(keys, dirs)
             if marker == "":
                 break
