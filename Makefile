@@ -33,5 +33,5 @@ build: clean
 
 format:
 	@echo "format code with google style"
-	yapf -i -r ./qingstor ./tests --style google
+	yapf -i -r ./qingstor ./tests
 	@echo "ok"

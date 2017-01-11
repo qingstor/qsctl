@@ -39,8 +39,9 @@ class TestBaseCommand(unittest.TestCase):
         self.assertTrue(os.path.exists(dirname))
 
     def test_validate_qs_path(self):
-        bucket, prefix = self.Base.validate_qs_path("qs://" + test_bucket1 +
-                                                    "/prefix")
+        bucket, prefix = self.Base.validate_qs_path(
+            "qs://" + test_bucket1 + "/prefix"
+        )
         self.assertEqual(bucket, test_bucket1)
         self.assertEqual(prefix, "prefix")
 
@@ -61,7 +62,8 @@ class TestBaseCommand(unittest.TestCase):
             key = "prefix" + "/" + str(i)
             self.test_bucket.put_object(key)
         keys, next_marker, dirs = self.Base.list_multiple_keys(
-            test_bucket1, prefix="prefix", delimiter="/")
+            test_bucket1, prefix="prefix", delimiter="/"
+        )
         self.assertEqual(len(keys), 0)
         self.assertEqual(next_marker, "")
         self.assertEqual(dirs, ['prefix/'])
@@ -69,7 +71,8 @@ class TestBaseCommand(unittest.TestCase):
     def test_list_multiple_keys_2(self):
         marker = "prefix/5"
         keys, next_marker, dirs = self.Base.list_multiple_keys(
-            test_bucket1, marker=marker, prefix="prefix", limit=1)
+            test_bucket1, marker=marker, prefix="prefix", limit=1
+        )
         self.assertEqual(len(keys), 1)
         self.assertEqual(next_marker, "prefix/6")
         self.assertEqual(dirs, [])
@@ -77,7 +80,8 @@ class TestBaseCommand(unittest.TestCase):
     def test_remove_multiple_keys(self):
         options = MockOptions(exclude=None, include=None)
         self.Base.remove_multiple_keys(
-            test_bucket1, prefix="prefix", options=options)
+            test_bucket1, prefix="prefix", options=options
+        )
 
     def tearDown(self):
         self.test_bucket.delete_object("existskey")

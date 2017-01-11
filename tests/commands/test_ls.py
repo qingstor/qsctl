@@ -40,7 +40,8 @@ class TestLsCommand(unittest.TestCase):
     def test_list_keys_1(self):
         # Set the http connection for listing keys
         options = MockOptions(
-            qs_path="qs://" + test_bucket1, recursive=False, page_size=None)
+            qs_path="qs://" + test_bucket1, recursive=False, page_size=None
+        )
         conf = load_conf("~/.qingstor/config.yaml")
         self.Ls.client = self.Ls.get_client(conf)
 
@@ -60,7 +61,8 @@ class TestLsCommand(unittest.TestCase):
         options = MockOptions(
             qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
-            page_size=None)
+            page_size=None
+        )
         conf = load_conf("~/.qingstor/config.yaml")
         self.Ls.client = self.Ls.get_client(conf)
 
@@ -79,7 +81,8 @@ class TestLsCommand(unittest.TestCase):
     def test_list_keys_3(self):
         # Set the http connection for listing objects
         options = MockOptions(
-            qs_path="qs://" + test_bucket1, recursive=False, page_size=None)
+            qs_path="qs://" + test_bucket1, recursive=False, page_size=None
+        )
         conf = load_conf("~/.qingstor/config.yaml")
         self.Ls.client = self.Ls.get_client(conf)
 
