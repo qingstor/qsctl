@@ -23,8 +23,7 @@ class TextWrapper(textwrap.TextWrapper):
         r'(\s+|'  # any whitespace
         r'(?<=\s)(?::[a-z-]+:)?`\S+|'  # interpreted text start
         r'[^\s\w]*\w+[a-zA-Z]-(?=\w+[a-zA-Z])|'  # hyphenated words
-        r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))'
-    )  # em-dash
+        r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')  # em-dash
 
 
 MAXWIDTH = 70
@@ -37,7 +36,7 @@ def my_wrap(text, width=MAXWIDTH, **kwargs):
 
 
 class TextWriter(writers.Writer):
-    supported = ('text', )
+    supported = ('text',)
     settings_spec = ('No options here.', '', ())
     settings_defaults = {}
 
@@ -112,8 +111,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.end_state()
         self.body = self.nl.join(
             line and (' ' * indent + line)
-            for indent, lines in self.states[0] for line in lines
-        )
+            for indent, lines in self.states[0] for line in lines)
         # XXX header/footer?
 
     def visit_highlightlang(self, node):
@@ -395,10 +393,8 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_entry(self, node):
         if node.has_key('morerows') or node.has_key('morecols'):
-            raise NotImplementedError(
-                'Column or row spanning cells are '
-                'not implemented.'
-            )
+            raise NotImplementedError('Column or row spanning cells are '
+                                      'not implemented.')
         self.new_state(0)
 
     def depart_entry(self, node):
@@ -465,9 +461,8 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         self.new_state(0)
-        self.add_text(
-            ', '.join(n.astext() for n in node.children[0].children) + '.'
-        )
+        self.add_text(', '.join(n.astext()
+                                for n in node.children[0].children) + '.')
         self.end_state()
         raise nodes.SkipNode
 

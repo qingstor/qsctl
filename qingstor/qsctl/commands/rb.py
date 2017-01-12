@@ -34,8 +34,7 @@ class RbCommand(BaseCommand):
             "--force",
             action="store_true",
             dest="force",
-            help="Forcely delete a nonempty bucket"
-        )
+            help="Forcely delete a nonempty bucket")
         return parser
 
     @classmethod

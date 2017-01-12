@@ -27,8 +27,7 @@ from ..utils import (
     uni_print,
     to_unix_path,
     is_pattern_match,
-    validate_bucket_name,
-)
+    validate_bucket_name,)
 
 
 class BaseCommand(object):
@@ -48,8 +47,7 @@ class BaseCommand(object):
             action="store",
             type=str,
             default="~/.qingstor/config.yaml",
-            help="Configuration file"
-        )
+            help="Configuration file")
 
     @classmethod
     def add_extra_arguments(cls, parser):
@@ -64,8 +62,7 @@ class BaseCommand(object):
         parser = argparse.ArgumentParser(
             prog='qsctl %s' % cls.command,
             usage=cls.usage,
-            description=cls.description
-        )
+            description=cls.description)
         cls.add_common_arguments(parser)
         cls.add_extra_arguments(parser)
         cls.add_transfer_arguments(parser)
@@ -80,10 +77,8 @@ class BaseCommand(object):
     def get_buckets(cls):
         resp = cls.client.list_buckets()
         if resp.status_code != HTTP_OK:
-            print(
-                "Error: Please check your configuration and you have "
-                "enough permission to access qingstor service."
-            )
+            print("Error: Please check your configuration and you have "
+                  "enough permission to access qingstor service.")
             sys.exit()
         return resp["buckets"]
 
@@ -106,10 +101,8 @@ class BaseCommand(object):
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             resp = current_bucket.head()
             if resp.status_code != HTTP_OK:
-                print(
-                    "Error: Please check if you have enough"
-                    " permission to access bucket <%s>." % bucket
-                )
+                print("Error: Please check if you have enough"
+                      " permission to access bucket <%s>." % bucket)
                 sys.exit(-1)
 
     @classmethod
@@ -117,20 +110,16 @@ class BaseCommand(object):
         dirname = os.path.dirname(path)
         if dirname != "":
             if os.path.isfile(dirname):
-                print(
-                    "Error: File with the same name '%s' already exists" %
-                    dirname
-                )
+                print("Error: File with the same name '%s' already exists" %
+                      dirname)
                 sys.exit(-1)
             elif not os.path.isdir(dirname):
                 try:
                     os.makedirs(dirname)
                     print("Directory '%s' created" % dirname)
                 except OSError as e:
-                    print(
-                        "Error: Failed to create directory '%s': %s" %
-                        (dirname, e)
-                    )
+                    print("Error: Failed to create directory '%s': %s" %
+                          (dirname, e))
                     sys.exit(-1)
 
     @classmethod
@@ -181,26 +170,26 @@ class BaseCommand(object):
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
-                bucket, marker=marker, prefix=prefix
-            )
+                bucket, marker=marker, prefix=prefix)
             for item in keys:
                 key = item["key"] if sys.version > "3" else item["key"].encode(
-                    'utf8'
-                )
+                    'utf8')
                 if cls.confirm_key_remove(key[len(prefix):], options):
                     cls.remove_key(bucket, key)
             if marker == "":
                 break
 
     @classmethod
-    def list_multiple_keys(
-            cls, bucket, prefix="", delimiter="", marker="", limit=200
-    ):
+    def list_multiple_keys(cls,
+                           bucket,
+                           prefix="",
+                           delimiter="",
+                           marker="",
+                           limit=200):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.list_objects(
-            marker=marker, prefix=prefix, delimiter=delimiter, limit=limit
-        )
+            marker=marker, prefix=prefix, delimiter=delimiter, limit=limit)
         keys = resp["keys"]
         dirs = resp["common_prefixes"]
         next_marker = resp["next_marker"]

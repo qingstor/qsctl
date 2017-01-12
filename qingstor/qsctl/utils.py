@@ -21,12 +21,14 @@ import json
 import platform
 from yaml import load
 
+
 try:
     from yaml import CLoader as Loader
     from StringIO import StringIO
 except ImportError:
     from yaml import Loader
     from io import StringIO
+
 
 from .constants import PART_SIZE
 

@@ -18,8 +18,7 @@ from qingstor.qsctl.utils import (
     get_part_numbers,
     validate_bucket_name,
     FileChunk,
-    StdinFileChunk,
-)
+    StdinFileChunk,)
 
 from qingstor.qsctl.constants import PART_SIZE
 from mock import patch
@@ -62,10 +61,8 @@ class TestUtils(unittest.TestCase):
 
         # Create a large file(~64MB)
         self.large_file = os.path.join(current_path, "data/large_file")
-        command = (
-            "dd if=/dev/urandom of=%s bs=%s count=2 > /dev/null 2>&1" %
-            (self.large_file, PART_SIZE)
-        )
+        command = ("dd if=/dev/urandom of=%s bs=%s count=2 > /dev/null 2>&1" %
+                   (self.large_file, PART_SIZE))
         subprocess.check_call(command, shell=True)
 
         with open(self.large_file, 'w') as f:
@@ -99,8 +96,7 @@ class TestUtils(unittest.TestCase):
         if is_windows():
             path1, path2 = "foo\\", "bar/test.txt"
             self.assertEqual(
-                join_local_path(path1, path2), "foo\\bar\\test.txt"
-            )
+                join_local_path(path1, path2), "foo\\bar\\test.txt")
         else:
             path1, path2 = "foo/", "bar/test.txt"
             self.assertEqual(join_local_path(path1, path2), "foo/bar/test.txt")

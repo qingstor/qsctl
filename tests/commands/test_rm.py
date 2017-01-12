@@ -27,8 +27,7 @@ class TestRmCommand(unittest.TestCase):
     def test_remove_one_key(self):
         self.test_bucket.put_object("testkey")
         options = MockOptions(
-            qs_path="qs://" + test_bucket1 + "/testkey", recursive=False
-        )
+            qs_path="qs://" + test_bucket1 + "/testkey", recursive=False)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_1(self):
@@ -40,8 +39,7 @@ class TestRmCommand(unittest.TestCase):
             qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude=None,
-            include=None
-        )
+            include=None)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_2(self):
@@ -54,8 +52,7 @@ class TestRmCommand(unittest.TestCase):
             qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude="*.txt",
-            include=None
-        )
+            include=None)
         self.Rm.send_request(options)
 
     def test_remove_mutiple_keys_3(self):
@@ -68,8 +65,7 @@ class TestRmCommand(unittest.TestCase):
             qs_path="qs://" + test_bucket1 + "/prefix/",
             recursive=True,
             exclude="*",
-            include="*.txt"
-        )
+            include="*.txt")
         self.Rm.send_request(options)
 
     def tearDown(self):

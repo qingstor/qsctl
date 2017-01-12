@@ -26,8 +26,7 @@ class MvCommand(TransferCommand):
     command = "mv"
     usage = (
         "%(prog)s <source-path> <dest-path> [-c <conf_file> "
-        "-r <recusively> --exclude <pattern value> --include <pattern value>]"
-    )
+        "-r <recusively> --exclude <pattern value> --include <pattern value>]")
 
     @classmethod
     def clean_empty_dirs(cls, options):
@@ -42,7 +41,6 @@ class MvCommand(TransferCommand):
 
             # Delete empty directory.
             if not os.listdir(local_dir) and is_pattern_match(
-                    key_path, options.exclude, options.include
-            ):
+                    key_path, options.exclude, options.include):
                 os.rmdir(local_dir)
                 print("Local directory '%s' deleted" % local_dir)

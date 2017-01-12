@@ -34,18 +34,14 @@ class TestTransferCommand(unittest.TestCase):
 
     def test_get_transfer_method(self):
         options = MockOptions(
-            source_path="tmp/", dest_path="qs://" + test_bucket1
-        )
+            source_path="tmp/", dest_path="qs://" + test_bucket1)
         self.assertEqual(
-            self.Transfer.get_transfer_flow(options), "LOCAL_TO_QS"
-        )
+            self.Transfer.get_transfer_flow(options), "LOCAL_TO_QS")
 
         options = MockOptions(
-            source_path="qs://" + test_bucket1, dest_path="tmp/"
-        )
+            source_path="qs://" + test_bucket1, dest_path="tmp/")
         self.assertEqual(
-            self.Transfer.get_transfer_flow(options), "QS_TO_LOCAL"
-        )
+            self.Transfer.get_transfer_flow(options), "QS_TO_LOCAL")
 
         options = MockOptions(source_path="tmp/", dest_path="validbucket")
         with self.assertRaises(SystemExit):
@@ -61,8 +57,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude="*",
             include="*",
-            force=True
-        )
+            force=True)
         print(options.exclude)
         self.Transfer.upload_files(options)
 
@@ -76,8 +71,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Transfer.upload_file(options)
 
     def test_upload_file_from_stdin(self):
@@ -90,8 +84,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         with open("tmp/large_file", 'rb') as f:
             with patch("qingstor.qsctl.utils.sys.stdin", f):
                 self.Transfer.upload_file(options)
@@ -104,8 +97,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         with open("tmp/small_file", 'rb') as f:
             with patch("qingstor.qsctl.utils.sys.stdin", f):
                 self.Transfer.upload_file(options)
@@ -119,8 +111,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="tmp/",
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Transfer.download_files(options)
 
     def test_download_file(self):
@@ -130,8 +121,7 @@ class TestTransferCommand(unittest.TestCase):
             dest_path="tmp/",
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Transfer.download_file(options)
         self.assertTrue((os.path.exists("tmp/test_file")))
 
