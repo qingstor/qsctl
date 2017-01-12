@@ -48,8 +48,7 @@ def exit_due_to_invalid_command(suggest_commands=None):
 
     parser = argparse.ArgumentParser(
         prog='qsctl',
-        usage=usage,
-    )
+        usage=usage,)
     parser.print_help()
     sys.exit(-1)
 

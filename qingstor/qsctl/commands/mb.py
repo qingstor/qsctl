@@ -34,8 +34,7 @@ class MbCommand(BaseCommand):
             "-z",
             "--zone",
             dest="zone",
-            help="In which zone to create the bucket"
-        )
+            help="In which zone to create the bucket")
         return parser
 
     @classmethod

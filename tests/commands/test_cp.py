@@ -39,8 +39,7 @@ class TestCpCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude="*",
             include="*",
-            force=True
-        )
+            force=True)
         print(options.exclude)
         self.Cp.upload_files(options)
 
@@ -54,8 +53,7 @@ class TestCpCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Cp.upload_file(options)
 
     def test_download_files(self):
@@ -67,8 +65,7 @@ class TestCpCommand(unittest.TestCase):
             dest_path="tmp/",
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Cp.download_files(options)
 
     def test_download_file(self):
@@ -78,8 +75,7 @@ class TestCpCommand(unittest.TestCase):
             dest_path="tmp/",
             exclude=None,
             include=None,
-            force=True
-        )
+            force=True)
         self.Cp.download_file(options)
         self.assertTrue((os.path.exists("tmp/test_file")))
 

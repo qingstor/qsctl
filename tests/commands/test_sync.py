@@ -38,8 +38,7 @@ class TestSyncCommand(unittest.TestCase):
         options = MockOptions(
             source_path="tmp/",
             exclude=None,
-            include=None,
-        )
+            include=None,)
         key1 = "test.file1"
         key2 = "test.file2"
         self.assertTrue(self.Sync.confirm_key_remove(key1, options))
@@ -53,8 +52,7 @@ class TestSyncCommand(unittest.TestCase):
         options = MockOptions(
             source_path="tmp/",
             exclude="*",
-            include="*.jpg",
-        )
+            include="*.jpg",)
         key1 = "test.txt"
         key2 = "test.jpg"
         self.assertTrue(self.Sync.confirm_key_remove(key1, options))
@@ -72,15 +70,12 @@ class TestSyncCommand(unittest.TestCase):
 
         # Testing begin
         options = MockOptions()
-        confirm_1 = self.Sync.confirm_key_download(
-            options, local_path, time_stamp_1
-        )
-        confirm_2 = self.Sync.confirm_key_download(
-            options, local_path, time_stamp_2
-        )
+        confirm_1 = self.Sync.confirm_key_download(options, local_path,
+                                                   time_stamp_1)
+        confirm_2 = self.Sync.confirm_key_download(options, local_path,
+                                                   time_stamp_2)
         confirm_3 = self.Sync.confirm_key_download(
-            options, "tmp/noneexistsfile", time_stamp_1
-        )
+            options, "tmp/noneexistsfile", time_stamp_1)
 
         self.assertFalse(confirm_1)
         self.assertTrue(confirm_2)
@@ -100,9 +95,8 @@ class TestSyncCommand(unittest.TestCase):
 
         # Testing begin
         options = MockOptions()
-        confirm_1 = self.Sync.confirm_key_upload(
-            options, local_path, test_bucket1, key
-        )
+        confirm_1 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, key)
 
         time.sleep(3)
 
@@ -110,13 +104,11 @@ class TestSyncCommand(unittest.TestCase):
         with open(local_path, 'w') as f:
             f.write("write something new")
 
-        confirm_2 = self.Sync.confirm_key_upload(
-            options, local_path, test_bucket1, key
-        )
+        confirm_2 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, key)
 
-        confirm_3 = self.Sync.confirm_key_upload(
-            options, local_path, test_bucket1, "noneexistskey"
-        )
+        confirm_3 = self.Sync.confirm_key_upload(options, local_path,
+                                                 test_bucket1, "noneexistskey")
 
         self.assertFalse(confirm_1)
         self.assertTrue(confirm_2)
@@ -130,12 +122,10 @@ class TestSyncCommand(unittest.TestCase):
             f.write("just for testing")
         time.sleep(3)
         time_stamp_2 = time.mktime(time.gmtime(time.time()))
-        is_modified_1 = self.Sync.is_local_file_modified(
-            local_path, time_stamp_1
-        )
-        is_modified_2 = self.Sync.is_local_file_modified(
-            local_path, time_stamp_2
-        )
+        is_modified_1 = self.Sync.is_local_file_modified(local_path,
+                                                         time_stamp_1)
+        is_modified_2 = self.Sync.is_local_file_modified(local_path,
+                                                         time_stamp_2)
         self.assertTrue(is_modified_1)
         self.assertFalse(is_modified_2)
 
@@ -149,8 +139,7 @@ class TestSyncCommand(unittest.TestCase):
             dest_path="qs://" + test_bucket1,
             exclude="*",
             include="*",
-            delete=True
-        )
+            delete=True)
         print(options.exclude)
         self.Sync.upload_files(options)
 
@@ -163,8 +152,7 @@ class TestSyncCommand(unittest.TestCase):
             dest_path="tmp/",
             exclude=None,
             include=None,
-            delete=True
-        )
+            delete=True)
         self.Sync.download_files(options)
 
     def tearDown(self):

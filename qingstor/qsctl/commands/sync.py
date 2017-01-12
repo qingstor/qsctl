@@ -27,10 +27,8 @@ from ..utils import is_pattern_match, to_unix_path, join_local_path, uni_print
 class SyncCommand(TransferCommand):
 
     command = "sync"
-    usage = (
-        "%(prog)s <source-path> <dest-path> [-c <conf_file> --delete "
-        "--exclude <pattern value> --include <pattern value>]"
-    )
+    usage = ("%(prog)s <source-path> <dest-path> [-c <conf_file> --delete "
+             "--exclude <pattern value> --include <pattern value>]")
 
     @classmethod
     def add_transfer_arguments(cls, parser):
@@ -38,12 +36,9 @@ class SyncCommand(TransferCommand):
             "--delete",
             action="store_true",
             dest="delete",
-            help=(
-                "Any files or keys existing under the destination directory "
-                "but not existing in the source directory will be deleted if "
-                "--delete option is specified."
-            )
-        )
+            help=("Any files or keys existing under the destination directory "
+                  "but not existing in the source directory will be deleted if "
+                  "--delete option is specified."))
         return parser
 
     @classmethod
@@ -65,11 +60,8 @@ class SyncCommand(TransferCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 resp = current_bucket.head_object(key)
-                if (resp.status_code != HTTP_OK) or (
-                        not is_pattern_match(
-                            key_path, options.exclude, options.include
-                        )
-                ):
+                if (resp.status_code != HTTP_OK) or (not is_pattern_match(
+                        key_path, options.exclude, options.include)):
                     os.remove(local_path)
                     print("File '%s' deleted" % local_path)
 
@@ -80,11 +72,8 @@ class SyncCommand(TransferCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 resp = current_bucket.head_object(key)
-                if (resp.status_code != HTTP_OK) or (
-                        not is_pattern_match(
-                            key_path, options.exclude, options.include
-                        )
-                ):
+                if (resp.status_code != HTTP_OK) or (not is_pattern_match(
+                        key_path, options.exclude, options.include)):
                     if not os.listdir(local_path):
                         os.rmdir(local_path)
                         print("Directory '%s' deleted" % local_path)
@@ -109,8 +98,7 @@ class SyncCommand(TransferCommand):
         if resp.status_code == HTTP_OK:
             time_str_key = resp.headers["Last-Modified"]
             return time.mktime(
-                time.strptime(time_str_key, "%a, %d %b %Y %X GMT")
-            )
+                time.strptime(time_str_key, "%a, %d %b %Y %X GMT"))
         else:
             statement = "Error: Failed to head key <%s>" % key
             uni_print(statement)
@@ -134,5 +122,4 @@ class SyncCommand(TransferCommand):
     def confirm_key_remove(cls, key, options):
         file_path = join_local_path(options.source_path, key)
         return (not os.path.exists(file_path)) or (
-            not is_pattern_match(key, options.exclude, options.include)
-        )
+            not is_pattern_match(key, options.exclude, options.include))
