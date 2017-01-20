@@ -1,0 +1,5 @@
+qingstor-sdk >= 2.0.2
+assertpy >= 0.10
+argparse >= 1.1
+behave >= 1.2
+sh >= 1.12

@@ -1,0 +1,7 @@
+# Test configurations
+
+zone: ''
+bucket_name: ''
+
+retry_wait_time: 3 # seconds
+max_retries: 60
