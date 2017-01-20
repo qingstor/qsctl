@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # =========================================================================
 # Copyright (C) 2016 Yunify, Inc.
 # -------------------------------------------------------------------------
@@ -14,11 +15,14 @@
 # limitations under the License.
 # =========================================================================
 
+from __future__ import unicode_literals
+
 import sys
 import argparse
 import pkg_resources
 from difflib import get_close_matches
 
+from qingstor.qsctl.utils import is_python2
 from qingstor.qsctl.helper import get_renderer
 from qingstor.qsctl.commands.ls import LsCommand
 from qingstor.qsctl.commands.cp import CpCommand
@@ -55,6 +59,10 @@ def exit_due_to_invalid_command(suggest_commands=None):
 
 
 def check_argument(args):
+    if is_python2:
+        for i in range(len(args)):
+            args[i] = args[i].decode("utf-8")
+
     if len(args) < 2:
         exit_due_to_invalid_command()
 
