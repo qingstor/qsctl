@@ -12,6 +12,7 @@ all: unit build
 
 unit:
 	@echo "run unit test"
+	pip install pytest mock
 	py.test
 	@echo "ok"
 
@@ -19,6 +20,12 @@ tox:
 	@echo "run unit test in multi python version"
 	@echo "please do pyenv local before run this script"
 	tox
+	@echo "ok"
+
+test:
+	@echo "run service test"
+	pip install -r scenarios/requirements.txt
+	behave scenarios/features
 	@echo "ok"
 
 clean:
@@ -33,5 +40,5 @@ build: clean
 
 format:
 	@echo "format code with google style"
-	yapf -i -r ./qingstor ./tests
+	yapf -i -r ./qingstor ./tests ./scenarios
 	@echo "ok"
