@@ -47,7 +47,8 @@ def step_impl(context):
 @then(u'QingStor keys should be deleted')
 def step_impl(context):
     for row in context.input:
-        assert_that(bucket.head_object(row["name"]).status_code).is_equal_to(404)
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(404)
 
 
 @given(u'serveral QingStor keys with prefix')
@@ -71,9 +72,8 @@ def step_impl(context):
 @then(u'QingStor keys with prefix should be deleted, other files should keep')
 def step_impl(context):
     for row in context.table:
-        assert_that(bucket.head_object(row["name"]).status_code).is_equal_to(
-            404 if row["deleted"] is "1" else 200
-        )
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(404 if row["deleted"] is "1" else 200)
 
     for row in context.table:
         bucket.delete_object(row["name"])

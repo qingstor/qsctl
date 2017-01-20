@@ -66,14 +66,17 @@ def step_impl(context):
             "ls",
             "qs://{bucket}/{prefix}".format(
                 bucket=test_data["bucket_name"], prefix=row["prefix"]
-            )).stdout.decode("utf-8")
+            )
+        ).stdout.decode("utf-8")
 
 
 @then(u'should list keys with prefix')
 def step_impl(context):
     for row in context.table:
-        assert_that(row["should_show_up"] in context.output[row["prefix"]]).is_equal_to(True)
-        assert_that(row["not_show_up"] in context.output[row["prefix"]]).is_equal_to(False)
+        assert_that(row["should_show_up"] in context.output[row["prefix"]]
+                    ).is_equal_to(True)
+        assert_that(row["not_show_up"] in context.output[row["prefix"]]
+                    ).is_equal_to(False)
 
 
 @when(u'list keys recursively')

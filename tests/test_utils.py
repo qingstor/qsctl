@@ -3,6 +3,8 @@ import platform
 import unittest
 import subprocess
 
+from mock import patch
+
 from qingstor.qsctl.utils import (
     yaml_load,
     load_conf,
@@ -22,7 +24,6 @@ from qingstor.qsctl.utils import (
 )
 
 from qingstor.qsctl.constants import PART_SIZE
-from mock import patch
 
 config_sample = '''
 access_key_id: 'ACCESS_KEY_ID_EXAMPLE'

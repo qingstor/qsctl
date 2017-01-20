@@ -19,6 +19,6 @@ setup(
     install_requires=[
         'argparse >= 1.1',
         'PyYAML >= 3.1',
-        'qingstor-sdk',
+        'qingstor-sdk >= 2.0.2',
         'docutils >= 0.10',
     ])
