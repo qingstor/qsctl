@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # =========================================================================
 # Copyright (C) 2016 Yunify, Inc.
 # -------------------------------------------------------------------------
@@ -13,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # =========================================================================
+
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -62,7 +65,7 @@ class BaseCommand(object):
     @classmethod
     def get_argument_parser(cls):
         parser = argparse.ArgumentParser(
-            prog='qsctl %s' % cls.command,
+            prog="qsctl %s" % cls.command,
             usage=cls.usage,
             description=cls.description
         )
@@ -138,7 +141,7 @@ class BaseCommand(object):
         qs_path = to_unix_path(qs_path)
         if qs_path.startswith("qs://"):
             qs_path = qs_path[5:]
-        qs_path_split = qs_path.split('/', 1)
+        qs_path_split = qs_path.split("/", 1)
         if len(qs_path_split) == 1:
             bucket, prefix = qs_path_split[0], ""
         elif len(qs_path_split) == 2:
@@ -184,9 +187,7 @@ class BaseCommand(object):
                 bucket, marker=marker, prefix=prefix
             )
             for item in keys:
-                key = item["key"] if sys.version > "3" else item["key"].encode(
-                    'utf8'
-                )
+                key = item["key"]
                 if cls.confirm_key_remove(key[len(prefix):], options):
                     cls.remove_key(bucket, key)
             if marker == "":
@@ -194,7 +195,7 @@ class BaseCommand(object):
 
     @classmethod
     def list_multiple_keys(
-            cls, bucket, prefix="", delimiter="", marker="", limit=200
+            cls, bucket, prefix="", delimiter="", marker="", limit="200"
     ):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
@@ -213,13 +214,19 @@ class BaseCommand(object):
         options = parser.parse_args(args)
 
         # Load config file
-        conf = load_conf(options.config)
+        config_path = [
+            options.config, "~/.qingstor/config.yaml",
+            "~/.qingcloud/config.yaml"
+        ]
+        for path in config_path:
+            conf = load_conf(path)
+            if conf is not None:
+                # Get client of qingstor
+                cls.client = cls.get_client(conf)
+                break
 
-        if conf is None:
+        if cls.client is None:
             sys.exit(-1)
-
-        # Get client of qingstor
-        cls.client = cls.get_client(conf)
 
         # Send request
         return cls.send_request(options)
