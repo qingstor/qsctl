@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # =========================================================================
 # Copyright (C) 2016 Yunify, Inc.
 # -------------------------------------------------------------------------
@@ -13,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # =========================================================================
+
+from __future__ import unicode_literals
 
 import sys
 import time
@@ -104,13 +107,13 @@ class LsCommand(BaseCommand):
         bucket, prefix = cls.validate_qs_path(options.qs_path)
 
         delimiter = ""
-        limit = 200
+        limit = "200"
         marker = ""
 
         if options.recursive is False:
             delimiter = "/"
         if options.page_size is not None:
-            limit = options.page_size
+            limit = str(options.page_size)
 
         while True:
             keys, marker, dirs = cls.list_multiple_keys(
