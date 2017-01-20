@@ -30,9 +30,7 @@ def step_impl(context):
     sh.mkdir("tmp").wait()
     for row in context.table:
         sh.dd(
-            "if=/dev/zero",
-            "of=tmp/" + row["name"],
-            "bs=1048576",
+            "if=/dev/zero", "of=tmp/" + row["name"], "bs=1048576",
             "count=" + row["count"]
         )
 
@@ -54,9 +52,7 @@ def step_impl(context):
 def step_impl(context):
     resp = bucket.list_objects()
     assert_that(sorted([i["key"] for i in resp["keys"]])
-                ).is_equal_to(sorted(
-        [row["name"] for row in context.table]
-    ))
+                ).is_equal_to(sorted([row["name"] for row in context.table]))
 
     for row in context.table:
         bucket.delete_object(row["name"])
@@ -76,11 +72,8 @@ def step_impl(context):
 @then(u'QingStor should have keys')
 def step_impl(context):
     resp = bucket.list_objects()
-    assert_that(
-        sorted([i["key"] for i in resp["keys"]])
-    ).is_equal_to(
-        sorted([row["name"] for row in context.table])
-    )
+    assert_that(sorted([i["key"] for i in resp["keys"]])
+                ).is_equal_to(sorted([row["name"] for row in context.table]))
 
     sh.rm("-rf", "tmp")
 

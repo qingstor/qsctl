@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # =========================================================================
 # Copyright (C) 2016 Yunify, Inc.
 # -------------------------------------------------------------------------
@@ -14,9 +15,13 @@
 # limitations under the License.
 # =========================================================================
 
+from __future__ import unicode_literals
+
 import os
 import sys
 import errno
+
+from tqdm import tqdm
 
 from .base import BaseCommand
 
@@ -40,7 +45,6 @@ from ..utils import (
 
 
 class TransferCommand(BaseCommand):
-
     command = ""
     usage = ""
 
@@ -134,8 +138,8 @@ class TransferCommand(BaseCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 if (is_pattern_match(key_path, options.exclude, options.include)
-                        and cls.confirm_key_upload(options, local_path, bucket,
-                                                   key)):
+                    and cls.confirm_key_upload(options, local_path, bucket,
+                                               key)):
                     cls.put_directory(bucket, key)
 
             for f in files:
@@ -144,8 +148,8 @@ class TransferCommand(BaseCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 if (is_pattern_match(key_path, options.exclude, options.include)
-                        and cls.confirm_key_upload(options, local_path, bucket,
-                                                   key)):
+                    and cls.confirm_key_upload(options, local_path, bucket,
+                                               key)):
                     cls.send_local_file(local_path, bucket, key)
 
         cls.cleanup("LOCAL_TO_QS", options, bucket, prefix)
@@ -179,14 +183,16 @@ class TransferCommand(BaseCommand):
                 bucket, marker=marker, prefix=prefix
             )
             for item in keys:
-                key = item["key"] if sys.version > "3" else item["key"].encode(
-                    'utf8'
-                )
+                key = item["key"]
                 key_name = key[len(prefix):]
                 local_path = join_local_path(options.dest_path, key_name)
-                if (is_pattern_match(key_name, options.exclude, options.include)
-                        and cls.confirm_key_download(options, local_path,
-                                                     item["modified"])):
+                is_match = is_pattern_match(
+                    key_name, options.exclude, options.include
+                )
+                is_confirmed_key_download = cls.confirm_key_download(
+                    options, local_path, item["modified"]
+                )
+                if local_path and is_match and is_confirmed_key_download:
                     cls.write_local_file(local_path, bucket, key)
             if marker == "":
                 break
@@ -206,7 +212,7 @@ class TransferCommand(BaseCommand):
             local_path = join_local_path(options.dest_path, key)
         else:
             local_path = options.dest_path
-        if cls.confirm_key_download(options, local_path):
+        if local_path and cls.confirm_key_download(options, local_path):
             cls.write_local_file(local_path, bucket, key)
 
     @classmethod

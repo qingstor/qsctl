@@ -57,7 +57,8 @@ def step_impl(context):
 @then(u'QingStor should have same file and local files should be deleted')
 def step_impl(context):
     for row in context.input:
-        assert_that(bucket.head_object(row["name"]).status_code).is_equal_to(200)
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(200)
         assert_that(os.path.isfile("tmp/" + row["name"])).is_equal_to(False)
 
 
@@ -84,7 +85,8 @@ def step_impl(context):
 @then(u'local should have same file and QingStor keys should be deleted')
 def step_impl(context):
     for row in context.input:
-        assert_that(bucket.head_object(row["name"]).status_code).is_equal_to(404)
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(404)
         assert_that(os.path.isfile("tmp/" + row["name"])).is_equal_to(True)
 
     sh.rm("-rf", "tmp").wait()

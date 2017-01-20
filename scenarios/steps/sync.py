@@ -55,7 +55,8 @@ def step_impl(context):
 @then(u'QingStor should have keys with prefix')
 def step_impl(context):
     for row in context.table:
-        assert_that(bucket.head_object(row["name"]).status_code).is_equal_to(200)
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(200)
 
     sh.rm("-rf", "tmp").wait()
 
