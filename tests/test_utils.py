@@ -75,7 +75,7 @@ class TestUtils(unittest.TestCase):
 
     def test_yaml_load(self):
         with open(self.conf_file, 'r') as f:
-            self.assertIsInstance(yaml_load(f), dict)
+            self.assertEqual(isinstance(yaml_load(f), dict), True)
 
     def test_load_conf_1(self):
         load_conf("")
@@ -84,7 +84,7 @@ class TestUtils(unittest.TestCase):
         load_conf(self.bad_conf_file)
 
     def test_load_conf_3(self):
-        self.assertIsInstance(load_conf(self.conf_file), dict)
+        self.assertEqual(isinstance(load_conf(self.conf_file), dict), True)
 
     def test_is_windows(self):
         if platform.system().lower() == "windows":
