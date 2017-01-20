@@ -72,3 +72,4 @@ ENV/
 
 tests/test_data.py
 tests/data/large_file
+scenarios/test_config.yaml
