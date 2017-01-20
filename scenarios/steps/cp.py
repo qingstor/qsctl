@@ -38,14 +38,13 @@ def step_impl(context):
 @when(u'copy to QingStor key')
 def step_impl(context):
     for row in context.table:
-        command = qsctl(
+        qsctl(
             "cp",
             "tmp/{filename}".format(filename=row["name"]),
             "qs://{bucket}/{filename}".format(
                 bucket=test_data['bucket_name'], filename=row["name"]
             )
-        )
-        command.wait()
+        ).wait()
 
 
 @then(u'QingStor should have key')
@@ -60,13 +59,12 @@ def step_impl(context):
 
 @when(u'copy to QingStor keys recursively')
 def step_impl(context):
-    command = qsctl(
+    qsctl(
         "cp",
         "tmp",
         "qs://{bucket}".format(bucket=test_data['bucket_name']),
         "-r"
-    )
-    command.wait()
+    ).wait()
 
 
 @then(u'QingStor should have keys')
@@ -81,14 +79,13 @@ def step_impl(context):
 @when(u'copy to local file')
 def step_impl(context):
     for row in context.table:
-        command = qsctl(
+        qsctl(
             "cp",
             "qs://{bucket}/{filename}".format(
                 bucket=test_data['bucket_name'], filename=row["name"]
             ),
             "tmp/{filename}".format(filename=row["name"]),
-        )
-        command.wait()
+        ).wait()
 
 
 @then(u'local should have file')
@@ -106,15 +103,14 @@ def step_impl(context):
 
 @when(u'copy to local files recursively')
 def step_impl(context):
-    command = qsctl(
+    qsctl(
         "cp",
         "qs://{bucket}".format(
             bucket=test_data["bucket_name"],
         ),
         "tmp",
         "-r",
-    )
-    command.wait()
+    ).wait()
 
 
 @then(u'local should have files')
