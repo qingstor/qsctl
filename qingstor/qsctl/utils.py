@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # =========================================================================
 # Copyright (C) 2016 Yunify, Inc.
 # -------------------------------------------------------------------------
@@ -13,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # =========================================================================
+
+from __future__ import unicode_literals
 
 import re
 import os
@@ -32,6 +35,10 @@ from .constants import PART_SIZE
 
 UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')
 
+_ver = sys.version_info
+is_python2 = (_ver[0] == 2)
+is_python3 = (_ver[0] == 3)
+
 
 def yaml_load(stream):
     '''
@@ -49,6 +56,7 @@ def yaml_load(stream):
 
 def load_conf(conf_file):
     require_params = ["access_key_id", "secret_access_key"]
+    compatible_params = ["qy_access_key_id", "qy_secret_access_key"]
 
     if conf_file == "":
         print("Config file should be specified")
@@ -66,6 +74,9 @@ def load_conf(conf_file):
         if conf is None:
             print("Config file [%s] format error" % conf_file)
             return None
+        for param in compatible_params:
+            if param in conf:
+                conf[param] = conf[param][3:]
         for param in require_params:
             if param not in conf:
                 print("[%s] should be specified in conf_file" % param)
@@ -75,7 +86,7 @@ def load_conf(conf_file):
 
 def confirm_by_user(notice):
     while True:
-        inp = input(notice) if sys.version > "3" else raw_input(notice)
+        inp = input(notice) if is_python3 else raw_input(notice)
         if inp == "y":
             return True
         if inp == "n":
@@ -84,7 +95,7 @@ def confirm_by_user(notice):
 
 def to_unix_path(path):
     if path is not None:
-        if is_windows() and sys.version < "3":
+        if is_windows() and is_python2:
             path = encode_to_utf8(path)
         path = path.replace("\\", "/")
     return path
@@ -92,8 +103,15 @@ def to_unix_path(path):
 
 def join_local_path(local_path, key_name):
     if is_windows():
-        if sys.version < "3":
-            key_name = encode_to_gbk(key_name)
+        if is_python2:
+            try:
+                key_name = encode_to_gbk(key_name)
+            except UnicodeDecodeError:
+                print(
+                    "Python2 on Windows do not support this key_name: %s",
+                    key_name
+                )
+                return ""
         key_name = key_name.replace("/", "\\")
     local_path = os.path.join(local_path, key_name)
     return local_path
@@ -111,7 +129,7 @@ def uni_print(statement):
     """This function is used to properly write unicode to console.
     It ensures that the proper encoding is used in different os platforms.
     """
-    if is_windows() and sys.version < "3":
+    if is_windows() and is_python2:
         statement = statement.decode('utf8')
     print(statement)
 
