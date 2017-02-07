@@ -21,8 +21,6 @@ import os
 import sys
 import errno
 
-from tqdm import tqdm
-
 from .base import BaseCommand
 
 from ..constants import (
