@@ -76,7 +76,7 @@ def load_conf(conf_file):
             return None
         for param in compatible_params:
             if param in conf:
-                conf[param] = conf[param][3:]
+                conf[param[3:]] = conf[param]
         for param in require_params:
             if param not in conf:
                 print("[%s] should be specified in conf_file" % param)
