@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='qsctl',
-    version='1.2.2',
+    version='1.2.3',
     description='Advanced command line tool for QingStor.',
     long_description=open('README.rst', 'rb').read().decode('utf-8'),
     keywords='yunify qingcloud qingstor qsctl object_storage',
