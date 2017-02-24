@@ -164,11 +164,20 @@ class BaseCommand(object):
     def remove_key(cls, bucket, key):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.delete_object(key)
-        if resp.status_code != HTTP_OK_NO_CONTENT:
-            print(resp.content)
+        resp = current_bucket.head_object(key)
+        if resp.status_code == HTTP_OK:
+            if resp.headers["Content-Type"] == "application/x-directory":
+                statement = "Directory should be deleted with -r"
+                uni_print(statement)
+            else:
+                resp = current_bucket.delete_object(key)
+                if resp.status_code == HTTP_OK_NO_CONTENT:
+                    statement = "Key <%s> deleted" % key
+                    uni_print(statement)
+                else:
+                    print(resp.content)
         else:
-            statement = "Key <%s> deleted" % key
+            statement = "Key <%s> does not exist" % key
             uni_print(statement)
 
     @classmethod
