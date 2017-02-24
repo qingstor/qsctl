@@ -21,4 +21,5 @@ setup(
         'PyYAML >= 3.1',
         'qingstor-sdk >= 2.0.2',
         'docutils >= 0.10',
+        'tqdm >= 4.0.0'
     ])

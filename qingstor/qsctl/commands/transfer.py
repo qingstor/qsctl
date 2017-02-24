@@ -21,6 +21,8 @@ import os
 import sys
 import errno
 
+from tqdm import tqdm
+
 from .base import BaseCommand
 
 from ..constants import (
@@ -39,6 +41,7 @@ from ..utils import (
     get_part_numbers,
     FileChunk,
     StdinFileChunk,
+    wrapper_stream,
 )
 
 
@@ -62,6 +65,14 @@ class TransferCommand(BaseCommand):
             "--include",
             type=str,
             help="Do not exclude files or keys that match the specified pattern"
+        )
+
+        parser.add_argument(
+            "--no-progress",
+            action="store_true",
+            default=False,
+            dest="no_progress",
+            help="Close progress bar display"
         )
 
     @classmethod
@@ -125,7 +136,7 @@ class TransferCommand(BaseCommand):
 
         bucket, prefix = cls.validate_qs_path(options.dest_path)
         if prefix != "" and (not prefix.endswith("/")):
-            prefix = prefix + "/"
+            prefix += "/"
 
         for rt, dirs, files in os.walk(options.source_path):
             for d in dirs:
@@ -148,7 +159,7 @@ class TransferCommand(BaseCommand):
                 if (is_pattern_match(key_path, options.exclude, options.include)
                     and cls.confirm_key_upload(options, local_path, bucket,
                                                key)):
-                    cls.send_local_file(local_path, bucket, key)
+                    cls.send_local_file(local_path, bucket, key, options)
 
         cls.cleanup("LOCAL_TO_QS", options, bucket, prefix)
 
@@ -163,9 +174,9 @@ class TransferCommand(BaseCommand):
             if cls.confirm_key_upload(
                     options, options.source_path, bucket, key
             ):
-                cls.send_local_file(options.source_path, bucket, key)
+                cls.send_local_file(options.source_path, bucket, key, options)
         elif options.source_path == '-':
-            cls.send_data_from_stdin(bucket, key)
+            cls.send_data_from_stdin(bucket, key, options)
         else:
             print("Error: No such file: %s" % options.source_path)
             sys.exit(-1)
@@ -174,7 +185,7 @@ class TransferCommand(BaseCommand):
     def download_files(cls, options):
         bucket, prefix = cls.validate_qs_path(options.source_path)
         if prefix != "" and (not prefix.endswith("/")):
-            prefix = prefix + "/"
+            prefix += "/"
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
@@ -191,7 +202,7 @@ class TransferCommand(BaseCommand):
                     options, local_path, item["modified"]
                 )
                 if local_path and is_match and is_confirmed_key_download:
-                    cls.write_local_file(local_path, bucket, key)
+                    cls.write_local_file(local_path, bucket, key, options)
             if marker == "":
                 break
 
@@ -211,20 +222,46 @@ class TransferCommand(BaseCommand):
         else:
             local_path = options.dest_path
         if local_path and cls.confirm_key_download(options, local_path):
-            cls.write_local_file(local_path, bucket, key)
+            cls.write_local_file(local_path, bucket, key, options)
 
     @classmethod
-    def write_local_file(cls, local_path, bucket, key):
+    def write_local_file(cls, local_path, bucket, key, options):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.get_object(key)
         if resp.status_code in (HTTP_OK, HTTP_OK_PARTIAL_CONTENT):
             cls.validate_local_path(local_path)
             if key[-1] != "/":
+                content_length = resp.headers["Content-Length"]
                 with open(local_path, "wb") as f:
-                    for chunk in resp.iter_content():
-                        f.write(chunk)
-                print("File '%s' written" % local_path)
+                    uni_print(
+                        "Key <%s> is downloading as File <%s>" %
+                        (key, local_path)
+                    )
+                    if options.no_progress:
+                        pbar = None
+                    else:
+                        pbar = tqdm(
+                            total=int(content_length),
+                            unit="B",
+                            unit_scale=True,
+                            desc="Transferring"
+                        )
+                    cache = []
+                    for chunk in resp.iter_content(1024):
+                        if pbar:
+                            pbar.update(1024)
+                        cache.append(chunk)
+                        # Write file while cache is over 32M
+                        if len(cache) >= 32 * 1024:
+                            f.write(b"".join(cache))
+                            cache = []
+                    if cache:
+                        f.write(b"".join(cache))
+                        del cache
+                    if pbar is not None:
+                        pbar.close()
+                    uni_print("File '%s' written" % local_path)
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
         else:
@@ -244,60 +281,74 @@ class TransferCommand(BaseCommand):
             print(resp.content)
 
     @classmethod
-    def send_local_file(cls, local_path, bucket, key):
+    def send_local_file(cls, local_path, bucket, key, options):
         try:
             if os.path.getsize(local_path) > PART_SIZE:
-                cls.multipart_upload_file(local_path, bucket, key)
+                cls.multipart_upload_file(local_path, bucket, key, options)
             else:
-                cls.send_file(local_path, bucket, key)
+                cls.send_file(local_path, bucket, key, options)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                print(
+                uni_print(
                     "WARN: file %s not found, perhaps it's removed during "
                     "qsctl operation" % local_path
                 )
 
     @classmethod
-    def upload_multipart_from_stdin(cls, upload_id, bucket, key):
+    def upload_multipart_from_stdin(cls, upload_id, bucket, key, options):
         global upload_failed
         global part_numbers
         part_numbers = []
         next_part_number = 0
         while True:
-            if upload_failed == True:
+            if upload_failed:
                 break
 
             data = StdinFileChunk(PART_SIZE)
             done = len(data)
             part_numbers.append(next_part_number)
-            cls.upload_part(upload_id, next_part_number, data, bucket, key)
-            next_part_number = next_part_number + 1
+            cls.upload_part(
+                upload_id, next_part_number, data, bucket, key, options
+            )
+            next_part_number += 1
 
             if done != PART_SIZE:
                 break
 
     @classmethod
-    def send_data_from_stdin(cls, bucket, key):
+    def send_data_from_stdin(cls, bucket, key, options):
         global upload_failed
         upload_failed = False
-        upload_id = cls.init_multipart(bucket, key)
+        upload_id = cls.init_multipart(bucket, key, options)
 
         if upload_id == "":
             statement = "Error: key <%s> already exists" % key
             uni_print(statement)
         else:
-            cls.upload_multipart_from_stdin(upload_id, bucket, key)
+            cls.upload_multipart_from_stdin(upload_id, bucket, key, options)
             if not upload_failed:
-                cls.complete_multipart('-', upload_id, bucket, key)
+                cls.complete_multipart('-', upload_id, bucket, key, options)
             else:
                 print("Error: Failed to upload file '%s'" % '-')
 
     @classmethod
-    def send_file(cls, local_path, bucket, key):
-        with open(local_path, "rb") as data:
-            cls.validate_bucket(bucket)
-            current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-            resp = current_bucket.put_object(key, body=data)
+    def send_file(cls, local_path, bucket, key, options):
+        data = FileChunk(local_path, 0)
+        cls.validate_bucket(bucket)
+        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+        uni_print("File <%s> is uploading as Key <%s>" % (local_path, key))
+        if options.no_progress:
+            pbar = None
+        else:
+            pbar = tqdm(
+                total=data.__len__(),
+                unit="B",
+                unit_scale=True,
+                desc="Transferring"
+            )
+        resp = current_bucket.put_object(key, body=wrapper_stream(data, pbar))
+        if pbar:
+            pbar.close()
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             uni_print(statement)
@@ -307,45 +358,63 @@ class TransferCommand(BaseCommand):
             print(resp.content)
 
     @classmethod
-    def multipart_upload_file(cls, local_path, bucket, key):
+    def multipart_upload_file(cls, local_path, bucket, key, options):
         global upload_failed
         upload_failed = False
-        upload_id = cls.init_multipart(bucket, key)
+        upload_id = cls.init_multipart(bucket, key, options)
         if upload_id == "":
             statement = "Error: key <%s> already exists" % key
             uni_print(statement)
         else:
-            cls.upload_multipart(local_path, upload_id, bucket, key)
+            cls.upload_multipart(local_path, upload_id, bucket, key, options)
             if not upload_failed:
-                cls.complete_multipart(local_path, upload_id, bucket, key)
+                cls.complete_multipart(
+                    local_path, upload_id, bucket, key, options
+                )
             else:
-                print("Error: Failed to upload file '%s'" % local_path)
+                uni_print("Error: Failed to upload file '%s'" % local_path)
 
     @classmethod
-    def init_multipart(cls, bucket, key):
+    def init_multipart(cls, bucket, key, options):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.initiate_multipart_upload(key)
-        if resp.status_code != HTTP_OK:
-            upload_id = ""
-        else:
+        if resp.status_code == HTTP_OK:
             upload_id = resp["upload_id"]
+        elif resp.status_code == HTTP_BAD_REQUEST:
+            current_bucket.delete_object(key)
+            resp = current_bucket.initiate_multipart_upload(key)
+            upload_id = resp["upload_id"]
+        else:
+            upload_id = ""
         return upload_id
 
     @classmethod
-    def upload_multipart(cls, filepath, upload_id, bucket, key):
+    def upload_multipart(cls, filepath, upload_id, bucket, key, options):
         global upload_failed
         global part_numbers
         part_numbers = get_part_numbers(filepath)
+        uni_print("File <%s> is uploading as Key <%s>" % (filepath, key))
+        filesize = os.path.getsize(filepath)
+        if options.no_progress:
+            pbar = None
+        else:
+            pbar = tqdm(
+                total=filesize, unit="B", unit_scale=True, desc="Transferring"
+            )
         for part_number in part_numbers:
-            if upload_failed == True:
+            if upload_failed:
                 break
-
             data = FileChunk(filepath, part_number)
-            cls.upload_part(upload_id, part_number, data, bucket, key)
+            cls.upload_part(
+                upload_id, part_number,
+                wrapper_stream(data, pbar), bucket, key, options
+            )
+        if pbar:
+            pbar.close()
 
     @classmethod
-    def upload_part(cls, upload_id, part_number, data, bucket, key):
+    def upload_part(cls, upload_id, part_number, data, bucket, key, options):
         '''upload one part of large file.
         '''
         global upload_failed
@@ -361,7 +430,7 @@ class TransferCommand(BaseCommand):
         data.close()
 
     @classmethod
-    def complete_multipart(cls, filepath, upload_id, bucket, key):
+    def complete_multipart(cls, filepath, upload_id, bucket, key, options):
         global part_numbers
         parts = []
         for part_number in part_numbers:
