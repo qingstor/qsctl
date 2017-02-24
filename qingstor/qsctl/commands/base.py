@@ -181,15 +181,33 @@ class BaseCommand(object):
     @classmethod
     def remove_multiple_keys(cls, bucket, prefix="", options=None):
         cls.validate_bucket(bucket)
+        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
-                bucket, marker=marker, prefix=prefix
+                bucket, marker=marker, prefix=prefix, limit="1000"
             )
-            for item in keys:
-                key = item["key"]
-                if cls.confirm_key_remove(key[len(prefix):], options):
-                    cls.remove_key(bucket, key)
+            keys_to_remove = [i["key"] for i in keys]
+            for key in keys_to_remove:
+                if not cls.confirm_key_remove(key[len(prefix):], options):
+                    keys_to_remove.remove(key)
+            keys_to_remove = [{"key": key} for key in keys_to_remove]
+            resp = current_bucket.delete_multiple_objects(
+                objects=keys_to_remove
+            )
+            if resp.status_code == HTTP_OK:
+                keys_removed = [i["key"] for i in resp["deleted"]]
+                for key in keys_removed:
+                    statement = "Key <%s> deleted" % key
+                    uni_print(statement)
+                keys_error = resp["errors"]
+                for key in keys_error:
+                    statement = "Key <%s> deleted failed for <%s> " % (
+                        key["key"], key["message"]
+                    )
+                    uni_print(statement)
+            else:
+                print(resp.content)
             if marker == "":
                 break
 
