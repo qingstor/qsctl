@@ -86,7 +86,7 @@ def load_conf(conf_file):
 
 def confirm_by_user(notice):
     while True:
-        inp = input(notice) if is_python3 else raw_input(notice)
+        inp = input(notice) if is_python3 else raw_input(notice.encode("utf-8"))
         if inp == "y":
             return True
         if inp == "n":
@@ -279,6 +279,25 @@ class StdinFileChunk(StringIO):
         l = self.tell()
         self.seek(pos, os.SEEK_SET)
         return l
+
+
+def wrapper_stream(stream, pbar=None):
+    """
+    Wrap stream.read() to upload progress bar
+    """
+    if not pbar:
+        return stream
+
+    _read = stream.read
+
+    def _wrapper(size=None):
+        buf = _read(size)
+        pbar.update(size)
+        return buf
+
+    _wrapper.__name__ = str("read")
+    stream.read = _wrapper
+    return stream
 
 
 def validate_bucket_name(bucket_name):
