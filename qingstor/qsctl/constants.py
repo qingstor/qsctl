@@ -26,3 +26,6 @@ HTTP_OK_CREATED = 201
 HTTP_OK_NO_CONTENT = 204
 HTTP_OK_PARTIAL_CONTENT = 206
 HTTP_BAD_REQUEST = 400
+
+# tqdm bar format
+BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt} [{remaining} ETA, {rate_fmt}]"
