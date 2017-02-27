@@ -29,6 +29,7 @@ from ..constants import (
     PART_SIZE,
     HTTP_OK,
     HTTP_OK_CREATED,
+    HTTP_BAD_REQUEST,
     HTTP_OK_PARTIAL_CONTENT,
 )
 
@@ -109,7 +110,7 @@ class TransferCommand(BaseCommand):
             sys.exit(-1)
 
     @classmethod
-    def confirm_key_upload(cls, options, local_path, bucket, key):
+    def confirm_key_upload(cls, options, bucket, key):
         if options.force or not cls.key_exists(bucket, key):
             return True
         else:
@@ -147,7 +148,7 @@ class TransferCommand(BaseCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 if (is_pattern_match(key_path, options.exclude, options.include)
-                    and cls.confirm_key_upload(options, local_path, bucket,
+                    and cls.confirm_key_upload(options, bucket,
                                                key)):
                     cls.put_directory(bucket, key)
 
@@ -157,7 +158,7 @@ class TransferCommand(BaseCommand):
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 if (is_pattern_match(key_path, options.exclude, options.include)
-                    and cls.confirm_key_upload(options, local_path, bucket,
+                    and cls.confirm_key_upload(options, bucket,
                                                key)):
                     cls.send_local_file(local_path, bucket, key, options)
 
@@ -171,9 +172,7 @@ class TransferCommand(BaseCommand):
         else:
             key = prefix
         if os.path.isfile(options.source_path):
-            if cls.confirm_key_upload(
-                    options, options.source_path, bucket, key
-            ):
+            if cls.confirm_key_upload(options, bucket, key):
                 cls.send_local_file(options.source_path, bucket, key, options)
         elif options.source_path == '-':
             cls.send_data_from_stdin(bucket, key, options)
