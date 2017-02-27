@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] - 2017-02-27
+
+### Added
+
+- Add progress bar while downloading and uploading
+
+### Changed
+
+- Use DeleteMultipleObjects API instead
+
+### Fixed
+
+- Fix bug while deleting not exist object
+- Fix force argument's wrong behavior on multipart
+- Fix confirm statement encoding error in python2
+
 ## [1.2.3] - 2017-02-08
 
 ### Fixed
@@ -85,6 +101,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.3.0]: https://github.com/yunify/qsctl/compare/1.2.3...1.3.0
 [1.2.3]: https://github.com/yunify/qsctl/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/yunify/qsctl/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/yunify/qsctl/compare/1.2.0...1.2.1
