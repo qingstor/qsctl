@@ -27,6 +27,7 @@ from .base import BaseCommand
 
 from ..constants import (
     PART_SIZE,
+    BAR_FORMAT,
     HTTP_OK,
     HTTP_OK_CREATED,
     HTTP_BAD_REQUEST,
@@ -244,7 +245,8 @@ class TransferCommand(BaseCommand):
                             total=int(content_length),
                             unit="B",
                             unit_scale=True,
-                            desc="Transferring"
+                            desc="Transferring",
+                            bar_format=BAR_FORMAT,
                         )
                     cache = []
                     for chunk in resp.iter_content(1024):
@@ -343,7 +345,8 @@ class TransferCommand(BaseCommand):
                 total=data.__len__(),
                 unit="B",
                 unit_scale=True,
-                desc="Transferring"
+                desc="Transferring",
+                bar_format=BAR_FORMAT,
             )
         resp = current_bucket.put_object(key, body=wrapper_stream(data, pbar))
         if pbar:
@@ -399,7 +402,11 @@ class TransferCommand(BaseCommand):
             pbar = None
         else:
             pbar = tqdm(
-                total=filesize, unit="B", unit_scale=True, desc="Transferring"
+                total=filesize,
+                unit="B",
+                unit_scale=True,
+                desc="Transferring",
+                bar_format=BAR_FORMAT,
             )
         for part_number in part_numbers:
             if upload_failed:
