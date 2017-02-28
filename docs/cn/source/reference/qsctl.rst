@@ -119,3 +119,4 @@ qsctl的通配符操作利用Exclude和Include过滤器实现。它和Unix操作
 * ``rb``
 * ``rm``
 * ``sync``
+* ``presign``

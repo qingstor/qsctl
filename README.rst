@@ -75,6 +75,9 @@ Commands supported by qsctl are listed below:
   * - sync
     - Sync between local directory and QingStor prefix.
 
+  * - presign
+    - Generate a pre-signed URL for an object.
+
 --------
 Examples
 --------
