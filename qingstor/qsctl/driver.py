@@ -31,8 +31,9 @@ from qingstor.qsctl.commands.rb import RbCommand
 from qingstor.qsctl.commands.mb import MbCommand
 from qingstor.qsctl.commands.mv import MvCommand
 from qingstor.qsctl.commands.sync import SyncCommand
+from qingstor.qsctl.commands.presign import PresignCommand
 
-COMMANDS = ('ls', 'cp', 'mb', 'mv', 'rb', 'rm', 'sync')
+COMMANDS = ('ls', 'cp', 'mb', 'mv', 'rb', 'rm', 'sync', 'presign')
 
 INDENT = ' ' * 2
 NEWLINE = '\n' + INDENT

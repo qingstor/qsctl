@@ -21,6 +21,8 @@ import re
 import os
 import sys
 import json
+import time
+import calendar
 import platform
 from yaml import load
 
@@ -324,3 +326,7 @@ def validate_bucket_name(bucket_name):
         return False
 
     return True
+
+
+def get_current_time():
+    return calendar.timegm(time.gmtime())
