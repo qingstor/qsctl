@@ -80,15 +80,21 @@ class BaseCommand(object):
         return QingStor(config)
 
     @classmethod
-    def get_buckets(cls):
-        resp = cls.client.list_buckets()
-        if resp.status_code != HTTP_OK:
-            print(
-                "Error: Please check your configuration and you have "
-                "enough permission to access qingstor service."
-            )
-            sys.exit()
-        return resp["buckets"]
+    def get_zone(cls, bucket):
+        url = "{protocol}://{bucket}.{host}:{port}".format(
+            protocol=cls.client.config.protocol,
+            host=cls.client.config.host,
+            bucket=bucket,
+            port=cls.client.config.port,
+        )
+        # cls.client.client is a Request Session
+        resp = cls.client.client.head(url)
+        if "Location" in resp.headers:
+            # Location: http://test-bucket.zone.qingstor.com/
+            zone = resp.headers["Location"].split(".")[1]
+            return zone
+        else:
+            return ""
 
     @classmethod
     def send_request(cls, options):
@@ -97,12 +103,7 @@ class BaseCommand(object):
     @classmethod
     def validate_bucket(cls, bucket):
         if not cls.bucket_map.get(bucket):
-            cls.bucket_map[bucket] = ""
-            buckets = cls.get_buckets()
-            for i in buckets:
-                if bucket == i["name"]:
-                    cls.bucket_map[bucket] = i["location"]
-                    break
+            cls.bucket_map[bucket] = cls.get_zone(bucket)
             if cls.bucket_map[bucket] == "":
                 print("Error: Please check if bucket <%s> exists" % bucket)
                 sys.exit(-1)
