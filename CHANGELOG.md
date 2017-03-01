@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.4.0] - 2017-03-01
+
+### Added
+
+- Add presign command
+
+### Changed
+
+- Allow user operating buckets granted by policy
+
+### Fixed
+
+- Fix progressbar not close correctly
+
 ## [1.3.1] - 2017-02-28
 
 ### Fixed
@@ -107,6 +121,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.4.0]: https://github.com/yunify/qsctl/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/yunify/qsctl/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/yunify/qsctl/compare/1.2.3...1.3.0
 [1.2.3]: https://github.com/yunify/qsctl/compare/1.2.2...1.2.3
