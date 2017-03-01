@@ -249,6 +249,7 @@ class TransferCommand(BaseCommand):
                             unit_scale=True,
                             desc="Transferring",
                             bar_format=BAR_FORMAT,
+                            leave=False,
                         )
                     cache = []
                     for chunk in resp.iter_content(1024):
@@ -349,6 +350,7 @@ class TransferCommand(BaseCommand):
                 unit_scale=True,
                 desc="Transferring",
                 bar_format=BAR_FORMAT,
+                leave=False,
             )
         resp = current_bucket.put_object(key, body=wrapper_stream(data, pbar))
         if pbar:
@@ -409,6 +411,7 @@ class TransferCommand(BaseCommand):
                 unit_scale=True,
                 desc="Transferring",
                 bar_format=BAR_FORMAT,
+                leave=False,
             )
         for part_number in part_numbers:
             if upload_failed:
