@@ -9,7 +9,7 @@ setup(
     long_description=open('README.rst', 'rb').read().decode('utf-8'),
     keywords='yunify qingcloud qingstor qsctl object_storage',
     author='QingStor Dev Team',
-    author_email='qs_dev_group@yunify.com ',
+    author_email='qs-devel@yunify.com',
     url='https://www.qingstor.com',
     scripts=['bin/qsctl', 'bin/qsctl.cmd'],
     packages=find_packages('.'),
