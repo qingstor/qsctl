@@ -5,12 +5,12 @@ import signal
 import contextlib
 
 # Used to build usages
-AUTHOR = "daniel@yunify.com"
-COPYRIGHT = "Copyright (C) 2016 Yunify, Inc"
+AUTHOR = "qs_dev_group@yunify.com"
+COPYRIGHT = "Copyright (C) 2016-2017 Yunify, Inc"
 
 COMMANDS = (
     'qsctl', 'qsctl-ls', 'qsctl-cp', 'qsctl-mb', 'qsctl-mv', 'qsctl-rb',
-    'qsctl-rm', 'qsctl-sync'
+    'qsctl-rm', 'qsctl-sync', 'qsctl-presign'
 )
 
 
