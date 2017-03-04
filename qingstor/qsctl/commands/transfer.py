@@ -33,6 +33,7 @@ from ..constants import (
     HTTP_OK_CREATED,
     HTTP_BAD_REQUEST,
     HTTP_OK_PARTIAL_CONTENT,
+    TEMPORARY_FILE_SUFFIX,
 )
 
 from ..utils import (
@@ -113,6 +114,10 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def confirm_key_upload(cls, options, local_path, bucket, key):
+        if key.endswith(TEMPORARY_FILE_SUFFIX):
+            # Skip temporary file created in downloading process
+            return False
+
         if options.force or not cls.key_exists(bucket, key):
             return True
         else:
@@ -231,21 +236,36 @@ class TransferCommand(BaseCommand):
     def write_local_file(cls, local_path, bucket, key, options):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.get_object(key)
+
+        completed = 0
+        temporary_path = local_path + TEMPORARY_FILE_SUFFIX
+        if os.path.isfile(temporary_path):
+            completed = os.path.getsize(temporary_path)
+
+        if completed > 0:
+            resp = current_bucket.get_object(key, range="bytes=%d-" % completed)
+            uni_print("Resume downloading key <%s>" % key)
+        else:
+            resp = current_bucket.get_object(key)
         if resp.status_code in (HTTP_OK, HTTP_OK_PARTIAL_CONTENT):
             cls.validate_local_path(local_path)
+            open_flag = "wb"
             if key[-1] != "/":
-                content_length = resp.headers["Content-Length"]
-                with open(local_path, "wb") as f:
+                content_length = int(resp.headers["Content-Length"])
+                if completed > 0:
+                    open_flag = "ab"
+
+                with open(temporary_path, open_flag) as f:
                     uni_print(
                         "Key <%s> is downloading as File <%s>" %
-                        (key, local_path)
+                        (key, temporary_path)
                     )
                     if options.no_progress:
                         pbar = None
                     else:
                         pbar = tqdm(
-                            total=int(content_length),
+                            initial=completed,
+                            total=completed + content_length,
                             unit="B",
                             unit_scale=True,
                             desc="Transferring",
@@ -262,12 +282,19 @@ class TransferCommand(BaseCommand):
                         if len(cache) >= 32 * 1024:
                             f.write(b"".join(cache))
                             cache = []
+
                     if cache:
                         f.write(b"".join(cache))
                         del cache
                     if pbar is not None:
                         pbar.close()
-                    uni_print("File '%s' written" % local_path)
+
+                    os.rename(temporary_path, local_path)
+                    uni_print(
+                        "File <%s> written, rename to original file <%s>" %
+                        (temporary_path, local_path),
+                    )
+
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
         else:

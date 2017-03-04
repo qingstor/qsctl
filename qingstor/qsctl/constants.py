@@ -39,3 +39,6 @@ USE_ASCII = is_python26 or is_windows or sys.stdin.encoding is not "UTF-8"
 
 # Units used in output
 UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')
+
+# Temporary suffix for the file in downloading process.
+TEMPORARY_FILE_SUFFIX = ".qsdownload"
