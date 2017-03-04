@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import errno
+import signal
 
 from tqdm import tqdm
 
@@ -534,6 +535,8 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def send_request(cls, options):
+        # Register SIGINT handler
+        signal.signal(signal.SIGINT, cls._handle_sigint)
         transfer_flow = cls.get_transfer_flow(options)
         if transfer_flow == "LOCAL_TO_QS":
             if (cls.command == "sync") or (options.recursive is True):
