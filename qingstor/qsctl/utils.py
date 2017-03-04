@@ -61,28 +61,23 @@ class UploadIdRecorder(object):
         else:
             self.file = open(record_filename, "w+")
 
-    def put_record(self, local_path, bucket, key, upload_id):
-        local_path = self._get_full_local_path(local_path)
-        key = self._get_record_key(local_path, bucket, key)
+    def put_record(self, full_path, bucket, key, upload_id):
+        key = self._get_record_key(full_path, bucket, key)
         self.records[key] = upload_id
         self.dirty = True
 
-    def get_record(self, local_path, bucket, key):
-        local_path = self._get_full_local_path(local_path)
-        key = self._get_record_key(local_path, bucket, key)
+    def get_record(self, full_path, bucket, key):
+        key = self._get_record_key(full_path, bucket, key)
         return self.records.get(key, "")
 
-    def remove_record(self, local_path, bucket, key):
-        local_path = self._get_full_local_path(local_path)
-        key = self._get_record_key(local_path, bucket, key)
+    def remove_record(self, full_path, bucket, key):
+        key = self._get_record_key(full_path, bucket, key)
         self.records.pop(key, None)
         self.dirty = True
 
-    def _get_full_local_path(self, local_path):
-        return os.path.join(os.getcwd(), local_path)
-
     def _get_record_key(self, local_path, bucket, key):
-        return "%s%s%s/%s" % (local_path, self.separator, bucket, key)
+        full_path = os.path.join(os.getcwd(), local_path)
+        return "%s%s%s/%s" % (full_path, self.separator, bucket, key)
 
     def close(self):
         if self.dirty:

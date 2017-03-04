@@ -272,3 +272,10 @@ class BaseCommand(object):
             os.makedirs(qsctl_dir)
         record_path = os.path.join(qsctl_dir, "record")
         cls.recorder = UploadIdRecorder(record_path)
+
+    @classmethod
+    def _handle_sigint(cls, signature, frame):
+        # Handler function for signal.SIGINT
+        if cls.recorder:
+            cls.recorder.close()
+        sys.exit(0)
