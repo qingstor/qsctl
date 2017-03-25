@@ -28,6 +28,7 @@ from .base import BaseCommand
 from ..constants import (
     PART_SIZE,
     BAR_FORMAT,
+    USE_ASCII,
     HTTP_OK,
     HTTP_OK_CREATED,
     HTTP_BAD_REQUEST,
@@ -250,6 +251,7 @@ class TransferCommand(BaseCommand):
                             desc="Transferring",
                             bar_format=BAR_FORMAT,
                             leave=False,
+                            ascii=USE_ASCII
                         )
                     cache = []
                     for chunk in resp.iter_content(1024):
@@ -351,6 +353,7 @@ class TransferCommand(BaseCommand):
                 desc="Transferring",
                 bar_format=BAR_FORMAT,
                 leave=False,
+                ascii=USE_ASCII
             )
         resp = current_bucket.put_object(key, body=wrapper_stream(data, pbar))
         if pbar:
@@ -412,6 +415,7 @@ class TransferCommand(BaseCommand):
                 desc="Transferring",
                 bar_format=BAR_FORMAT,
                 leave=False,
+                ascii=USE_ASCII
             )
         for part_number in part_numbers:
             if upload_failed:
