@@ -25,21 +25,13 @@ import time
 import calendar
 import platform
 from yaml import load
-
-try:
-    from yaml import CLoader as Loader
-    from StringIO import StringIO
-except ImportError:
-    from yaml import Loader
-    from io import StringIO
-
-from .constants import PART_SIZE
-
-UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')
-
-_ver = sys.version_info
-is_python2 = (_ver[0] == 2)
-is_python3 = (_ver[0] == 3)
+from .constants import PART_SIZE, UNITS
+from .compat import (
+    is_python2,
+    is_python3,
+    Loader,
+    StringIO
+)
 
 
 def yaml_load(stream):

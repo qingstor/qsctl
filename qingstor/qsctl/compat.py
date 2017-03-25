@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 # =========================================================================
-# Copyright (C) 2016 Yunify, Inc.
+# Copyright (C) 2017 Yunify, Inc.
 # -------------------------------------------------------------------------
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this work except in compliance with the License.
@@ -14,26 +15,18 @@
 # limitations under the License.
 # =========================================================================
 
-from .compat import is_python26
+from __future__ import unicode_literals
 
-# Buffer size
-BUFFER_SIZE = 4 * 1024 * 1024
+import sys
 
-# Size of one part of the large file, used by Multipart-upload
-PART_SIZE = 32 * 1024 * 1024
+try:
+    from yaml import CLoader as Loader
+    from StringIO import StringIO
+except ImportError:
+    from yaml import Loader
+    from io import StringIO
 
-# HTTP response status
-HTTP_OK = 200
-HTTP_OK_CREATED = 201
-HTTP_OK_NO_CONTENT = 204
-HTTP_OK_PARTIAL_CONTENT = 206
-HTTP_BAD_REQUEST = 400
-
-# tqdm bar format
-BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt} [{remaining} ETA, {rate_fmt}]"
-
-# In python2.6, tqdm will raise encoding error, so use ascii instead
-USE_ASCII = is_python26
-
-# Units used in output
-UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')
+_ver = sys.version_info
+is_python2 = (_ver[0] == 2)
+is_python3 = (_ver[0] == 3)
+is_python26 = (_ver[0] == 2) and (_ver[1] == 6)
