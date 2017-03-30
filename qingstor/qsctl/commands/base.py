@@ -242,10 +242,11 @@ class BaseCommand(object):
         options = parser.parse_args(args)
 
         # Load config file
-        config_path = [
-            options.config, "~/.qingstor/config.yaml",
-            "~/.qingcloud/config.yaml"
-        ]
+        config_path = ["~/.qingstor/config.yaml", "~/.qingcloud/config.yaml"]
+
+        # IF has options.config, insert it
+        config_path.insert(0, options.config)
+
         for path in config_path:
             conf = load_conf(path)
             if conf is not None:
