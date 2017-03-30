@@ -70,8 +70,7 @@ def check_argument(args):
         exit_due_to_invalid_command()
 
     if args[1].lower() in ('-v', '-version', 'v', 'version'):
-        version = pkg_resources.require("qsctl")[0].version
-        print('qsctl %s' % version)
+        print('qsctl %s' % __version__)
         sys.exit(0)
 
     if args[-1].lower() == 'help' and len(args) <= 3:
