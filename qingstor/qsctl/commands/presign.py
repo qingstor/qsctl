@@ -32,7 +32,10 @@ class PresignCommand(BaseCommand):
     def add_extra_arguments(cls, parser):
 
         parser.add_argument(
-            "qs_path", nargs="?", default="qs://", help="The qs-path to presign"
+            "qs_path",
+            nargs="?",
+            default="qs://",
+            help="The qs-path to presign"
         )
 
         parser.add_argument(
