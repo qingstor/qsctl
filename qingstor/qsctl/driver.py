@@ -22,8 +22,10 @@ import argparse
 import pkg_resources
 from difflib import get_close_matches
 
+from qingstor.qsctl import __version__
 from qingstor.qsctl.utils import is_python2
 from qingstor.qsctl.helper import get_renderer
+from qingstor.qsctl.compat import stdin_encoding
 from qingstor.qsctl.commands.ls import LsCommand
 from qingstor.qsctl.commands.cp import CpCommand
 from qingstor.qsctl.commands.rm import RmCommand
@@ -62,7 +64,7 @@ def exit_due_to_invalid_command(suggest_commands=None):
 def check_argument(args):
     if is_python2:
         for i in range(len(args)):
-            args[i] = args[i].decode("utf-8")
+            args[i] = args[i].decode(stdin_encoding)
 
     if len(args) < 2:
         exit_due_to_invalid_command()

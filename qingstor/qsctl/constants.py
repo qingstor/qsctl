@@ -14,7 +14,9 @@
 # limitations under the License.
 # =========================================================================
 
-from .compat import is_python26
+import sys
+
+from .compat import is_python26, is_windows
 
 # Buffer size
 BUFFER_SIZE = 4 * 1024 * 1024
@@ -32,8 +34,8 @@ HTTP_BAD_REQUEST = 400
 # tqdm bar format
 BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt} [{remaining} ETA, {rate_fmt}]"
 
-# In python2.6, tqdm will raise encoding error, so use ascii instead
-USE_ASCII = is_python26
+# Make tqdm work well on python2.6, windows and non utf-8 shell
+USE_ASCII = is_python26 or is_windows or sys.stdin.encoding is not "UTF-8"
 
 # Units used in output
 UNITS = ('KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB')

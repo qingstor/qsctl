@@ -105,7 +105,7 @@ class TransferCommand(BaseCommand):
         elif dest.startswith("qs://") and not (source.startswith("qs://")):
             return "LOCAL_TO_QS"
         else:
-            print(
+            uni_print(
                 "Error: please give correct local path and qs-path. "
                 "The qs_path must start with 'qs://'."
             )
@@ -134,7 +134,7 @@ class TransferCommand(BaseCommand):
     @classmethod
     def upload_files(cls, options):
         if not os.path.isdir(options.source_path):
-            print("Error: No such directory: %s" % options.source_path)
+            uni_print("Error: No such directory: %s" % options.source_path)
             sys.exit(-1)
 
         bucket, prefix = cls.validate_qs_path(options.dest_path)
@@ -181,7 +181,7 @@ class TransferCommand(BaseCommand):
         elif options.source_path == '-':
             cls.send_data_from_stdin(bucket, key, options)
         else:
-            print("Error: No such file: %s" % options.source_path)
+            uni_print("Error: No such file: %s" % options.source_path)
             sys.exit(-1)
 
     @classmethod
@@ -215,7 +215,7 @@ class TransferCommand(BaseCommand):
     def download_file(cls, options):
         bucket, key = cls.validate_qs_path(options.source_path)
         if key == "":
-            print(
+            uni_print(
                 "Error: Please give correct and complete key qs-path, such "
                 "as 'qs://yourbucket/key'."
             )
@@ -271,7 +271,7 @@ class TransferCommand(BaseCommand):
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
         else:
-            print(resp.content)
+            uni_print(resp.content)
             sys.exit(-1)
 
     @classmethod
@@ -284,7 +284,7 @@ class TransferCommand(BaseCommand):
             statement = "Directory <%s> created in bucket <%s>" % (key, bucket)
             uni_print(statement)
         else:
-            print(resp.content)
+            uni_print(resp.content)
 
     @classmethod
     def send_local_file(cls, local_path, bucket, key, options):
@@ -335,7 +335,7 @@ class TransferCommand(BaseCommand):
             if not upload_failed:
                 cls.complete_multipart('-', upload_id, bucket, key, options)
             else:
-                print("Error: Failed to upload file '%s'" % '-')
+                uni_print("Error: Failed to upload file '%s'" % '-')
 
     @classmethod
     def send_file(cls, local_path, bucket, key, options):
@@ -364,7 +364,7 @@ class TransferCommand(BaseCommand):
             if cls.command == "mv":
                 os.remove(local_path)
         else:
-            print(resp.content)
+            uni_print(resp.content)
 
     @classmethod
     def multipart_upload_file(cls, local_path, bucket, key, options):
@@ -440,7 +440,7 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, part_number=part_number, body=data
         )
         if resp.status_code != HTTP_OK_CREATED:
-            print(resp.content)
+            uni_print(resp.content)
             upload_failed = True
         data.close()
 
@@ -456,7 +456,7 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, object_parts=parts
         )
         if resp.status_code != HTTP_OK_CREATED:
-            print(resp.content)
+            uni_print(resp.content)
         else:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             uni_print(statement)

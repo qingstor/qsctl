@@ -13,8 +13,6 @@ from qingstor.qsctl.utils import (
     format_size,
     to_unix_path,
     pattern_match,
-    encode_to_gbk,
-    encode_to_utf8,
     join_local_path,
     is_pattern_match,
     get_part_numbers,
@@ -88,16 +86,16 @@ class TestUtils(unittest.TestCase):
 
     def test_is_windows(self):
         if platform.system().lower() == "windows":
-            self.assertTrue(is_windows())
+            self.assertTrue(is_windows)
         else:
-            self.assertFalse(is_windows())
+            self.assertFalse(is_windows)
 
     def test_to_unix_path(self):
         win_path = "foo\\bar"
         self.assertEqual(to_unix_path(win_path), "foo/bar")
 
     def test_join_local_path(self):
-        if is_windows():
+        if is_windows:
             path1, path2 = "foo\\", "bar/test.txt"
             self.assertEqual(
                 join_local_path(path1, path2), "foo\\bar\\test.txt"
@@ -105,14 +103,6 @@ class TestUtils(unittest.TestCase):
         else:
             path1, path2 = "foo/", "bar/test.txt"
             self.assertEqual(join_local_path(path1, path2), "foo/bar/test.txt")
-
-    def test_encode_to_utf8(self):
-        s = b'\xd6\xd0\xce\xc4'  # GBK encoded
-        self.assertEqual(encode_to_utf8(s), b'\xe4\xb8\xad\xe6\x96\x87')
-
-    def test_encode_to_gbk(self):
-        s = b'\xe4\xb8\xad\xe6\x96\x87'  # utf8 encoded
-        self.assertEqual(encode_to_gbk(s), b'\xd6\xd0\xce\xc4')
 
     def test_uni_print(self):
         notice = b"utf8\xe5\xb7\xb2\xe6\x94\xaf\xe6\x8c\x81"

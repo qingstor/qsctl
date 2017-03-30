@@ -105,12 +105,12 @@ class BaseCommand(object):
         if not cls.bucket_map.get(bucket):
             cls.bucket_map[bucket] = cls.get_zone(bucket)
             if cls.bucket_map[bucket] == "":
-                print("Error: Please check if bucket <%s> exists" % bucket)
+                uni_print("Error: Please check if bucket <%s> exists" % bucket)
                 sys.exit(-1)
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             resp = current_bucket.head()
             if resp.status_code != HTTP_OK:
-                print(
+                uni_print(
                     "Error: Please check if you have enough"
                     " permission to access bucket <%s>." % bucket
                 )
@@ -121,7 +121,7 @@ class BaseCommand(object):
         dirname = os.path.dirname(path)
         if dirname != "":
             if os.path.isfile(dirname):
-                print(
+                uni_print(
                     "Error: File with the same name '%s' already exists" %
                     dirname
                 )
@@ -129,9 +129,9 @@ class BaseCommand(object):
             elif not os.path.isdir(dirname):
                 try:
                     os.makedirs(dirname)
-                    print("Directory '%s' created" % dirname)
+                    uni_print("Directory '%s' created" % dirname)
                 except OSError as e:
-                    print(
+                    uni_print(
                         "Error: Failed to create directory '%s': %s" %
                         (dirname, e)
                     )
@@ -148,7 +148,7 @@ class BaseCommand(object):
         elif len(qs_path_split) == 2:
             bucket, prefix = qs_path_split[0], qs_path_split[1]
         if not validate_bucket_name(bucket):
-            print("Error: Invalid Bucket name")
+            uni_print("Error: Invalid Bucket name")
             sys.exit(-1)
         if cls.command not in ("mb", "rb"):
             cls.validate_bucket(bucket)
@@ -176,7 +176,7 @@ class BaseCommand(object):
                     statement = "Key <%s> deleted" % key
                     uni_print(statement)
                 else:
-                    print(resp.content)
+                    uni_print(resp.content)
         else:
             statement = "Key <%s> does not exist" % key
             uni_print(statement)
@@ -217,7 +217,7 @@ class BaseCommand(object):
                     )
                     uni_print(statement)
             else:
-                print(resp.content)
+                uni_print(resp.content)
             if marker == "":
                 break
 
