@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 import sys
 
 from .base import BaseCommand
+from ..utils import uni_print
 
 
 class RmCommand(BaseCommand):
@@ -65,7 +66,7 @@ class RmCommand(BaseCommand):
         else:
             key = prefix
             if key == "":
-                print(
+                uni_print(
                     "Error: You must give a correct and complete qs_path, "
                     "such as 'qs://testbucket/testfile'."
                 )

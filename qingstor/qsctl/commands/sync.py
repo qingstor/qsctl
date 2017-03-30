@@ -74,7 +74,7 @@ class SyncCommand(TransferCommand):
                         )
                 ):
                     os.remove(local_path)
-                    print("File '%s' deleted" % local_path)
+                    uni_print("File '%s' deleted" % local_path)
 
         for rt, dirs, files in os.walk(options.dest_path):
             for d in dirs:
@@ -90,7 +90,7 @@ class SyncCommand(TransferCommand):
                 ):
                     if not os.listdir(local_path):
                         os.rmdir(local_path)
-                        print("Directory '%s' deleted" % local_path)
+                        uni_print("Directory '%s' deleted" % local_path)
 
     @classmethod
     def clean_keys(cls, options, bucket, prefix):

@@ -23,14 +23,10 @@ import sys
 import json
 import time
 import calendar
-import platform
 from yaml import load
 from .constants import PART_SIZE, UNITS
 from .compat import (
-    is_python2,
-    is_python3,
-    Loader,
-    StringIO
+    is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding
 )
 
 
@@ -80,7 +76,7 @@ def load_conf(conf_file):
 
 def confirm_by_user(notice):
     while True:
-        inp = input(notice) if is_python3 else raw_input(notice.encode("utf-8"))
+        inp = input(notice) if is_python3 else raw_input(notice.encode(stdout_encoding))
         if inp == "y":
             return True
         if inp == "n":
@@ -89,47 +85,30 @@ def confirm_by_user(notice):
 
 def to_unix_path(path):
     if path is not None:
-        if is_windows() and is_python2:
-            path = encode_to_utf8(path)
         path = path.replace("\\", "/")
     return path
 
 
 def join_local_path(local_path, key_name):
-    if is_windows():
-        if is_python2:
-            try:
-                key_name = encode_to_gbk(key_name)
-            except UnicodeDecodeError:
-                print(
-                    "Python2 on Windows do not support this key_name: %s",
-                    key_name
-                )
-                return ""
+    if is_windows:
         key_name = key_name.replace("/", "\\")
     local_path = os.path.join(local_path, key_name)
     return local_path
-
-
-def encode_to_utf8(s):
-    return s.decode('gbk').encode('utf8')
-
-
-def encode_to_gbk(s):
-    return s.decode('utf8').encode('gbk')
 
 
 def uni_print(statement):
     """This function is used to properly write unicode to console.
     It ensures that the proper encoding is used in different os platforms.
     """
-    if is_windows() and is_python2:
-        statement = statement.decode('utf8')
-    print(statement)
-
-
-def is_windows():
-    return platform.system().lower() == 'windows'
+    try:
+        if is_python2:
+            statement = statement.encode(stdout_encoding)
+        print(statement)
+    except UnicodeError:
+        print(
+            "Warning: Your shell's encoding <%s> does not "
+            "support printing this content" % stdout_encoding
+        )
 
 
 def json_loads(s):
@@ -180,7 +159,7 @@ def pattern_match(s, p):
 def is_pattern_match(s, exclude, include):
     '''check if pattern match with 'include' and 'exclude' option
     '''
-    if is_windows():
+    if is_windows:
         exclude = to_unix_path(exclude)
         include = to_unix_path(include)
     if exclude == None:

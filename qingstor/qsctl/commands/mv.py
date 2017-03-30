@@ -21,7 +21,7 @@ import os
 
 from .transfer import TransferCommand
 
-from ..utils import is_pattern_match, to_unix_path
+from ..utils import is_pattern_match, to_unix_path, uni_print
 
 
 class MvCommand(TransferCommand):
@@ -48,4 +48,4 @@ class MvCommand(TransferCommand):
                     key_path, options.exclude, options.include
             ):
                 os.rmdir(local_dir)
-                print("Local directory '%s' deleted" % local_dir)
+                uni_print("Local directory '%s' deleted" % local_dir)

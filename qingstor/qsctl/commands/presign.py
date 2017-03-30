@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 import sys
 
 from .base import BaseCommand
-from ..utils import get_current_time
+from ..utils import get_current_time, uni_print
 
 
 class PresignCommand(BaseCommand):
@@ -49,14 +49,14 @@ class PresignCommand(BaseCommand):
     def generate_presign_url(cls, options):
         bucket, prefix = cls.validate_qs_path(options.qs_path)
         if prefix == "":
-            print ("Error: please specify object in qs-path")
+            uni_print("Error: please specify object in qs-path")
             sys.exit(-1)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         prepared = current_bucket.get_object_request(prefix).sign_query(
             get_current_time() + options.expire_seconds
         )
-        print (prepared.url)
+        uni_print(prepared.url)
         return prepared.url
 
     @classmethod

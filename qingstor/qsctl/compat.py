@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 
 import sys
+import platform
 
 try:
     from yaml import CLoader as Loader
@@ -30,3 +31,8 @@ _ver = sys.version_info
 is_python2 = (_ver[0] == 2)
 is_python3 = (_ver[0] == 3)
 is_python26 = (_ver[0] == 2) and (_ver[1] == 6)
+
+is_windows = platform.system().lower() == 'windows'
+
+stdin_encoding = sys.stdin.encoding or "UTF-8"
+stdout_encoding = sys.stdout.encoding or "UTF-8"

@@ -22,7 +22,7 @@ import time
 
 from .base import BaseCommand
 
-from ..utils import format_size
+from ..utils import format_size, uni_print
 from ..constants import HTTP_OK
 
 # Format used to pretty print directories.
@@ -74,9 +74,9 @@ class LsCommand(BaseCommand):
         if resp.status_code == HTTP_OK:
             buckets = resp['buckets']
             for bucket in sorted(buckets, key=lambda x: x["name"]):
-                print(bucket["name"])
+                uni_print(bucket["name"])
         else:
-            print(
+            uni_print(
                 "Error: Please check if you have "
                 "enough permission to access QingStor."
             )
@@ -85,19 +85,19 @@ class LsCommand(BaseCommand):
     @classmethod
     def print_to_console(cls, keys, dirs):
         for d in sorted(dirs):
-            print("Directory" + format_directory + d)
+            uni_print("Directory" + format_directory + d)
         for key in sorted(keys, key=lambda x: x["key"]):
             created_time = time.strftime(
                 "%Y-%m-%d %X UTC",
                 time.strptime(key["created"], "%Y-%m-%dT%H:%M:%S.000Z")
             )
             if key["mime_type"] == "application/x-directory":
-                print(
+                uni_print(
                     created_time + format_size(key["size"]).rjust(12) + " " * 4
                     + key["key"] + "  (application/x-directory)"
                 )
             else:
-                print(
+                uni_print(
                     created_time + format_size(key["size"]).rjust(12) + " " * 4
                     + key["key"]
                 )
