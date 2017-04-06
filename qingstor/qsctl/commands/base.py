@@ -31,6 +31,7 @@ from ..utils import (
     to_unix_path,
     is_pattern_match,
     validate_bucket_name,
+    UploadIdRecorder,
 )
 
 
@@ -41,6 +42,7 @@ class BaseCommand(object):
 
     client = None
     bucket_map = {}
+    recorder = None
 
     @classmethod
     def add_common_arguments(cls, parser):
@@ -254,8 +256,19 @@ class BaseCommand(object):
                 cls.client = cls.get_client(conf)
                 break
 
+        cls._init_recorder()
+
         if cls.client is None:
             sys.exit(-1)
 
         # Send request
         return cls.send_request(options)
+
+    @classmethod
+    def _init_recorder(cls):
+        # Init UploadIdRecorder
+        qsctl_dir = os.path.expanduser("~/.qingstor/qsctl")
+        if not os.path.exists(qsctl_dir):
+            os.makedirs(qsctl_dir)
+        record_path = os.path.join(qsctl_dir, "record")
+        cls.recorder = UploadIdRecorder(record_path)
