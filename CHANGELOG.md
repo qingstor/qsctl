@@ -1,10 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) 
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.4.1] - 2017-03-05
+## [1.5.0] - 2017-04-11
+
+### Added
+
+- Add resumimg downloading at break-point
+- Add resumimg uploading at break-point
+- Handle interrupt signal silently
+
+### Fixed
+
+- Fix duplicate output while detecting config file
+- Fix pkg_resource error in python 2.6
+- Fix cross-platform coding problems
+
+## [1.4.1] - 2017-03-25
 
 ### Fixed
 
@@ -127,6 +141,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.5.0]: https://github.com/yunify/qsctl/compare/1.4.1...1.5.0
+[1.4.1]: https://github.com/yunify/qsctl/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/yunify/qsctl/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/yunify/qsctl/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/yunify/qsctl/compare/1.2.3...1.3.0
