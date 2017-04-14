@@ -28,7 +28,7 @@ def get_renderer(command):
     """
     Return appropriate HelpRenderer for different platform.
     """
-    if is_windows():
+    if is_windows:
         return WindowsHelpRenderer(command)
     else:
         return PosixHelpRenderer(command)
