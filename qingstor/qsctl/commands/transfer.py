@@ -23,7 +23,6 @@ import errno
 import signal
 
 from tqdm import tqdm
-
 from .base import BaseCommand
 
 from ..constants import (
@@ -38,21 +37,17 @@ from ..constants import (
 )
 
 from ..utils import (
-    confirm_by_user,
-    is_pattern_match,
-    to_unix_path,
-    join_local_path,
-    uni_print,
-    get_part_numbers,
-    FileChunk,
-    StdinFileChunk,
-    wrapper_stream,
+    confirm_by_user, is_pattern_match, to_unix_path, join_local_path, uni_print,
+    get_part_numbers, FileChunk, StdinFileChunk, wrapper_stream,
+    convert_to_bytes, TokenPail
 )
 
 
 class TransferCommand(BaseCommand):
     command = ""
     usage = ""
+
+    tokens = None
 
     @classmethod
     def add_extra_arguments(cls, parser):
@@ -78,6 +73,12 @@ class TransferCommand(BaseCommand):
             default=False,
             dest="no_progress",
             help="Close progress bar display"
+        )
+
+        parser.add_argument(
+            "--rate-limit",
+            type=str,
+            help="add rate limit for a second, eg: --rate-limit 500K"
         )
 
     @classmethod
@@ -275,7 +276,12 @@ class TransferCommand(BaseCommand):
                             ascii=USE_ASCII
                         )
                     cache = []
+
                     for chunk in resp.iter_content(1024):
+                        # cls.tokens is not None , rate limit
+                        if cls.get_tokens_obj():
+                            while not cls.get_tokens_obj().consume(1024):
+                                continue
                         if pbar:
                             pbar.update(1024)
                         cache.append(chunk)
@@ -383,7 +389,9 @@ class TransferCommand(BaseCommand):
                 leave=False,
                 ascii=USE_ASCII
             )
-        resp = current_bucket.put_object(key, body=wrapper_stream(data, pbar))
+        resp = current_bucket.put_object(
+            key, body=wrapper_stream(data, pbar, cls.get_tokens_obj())
+        )
         if pbar:
             pbar.close()
         if resp.status_code == HTTP_OK_CREATED:
@@ -407,9 +415,7 @@ class TransferCommand(BaseCommand):
             cls.recorder.put_record(local_path, bucket, key, upload_id)
         cls.upload_multipart(local_path, upload_id, bucket, key, options)
         if not upload_failed:
-            cls.complete_multipart(
-                local_path, upload_id, bucket, key, options
-            )
+            cls.complete_multipart(local_path, upload_id, bucket, key, options)
         else:
             uni_print("Error: Failed to upload file <%s>" % local_path)
 
@@ -425,8 +431,8 @@ class TransferCommand(BaseCommand):
             # Previous upload has been aborted or completed.
             uni_print(
                 "Warning: Previous upload has been aborted or completed. "
-                "Can't resume uploading key <%s> via previous upload id <%s>"
-                % (key, upload_id)
+                "Can't resume uploading key <%s> via previous upload id <%s>" %
+                (key, upload_id)
             )
             cls.recorder.remove_record(local_path, bucket, key)
             return False, "", 0
@@ -488,15 +494,16 @@ class TransferCommand(BaseCommand):
             data = FileChunk(filepath, part_number)
             cls.upload_part(
                 upload_id, part_number,
-                wrapper_stream(data, pbar), bucket, key, options
+                wrapper_stream(data, pbar, cls.get_tokens_obj()), bucket, key,
+                options
             )
         if pbar:
             pbar.close()
 
     @classmethod
     def upload_part(cls, upload_id, part_number, data, bucket, key, options):
-        '''upload one part of large file.
-        '''
+        """upload one part of large file.
+        """
         global upload_failed
 
         cls.validate_bucket(bucket)
@@ -535,6 +542,11 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def send_request(cls, options):
+        #if has option.limit_rate, create tokens object
+        if hasattr(options, "rate_limit"):
+            if options.rate_limit:
+                cls.set_tokens_obj(options.rate_limit)
+
         # Register SIGINT handler
         signal.signal(signal.SIGINT, cls._handle_sigint)
         transfer_flow = cls.get_transfer_flow(options)
@@ -550,3 +562,18 @@ class TransferCommand(BaseCommand):
                 cls.download_file(options)
         if cls.recorder:
             cls.recorder.close()
+
+    @classmethod
+    def set_tokens_obj(cls, tokens_num, fill_rate=None):
+        """
+        :param tokens_num: the number of tokens
+        :param fill_rate: the numbers of tokens that will fill in bucket in a second
+        :return:
+        """
+        limit_rate = convert_to_bytes(tokens_num)
+        # Set capacity=fill_rate *1.2 to avoid network jitter
+        cls.tokens = TokenPail(capacity=limit_rate * 1.2, fill_rate=limit_rate)
+
+    @classmethod
+    def get_tokens_obj(cls):
+        return cls.tokens

@@ -32,7 +32,7 @@ class SyncCommand(TransferCommand):
     command = "sync"
     usage = (
         "%(prog)s <source-path> <dest-path> [-c <conf_file> --delete "
-        "--exclude <pattern value> --include <pattern value>]"
+        "--exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]"
     )
 
     @classmethod
