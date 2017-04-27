@@ -26,12 +26,8 @@ from qingstor.sdk.service.qingstor import QingStor
 
 from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
 from ..utils import (
-    load_conf,
-    uni_print,
-    to_unix_path,
-    is_pattern_match,
-    validate_bucket_name,
-    UploadIdRecorder,
+    load_conf, uni_print, to_unix_path, is_pattern_match, validate_bucket_name,
+    UploadIdRecorder
 )
 
 

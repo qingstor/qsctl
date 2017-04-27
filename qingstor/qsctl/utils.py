@@ -28,6 +28,8 @@ from .constants import PART_SIZE, UNITS
 from .compat import (
     is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding
 )
+from time import time
+from threading import RLock
 
 
 class UploadIdRecorder(object):
@@ -96,11 +98,11 @@ class UploadIdRecorder(object):
 
 
 def yaml_load(stream):
-    '''
+    """
     Load from yaml stream and create a new python object
 
     @return object or `None` if failed
-    '''
+    """
     try:
         obj = load(stream, Loader=Loader)
     except Exception as e:
@@ -141,7 +143,9 @@ def load_conf(conf_file):
 
 def confirm_by_user(notice):
     while True:
-        inp = input(notice) if is_python3 else raw_input(notice.encode(stdout_encoding))
+        inp = input(notice) if is_python3 else raw_input(
+            notice.encode(stdout_encoding)
+        )
         if inp == "y":
             return True
         if inp == "n":
@@ -202,8 +206,8 @@ def format_size(value):
 
 
 def pattern_match(s, p):
-    '''pattern match used in 'include' and 'exclude' option
-    '''
+    """pattern match used in 'include' and 'exclude' option
+    """
     i, j, star_match_pos, last_star_pos = 0, 0, 0, -1
     while i < len(s):
         if j < len(p) and p[j] in (s[i], '?'):
@@ -222,8 +226,8 @@ def pattern_match(s, p):
 
 
 def is_pattern_match(s, exclude, include):
-    '''check if pattern match with 'include' and 'exclude' option
-    '''
+    """check if pattern match with 'include' and 'exclude' option
+    """
     if is_windows:
         exclude = to_unix_path(exclude)
         include = to_unix_path(include)
@@ -236,8 +240,8 @@ def is_pattern_match(s, exclude, include):
 
 
 def get_part_numbers(filename):
-    '''return a list of part numbers, will be used in multipart upload.
-    '''
+    """return a list of part numbers, will be used in multipart upload.
+    """
     part_numbers = []
     filesize = os.path.getsize(filename)
     num = filesize // PART_SIZE
@@ -286,9 +290,9 @@ class FileChunk(object):
         return self._amount_read
 
     def __len__(self):
-        '''__len__ is defined because requests will try to determine the length
+        """__len__ is defined because requests will try to determine the length
         of the stream to set a content length.
-        '''
+        """
         return self._size
 
     def __enter__(self):
@@ -298,9 +302,9 @@ class FileChunk(object):
         self._fileobj.close()
 
     def __iter__(self):
-        '''Basically httplib will try to iterate over the contents, even
+        """Basically httplib will try to iterate over the contents, even
         if it is a file like object.
-        '''
+        """
         return iter([])
 
 
@@ -319,7 +323,7 @@ class StdinFileChunk(StringIO):
         return l
 
 
-def wrapper_stream(stream, pbar=None):
+def wrapper_stream(stream, pbar=None, tokens=None):
     """
     Wrap stream.read() to upload progress bar
     """
@@ -333,8 +337,25 @@ def wrapper_stream(stream, pbar=None):
         pbar.update(size)
         return buf
 
+    def _wrapper_with_rate_limit(size=None):
+        # Use token bucket, wait while there are not enough tokens
+        # If total tokens less than size, set size=total tokens
+        if tokens.get_total_tokens() < size:
+            size = tokens.get_total_tokens()
+            size = int(size)
+        while not tokens.consume(size):
+            continue
+        buf = _read(size)
+        pbar.update(size)
+        return buf
+
     _wrapper.__name__ = str("read")
-    stream.read = _wrapper
+    _wrapper_with_rate_limit.__name__ = str("read")
+    if isinstance(tokens, TokenPail):
+        # rate limit
+        stream.read = _wrapper_with_rate_limit
+    else:
+        stream.read = _wrapper
     return stream
 
 
@@ -366,3 +387,87 @@ def validate_bucket_name(bucket_name):
 
 def get_current_time():
     return calendar.timegm(time.gmtime())
+
+# Implementation of token bucket algorithm that use to rate limit
+class TokenPail(object):
+
+    def __init__(self, capacity, fill_rate, is_lock=False):
+        """
+        :param capacity:  The total tokens in the bucket.
+        :param fill_rate:  The rate in tokens/second that the bucket will be refilled
+        """
+        self._capacity = float(capacity)
+        self._tokens = float(capacity)
+        self._fill_rate = float(fill_rate)
+        self._last_time = time()
+        self._is_lock = is_lock
+        self._lock = RLock()
+
+    def _get_cur_tokens(self):
+        if self._tokens < self._capacity:
+            now = time()
+            delta = self._fill_rate * (now - self._last_time)
+            self._tokens = min(self._capacity, self._tokens + delta)
+            self._last_time = now
+        return self._tokens
+
+    def get_cur_tokens(self):
+        if self._is_lock:
+            with self._lock:
+                return self._get_cur_tokens()
+        else:
+            return self._get_cur_tokens()
+
+    def _consume(self, tokens):
+        if tokens <= self.get_cur_tokens():
+            self._tokens -= tokens
+            return True
+        return False
+
+    def consume(self, tokens):
+        if self._is_lock:
+            with self._lock:
+                return self._consume(tokens)
+        else:
+            return self._consume(tokens)
+
+    def get_total_tokens(self):
+        return self._capacity
+
+
+def convert_to_bytes(data):
+    """
+    Convert K/M/G to Bytes
+    :param data: eg: 10K
+    :return: bytes
+    """
+    multi = 1000
+    unlimit = multi * multi * multi * multi
+    result = unlimit
+    if data:
+        data = data.lower()
+        try:
+            if data.endswith("k"):
+                data = data[:-1]
+                result = int(data) * multi
+            elif data.endswith("m"):
+                data = data[:-1]
+                result = int(data) * multi * multi
+            elif data.endswith("g"):
+                data = data[:-1]
+                result = int(data) * multi * multi * multi
+            else:
+                result = int(data)
+        except ValueError:
+            uni_print(
+                "Warning: rate limit include invaild character," \
+                "use 1G/s rate limit  as default"
+            )
+            result = unlimit
+    if result <= 0:
+        uni_print(
+                "Warning: rate limit cannot be negative," \
+                "use 1G/s rate limit  as default"
+            )
+        result = unlimit
+    return result
