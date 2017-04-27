@@ -18,6 +18,7 @@ Synopsis
     [-r, --recursive]
     [--exclude]
     [--include]
+    [--rate-limit]
 
 ===========
 Description
@@ -48,6 +49,11 @@ Exclude all keys or files that match the specified pattern.
 ``--include``
 
 Do not exclude keys or files that match the specified pattern.
+
+``--rate-limit``
+
+Limit rate when cp file from local to qingstor, or qingstor to local,
+unit: K/M/G, eg: 100K.
 
 ========
 Examples
@@ -91,3 +97,22 @@ Output::
 
     File 'test/test1.txt' written
     File 'test/test2.txt' written
+
+The following ``cp`` command copies a single file to bucket ``mybucket``,
+and limit the transmission speed of 100K per second::
+
+    $ qsctl cp test.txt qs://mybucket --rate-limit 100K
+
+Output::
+
+    Key <test.txt> created
+    File 'test.txt' deleted
+
+The following ``cp`` command copies test1.txt in bucket ``mybucket`` to local
+directory, and limit the transmission speed of 100K per second::
+
+    $ qsctl cp qs://mybucket/test1.txt test/ --rate-limit 100K
+
+Output::
+
+    File 'test/test1.txt' written

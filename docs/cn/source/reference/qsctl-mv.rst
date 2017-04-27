@@ -18,6 +18,7 @@ qsctl-mv
     [-r, --recursive]
     [--exclude]
     [--include]
+    [--rate-limit]
 
 ====
 描述
@@ -27,7 +28,7 @@ qsctl-mv
 是目标地址。
 
 注意： ``mv`` 命令将会删除源文件（对象），如果你不想删除源文件（对象），请
-使用 ``mv`` 命令。
+使用 ``cp`` 命令。
 
 如果要传的文件（对象）目标地址已存在，程序将会询问覆盖或跳过。你可以使用
 ``--force`` 选项强制覆盖。
@@ -51,6 +52,10 @@ qsctl-mv
 ``--include``
 
 包含匹配特定类型的文件（对象）。
+
+``--rate-limit``
+
+网速限制,单位可以为: K/M/G ,如: 100K 、 1M
 
 ====
 示例
@@ -97,3 +102,21 @@ qsctl-mv
     File 'test/test2.txt' written
     Key <test/test1.txt> deleted
     Key <test/test2.txt> deleted
+
+下面的 ``mv`` 命令将一个本地文件移动到 ``mybucket``，并限制速度为每秒 100K::
+
+    $ qsctl mv test.txt qs://mybucket --rate-limit 100K
+
+输出::
+
+    Key <test.txt> created
+    File 'test.txt' deleted
+
+下面的 ``mv`` 命令将 ``mybucket`` 下的所有对象移动到本地，并限制速度为每秒 100K::
+
+    $ qsctl mv qs://mybucket test/ -r --rate-limit 100K
+
+输出::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
