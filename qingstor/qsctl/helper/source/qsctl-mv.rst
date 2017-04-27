@@ -17,6 +17,7 @@ Synopsis
     [-r, --recursive]
     [--exclude]
     [--include]
+    [--rate-limit]
 
 ===========
 Description
@@ -50,6 +51,11 @@ Exclude all keys or files that match the specified pattern.
 ``--include``
 
 Do not exclude keys or files that match the specified pattern.
+
+``--rate-limit``
+
+Limit rate when mv file from local to qingstor, or qingstor to local,
+unit: K/M/G, eg: 100K.
 
 ========
 Examples
@@ -99,3 +105,22 @@ Output::
     File 'test/test2.txt' written
     Key <test/test1.txt> deleted
     Key <test/test2.txt> deleted
+
+The following ``mv`` command moves a single file to bucket ``mybucket``,
+and limit the transmission speed of 100K per second::
+
+    $ qsctl mv test.txt qs://mybucket
+
+Output::
+
+    Key <test.txt> created
+    File 'test.txt' deleted
+
+The following ``mv`` command moves test1.txt in bucket ``mybucket`` to local
+directory, and limit the transmission speed of 100K per second::
+
+    $ qsctl mv qs://mybucket/test1.txt test/ --rate-limit 100K
+
+Output::
+
+    File 'test/test1.txt' written

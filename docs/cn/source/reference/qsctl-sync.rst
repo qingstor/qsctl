@@ -17,6 +17,7 @@ qsctl-sync
     [--delete]
     [--exclude]
     [--include]
+    [--rate-limit]
 
 ====
 描述
@@ -43,6 +44,10 @@ qsctl-sync
 ``--include``
 
 包含匹配特定类型的文件（对象）。
+
+``--rate-limit``
+
+网速限制,单位可以为: K/M/G，如: 100K 、 1M。
 
 ====
 示例
@@ -78,3 +83,22 @@ qsctl-sync
     File 'test/test1.txt' written
     File 'test/test2.txt' written
     File 'test/test3.txt' deleted
+
+下面的 ``sync`` 命令将同步本地当前文件夹到 ``mybucket``，并限制速度为每秒 100K::
+
+    $ qsctl sync . qs://mybucket --rate-limit 100K
+
+输出::
+
+    Key <test1.txt> created
+    Key <test2.txt> created
+    Key <test3.txt> created
+
+下面的 ``sync`` 命令将同步 ``QS-Directory`` 到本地，并限制速度为每秒 100K::
+
+    $ qsctl sync qs://mybucket/test/ test/ --rate-limit 100K
+
+输出::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
