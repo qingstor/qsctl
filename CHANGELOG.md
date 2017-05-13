@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.6.0] - 2017-05-13
+
+### Added
+
+- Add rate limit feature
+
+### Fixed
+
+- Fix crash when executing the help sub-command
+
 ## [1.5.0] - 2017-04-11
 
 ### Added
@@ -141,6 +151,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.6.0]: https://github.com/yunify/qsctl/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/yunify/qsctl/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/yunify/qsctl/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/yunify/qsctl/compare/1.3.1...1.4.0
