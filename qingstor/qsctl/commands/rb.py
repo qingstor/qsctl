@@ -42,12 +42,12 @@ class RbCommand(BaseCommand):
         return parser
 
     @classmethod
-    def send_request(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.bucket)
+    def send_request(cls):
+        bucket, prefix = cls.validate_qs_path(cls.options.bucket)
         if prefix != "":
             print("Error: Invalid bucket name")
             sys.exit(-1)
-        if options.force == True:
+        if cls.options.force == True:
             cls.remove_multiple_keys(bucket)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
