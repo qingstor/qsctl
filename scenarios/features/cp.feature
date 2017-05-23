@@ -4,7 +4,7 @@ Feature: Copy local file(s) to QingStor or QingStor key(s) to local.
     Given a set of local files
       | name           | count |
       | 中文测试           | 1     |
-      | qsctl_test_big | 10    |
+      | qsctl_test_big | 50    |
     When copy to QingStor key
       | name           |
       | 中文测试           |
