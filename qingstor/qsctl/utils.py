@@ -28,7 +28,6 @@ from .constants import PART_SIZE, UNITS
 from .compat import (
     is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding
 )
-from time import time
 from threading import RLock
 
 
@@ -343,13 +342,13 @@ class TokenPail(object):
         self._capacity = float(capacity)
         self._tokens = float(capacity)
         self._fill_rate = float(fill_rate)
-        self._last_time = time()
+        self._last_time = time.time()
         self._is_lock = is_lock
         self._lock = RLock()
 
     def _get_cur_tokens(self):
         if self._tokens < self._capacity:
-            now = time()
+            now = time.time()
             delta = self._fill_rate * (now - self._last_time)
             self._tokens = min(self._capacity, self._tokens + delta)
             self._last_time = now
