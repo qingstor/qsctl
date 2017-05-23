@@ -3,8 +3,6 @@ import platform
 import unittest
 import subprocess
 
-from mock import patch
-
 from qingstor.qsctl.utils import (
     yaml_load,
     load_conf,
@@ -15,10 +13,8 @@ from qingstor.qsctl.utils import (
     pattern_match,
     join_local_path,
     is_pattern_match,
-    get_part_numbers,
     validate_bucket_name,
     FileChunk,
-    StdinFileChunk,
 )
 
 from qingstor.qsctl.constants import PART_SIZE
@@ -124,28 +120,14 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(is_pattern_match("xyz", "*", "x?z"))
         self.assertTrue(is_pattern_match("xyz", "*", "*z"))
 
-    def test_get_part_numbers(self):
-        part_numbers = get_part_numbers(self.large_file)
-        self.assertEqual(part_numbers, [0, 1, 2])
-
     def test_File_Chunk(self):
-        part0 = FileChunk(self.large_file, 0)
-        part1 = FileChunk(self.large_file, 1)
-        part2 = FileChunk(self.large_file, 2)
-        self.assertEqual(part0.__len__(), PART_SIZE)
-        self.assertEqual(part1.__len__(), PART_SIZE)
-        self.assertEqual(part2.__len__(), len(b"just for testing"))
-        self.assertEqual(part2.read(5), b"just ")
-        self.assertEqual(part2.read(), b"for testing")
-        part0.close()
-        part1.close()
-        part2.close()
-
-    @patch('qingstor.qsctl.utils.sys.stdin.read')
-    def test_Stdin_File_Chunk(self, read):
-        read.return_value = '\037\213'
-        part = StdinFileChunk(PART_SIZE)
-        self.assertEqual(2, len(part), 'wrong length: %d' % len(part))
+        with open(self.large_file, "rb") as f:
+            file = FileChunk(f)
+            (_, part0), (_, part1), (_, part2) = file.iter()
+            self.assertEqual(len(part0.read()), PART_SIZE)
+            self.assertEqual(len(part1.read()), PART_SIZE)
+            self.assertEqual(part2.read(5), b"just ")
+            self.assertEqual(part2.read(), b"for testing")
 
     def test_validate_bucket_name(self):
         self.assertFalse(validate_bucket_name("-abcd"))

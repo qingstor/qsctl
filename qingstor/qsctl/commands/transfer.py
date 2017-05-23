@@ -38,8 +38,7 @@ from ..constants import (
 
 from ..utils import (
     confirm_by_user, is_pattern_match, to_unix_path, join_local_path, uni_print,
-    get_part_numbers, FileChunk, StdinFileChunk, wrapper_stream,
-    convert_to_bytes, TokenPail
+    FileChunk, wrapper_stream, convert_to_bytes, TokenPail
 )
 
 
@@ -339,45 +338,12 @@ class TransferCommand(BaseCommand):
                 )
 
     @classmethod
-    def upload_multipart_from_stdin(cls, upload_id, bucket, key, options):
-        global upload_failed
-        global part_numbers
-        part_numbers = []
-        next_part_number = 0
-        while True:
-            if upload_failed:
-                break
-
-            data = StdinFileChunk(PART_SIZE)
-            done = len(data)
-            part_numbers.append(next_part_number)
-            cls.upload_part(
-                upload_id, next_part_number, data, bucket, key, options
-            )
-            next_part_number += 1
-
-            if done != PART_SIZE:
-                break
-
-    @classmethod
-    def send_data_from_stdin(cls, bucket, key, options):
-        global upload_failed
-        upload_failed = False
-        upload_id = cls.init_multipart(bucket, key, options)
-
-        if upload_id == "":
-            statement = "Error: key <%s> already exists" % key
-            uni_print(statement)
-        else:
-            cls.upload_multipart_from_stdin(upload_id, bucket, key, options)
-            if not upload_failed:
-                cls.complete_multipart('-', upload_id, bucket, key, options)
-            else:
-                uni_print("Error: Failed to upload file <%s>" % '-')
-
-    @classmethod
-    def send_file(cls, local_path, bucket, key, options):
-        data = FileChunk(local_path, 0)
+    def send_data_from_stdin(cls, bucket, key):
+        fc = FileChunk(sys.stdin)
+        try:
+            (_, data) = next(fc.iter())
+        except StopIteration:
+            return
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         uni_print("Stdin is uploading as Key <%s>" % (key))
@@ -385,7 +351,7 @@ class TransferCommand(BaseCommand):
             pbar = None
         else:
             pbar = tqdm(
-                total=data.__len__(),
+                total=fc.size,
                 unit="B",
                 unit_scale=True,
                 desc="Transferring",
@@ -401,25 +367,58 @@ class TransferCommand(BaseCommand):
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             uni_print(statement)
-            if cls.command == "mv":
-                os.remove(local_path)
         else:
             uni_print(resp.content)
 
     @classmethod
-    def multipart_upload_file(cls, local_path, bucket, key, options):
-        global upload_failed
-        global cur_part_number
-        upload_failed = False
+    def send_file(cls, local_path, bucket, key):
+        with open(local_path, "rb") as f:
+            fc = FileChunk(f)
+            try:
+                (_, data) = next(fc.iter())
+            except StopIteration:
+                return
+            cls.validate_bucket(bucket)
+            current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+            uni_print("File <%s> is uploading as Key <%s>" % (local_path, key))
+            if cls.options.no_progress:
+                pbar = None
+            else:
+                pbar = tqdm(
+                    total=fc.size,
+                    unit="B",
+                    unit_scale=True,
+                    desc="Transferring",
+                    bar_format=BAR_FORMAT,
+                    leave=False,
+                    ascii=USE_ASCII
+                )
+            resp = current_bucket.put_object(
+                key, body=wrapper_stream(data, pbar, cls.get_tokens_obj())
+            )
+            if pbar:
+                pbar.close()
+            if resp.status_code == HTTP_OK_CREATED:
+                statement = "Key <%s> created in bucket <%s>" % (key, bucket)
+                uni_print(statement)
+                if cls.command == "mv":
+                    os.remove(local_path)
+            else:
+                uni_print(resp.content)
+
+    @classmethod
+    def multipart_upload_file(cls, local_path, bucket, key):
         local_path = os.path.join(os.getcwd(), local_path)
         resume_multipart, upload_id, cur_part_number = \
             cls.try_to_resume_multipart(local_path, bucket, key)
         if not resume_multipart:
-            upload_id = cls.init_multipart(bucket, key, options)
+            upload_id = cls.init_multipart(bucket, key)
             cls.recorder.put_record(local_path, bucket, key, upload_id)
-        cls.upload_multipart(local_path, upload_id, bucket, key, options)
-        if not upload_failed:
-            cls.complete_multipart(local_path, upload_id, bucket, key, options)
+        is_upload_success = cls.upload_multipart(
+            local_path, upload_id, bucket, key, cur_part_number
+        )
+        if is_upload_success:
+            cls.complete_multipart(local_path, upload_id, bucket, key)
         else:
             uni_print("Error: Failed to upload file <%s>" % local_path)
 
@@ -465,51 +464,50 @@ class TransferCommand(BaseCommand):
         return upload_id
 
     @classmethod
-    def upload_multipart(cls, filepath, upload_id, bucket, key, options):
-        global upload_failed
-        global part_numbers
-        global cur_part_number
-        part_numbers = get_part_numbers(filepath)
-        if cur_part_number >= len(part_numbers):
-            uni_print(
-                "Warning: The size of local file <%s> is smaller than previous "
-                "uploading size. Fail to resume previous uploading. Start a new"
-                "uploading." % filepath
-            )
-            cur_part_number = 0
-        uni_print("File <%s> is uploading as Key <%s>" % (filepath, key))
-        if options.no_progress:
-            pbar = None
-        else:
-            filesize = os.path.getsize(filepath)
-            pbar = tqdm(
-                initial=cur_part_number * PART_SIZE,
-                total=filesize,
-                unit="B",
-                unit_scale=True,
-                desc="Transferring",
-                bar_format=BAR_FORMAT,
-                leave=False,
-                ascii=USE_ASCII
-            )
-        for part_number in part_numbers[cur_part_number:]:
-            if upload_failed:
-                break
-            data = FileChunk(filepath, part_number)
-            cls.upload_part(
-                upload_id, part_number,
-                wrapper_stream(data, pbar, cls.get_tokens_obj()), bucket, key,
-                options
-            )
-        if pbar:
-            pbar.close()
+    def upload_multipart(
+        cls, filepath, upload_id, bucket, key, cur_part_number
+    ):
+        with open(filepath, "rb") as f:
+            fc = FileChunk(f)
+            if cur_part_number >= fc.parts:
+                uni_print(
+                    "Warning: The size of local file <%s> is smaller than previous "
+                    "uploading size. Fail to resume previous uploading. Start a new"
+                    "uploading." % filepath
+                )
+                cur_part_number = 0
+            uni_print("File <%s> is uploading as Key <%s>" % (filepath, key))
+            if cls.options.no_progress:
+                pbar = None
+            else:
+                pbar = tqdm(
+                    initial=cur_part_number * PART_SIZE,
+                    total=fc.size,
+                    unit="B",
+                    unit_scale=True,
+                    desc="Transferring",
+                    bar_format=BAR_FORMAT,
+                    leave=False,
+                    ascii=USE_ASCII
+                )
+            for (part_number, data) in fc.iter(cur_part_number):
+                is_upload_success = cls.upload_part(
+                    upload_id,
+                    part_number,
+                    wrapper_stream(data, pbar, cls.get_tokens_obj()),
+                    bucket,
+                    key,
+                )
+                if not is_upload_success:
+                    return False
+            if pbar:
+                pbar.close()
+            return True
 
     @classmethod
     def upload_part(cls, upload_id, part_number, data, bucket, key):
         """upload one part of large file.
         """
-        global upload_failed
-
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.upload_multipart(
@@ -517,8 +515,9 @@ class TransferCommand(BaseCommand):
         )
         if resp.status_code != HTTP_OK_CREATED:
             uni_print(resp.content)
-            upload_failed = True
-        data.close()
+            return False
+        else:
+            return True
 
     @classmethod
     def complete_multipart(cls, filepath, upload_id, bucket, key):

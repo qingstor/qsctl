@@ -19,10 +19,10 @@ from __future__ import unicode_literals
 
 import re
 import os
-import sys
 import json
 import time
 import calendar
+from math import ceil
 from yaml import load
 from .constants import PART_SIZE, UNITS
 from .compat import (
@@ -239,88 +239,31 @@ def is_pattern_match(s, exclude, include):
         return (not pattern_match(s, exclude) or pattern_match(s, include))
 
 
-def get_part_numbers(filename):
-    """return a list of part numbers, will be used in multipart upload.
-    """
-    part_numbers = []
-    filesize = os.path.getsize(filename)
-    num = filesize // PART_SIZE
-    if filesize % PART_SIZE != 0:
-        num = num + 1
-    for i in range(0, num):
-        part_numbers.append(i)
-    return part_numbers
+class FileChunk:
 
+    def __init__(self, fileobj):
+        self.fileobj = fileobj
 
-class FileChunk(object):
+        # Handle files with do not support seek
+        try:
+            self.fileobj.seek(0)
+        except IOError:
+            # FIXME: this will read all data into memory
+            self.fileobj = StringIO(self.fileobj.read())
 
-    def __init__(self, filepath, part_number):
-        self._filepath = filepath
-        self._start_byte = PART_SIZE * part_number
-        self._fileobj = open(self._filepath, 'rb')
-        self._size = self._calculate_chunk_size(self._fileobj, self._start_byte)
-        self._fileobj.seek(self._start_byte)
-        self._amount_read = 0
+        # Get file size
+        self.fileobj.seek(0, os.SEEK_END)
+        self.size = self.fileobj.tell()
+        self.fileobj.seek(0, os.SEEK_SET)
 
-    def _calculate_chunk_size(self, fileobj, start_byte):
-        actual_file_size = os.fstat(fileobj.fileno()).st_size
-        max_chunk_size = actual_file_size - start_byte
-        return min(max_chunk_size, PART_SIZE)
+        # Get parts
+        self.parts = int(ceil(self.size * 1.0 / PART_SIZE))
 
-    def read(self, amount=None):
-        if amount is None:
-            remaining = self._size - self._amount_read
-            data = self._fileobj.read(remaining)
-            self._amount_read += remaining
-            return data
-        else:
-            actual_amount = min(self._size - self._amount_read, amount)
-            data = self._fileobj.read(actual_amount)
-            self._amount_read += actual_amount
-            return data
-
-    def seek(self, where):
-        self._fileobj.seek(self._start_byte + where)
-        self._amount_read = where
-
-    def close(self):
-        self._fileobj.close()
-
-    def tell(self):
-        return self._amount_read
-
-    def __len__(self):
-        """__len__ is defined because requests will try to determine the length
-        of the stream to set a content length.
-        """
-        return self._size
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        self._fileobj.close()
-
-    def __iter__(self):
-        """Basically httplib will try to iterate over the contents, even
-        if it is a file like object.
-        """
-        return iter([])
-
-
-class StdinFileChunk(StringIO):
-
-    def __init__(self, max_size):
-        StringIO.__init__(self)
-        self.write(sys.stdin.read(max_size))
-        self.seek(0, os.SEEK_SET)
-
-    def __len__(self):
-        pos = self.tell()
-        self.seek(0, os.SEEK_END)
-        l = self.tell()
-        self.seek(pos, os.SEEK_SET)
-        return l
+    def iter(self, offset=0):
+        for i in range(offset, self.parts):
+            self.fileobj.seek(i * PART_SIZE)
+            data = StringIO(self.fileobj.read(PART_SIZE))
+            yield (i, data)
 
 
 def wrapper_stream(stream, pbar=None, tokens=None):
@@ -387,6 +330,7 @@ def validate_bucket_name(bucket_name):
 
 def get_current_time():
     return calendar.timegm(time.gmtime())
+
 
 # Implementation of token bucket algorithm that use to rate limit
 class TokenPail(object):
@@ -466,8 +410,8 @@ def convert_to_bytes(data):
             result = unlimit
     if result <= 0:
         uni_print(
-                "Warning: rate limit cannot be negative," \
-                "use 1G/s rate limit  as default"
-            )
+            "Warning: rate limit cannot be negative," \
+            "use 1G/s rate limit  as default"
+        )
         result = unlimit
     return result

@@ -19,7 +19,6 @@ from __future__ import unicode_literals
 
 import sys
 import argparse
-import pkg_resources
 from difflib import get_close_matches
 
 from qingstor.qsctl import __version__

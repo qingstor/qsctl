@@ -22,10 +22,10 @@ import platform
 
 try:
     from yaml import CLoader as Loader
-    from StringIO import StringIO
+    from StringIO import cStringIO as StringIO
 except ImportError:
     from yaml import Loader
-    from io import StringIO
+    from io import BytesIO as StringIO
 
 _ver = sys.version_info
 is_python2 = (_ver[0] == 2)
