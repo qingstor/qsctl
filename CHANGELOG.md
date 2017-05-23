@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.6.1] - 2017-05-23
+
+### Changed
+
+- Use class variable to pass options
+
+### Fixed
+
+- Fix SSL Warnings with old python versions
+- Fix part_numbers is not defined error
+- Fix bug that cause presign can't work
+
 ## [1.6.0] - 2017-05-13
 
 ### Added
@@ -151,6 +163,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.6.1]: https://github.com/yunify/qsctl/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/yunify/qsctl/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/yunify/qsctl/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/yunify/qsctl/compare/1.4.0...1.4.1
