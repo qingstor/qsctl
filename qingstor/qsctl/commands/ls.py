@@ -66,10 +66,10 @@ class LsCommand(BaseCommand):
         return parser
 
     @classmethod
-    def list_buckets(cls, options):
+    def list_buckets(cls):
         location = ""
-        if options.zone:
-            location = options.zone
+        if cls.options.zone:
+            location = cls.options.zone
         resp = cls.client.list_buckets(location=location)
         if resp.status_code == HTTP_OK:
             buckets = resp['buckets']
@@ -103,17 +103,17 @@ class LsCommand(BaseCommand):
                 )
 
     @classmethod
-    def list_keys(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.qs_path)
+    def list_keys(cls):
+        bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
 
         delimiter = ""
         limit = "200"
         marker = ""
 
-        if options.recursive is False:
+        if cls.options.recursive is False:
             delimiter = "/"
-        if options.page_size is not None:
-            limit = str(options.page_size)
+        if cls.options.page_size is not None:
+            limit = str(cls.options.page_size)
 
         while True:
             keys, marker, dirs = cls.list_multiple_keys(
@@ -124,8 +124,8 @@ class LsCommand(BaseCommand):
                 break
 
     @classmethod
-    def send_request(cls, options):
-        if options.qs_path == "qs://":
-            cls.list_buckets(options)
+    def send_request(cls):
+        if cls.options.qs_path == "qs://":
+            cls.list_buckets()
         else:
-            cls.list_keys(options)
+            cls.list_keys()

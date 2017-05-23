@@ -42,14 +42,14 @@ class MbCommand(BaseCommand):
         return parser
 
     @classmethod
-    def send_request(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.bucket)
+    def send_request(cls):
+        bucket, prefix = cls.validate_qs_path(cls.options.bucket)
         if prefix != "":
             uni_print("Error: Invalid bucket name")
             sys.exit(-1)
         zone = ""
-        if options.zone:
-            zone = options.zone
+        if cls.options.zone:
+            zone = cls.options.zone
         current_bucket = cls.client.Bucket(bucket, zone)
         resp = current_bucket.put()
         if resp.status_code == HTTP_OK_CREATED:

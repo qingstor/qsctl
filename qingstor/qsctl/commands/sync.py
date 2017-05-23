@@ -50,42 +50,44 @@ class SyncCommand(TransferCommand):
         return parser
 
     @classmethod
-    def cleanup(cls, transfer_flow, options, bucket, prefix):
-        if options.delete == True:
+    def cleanup(cls, transfer_flow, bucket, prefix):
+        if cls.options.delete == True:
             if transfer_flow == "LOCAL_TO_QS":
-                cls.clean_keys(options, bucket, prefix)
+                cls.clean_keys(bucket, prefix)
             elif transfer_flow == "QS_TO_LOCAL":
-                cls.clean_files(options, bucket, prefix)
+                cls.clean_files(bucket, prefix)
 
     @classmethod
-    def clean_files(cls, options, bucket, prefix):
+    def clean_files(cls, bucket, prefix):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        for rt, dirs, files in os.walk(options.dest_path):
+        for rt, dirs, files in os.walk(cls.options.dest_path):
             for f in files:
                 local_path = os.path.join(rt, f)
-                key_path = os.path.relpath(local_path, options.dest_path)
+                key_path = os.path.relpath(local_path, cls.options.dest_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 resp = current_bucket.head_object(key)
                 if (resp.status_code != HTTP_OK) or (
                         not is_pattern_match(
-                            key_path, options.exclude, options.include
+                            key_path, cls.options.exclude, cls.options.include
                         )
                 ):
                     os.remove(local_path)
                     uni_print("File '%s' deleted" % local_path)
 
-        for rt, dirs, files in os.walk(options.dest_path):
+        for rt, dirs, files in os.walk(cls.options.dest_path):
             for d in dirs:
                 local_path = os.path.join(rt, d)
-                key_path = os.path.relpath(local_path, options.dest_path) + "/"
+                key_path = os.path.relpath(
+                    local_path, cls.options.dest_path
+                ) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
                 resp = current_bucket.head_object(key)
                 if (resp.status_code != HTTP_OK) or (
                         not is_pattern_match(
-                            key_path, options.exclude, options.include
+                            key_path, cls.options.exclude, cls.options.include
                         )
                 ):
                     if not os.listdir(local_path):
@@ -93,11 +95,11 @@ class SyncCommand(TransferCommand):
                         uni_print("Directory '%s' deleted" % local_path)
 
     @classmethod
-    def clean_keys(cls, options, bucket, prefix):
-        cls.remove_multiple_keys(bucket, prefix, options)
+    def clean_keys(cls, bucket, prefix):
+        cls.remove_multiple_keys(bucket, prefix)
 
     @classmethod
-    def confirm_key_upload(cls, options, local_path, bucket, key):
+    def confirm_key_upload(cls, local_path, bucket, key):
         if cls.key_exists(bucket, key):
             time_key_modified = cls.get_time_key_modified(bucket, key)
             return cls.is_local_file_modified(local_path, time_key_modified)
@@ -126,7 +128,7 @@ class SyncCommand(TransferCommand):
         return time_file_modified > time_key_modified
 
     @classmethod
-    def confirm_key_download(cls, options, local_path, time_key_modified=None):
+    def confirm_key_download(cls, local_path, time_key_modified=None):
         if os.path.isfile(local_path):
             time_file_modified = os.stat(local_path).st_mtime
             return time_key_modified > time_file_modified
@@ -134,8 +136,8 @@ class SyncCommand(TransferCommand):
             return True
 
     @classmethod
-    def confirm_key_remove(cls, key, options):
-        file_path = join_local_path(options.source_path, key)
+    def confirm_key_remove(cls, key):
+        file_path = join_local_path(cls.options.source_path, key)
         return (not os.path.exists(file_path)) or (
-            not is_pattern_match(key, options.exclude, options.include)
+            not is_pattern_match(key, cls.options.exclude, cls.options.include)
         )

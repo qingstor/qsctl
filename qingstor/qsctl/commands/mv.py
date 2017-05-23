@@ -33,19 +33,19 @@ class MvCommand(TransferCommand):
     )
 
     @classmethod
-    def clean_empty_dirs(cls, options):
+    def clean_empty_dirs(cls):
         local_dirs = []
-        for rt, dirs, files in os.walk(options.source_path):
+        for rt, dirs, files in os.walk(cls.options.source_path):
             for d in dirs:
                 local_dirs.append(os.path.join(rt, d))
 
         for local_dir in local_dirs[::-1]:
-            key_path = os.path.relpath(local_dir, options.source_path) + "/"
+            key_path = os.path.relpath(local_dir, cls.options.source_path) + "/"
             key_path = to_unix_path(key_path)
 
             # Delete empty directory.
             if not os.listdir(local_dir) and is_pattern_match(
-                    key_path, options.exclude, options.include
+                    key_path, cls.options.exclude, cls.options.include
             ):
                 os.rmdir(local_dir)
                 uni_print("Local directory '%s' deleted" % local_dir)

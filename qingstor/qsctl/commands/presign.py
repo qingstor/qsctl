@@ -49,19 +49,19 @@ class PresignCommand(BaseCommand):
         return parser
 
     @classmethod
-    def generate_presign_url(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.qs_path)
+    def generate_presign_url(cls):
+        bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
         if prefix == "":
             uni_print("Error: please specify object in qs-path")
             sys.exit(-1)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         prepared = current_bucket.get_object_request(prefix).sign_query(
-            get_current_time() + options.expire_seconds
+            get_current_time() + cls.options.expire_seconds
         )
         uni_print(prepared.url)
         return prepared.url
 
     @classmethod
-    def send_request(cls, options):
-        cls.generate_presign_url(options)
+    def send_request(cls):
+        cls.generate_presign_url()

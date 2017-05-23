@@ -39,6 +39,7 @@ class BaseCommand(object):
     client = None
     bucket_map = {}
     recorder = None
+    options = None
 
     @classmethod
     def add_common_arguments(cls, parser):
@@ -95,7 +96,7 @@ class BaseCommand(object):
             return ""
 
     @classmethod
-    def send_request(cls, options):
+    def send_request(cls):
         return None
 
     @classmethod
@@ -180,14 +181,16 @@ class BaseCommand(object):
             uni_print(statement)
 
     @classmethod
-    def confirm_key_remove(cls, key_name, options):
+    def confirm_key_remove(cls, key_name):
         if cls.command == "rb":
             return True
         else:
-            return is_pattern_match(key_name, options.exclude, options.include)
+            return is_pattern_match(
+                key_name, cls.options.exclude, cls.options.include
+            )
 
     @classmethod
-    def remove_multiple_keys(cls, bucket, prefix="", options=None):
+    def remove_multiple_keys(cls, bucket, prefix=""):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         marker = ""
@@ -197,7 +200,7 @@ class BaseCommand(object):
             )
             keys_to_remove = [i["key"] for i in keys]
             for key in keys_to_remove:
-                if not cls.confirm_key_remove(key[len(prefix):], options):
+                if not cls.confirm_key_remove(key[len(prefix):]):
                     keys_to_remove.remove(key)
             keys_to_remove = [{"key": key} for key in keys_to_remove]
             resp = current_bucket.delete_multiple_objects(
@@ -237,13 +240,13 @@ class BaseCommand(object):
     def main(cls, args):
 
         parser = cls.get_argument_parser()
-        options = parser.parse_args(args)
+        cls.options = parser.parse_args(args)
 
         # Load config file
         config_path = ["~/.qingstor/config.yaml", "~/.qingcloud/config.yaml"]
 
         # IF has options.config, insert it
-        config_path.insert(0, options.config)
+        config_path.insert(0, cls.options.config)
 
         for path in config_path:
             conf = load_conf(path)
@@ -258,7 +261,7 @@ class BaseCommand(object):
             sys.exit(-1)
 
         # Send request
-        return cls.send_request(options)
+        return cls.send_request()
 
     @classmethod
     def _init_recorder(cls):

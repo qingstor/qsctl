@@ -59,10 +59,10 @@ class RmCommand(BaseCommand):
         return parser
 
     @classmethod
-    def send_request(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.qs_path)
-        if options.recursive == True:
-            cls.remove_multiple_keys(bucket, prefix, options)
+    def send_request(cls):
+        bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
+        if cls.options.recursive == True:
+            cls.remove_multiple_keys(bucket, prefix)
         else:
             key = prefix
             if key == "":

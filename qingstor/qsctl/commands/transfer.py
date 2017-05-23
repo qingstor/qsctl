@@ -101,8 +101,8 @@ class TransferCommand(BaseCommand):
         return parser
 
     @classmethod
-    def get_transfer_flow(cls, options):
-        source, dest = options.source_path, options.dest_path
+    def get_transfer_flow(cls):
+        source, dest = cls.options.source_path, cls.options.dest_path
         if source.startswith("qs://") and not (dest.startswith("qs://")):
             return "QS_TO_LOCAL"
         elif dest.startswith("qs://") and not (source.startswith("qs://")):
@@ -115,12 +115,12 @@ class TransferCommand(BaseCommand):
             sys.exit(-1)
 
     @classmethod
-    def confirm_key_upload(cls, options, local_path, bucket, key):
+    def confirm_key_upload(cls, local_path, bucket, key):
         if key.endswith(TEMPORARY_FILE_SUFFIX):
             # Skip temporary file created in downloading process
             return False
 
-        if options.force or not cls.key_exists(bucket, key):
+        if cls.options.force or not cls.key_exists(bucket, key):
             return True
         else:
             notice = "Key <%s> already existed in bucket <%s>.\n" % (
@@ -130,8 +130,8 @@ class TransferCommand(BaseCommand):
             return confirm_by_user(notice)
 
     @classmethod
-    def confirm_key_download(cls, options, local_path, time_key_modified=None):
-        if options.force or not os.path.isfile(local_path):
+    def confirm_key_download(cls, local_path, time_key_modified=None):
+        if cls.options.force or not os.path.isfile(local_path):
             return True
         else:
             notice = "File '%s' already existed.\n" % local_path
@@ -139,61 +139,63 @@ class TransferCommand(BaseCommand):
             return confirm_by_user(notice)
 
     @classmethod
-    def upload_files(cls, options):
-        if not os.path.isdir(options.source_path):
-            uni_print("Error: No such directory: %s" % options.source_path)
+    def upload_files(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+        if not os.path.isdir(source_path):
+            uni_print("Error: No such directory: %s" % source_path)
             sys.exit(-1)
 
-        bucket, prefix = cls.validate_qs_path(options.dest_path)
+        bucket, prefix = cls.validate_qs_path(dest_path)
         if prefix != "" and (not prefix.endswith("/")):
             prefix += "/"
 
-        for rt, dirs, files in os.walk(options.source_path):
+        for rt, dirs, files in os.walk(source_path):
             for d in dirs:
                 local_path = os.path.join(rt, d)
-                key_path = os.path.relpath(
-                    local_path, options.source_path
-                ) + "/"
+                key_path = os.path.relpath(local_path, source_path) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                if (is_pattern_match(key_path, options.exclude, options.include)
-                    and cls.confirm_key_upload(options, local_path, bucket,
+                if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
+                    and cls.confirm_key_upload(local_path, bucket,
                                                key)):
                     cls.put_directory(bucket, key)
 
             for f in files:
                 local_path = os.path.join(rt, f)
-                key_path = os.path.relpath(local_path, options.source_path)
+                key_path = os.path.relpath(local_path, source_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                if (is_pattern_match(key_path, options.exclude, options.include)
-                    and cls.confirm_key_upload(options, local_path, bucket,
+                if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
+                    and cls.confirm_key_upload(local_path, bucket,
                                                key)):
-                    cls.send_local_file(local_path, bucket, key, options)
+                    cls.send_local_file(local_path, bucket, key)
 
-        cls.cleanup("LOCAL_TO_QS", options, bucket, prefix)
+        cls.cleanup("LOCAL_TO_QS", bucket, prefix)
 
     @classmethod
-    def upload_file(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.dest_path)
+    def upload_file(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+        bucket, prefix = cls.validate_qs_path(dest_path)
         if prefix.endswith("/") or prefix == "":
-            key = prefix + os.path.basename(options.source_path)
+            key = prefix + os.path.basename(source_path)
         else:
             key = prefix
-        if os.path.isfile(options.source_path):
-            if cls.confirm_key_upload(
-                    options, options.source_path, bucket, key
-            ):
-                cls.send_local_file(options.source_path, bucket, key, options)
-        elif options.source_path == '-':
-            cls.send_data_from_stdin(bucket, key, options)
+        if os.path.isfile(source_path):
+            if cls.confirm_key_upload(source_path, bucket, key):
+                cls.send_local_file(source_path, bucket, key)
+        elif source_path == '-':
+            cls.send_data_from_stdin(bucket, key)
         else:
-            uni_print("Error: No such file: %s" % options.source_path)
+            uni_print("Error: No such file: %s" % source_path)
             sys.exit(-1)
 
     @classmethod
-    def download_files(cls, options):
-        bucket, prefix = cls.validate_qs_path(options.source_path)
+    def download_files(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+        bucket, prefix = cls.validate_qs_path(source_path)
         if prefix != "" and (not prefix.endswith("/")):
             prefix += "/"
         marker = ""
@@ -204,38 +206,40 @@ class TransferCommand(BaseCommand):
             for item in keys:
                 key = item["key"]
                 key_name = key[len(prefix):]
-                local_path = join_local_path(options.dest_path, key_name)
+                local_path = join_local_path(dest_path, key_name)
                 is_match = is_pattern_match(
-                    key_name, options.exclude, options.include
+                    key_name, cls.options.exclude, cls.options.include
                 )
                 is_confirmed_key_download = cls.confirm_key_download(
-                    options, local_path, item["modified"]
+                    local_path, item["modified"]
                 )
                 if local_path and is_match and is_confirmed_key_download:
-                    cls.write_local_file(local_path, bucket, key, options)
+                    cls.write_local_file(local_path, bucket, key)
             if marker == "":
                 break
 
-        cls.cleanup("QS_TO_LOCAL", options, bucket, prefix)
+        cls.cleanup("QS_TO_LOCAL", bucket, prefix)
 
     @classmethod
-    def download_file(cls, options):
-        bucket, key = cls.validate_qs_path(options.source_path)
+    def download_file(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+        bucket, key = cls.validate_qs_path(source_path)
         if key == "":
             uni_print(
                 "Error: Please give correct and complete key qs-path, such "
                 "as 'qs://yourbucket/key'."
             )
             sys.exit(-1)
-        if os.path.isdir(options.dest_path):
-            local_path = join_local_path(options.dest_path, key)
+        if os.path.isdir(dest_path):
+            local_path = join_local_path(dest_path, key)
         else:
-            local_path = options.dest_path
-        if local_path and cls.confirm_key_download(options, local_path):
-            cls.write_local_file(local_path, bucket, key, options)
+            local_path = dest_path
+        if local_path and cls.confirm_key_download(local_path):
+            cls.write_local_file(local_path, bucket, key)
 
     @classmethod
-    def write_local_file(cls, local_path, bucket, key, options):
+    def write_local_file(cls, local_path, bucket, key):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
 
@@ -262,7 +266,7 @@ class TransferCommand(BaseCommand):
                         "Key <%s> is downloading as File <%s>" %
                         (key, temporary_path)
                     )
-                    if options.no_progress:
+                    if cls.options.no_progress:
                         pbar = None
                     else:
                         pbar = tqdm(
@@ -321,12 +325,12 @@ class TransferCommand(BaseCommand):
             uni_print(resp.content)
 
     @classmethod
-    def send_local_file(cls, local_path, bucket, key, options):
+    def send_local_file(cls, local_path, bucket, key):
         try:
             if os.path.getsize(local_path) > PART_SIZE:
-                cls.multipart_upload_file(local_path, bucket, key, options)
+                cls.multipart_upload_file(local_path, bucket, key)
             else:
-                cls.send_file(local_path, bucket, key, options)
+                cls.send_file(local_path, bucket, key)
         except OSError as e:
             if e.errno == errno.ENOENT:
                 uni_print(
@@ -376,8 +380,8 @@ class TransferCommand(BaseCommand):
         data = FileChunk(local_path, 0)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        uni_print("File <%s> is uploading as Key <%s>" % (local_path, key))
-        if options.no_progress:
+        uni_print("Stdin is uploading as Key <%s>" % (key))
+        if cls.options.no_progress:
             pbar = None
         else:
             pbar = tqdm(
@@ -446,7 +450,7 @@ class TransferCommand(BaseCommand):
         return True, upload_id, int(resp["count"])
 
     @classmethod
-    def init_multipart(cls, bucket, key, options):
+    def init_multipart(cls, bucket, key):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.initiate_multipart_upload(key)
@@ -501,7 +505,7 @@ class TransferCommand(BaseCommand):
             pbar.close()
 
     @classmethod
-    def upload_part(cls, upload_id, part_number, data, bucket, key, options):
+    def upload_part(cls, upload_id, part_number, data, bucket, key):
         """upload one part of large file.
         """
         global upload_failed
@@ -517,7 +521,7 @@ class TransferCommand(BaseCommand):
         data.close()
 
     @classmethod
-    def complete_multipart(cls, filepath, upload_id, bucket, key, options):
+    def complete_multipart(cls, filepath, upload_id, bucket, key):
         global part_numbers
         parts = []
         for part_number in part_numbers:
@@ -537,29 +541,29 @@ class TransferCommand(BaseCommand):
                 os.remove(filepath)
 
     @classmethod
-    def cleanup(cls, transfer_flow, options, bucket, prefix):
+    def cleanup(cls, transfer_flow, bucket, prefix):
         pass
 
     @classmethod
-    def send_request(cls, options):
-        #if has option.limit_rate, create tokens object
-        if hasattr(options, "rate_limit"):
-            if options.rate_limit:
-                cls.set_tokens_obj(options.rate_limit)
+    def send_request(cls):
+        # if has option.limit_rate, create tokens object
+        if hasattr(cls.options, "rate_limit"):
+            if cls.options.rate_limit:
+                cls.set_tokens_obj(cls.options.rate_limit)
 
         # Register SIGINT handler
         signal.signal(signal.SIGINT, cls._handle_sigint)
-        transfer_flow = cls.get_transfer_flow(options)
+        transfer_flow = cls.get_transfer_flow()
         if transfer_flow == "LOCAL_TO_QS":
-            if (cls.command == "sync") or (options.recursive is True):
-                cls.upload_files(options)
+            if (cls.command == "sync") or (cls.options.recursive is True):
+                cls.upload_files()
             else:
-                cls.upload_file(options)
+                cls.upload_file()
         elif transfer_flow == "QS_TO_LOCAL":
-            if (cls.command == "sync") or (options.recursive is True):
-                cls.download_files(options)
+            if (cls.command == "sync") or (cls.options.recursive is True):
+                cls.download_files()
             else:
-                cls.download_file(options)
+                cls.download_file()
         if cls.recorder:
             cls.recorder.close()
 
