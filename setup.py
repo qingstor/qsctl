@@ -1,7 +1,19 @@
 # coding:utf-8
 
+from sys import version_info
 from setuptools import setup, find_packages
 from qingstor.qsctl import __version__
+
+install_requires = [
+    'argparse >= 1.1',
+    'PyYAML >= 3.1',
+    'qingstor-sdk >= 2.1.0',
+    'docutils >= 0.10',
+    'tqdm >= 4.0.0'
+]
+
+if version_info[:3] < (2, 7, 9):
+    install_requires.append("requests[security]")
 
 setup(
     name='qsctl',
@@ -17,10 +29,5 @@ setup(
     package_dir={'qsctl': 'qingstor'},
     namespace_packages=['qingstor'],
     include_package_data=True,
-    install_requires=[
-        'argparse >= 1.1',
-        'PyYAML >= 3.1',
-        'qingstor-sdk >= 2.1.0',
-        'docutils >= 0.10',
-        'tqdm >= 4.0.0'
-    ])
+    install_requires=install_requires
+)
