@@ -36,6 +36,7 @@ clean:
 build: clean
 	@echo "build sdist and bdist_wheel"
 	python setup.py sdist bdist_wheel --universal
+	pyinstaller --onefile bin/qsctl --hidden-import queue
 	@echo "ok"
 
 format:
