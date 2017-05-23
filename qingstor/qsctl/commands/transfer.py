@@ -414,11 +414,13 @@ class TransferCommand(BaseCommand):
         if not resume_multipart:
             upload_id = cls.init_multipart(bucket, key)
             cls.recorder.put_record(local_path, bucket, key, upload_id)
-        is_upload_success = cls.upload_multipart(
+        is_upload_success, cur_parts = cls.upload_multipart(
             local_path, upload_id, bucket, key, cur_part_number
         )
         if is_upload_success:
-            cls.complete_multipart(local_path, upload_id, bucket, key)
+            cls.complete_multipart(
+                local_path, upload_id, cur_parts, bucket, key
+            )
         else:
             uni_print("Error: Failed to upload file <%s>" % local_path)
 
@@ -465,7 +467,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def upload_multipart(
-        cls, filepath, upload_id, bucket, key, cur_part_number
+            cls, filepath, upload_id, bucket, key, cur_part_number
     ):
         with open(filepath, "rb") as f:
             fc = FileChunk(f)
@@ -499,10 +501,10 @@ class TransferCommand(BaseCommand):
                     key,
                 )
                 if not is_upload_success:
-                    return False
+                    return (False, part_number)
             if pbar:
                 pbar.close()
-            return True
+            return (True, fc.parts)
 
     @classmethod
     def upload_part(cls, upload_id, part_number, data, bucket, key):
@@ -520,10 +522,9 @@ class TransferCommand(BaseCommand):
             return True
 
     @classmethod
-    def complete_multipart(cls, filepath, upload_id, bucket, key):
-        global part_numbers
+    def complete_multipart(cls, filepath, upload_id, cur_parts, bucket, key):
         parts = []
-        for part_number in part_numbers:
+        for part_number in range(cur_parts):
             parts.append({"part_number": part_number})
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
