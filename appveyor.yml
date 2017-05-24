@@ -1,0 +1,27 @@
+image: Visual Studio 2017
+platform: x64
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "64"
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.3"
+      PYTHON_ARCH: "64"
+install:
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - for /f "delims=" %%t in ('python -c "import qingstor.qsctl;print(qingstor.qsctl.__version__)"') do set QSCTL_VERSION=%%t
+  - python --version
+  - pip install wheel pyinstaller
+build_script:
+  - python setup.py sdist bdist_wheel --universal
+  - pip install dist\qsctl-%QSCTL_VERSION%-py2.py3-none-any.whl -U
+  - pyinstaller --onefile bin/qsctl --hidden-import queue
+  - 7z a dist/qsctl-%QSCTL_VERSION%-windows.zip dist/qsctl.exe
+deploy_script:
+  - "echo access_key_id: %QINGSTOR_ACCESS_KEY_ID% > config.yaml"
+  - "echo secret_access_key: %QINGSTOR_SECRET_ACCESS_KEY% >> config.yaml"
+  - if %APPVEYOR_REPO_TAG% == true qsctl cp dist/qsctl-%QSCTL_VERSION%-windows.zip qs://releases-qs/qsctl/qsctl-%QSCTL_VERSION%-windows.zip -f -c config.yaml
+artifacts:
+  - path: dist\qsctl.exe
+    name: qsctl.exe

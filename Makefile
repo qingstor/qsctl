@@ -59,17 +59,17 @@ package: install
 
 release-linux: package
 	@echo "build qsctl release for linux"
-	tar -czvf dist/qsctl-${VERSION}-bin.tar.gz dist/qsctl
+	cd dist && tar -czvf qsctl-${VERSION}-linux.tar.gz qsctl
 	@echo "ok"
 
 release-darwin: package
 	@echo "build qsctl release for darwin"
-	tar -czvf dist/qsctl-${VERSION}-bin.tar.gz dist/qsctl
+	cd dist && tar -czvf qsctl-${VERSION}-darwin.tar.gz qsctl
 	@echo "ok"
 
 release-windows: package
 	@echo "build qsctl release for windows"
-	zip -FS "dist/qsctl-${VERSION}-bin.zip" dist/qsctl.exe
+	zip -FS "dist/qsctl-${VERSION}-windows.zip" dist/qsctl.exe
 	@echo "ok"
 
 format:

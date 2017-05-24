@@ -1,15 +1,49 @@
 language: python
 
-python:
-  - '2.6'
-  - '2.7'
-  - '3.3'
-  - '3.4'
-  - '3.5'
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      python: '2.6'
+    - os: linux
+      dist: trusty
+      python: '2.7'
+    - os: linux
+      dist: trusty
+      python: '3.3'
+    - os: linux
+      dist: trusty
+      python: '3.4'
+    - os: linux
+      dist: trusty
+      python: '3.5'
+    - os: linux
+      dist: trusty
+      python: '3.6'
+    - os: osx
+      language: objective-c
+      env: PYENV_VERSION=2.7.12
+    - os: osx
+      language: objective-c
+      env: PYENV_VERSION=3.5.2
 
 install:
-  - pip install pytest mock wheel
-  - python setup.py sdist bdist_wheel --universal
-  - pip install dist/*.whl
+  - pip install pytest wheel
+  - make install
 
-script: py.test tests
+script:
+  - py.test tests
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYENV_VERSION" == "3.5.2" ]]; then pip install pyinstaller && make release-darwin; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install pyinstaller && make release-linux; fi
+
+deploy:
+  provider: qingstor
+  access_key_id: $ACCESS_KEY_ID
+  secret_access_key: $SECRET_ACCESS_KEY
+  bucket_name: $BUCKET_NAME
+  local_dir: $TRAVIS_BUILD_DIR/dist
+  upload_dir: qsctl
+  edge:
+    source: pengsrc/dpl
+    branch: master
+  skip_cleanup: true
