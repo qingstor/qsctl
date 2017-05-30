@@ -164,19 +164,24 @@ def join_local_path(local_path, key_name):
     return local_path
 
 
-def uni_print(statement):
+def uni_print(statement, pbar=None):
     """This function is used to properly write unicode to console.
     It ensures that the proper encoding is used in different os platforms.
     """
     try:
         if is_python2:
             statement = statement.encode(stdout_encoding)
-        print(statement)
+        if pbar is not None:
+            pbar.write(statement)
+        else:
+            print(statement)
     except UnicodeError:
-        print(
-            "Warning: Your shell's encoding <%s> does not "
+        statement = "Warning: Your shell's encoding <%s> does not " \
             "support printing this content" % stdout_encoding
-        )
+        if pbar is not None:
+            pbar.write(statement)
+        else:
+            print(statement)
 
 
 def json_loads(s):

@@ -45,7 +45,7 @@ class MbCommand(BaseCommand):
     def send_request(cls):
         bucket, prefix = cls.validate_qs_path(cls.options.bucket)
         if prefix != "":
-            uni_print("Error: Invalid bucket name")
+            uni_print("Error: Invalid bucket name", cls.multithread_bar)
             sys.exit(-1)
         zone = ""
         if cls.options.zone:
@@ -53,6 +53,6 @@ class MbCommand(BaseCommand):
         current_bucket = cls.client.Bucket(bucket, zone)
         resp = current_bucket.put()
         if resp.status_code == HTTP_OK_CREATED:
-            uni_print("Bucket <%s> created" % bucket)
+            uni_print("Bucket <%s> created" % bucket, cls.multithread_bar)
         else:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)

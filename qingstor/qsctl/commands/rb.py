@@ -53,6 +53,6 @@ class RbCommand(BaseCommand):
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.delete()
         if resp.status_code != HTTP_OK_NO_CONTENT:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
         else:
-            uni_print("Bucket <%s> deleted" % bucket)
+            uni_print("Bucket <%s> deleted" % bucket, cls.multithread_bar)

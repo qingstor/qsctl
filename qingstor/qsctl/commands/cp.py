@@ -25,5 +25,6 @@ class CpCommand(TransferCommand):
     command = "cp"
     usage = (
         "%(prog)s <source-path> <dest-path> [-c <conf_file> "
-        "-r <recusively> --exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]"
+        "-r <recusively> --exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]" \
+        "--workers <workers_num>]"
     )

@@ -71,12 +71,10 @@ def step_impl(context):
 def step_impl(context):
     for row in context.input:
         qsctl(
-            "mv",
-            "qs://{bucket}/{filename}".format(
+            "mv", "qs://{bucket}/{filename}".format(
                 bucket=test_data["bucket_name"],
                 filename=row["name"],
-            ),
-            "tmp/{filename}".format(
+            ), "tmp/{filename}".format(
                 filename=row["name"],
             )
         ).wait()

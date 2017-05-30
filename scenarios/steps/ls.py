@@ -63,8 +63,7 @@ def step_impl(context):
     context.output = {}
     for row in context.table:
         context.output[row["prefix"]] = qsctl(
-            "ls",
-            "qs://{bucket}/{prefix}".format(
+            "ls", "qs://{bucket}/{prefix}".format(
                 bucket=test_data["bucket_name"], prefix=row["prefix"]
             )
         ).stdout.decode("utf-8")

@@ -19,6 +19,7 @@ qsctl-mv
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ====
 描述
@@ -56,6 +57,9 @@ qsctl-mv
 ``--rate-limit``
 
 网速限制,单位可以为: K/M/G ,如: 100K 、 1M
+
+``--workers``
+最多同时传输文件数量
 
 ====
 示例
@@ -120,3 +124,12 @@ qsctl-mv
 
     File 'test/test1.txt' written
     File 'test/test2.txt' written
+
+下面的 ``mv`` 命令最多同时移动10个对象::
+
+    $ qsctl mv test qs://mybucket -r --workers 10
+
+输出::
+
+    Key <test.txt> created
+    File 'test.txt' deleted

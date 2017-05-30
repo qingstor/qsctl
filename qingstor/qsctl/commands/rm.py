@@ -68,7 +68,7 @@ class RmCommand(BaseCommand):
             if key == "":
                 uni_print(
                     "Error: You must give a correct and complete qs_path, "
-                    "such as 'qs://testbucket/testfile'."
+                    "such as 'qs://testbucket/testfile'.", cls.multithread_bar
                 )
                 sys.exit(-1)
             cls.remove_key(bucket, key)
