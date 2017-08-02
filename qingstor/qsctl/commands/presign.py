@@ -24,7 +24,6 @@ from ..utils import get_current_time, uni_print
 
 
 class PresignCommand(BaseCommand):
-
     command = "presign"
     usage = "%(prog)s <qs-path> [-e <expire_seconds>]"
 
@@ -56,11 +55,38 @@ class PresignCommand(BaseCommand):
             sys.exit(-1)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        prepared = current_bucket.get_object_request(prefix).sign_query(
-            get_current_time() + cls.options.expire_seconds
-        )
-        uni_print(prepared.url)
-        return prepared.url
+        resp = current_bucket.head_object(prefix)
+        if resp.status_code == 404:
+            uni_print("Error: Please check if object <%s> exists" % prefix)
+            sys.exit(-1)
+        elif resp.status_code == 403:
+            uni_print(
+                "Error: Please check if you have enough"
+                " permission to access object <%s>." % prefix
+            )
+            sys.exit(-1)
+        elif resp.status_code == 200:
+            current_acl = current_bucket.get_acl()
+            for v in current_acl["acl"]:
+                if v["grantee"]["name"] == "QS_ALL_USERS":  # check whether the bucket is public
+                    public_url = "{protocol}://{bucket_name}.{zone}.{host}/{object_key}".format(
+                        protocol=current_bucket.config.protocol,
+                        bucket_name=bucket,
+                        zone=cls.bucket_map[bucket],
+                        host=current_bucket.config.host,
+                        object_key=prefix
+                    )
+                    uni_print(public_url)
+                    return public_url
+            prepared = current_bucket.get_object_request(prefix).sign_query(  # if the bucket is non-public,
+                # generate the link with signature, expire seconds and other formatted parameters
+                get_current_time() + cls.options.expire_seconds
+            )
+            uni_print(prepared.url)
+            return prepared.url
+        else:
+            uni_print(resp.content)
+            sys.exit(-1)
 
     @classmethod
     def send_request(cls):
