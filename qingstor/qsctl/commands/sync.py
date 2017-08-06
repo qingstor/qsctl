@@ -32,7 +32,8 @@ class SyncCommand(TransferCommand):
     command = "sync"
     usage = (
         "%(prog)s <source-path> <dest-path> [-c <conf_file> --delete "
-        "--exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]"
+        "--exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]" \
+        "--workers <workers_num>]"
     )
 
     @classmethod
@@ -74,7 +75,9 @@ class SyncCommand(TransferCommand):
                         )
                 ):
                     os.remove(local_path)
-                    uni_print("File '%s' deleted" % local_path)
+                    uni_print(
+                        "File '%s' deleted" % local_path, cls.multithread_bar
+                    )
 
         for rt, dirs, files in os.walk(cls.options.dest_path):
             for d in dirs:
@@ -92,7 +95,10 @@ class SyncCommand(TransferCommand):
                 ):
                     if not os.listdir(local_path):
                         os.rmdir(local_path)
-                        uni_print("Directory '%s' deleted" % local_path)
+                        uni_print(
+                            "Directory '%s' deleted" % local_path,
+                            cls.multithread_bar
+                        )
 
     @classmethod
     def clean_keys(cls, bucket, prefix):
@@ -118,7 +124,7 @@ class SyncCommand(TransferCommand):
             )
         else:
             statement = "Error: Failed to head key <%s>" % key
-            uni_print(statement)
+            uni_print(statement, cls.multithread_bar)
             sys.exit(-1)
 
     @classmethod

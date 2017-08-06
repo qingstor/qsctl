@@ -36,8 +36,7 @@ def step_impl(context):
 def step_impl(context):
     for row in context.input:
         qsctl(
-            "rm",
-            "qs://{bucket}/{filename}".format(
+            "rm", "qs://{bucket}/{filename}".format(
                 bucket=test_data["bucket_name"],
                 filename=row["name"],
             )

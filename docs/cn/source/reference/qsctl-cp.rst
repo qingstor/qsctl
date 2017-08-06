@@ -19,6 +19,7 @@ qsctl-cp
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ====
 描述
@@ -53,6 +54,9 @@ qsctl-cp
 ``--rate-limit``
 
 网速限制,单位可以为: K/M/G，如: 100K 、 1M。
+
+``--workers``
+最多同时传输文件数量
 
 ====
 示例
@@ -111,3 +115,13 @@ qsctl-cp
 
     File 'test/test1.txt' written
     File 'test/test2.txt' written
+
+下面的 ``cp`` 命令最多同时复制10个对象::
+
+    $ qsctl cp qs://mybucket test -r --workers 10
+
+输出::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
+    File 'test/test3.txt' written

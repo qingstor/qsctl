@@ -18,6 +18,7 @@ Synopsis
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ===========
 Description
@@ -56,6 +57,10 @@ Do not exclude keys or files that match the specified pattern.
 
 Limit rate when mv file from local to qingstor, or qingstor to local,
 unit: K/M/G, eg: 100K.
+
+``--workers``
+
+The number of files transferred at the same time
 
 ========
 Examples
@@ -124,3 +129,15 @@ directory, and limit the transmission speed of 100K per second::
 Output::
 
     File 'test/test1.txt' written
+
+The following ``mv`` command moves all keys in bucket ``mybucket`` to local
+directory, and the max number of files transferred at the same time is 10::
+
+    $ qsctl mv qs://mybucket test/ -r --workers 10
+
+Output::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
+    Key <test/test1.txt> deleted
+    Key <test/test2.txt> deleted

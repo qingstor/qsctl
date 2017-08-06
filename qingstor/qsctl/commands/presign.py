@@ -52,14 +52,16 @@ class PresignCommand(BaseCommand):
     def generate_presign_url(cls):
         bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
         if prefix == "":
-            uni_print("Error: please specify object in qs-path")
+            uni_print(
+                "Error: please specify object in qs-path", cls.multithread_bar
+            )
             sys.exit(-1)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         prepared = current_bucket.get_object_request(prefix).sign_query(
             get_current_time() + cls.options.expire_seconds
         )
-        uni_print(prepared.url)
+        uni_print(prepared.url, cls.multithread_bar)
         return prepared.url
 
     @classmethod

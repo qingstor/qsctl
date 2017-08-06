@@ -41,6 +41,9 @@ class BaseCommand(object):
     recorder = None
     options = None
 
+    # Use by uni_print, avoid BaseCommand instance has no attribute "multithread_bar"
+    multithread_bar = None
+
     @classmethod
     def add_common_arguments(cls, parser):
         parser.add_argument(
@@ -104,14 +107,18 @@ class BaseCommand(object):
         if not cls.bucket_map.get(bucket):
             cls.bucket_map[bucket] = cls.get_zone(bucket)
             if cls.bucket_map[bucket] == "":
-                uni_print("Error: Please check if bucket <%s> exists" % bucket)
+                uni_print(
+                    "Error: Please check if bucket <%s> exists" % bucket,
+                    cls.multithread_bar
+                )
                 sys.exit(-1)
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             resp = current_bucket.head()
             if resp.status_code != HTTP_OK:
                 uni_print(
                     "Error: Please check if you have enough"
-                    " permission to access bucket <%s>." % bucket
+                    " permission to access bucket <%s>." % bucket,
+                    cls.multithread_bar
                 )
                 sys.exit(-1)
 
@@ -122,17 +129,19 @@ class BaseCommand(object):
             if os.path.isfile(dirname):
                 uni_print(
                     "Error: File with the same name '%s' already exists" %
-                    dirname
+                    dirname, cls.multithread_bar
                 )
                 sys.exit(-1)
             elif not os.path.isdir(dirname):
                 try:
                     os.makedirs(dirname)
-                    uni_print("Directory '%s' created" % dirname)
+                    uni_print(
+                        "Directory '%s' created" % dirname, cls.multithread_bar
+                    )
                 except OSError as e:
                     uni_print(
                         "Error: Failed to create directory '%s': %s" %
-                        (dirname, e)
+                        (dirname, e), cls.multithread_bar
                     )
                     sys.exit(-1)
 
@@ -147,7 +156,7 @@ class BaseCommand(object):
         elif len(qs_path_split) == 2:
             bucket, prefix = qs_path_split[0], qs_path_split[1]
         if not validate_bucket_name(bucket):
-            uni_print("Error: Invalid Bucket name")
+            uni_print("Error: Invalid Bucket name", cls.multithread_bar)
             sys.exit(-1)
         if cls.command not in ("mb", "rb"):
             cls.validate_bucket(bucket)
@@ -168,17 +177,17 @@ class BaseCommand(object):
         if resp.status_code == HTTP_OK:
             if resp.headers["Content-Type"] == "application/x-directory":
                 statement = "Directory should be deleted with -r"
-                uni_print(statement)
+                uni_print(statement, cls.multithread_bar)
             else:
                 resp = current_bucket.delete_object(key)
                 if resp.status_code == HTTP_OK_NO_CONTENT:
                     statement = "Key <%s> deleted" % key
-                    uni_print(statement)
+                    uni_print(statement, cls.multithread_bar)
                 else:
-                    uni_print(resp.content)
+                    uni_print(resp.content, cls.multithread_bar)
         else:
             statement = "Key <%s> does not exist" % key
-            uni_print(statement)
+            uni_print(statement, cls.multithread_bar)
 
     @classmethod
     def confirm_key_remove(cls, key_name):
@@ -210,15 +219,15 @@ class BaseCommand(object):
                 keys_removed = [i["key"] for i in resp["deleted"]]
                 for key in keys_removed:
                     statement = "Key <%s> deleted" % key
-                    uni_print(statement)
+                    uni_print(statement, cls.multithread_bar)
                 keys_error = resp["errors"]
                 for key in keys_error:
                     statement = "Key <%s> deleted failed for <%s> " % (
                         key["key"], key["message"]
                     )
-                    uni_print(statement)
+                    uni_print(statement, cls.multithread_bar)
             else:
-                uni_print(resp.content)
+                uni_print(resp.content, cls.multithread_bar)
             if marker == "":
                 break
 

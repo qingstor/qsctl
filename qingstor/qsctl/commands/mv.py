@@ -29,7 +29,8 @@ class MvCommand(TransferCommand):
     command = "mv"
     usage = (
         "%(prog)s <source-path> <dest-path> [-c <conf_file> "
-        "-r <recusively> --exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]"
+        "-r <recusively> --exclude <pattern value> --include <pattern value> --rate-limit <pattern value>]" \
+        "--workers <workers_num>]"
     )
 
     @classmethod
@@ -48,4 +49,7 @@ class MvCommand(TransferCommand):
                     key_path, cls.options.exclude, cls.options.include
             ):
                 os.rmdir(local_dir)
-                uni_print("Local directory '%s' deleted" % local_dir)
+                uni_print(
+                    "Local directory '%s' deleted" % local_dir,
+                    cls.multithread_bar
+                )

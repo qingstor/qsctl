@@ -23,6 +23,8 @@ import errno
 import signal
 
 from tqdm import tqdm
+from multiprocessing.dummy import Pool
+from threading import RLock
 from .base import BaseCommand
 
 from ..constants import (
@@ -47,6 +49,23 @@ class TransferCommand(BaseCommand):
     usage = ""
 
     tokens = None
+
+    # multithreading pool
+    workers = None
+
+    # total size of tqdm.total
+    total_size = 0
+
+    multithread_bar = None
+
+    lock = RLock()
+
+    # if upload_files method is called, upload_files_flag == True
+    # used by upload_multipart method to avoid close the multitreading pool twice
+    # when in the following execution path:
+    # upload_files --> send_local_file --> upload_multipart (doesn't close multitreading pool in upload_multipart)
+    # it will close multitreading pool when only uploads one file by using upload_multipart
+    # upload_files_flag = False
 
     @classmethod
     def add_extra_arguments(cls, parser):
@@ -80,6 +99,12 @@ class TransferCommand(BaseCommand):
             help="add rate limit for a second, eg: --rate-limit 500K"
         )
 
+        parser.add_argument(
+            "--workers",
+            type=int,
+            help="The number of files transferred at the same time"
+        )
+
     @classmethod
     def add_transfer_arguments(cls, parser):
         parser.add_argument(
@@ -109,7 +134,7 @@ class TransferCommand(BaseCommand):
         else:
             uni_print(
                 "Error: please give correct local path and qs-path. "
-                "The qs_path must start with 'qs://'."
+                "The qs_path must start with 'qs://'.", cls.multithread_bar
             )
             sys.exit(-1)
 
@@ -142,13 +167,32 @@ class TransferCommand(BaseCommand):
         source_path = cls.options.source_path
         dest_path = cls.options.dest_path
         if not os.path.isdir(source_path):
-            uni_print("Error: No such directory: %s" % source_path)
+            uni_print(
+                "Error: No such directory: %s" % source_path,
+                cls.multithread_bar
+            )
             sys.exit(-1)
 
         bucket, prefix = cls.validate_qs_path(dest_path)
         if prefix != "" and (not prefix.endswith("/")):
             prefix += "/"
 
+        pool = cls.get_workers()
+        if not pool:
+            cls.set_workers()
+            pool = cls.get_workers()
+
+        if not cls.options.no_progress:
+            cls.multithread_bar = tqdm(
+                total=0,
+                unit="B",
+                unit_scale=True,
+                desc="Transferring",
+                bar_format=BAR_FORMAT,
+                leave=False,
+                ascii=USE_ASCII,
+                dynamic_ncols=True
+            )
         for rt, dirs, files in os.walk(source_path):
             for d in dirs:
                 local_path = os.path.join(rt, d)
@@ -168,9 +212,18 @@ class TransferCommand(BaseCommand):
                 if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
                     and cls.confirm_key_upload(local_path, bucket,
                                                key)):
-                    cls.send_local_file(local_path, bucket, key)
+                    # cls.send_local_file(local_path, bucket, key)
+                    if cls.multithread_bar is not None:
+                        cls.multithread_bar.total += os.path.getsize(local_path)
+                    pool.apply_async(
+                        cls.send_local_file, args=(local_path, bucket, key)
+                    )
 
         cls.cleanup("LOCAL_TO_QS", bucket, prefix)
+        pool.close()
+        pool.join()
+        if cls.multithread_bar is not None:
+            cls.multithread_bar.close()
 
     @classmethod
     def upload_file(cls):
@@ -187,7 +240,9 @@ class TransferCommand(BaseCommand):
         elif source_path == '-':
             cls.send_data_from_stdin(bucket, key)
         else:
-            uni_print("Error: No such file: %s" % source_path)
+            uni_print(
+                "Error: No such file: %s" % source_path, cls.multithread_bar
+            )
             sys.exit(-1)
 
     @classmethod
@@ -198,6 +253,20 @@ class TransferCommand(BaseCommand):
         if prefix != "" and (not prefix.endswith("/")):
             prefix += "/"
         marker = ""
+        if not cls.options.no_progress:
+            cls.multithread_bar = tqdm(
+                total=0,
+                unit="B",
+                unit_scale=True,
+                desc="Transferring",
+                bar_format=BAR_FORMAT,
+                leave=False,
+                ascii=USE_ASCII
+            )
+        pool = cls.get_workers()
+        if not pool:
+            cls.set_workers()
+            pool = cls.get_workers()
         while True:
             keys, marker, _ = cls.list_multiple_keys(
                 bucket, marker=marker, prefix=prefix
@@ -213,11 +282,18 @@ class TransferCommand(BaseCommand):
                     local_path, item["modified"]
                 )
                 if local_path and is_match and is_confirmed_key_download:
-                    cls.write_local_file(local_path, bucket, key)
+                    # cls.write_local_file(local_path, bucket, key)
+                    pool.apply_async(
+                        cls.write_local_file, args=(local_path, bucket, key)
+                    )
             if marker == "":
                 break
 
         cls.cleanup("QS_TO_LOCAL", bucket, prefix)
+        pool.close()
+        pool.join()
+        if cls.multithread_bar is not None:
+            cls.multithread_bar.close()
 
     @classmethod
     def download_file(cls):
@@ -227,7 +303,7 @@ class TransferCommand(BaseCommand):
         if key == "":
             uni_print(
                 "Error: Please give correct and complete key qs-path, such "
-                "as 'qs://yourbucket/key'."
+                "as 'qs://yourbucket/key'.", cls.multithread_bar
             )
             sys.exit(-1)
         if os.path.isdir(dest_path):
@@ -249,7 +325,7 @@ class TransferCommand(BaseCommand):
 
         if completed > 0:
             resp = current_bucket.get_object(key, range="bytes=%d-" % completed)
-            uni_print("Resume downloading key <%s>" % key)
+            uni_print("Resume downloading key <%s>" % key, cls.multithread_bar)
         else:
             resp = current_bucket.get_object(key)
         if resp.status_code in (HTTP_OK, HTTP_OK_PARTIAL_CONTENT):
@@ -261,23 +337,27 @@ class TransferCommand(BaseCommand):
                     open_flag = "ab"
 
                 with open(temporary_path, open_flag) as f:
-                    uni_print(
-                        "Key <%s> is downloading as File <%s>" %
-                        (key, temporary_path)
-                    )
                     if cls.options.no_progress:
                         pbar = None
                     else:
-                        pbar = tqdm(
-                            initial=completed,
-                            total=completed + content_length,
-                            unit="B",
-                            unit_scale=True,
-                            desc="Transferring",
-                            bar_format=BAR_FORMAT,
-                            leave=False,
-                            ascii=USE_ASCII
-                        )
+                        if cls.multithread_bar is not None:
+                            cls.set_total_size(completed + content_length)
+                            pbar = cls.multithread_bar
+                        else:
+                            pbar = tqdm(
+                                initial=completed,
+                                total=completed + content_length,
+                                unit="B",
+                                unit_scale=True,
+                                desc="Transferring",
+                                bar_format=BAR_FORMAT,
+                                leave=False,
+                                ascii=USE_ASCII
+                            )
+                    statement = "Key <%s> is downloading as File <%s>" % (
+                        key, temporary_path
+                    )
+                    uni_print(statement, pbar)
                     cache = []
 
                     for chunk in resp.iter_content(1024):
@@ -296,19 +376,20 @@ class TransferCommand(BaseCommand):
                     if cache:
                         f.write(b"".join(cache))
                         del cache
-                    if pbar is not None:
-                        pbar.close()
+                    if pbar:
+                        if not cls.multithread_bar:
+                            pbar.close()
 
                     os.rename(temporary_path, local_path)
-                    uni_print(
-                        "File <%s> written, rename to original file <%s>" %
-                        (temporary_path, local_path),
+                    statement = "File <%s> written, rename to original file <%s>" % (
+                        temporary_path, local_path
                     )
+                    uni_print(statement, pbar)
 
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
         else:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
             sys.exit(-1)
 
     @classmethod
@@ -319,9 +400,9 @@ class TransferCommand(BaseCommand):
         resp = current_bucket.put_object(key, content_type=content_type)
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Directory <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            uni_print(statement, cls.multithread_bar)
         else:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
 
     @classmethod
     def send_local_file(cls, local_path, bucket, key):
@@ -332,10 +413,9 @@ class TransferCommand(BaseCommand):
                 cls.send_file(local_path, bucket, key)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                uni_print(
-                    "WARN: file %s not found, perhaps it's removed during "
+                statement = "WARN: file %s not found, perhaps it's removed during " \
                     "qsctl operation" % local_path
-                )
+                uni_print(statement, cls.multithread_bar)
 
     @classmethod
     def send_data_from_stdin(cls, bucket, key):
@@ -346,7 +426,7 @@ class TransferCommand(BaseCommand):
             return
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        uni_print("Stdin is uploading as Key <%s>" % (key))
+        uni_print("Stdin is uploading as Key <%s>" % (key), cls.multithread_bar)
         if cls.options.no_progress:
             pbar = None
         else:
@@ -366,9 +446,9 @@ class TransferCommand(BaseCommand):
             pbar.close()
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            uni_print(statement, cls.multithread_bar)
         else:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
 
     @classmethod
     def send_file(cls, local_path, bucket, key):
@@ -380,31 +460,38 @@ class TransferCommand(BaseCommand):
                 return
             cls.validate_bucket(bucket)
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-            uni_print("File <%s> is uploading as Key <%s>" % (local_path, key))
+            uni_print(
+                "File <%s> is uploading as Key <%s>" % (local_path, key),
+                cls.multithread_bar
+            )
             if cls.options.no_progress:
                 pbar = None
             else:
-                pbar = tqdm(
-                    total=fc.size,
-                    unit="B",
-                    unit_scale=True,
-                    desc="Transferring",
-                    bar_format=BAR_FORMAT,
-                    leave=False,
-                    ascii=USE_ASCII
-                )
+                if cls.multithread_bar is not None:
+                    pbar = cls.multithread_bar
+                else:
+                    pbar = tqdm(
+                        total=fc.size,
+                        unit="B",
+                        unit_scale=True,
+                        desc="Transferring",
+                        bar_format=BAR_FORMAT,
+                        leave=False,
+                        ascii=USE_ASCII
+                    )
             resp = current_bucket.put_object(
                 key, body=wrapper_stream(data, pbar, cls.get_tokens_obj())
             )
-            if pbar:
-                pbar.close()
             if resp.status_code == HTTP_OK_CREATED:
                 statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-                uni_print(statement)
+                uni_print(statement, pbar)
                 if cls.command == "mv":
                     os.remove(local_path)
             else:
-                uni_print(resp.content)
+                uni_print(resp.content, pbar)
+            if pbar:
+                if not cls.multithread_bar:
+                    pbar.close()
 
     @classmethod
     def multipart_upload_file(cls, local_path, bucket, key):
@@ -422,7 +509,8 @@ class TransferCommand(BaseCommand):
                 local_path, upload_id, cur_parts, bucket, key
             )
         else:
-            uni_print("Error: Failed to upload file <%s>" % local_path)
+            statement = "Error: Failed to upload file <%s>" % local_path
+            uni_print(statement, cls.multithread_bar)
 
     @classmethod
     def try_to_resume_multipart(cls, local_path, bucket, key):
@@ -437,17 +525,18 @@ class TransferCommand(BaseCommand):
             uni_print(
                 "Warning: Previous upload has been aborted or completed. "
                 "Can't resume uploading key <%s> via previous upload id <%s>" %
-                (key, upload_id)
+                (key, upload_id), cls.multithread_bar
             )
             cls.recorder.remove_record(local_path, bucket, key)
             return False, "", 0
         elif resp.status_code != HTTP_OK:
             uni_print(
                 "Failed to list multipart. Response code: %d. "
-                "Response content: %s" % (resp.status_code, resp.content)
+                "Response content: %s" % (resp.status_code, resp.content),
+                cls.multithread_bar
             )
             return False, "", 0
-        uni_print("Resume uploading key <%s>" % key)
+        uni_print("Resume uploading key <%s>" % key, cls.multithread_bar)
         return True, upload_id, int(resp["count"])
 
     @classmethod
@@ -471,27 +560,30 @@ class TransferCommand(BaseCommand):
     ):
         with open(filepath, "rb") as f:
             fc = FileChunk(f)
-            if cur_part_number >= fc.parts:
-                uni_print(
-                    "Warning: The size of local file <%s> is smaller than previous "
-                    "uploading size. Fail to resume previous uploading. Start a new"
-                    "uploading." % filepath
-                )
-                cur_part_number = 0
-            uni_print("File <%s> is uploading as Key <%s>" % (filepath, key))
             if cls.options.no_progress:
                 pbar = None
             else:
-                pbar = tqdm(
-                    initial=cur_part_number * PART_SIZE,
-                    total=fc.size,
-                    unit="B",
-                    unit_scale=True,
-                    desc="Transferring",
-                    bar_format=BAR_FORMAT,
-                    leave=False,
-                    ascii=USE_ASCII
-                )
+                if cls.multithread_bar is not None:
+                    pbar = cls.multithread_bar
+                else:
+                    pbar = tqdm(
+                        initial=cur_part_number * PART_SIZE,
+                        total=fc.size,
+                        unit="B",
+                        unit_scale=True,
+                        desc="Transferring",
+                        bar_format=BAR_FORMAT,
+                        leave=False,
+                        ascii=USE_ASCII
+                    )
+            if cur_part_number >= fc.parts:
+                statement = "Warning: The size of local file <%s> is smaller than previous " \
+                    "uploading size. Fail to resume previous uploading. Start a new" \
+                    "uploading." % filepath
+                uni_print(statement, pbar)
+                cur_part_number = 0
+            statement = "File <%s> is uploading as Key <%s>" % (filepath, key)
+            uni_print(statement, pbar)
             for (part_number, data) in fc.iter(cur_part_number):
                 is_upload_success = cls.upload_part(
                     upload_id,
@@ -516,7 +608,7 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, part_number=part_number, body=data
         )
         if resp.status_code != HTTP_OK_CREATED:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
             return False
         else:
             return True
@@ -533,10 +625,10 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, object_parts=parts
         )
         if resp.status_code != HTTP_OK_CREATED:
-            uni_print(resp.content)
+            uni_print(resp.content, cls.multithread_bar)
         else:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            uni_print(statement, cls.multithread_bar)
             if cls.command == "mv":
                 os.remove(filepath)
 
@@ -550,6 +642,11 @@ class TransferCommand(BaseCommand):
         if hasattr(cls.options, "rate_limit"):
             if cls.options.rate_limit:
                 cls.set_tokens_obj(cls.options.rate_limit)
+
+        # set thread numbers
+        if hasattr(cls.options, "workers"):
+            if cls.options.workers:
+                cls.set_workers(cls.options.workers)
 
         # Register SIGINT handler
         signal.signal(signal.SIGINT, cls._handle_sigint)
@@ -581,3 +678,18 @@ class TransferCommand(BaseCommand):
     @classmethod
     def get_tokens_obj(cls):
         return cls.tokens
+
+    @classmethod
+    def set_workers(cls, workers_num=1):
+        cls.workers = Pool(processes=workers_num)
+
+    @classmethod
+    def get_workers(cls):
+        return cls.workers
+
+    @classmethod
+    def set_total_size(cls, add_length):
+        with cls.lock:
+            cls.total_size = cls.total_size + add_length
+            if cls.multithread_bar is not None:
+                cls.multithread_bar.total = cls.total_size

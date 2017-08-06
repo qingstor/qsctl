@@ -74,18 +74,18 @@ class LsCommand(BaseCommand):
         if resp.status_code == HTTP_OK:
             buckets = resp['buckets']
             for bucket in sorted(buckets, key=lambda x: x["name"]):
-                uni_print(bucket["name"])
+                uni_print(bucket["name"], cls.multithread_bar)
         else:
             uni_print(
                 "Error: Please check if you have "
-                "enough permission to access QingStor."
+                "enough permission to access QingStor.", cls.multithread_bar
             )
             sys.exit(-1)
 
     @classmethod
     def print_to_console(cls, keys, dirs):
         for d in sorted(dirs):
-            uni_print("Directory" + format_directory + d)
+            uni_print("Directory" + format_directory + d, cls.multithread_bar)
         for key in sorted(keys, key=lambda x: x["key"]):
             created_time = time.strftime(
                 "%Y-%m-%d %X UTC",
@@ -94,12 +94,13 @@ class LsCommand(BaseCommand):
             if key["mime_type"] == "application/x-directory":
                 uni_print(
                     created_time + format_size(key["size"]).rjust(12) + " " * 4
-                    + key["key"] + "  (application/x-directory)"
+                    + key["key"] + "  (application/x-directory)",
+                    cls.multithread_bar
                 )
             else:
                 uni_print(
                     created_time + format_size(key["size"]).rjust(12) + " " * 4
-                    + key["key"]
+                    + key["key"], cls.multithread_bar
                 )
 
     @classmethod

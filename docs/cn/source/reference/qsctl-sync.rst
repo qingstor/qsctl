@@ -18,6 +18,7 @@ qsctl-sync
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ====
 描述
@@ -48,6 +49,9 @@ qsctl-sync
 ``--rate-limit``
 
 网速限制,单位可以为: K/M/G，如: 100K 、 1M。
+
+``--workers``
+最多同时传输文件数量
 
 ====
 示例
@@ -102,3 +106,13 @@ qsctl-sync
 
     File 'test/test1.txt' written
     File 'test/test2.txt' written
+
+下面的 ``sync`` 命令将同步本地当前文件夹到 ``mybucket``, 最大同时传输数量为10个::
+
+    $ qsctl sync . qs://mybucket  --workers 10
+
+输出::
+
+    Key <test1.txt> created
+    Key <test2.txt> created
+    Key <test3.txt> created
