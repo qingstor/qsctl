@@ -287,7 +287,7 @@ class BaseCommand(object):
     @classmethod
     def _handle_sigint(cls, signature, frame):
         # Handler function for signal.SIGINT
-        if cls.recorder:
+        if cls.recorder and cls.options.workers == 1:
             cls.recorder.close()
         if cls.workers:
             cls.workers.shutdown(False)

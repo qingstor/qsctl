@@ -23,6 +23,8 @@ import errno
 import signal
 
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
+
 from .base import BaseCommand
 
 from ..constants import (
@@ -82,6 +84,13 @@ class TransferCommand(BaseCommand):
             "--rate-limit",
             type=str,
             help="add rate limit for a second, eg: --rate-limit 500K"
+        )
+
+        parser.add_argument(
+            "--workers",
+            default=10,
+            type=int,
+            help="The number of files transferred at the same time"
         )
 
     @classmethod
@@ -162,7 +171,7 @@ class TransferCommand(BaseCommand):
                 if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
                     and cls.confirm_key_upload(local_path, bucket,
                                                key)):
-                    cls.put_directory(bucket, key)
+                    cls.workers.submit(cls.put_directory, bucket, key)
 
             for f in files:
                 local_path = os.path.join(rt, f)
@@ -172,7 +181,11 @@ class TransferCommand(BaseCommand):
                 if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
                     and cls.confirm_key_upload(local_path, bucket,
                                                key)):
-                    cls.send_local_file(local_path, bucket, key)
+                    if cls.pbar:
+                        cls.pbar.total += os.path.getsize(local_path)
+                    cls.workers.submit(
+                        cls.send_local_file, local_path, bucket, key
+                    )
 
         cls.cleanup("LOCAL_TO_QS", bucket, prefix)
 
@@ -187,9 +200,13 @@ class TransferCommand(BaseCommand):
             key = prefix
         if os.path.isfile(source_path):
             if cls.confirm_key_upload(source_path, bucket, key):
-                cls.send_local_file(source_path, bucket, key)
+                if cls.pbar:
+                    cls.pbar.total += os.path.getsize(source_path)
+                cls.workers.submit(
+                    cls.send_local_file, source_path, bucket, key
+                )
         elif source_path == '-':
-            cls.send_data_from_stdin(bucket, key)
+            cls.workers.submit(cls.send_data_from_stdin, bucket, key)
         else:
             cls.uni_print("Error: No such file: %s" % source_path)
             sys.exit(-1)
@@ -217,7 +234,9 @@ class TransferCommand(BaseCommand):
                     local_path, item["modified"]
                 )
                 if local_path and is_match and is_confirmed_key_download:
-                    cls.write_local_file(local_path, bucket, key)
+                    cls.workers.submit(
+                        cls.write_local_file, local_path, bucket, key
+                    )
             if marker == "":
                 break
 
@@ -239,7 +258,7 @@ class TransferCommand(BaseCommand):
         else:
             local_path = dest_path
         if local_path and cls.confirm_key_download(local_path):
-            cls.write_local_file(local_path, bucket, key)
+            cls.workers.submit(cls.write_local_file, local_path, bucket, key)
 
     @classmethod
     def write_local_file(cls, local_path, bucket, key):
@@ -261,6 +280,8 @@ class TransferCommand(BaseCommand):
             open_flag = "wb"
             if key[-1] != "/":
                 content_length = int(resp.headers["Content-Length"])
+                if cls.pbar:
+                    cls.pbar.total += content_length
                 if completed > 0:
                     open_flag = "ab"
 
@@ -273,8 +294,8 @@ class TransferCommand(BaseCommand):
 
                     for chunk in resp.iter_content(1024):
                         # cls.tokens is not None , rate limit
-                        if cls.get_tokens_obj():
-                            while not cls.get_tokens_obj().consume(1024):
+                        if cls.tokens:
+                            while not cls.tokens.consume(1024):
                                 continue
                         if cls.pbar:
                             cls.update_pbar(1024)
@@ -287,11 +308,12 @@ class TransferCommand(BaseCommand):
                     if cache:
                         f.write(b"".join(cache))
                         del cache
-                    os.rename(temporary_path, local_path)
-                    cls.uni_print(
-                        "File <%s> written, rename to original file <%s>" %
-                        (temporary_path, local_path),
-                    )
+
+                os.rename(temporary_path, local_path)
+                cls.uni_print(
+                    "File <%s> written, rename to original file <%s>" %
+                    (temporary_path, local_path),
+                )
 
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
@@ -443,7 +465,7 @@ class TransferCommand(BaseCommand):
                 is_upload_success = cls.upload_part(
                     upload_id,
                     part_number,
-                    wrapper_stream(data, pbar, cls.get_tokens_obj()),
+                    cls.wrapper_stream(data),
                     bucket,
                     key,
                 )
@@ -497,6 +519,23 @@ class TransferCommand(BaseCommand):
             if cls.options.rate_limit:
                 cls.set_tokens_obj(cls.options.rate_limit)
 
+        # set workers
+        cls.workers = ThreadPoolExecutor(max_workers=cls.options.workers)
+
+        # if doesn't have option.no_progress, create progress bar
+        if hasattr(cls.options, "no_progress"):
+            if not cls.options.no_progress:
+                cls.pbar = tqdm(
+                    initial=0,
+                    total=1,
+                    unit="B",
+                    unit_scale=True,
+                    desc="Transferring",
+                    bar_format=BAR_FORMAT,
+                    leave=False,
+                    ascii=USE_ASCII
+                )
+
         # Register SIGINT handler
         signal.signal(signal.SIGINT, cls._handle_sigint)
 
@@ -512,11 +551,18 @@ class TransferCommand(BaseCommand):
                 cls.download_files()
             else:
                 cls.download_file()
+
+        # Wait for all tasks done
+        cls.workers.shutdown()
+        cls.print_worker.shutdown()
+
         if cls.recorder:
             cls.recorder.close()
+        if cls.pbar:
+            cls.pbar.close()
 
     @classmethod
-    def set_tokens_obj(cls, tokens_num, fill_rate=None):
+    def set_tokens_obj(cls, tokens_num):
         """
         :param tokens_num: the number of tokens
         :param fill_rate: the numbers of tokens that will fill in bucket in a second
