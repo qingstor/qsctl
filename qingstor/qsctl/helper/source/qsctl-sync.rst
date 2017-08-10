@@ -18,6 +18,7 @@ Synopsis
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ===========
 Description
@@ -52,6 +53,10 @@ Do not exclude keys or files that match the specified pattern.
 
 Limit rate when sync file from local to qingstor, or qingstor to local,
 unit: K/M/G, eg: 100K.
+
+``--workers``
+
+The number of threads, the default open ten threads.
 
 ========
 Examples
@@ -104,6 +109,15 @@ The following ``sync`` command sync QS-Directory to local directory,
 and limit the transmission speed of 100K per second::
 
     $ qsctl sync qs://mybucket/test test/ --rate-limit 100K
+
+Output::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
+
+The following ``sync`` command open 8 threads to sync QS-Directory to local directory::
+
+    $ qsctl sync qs://mybucket/test test/ --workers 8
 
 Output::
 
