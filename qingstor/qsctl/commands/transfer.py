@@ -393,7 +393,7 @@ class TransferCommand(BaseCommand):
             cls.try_to_resume_multipart(local_path, bucket, key)
         if not resume_multipart:
             upload_id = cls.init_multipart(bucket, key)
-            cls.recorder.put_record(local_path, bucket, key, upload_id)
+            cls.recorder.put(local_path, bucket, key, upload_id)
         is_upload_success, cur_parts = cls.upload_multipart(
             local_path, upload_id, bucket, key, cur_part_number
         )
@@ -406,7 +406,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def try_to_resume_multipart(cls, local_path, bucket, key):
-        upload_id = cls.recorder.get_record(local_path, bucket, key)
+        upload_id = cls.recorder.get(local_path, bucket, key)
         if not upload_id:
             return False, "", 0
         cls.validate_bucket(bucket)
@@ -419,7 +419,7 @@ class TransferCommand(BaseCommand):
                 "Can't resume uploading key <%s> via previous upload id <%s>" %
                 (key, upload_id)
             )
-            cls.recorder.remove_record(local_path, bucket, key)
+            cls.recorder.remove(local_path, bucket, key)
             return False, "", 0
         elif resp.status_code != HTTP_OK:
             cls.uni_print(
@@ -495,7 +495,7 @@ class TransferCommand(BaseCommand):
             parts.append({"part_number": part_number})
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        cls.recorder.remove_record(filepath, bucket, key)
+        cls.recorder.remove(filepath, bucket, key)
         resp = current_bucket.complete_multipart_upload(
             key, upload_id=upload_id, object_parts=parts
         )

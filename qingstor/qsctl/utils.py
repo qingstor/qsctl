@@ -28,7 +28,8 @@ from threading import RLock
 
 from .constants import PART_SIZE, UNITS, SI_UNITS
 from .compat import (
-    is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding
+    is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding,
+    pickle
 )
 
 
@@ -36,65 +37,45 @@ class UploadIdRecorder(object):
     """
     This class stores upload_id for uploading a large object via multipart API.
 
-    - In-memory record dict:
+    - record dict:
     key: <local_path>|<bucket>/<key> value: <upload_id>
 
-    - On-disk record format:
-    <local_path>|<bucket>/<key>#<upload_id>\n
     """
 
     def __init__(self, record_filename):
+        self.record_filename = record_filename
         self.separator = "|"
         self.records = {}
-        self.dirty = False
 
         if os.path.exists(record_filename):
-            self.file = open(record_filename, "r+")
-            # Load records from file.
-            records = self.file.readlines()
-            for record in records:
-                if is_python2:
-                    record = record.decode("utf-8")
-                kv = record.rsplit("#", 1)
-                if len(kv) == 2:
-                    # Remove the trailing \n
-                    key = kv[1][:-1]
-                    self.records[kv[0]] = key
-        else:
-            self.file = open(record_filename, "w+")
+            with open(record_filename, "rb+") as f:
+                # Compatible with older versions of UploadIdRecorder
+                try:
+                    self.records = pickle.load(f)
+                except:
+                    f.truncate()
+                    f.flush()
 
-    def put_record(self, full_path, bucket, key, upload_id):
+    def put(self, full_path, bucket, key, upload_id):
         key = self._get_record_key(full_path, bucket, key)
         self.records[key] = upload_id
-        self.dirty = True
 
-    def get_record(self, full_path, bucket, key):
+    def get(self, full_path, bucket, key):
         key = self._get_record_key(full_path, bucket, key)
         return self.records.get(key, "")
 
-    def remove_record(self, full_path, bucket, key):
+    def remove(self, full_path, bucket, key):
         key = self._get_record_key(full_path, bucket, key)
         self.records.pop(key, None)
-        self.dirty = True
 
     def _get_record_key(self, local_path, bucket, key):
         full_path = os.path.join(os.getcwd(), local_path)
         return "%s%s%s/%s" % (full_path, self.separator, bucket, key)
 
     def close(self):
-        if self.dirty:
-            self._sync_record()
-        self.file.close()
-
-    def _sync_record(self):
-        self.file.seek(0, 0)
-        self.file.truncate()
-        for key, value in self.records.items():
-            record = "%s#%s\n" % (key, value)
-            if is_python2:
-                record = record.encode("utf-8")
-            self.file.write(record)
-        self.file.flush()
+        with open(self.record_filename, "wb") as f:
+            # Always use protocol version 2 to dump records
+            pickle.dump(self.records, f, 2)
 
 
 def yaml_load(stream):

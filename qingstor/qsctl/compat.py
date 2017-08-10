@@ -23,9 +23,11 @@ import platform
 try:
     from yaml import CLoader as Loader
     from StringIO import cStringIO as StringIO
+    import cPickle as pickle
 except ImportError:
     from yaml import Loader
     from io import BytesIO as StringIO
+    import pickle
 
 _ver = sys.version_info
 is_python2 = (_ver[0] == 2)
