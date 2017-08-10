@@ -120,4 +120,5 @@ def step_impl(context):
                 bucket.put_acl(current_acl["acl"])
     result = urlparse(context.output)
     object_key = result.path
-    assert_that(object_key.split("/")[-1].strip()).is_equal_to(context.input[0]["name"])
+    assert_that(object_key.split("/")[-1].strip()
+                ).is_equal_to(context.input[0]["name"])
