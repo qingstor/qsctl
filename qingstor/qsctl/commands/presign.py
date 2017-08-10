@@ -20,7 +20,8 @@ from __future__ import unicode_literals
 import sys
 
 from .base import BaseCommand
-from ..utils import get_current_time, uni_print
+
+from ..utils import get_current_time
 
 
 class PresignCommand(BaseCommand):
@@ -51,16 +52,16 @@ class PresignCommand(BaseCommand):
     def generate_presign_url(cls):
         bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
         if prefix == "":
-            uni_print("Error: please specify object in qs-path")
+            cls.uni_print("Error: please specify object in qs-path")
             sys.exit(-1)
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.head_object(prefix)
         if resp.status_code == 404:
-            uni_print("Error: Please check if object <%s> exists" % prefix)
+            cls.uni_print("Error: Please check if object <%s> exists" % prefix)
             sys.exit(-1)
         elif resp.status_code == 403:
-            uni_print(
+            cls.uni_print(
                 "Error: Please check if you have enough"
                 " permission to access object <%s>." % prefix
             )
@@ -76,16 +77,16 @@ class PresignCommand(BaseCommand):
                         host=current_bucket.config.host,
                         object_key=prefix
                     )
-                    uni_print(public_url)
+                    cls.uni_print(public_url)
                     return public_url
             prepared = current_bucket.get_object_request(prefix).sign_query(  # if the bucket is non-public,
                 # generate the link with signature, expire seconds and other formatted parameters
                 get_current_time() + cls.options.expire_seconds
             )
-            uni_print(prepared.url)
+            cls.uni_print(prepared.url)
             return prepared.url
         else:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
             sys.exit(-1)
 
     @classmethod

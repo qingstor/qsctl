@@ -35,10 +35,9 @@ from ..constants import (
     HTTP_OK_PARTIAL_CONTENT,
     TEMPORARY_FILE_SUFFIX,
 )
-
 from ..utils import (
-    confirm_by_user, is_pattern_match, to_unix_path, join_local_path, uni_print,
-    FileChunk, wrapper_stream, convert_to_bytes, TokenPail
+    confirm_by_user, is_pattern_match, to_unix_path, join_local_path, FileChunk,
+    convert_to_bytes, TokenPail
 )
 
 
@@ -107,7 +106,7 @@ class TransferCommand(BaseCommand):
         elif dest.startswith("qs://") and not (source.startswith("qs://")):
             return "LOCAL_TO_QS"
         else:
-            uni_print(
+            cls.uni_print(
                 "Error: please give correct local path and qs-path. "
                 "The qs_path must start with 'qs://'."
             )
@@ -142,7 +141,7 @@ class TransferCommand(BaseCommand):
         source_path = cls.options.source_path
         dest_path = cls.options.dest_path
         if not os.path.isdir(source_path):
-            uni_print("Error: No such directory: %s" % source_path)
+            cls.uni_print("Error: No such directory: %s" % source_path)
             sys.exit(-1)
 
         bucket, prefix = cls.validate_qs_path(dest_path)
@@ -187,7 +186,7 @@ class TransferCommand(BaseCommand):
         elif source_path == '-':
             cls.send_data_from_stdin(bucket, key)
         else:
-            uni_print("Error: No such file: %s" % source_path)
+            cls.uni_print("Error: No such file: %s" % source_path)
             sys.exit(-1)
 
     @classmethod
@@ -225,7 +224,7 @@ class TransferCommand(BaseCommand):
         dest_path = cls.options.dest_path
         bucket, key = cls.validate_qs_path(source_path)
         if key == "":
-            uni_print(
+            cls.uni_print(
                 "Error: Please give correct and complete key qs-path, such "
                 "as 'qs://yourbucket/key'."
             )
@@ -249,7 +248,7 @@ class TransferCommand(BaseCommand):
 
         if completed > 0:
             resp = current_bucket.get_object(key, range="bytes=%d-" % completed)
-            uni_print("Resume downloading key <%s>" % key)
+            cls.uni_print("Resume downloading key <%s>" % key)
         else:
             resp = current_bucket.get_object(key)
         if resp.status_code in (HTTP_OK, HTTP_OK_PARTIAL_CONTENT):
@@ -261,7 +260,7 @@ class TransferCommand(BaseCommand):
                     open_flag = "ab"
 
                 with open(temporary_path, open_flag) as f:
-                    uni_print(
+                    cls.uni_print(
                         "Key <%s> is downloading as File <%s>" %
                         (key, temporary_path)
                     )
@@ -300,7 +299,7 @@ class TransferCommand(BaseCommand):
                         pbar.close()
 
                     os.rename(temporary_path, local_path)
-                    uni_print(
+                    cls.uni_print(
                         "File <%s> written, rename to original file <%s>" %
                         (temporary_path, local_path),
                     )
@@ -308,7 +307,7 @@ class TransferCommand(BaseCommand):
             if cls.command == "mv":
                 cls.remove_key(bucket, key)
         else:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
             sys.exit(-1)
 
     @classmethod
@@ -319,9 +318,9 @@ class TransferCommand(BaseCommand):
         resp = current_bucket.put_object(key, content_type=content_type)
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Directory <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            cls.uni_print(statement)
         else:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
 
     @classmethod
     def send_local_file(cls, local_path, bucket, key):
@@ -332,7 +331,7 @@ class TransferCommand(BaseCommand):
                 cls.send_file(local_path, bucket, key)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                uni_print(
+                cls.uni_print(
                     "WARN: file %s not found, perhaps it's removed during "
                     "qsctl operation" % local_path
                 )
@@ -366,9 +365,9 @@ class TransferCommand(BaseCommand):
             pbar.close()
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            cls.uni_print(statement)
         else:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
 
     @classmethod
     def send_file(cls, local_path, bucket, key):
@@ -400,11 +399,11 @@ class TransferCommand(BaseCommand):
                 pbar.close()
             if resp.status_code == HTTP_OK_CREATED:
                 statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-                uni_print(statement)
+                cls.uni_print(statement)
                 if cls.command == "mv":
                     os.remove(local_path)
             else:
-                uni_print(resp.content)
+                cls.uni_print(resp.content)
 
     @classmethod
     def multipart_upload_file(cls, local_path, bucket, key):
@@ -422,7 +421,7 @@ class TransferCommand(BaseCommand):
                 local_path, upload_id, cur_parts, bucket, key
             )
         else:
-            uni_print("Error: Failed to upload file <%s>" % local_path)
+            cls.uni_print("Error: Failed to upload file <%s>" % local_path)
 
     @classmethod
     def try_to_resume_multipart(cls, local_path, bucket, key):
@@ -434,7 +433,7 @@ class TransferCommand(BaseCommand):
         resp = current_bucket.list_multipart(key, upload_id=upload_id)
         if resp.status_code == HTTP_BAD_REQUEST:
             # Previous upload has been aborted or completed.
-            uni_print(
+            cls.uni_print(
                 "Warning: Previous upload has been aborted or completed. "
                 "Can't resume uploading key <%s> via previous upload id <%s>" %
                 (key, upload_id)
@@ -442,12 +441,12 @@ class TransferCommand(BaseCommand):
             cls.recorder.remove_record(local_path, bucket, key)
             return False, "", 0
         elif resp.status_code != HTTP_OK:
-            uni_print(
+            cls.uni_print(
                 "Failed to list multipart. Response code: %d. "
                 "Response content: %s" % (resp.status_code, resp.content)
             )
             return False, "", 0
-        uni_print("Resume uploading key <%s>" % key)
+        cls.uni_print("Resume uploading key <%s>" % key)
         return True, upload_id, int(resp["count"])
 
     @classmethod
@@ -472,7 +471,7 @@ class TransferCommand(BaseCommand):
         with open(filepath, "rb") as f:
             fc = FileChunk(f)
             if cur_part_number >= fc.parts:
-                uni_print(
+                cls.uni_print(
                     "Warning: The size of local file <%s> is smaller than previous "
                     "uploading size. Fail to resume previous uploading. Start a new"
                     "uploading." % filepath
@@ -516,7 +515,7 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, part_number=part_number, body=data
         )
         if resp.status_code != HTTP_OK_CREATED:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
             return False
         else:
             return True
@@ -533,10 +532,10 @@ class TransferCommand(BaseCommand):
             key, upload_id=upload_id, object_parts=parts
         )
         if resp.status_code != HTTP_OK_CREATED:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
         else:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
-            uni_print(statement)
+            cls.uni_print(statement)
             if cls.command == "mv":
                 os.remove(filepath)
 
