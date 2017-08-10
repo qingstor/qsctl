@@ -19,6 +19,7 @@ qsctl-cp
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ====
 描述
@@ -53,6 +54,10 @@ qsctl-cp
 ``--rate-limit``
 
 网速限制,单位可以为: K/M/G，如: 100K 、 1M。
+
+``--workers``
+
+线程个数，默认开启十个线程。
 
 ====
 示例
@@ -106,6 +111,15 @@ qsctl-cp
 下面的 ``cp`` 命令将 ``mybucket`` 下的所有对象复制到本地，并限制速度为每秒 100K::
 
     $ qsctl cp qs://mybucket test/ -r --rate-limit 100K
+
+输出::
+
+    File 'test/test1.txt' written
+    File 'test/test2.txt' written
+
+下面的 ``cp`` 命令开启八个线程将 ``mybucket`` 下的所有对象复制到本地::
+
+    $ qsctl cp qs://mybucket test/ -r --workers 8
 
 输出::
 

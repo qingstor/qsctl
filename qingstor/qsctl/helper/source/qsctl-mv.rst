@@ -18,6 +18,7 @@ Synopsis
     [--exclude]
     [--include]
     [--rate-limit]
+    [--workers]
 
 ===========
 Description
@@ -56,6 +57,10 @@ Do not exclude keys or files that match the specified pattern.
 
 Limit rate when mv file from local to qingstor, or qingstor to local,
 unit: K/M/G, eg: 100K.
+
+``--workers``
+
+The number of threads, the default open ten threads.
 
 ========
 Examples
@@ -120,6 +125,15 @@ The following ``mv`` command moves test1.txt in bucket ``mybucket`` to local
 directory, and limit the transmission speed of 100K per second::
 
     $ qsctl mv qs://mybucket/test1.txt test/ --rate-limit 100K
+
+Output::
+
+    File 'test/test1.txt' written
+
+The following ``mv`` command open 8 threads to move test1.txt in bucket ``mybucket`` to local
+directory::
+
+    $ qsctl mv qs://mybucket/test1.txt test/ --workers 8
 
 Output::
 
