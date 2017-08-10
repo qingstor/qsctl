@@ -16,17 +16,21 @@
 # =========================================================================
 
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import os
 import sys
 import argparse
 
+from concurrent.futures import ThreadPoolExecutor
+
 from qingstor.sdk.config import Config
 from qingstor.sdk.service.qingstor import QingStor
 
 from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
+from ..compat import is_python2, stdout_encoding
 from ..utils import (
-    load_conf, uni_print, to_unix_path, is_pattern_match, validate_bucket_name,
+    load_conf, to_unix_path, is_pattern_match, validate_bucket_name,
     UploadIdRecorder
 )
 
@@ -39,6 +43,12 @@ class BaseCommand(object):
     client = None
     bucket_map = {}
     recorder = None
+
+    pbar = None
+
+    workers = None
+    print_worker = ThreadPoolExecutor(max_workers=1)
+
     options = None
 
     @classmethod
@@ -104,12 +114,14 @@ class BaseCommand(object):
         if not cls.bucket_map.get(bucket):
             cls.bucket_map[bucket] = cls.get_zone(bucket)
             if cls.bucket_map[bucket] == "":
-                uni_print("Error: Please check if bucket <%s> exists" % bucket)
+                cls.uni_print(
+                    "Error: Please check if bucket <%s> exists" % bucket
+                )
                 sys.exit(-1)
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             resp = current_bucket.head()
             if resp.status_code != HTTP_OK:
-                uni_print(
+                cls.uni_print(
                     "Error: Please check if you have enough"
                     " permission to access bucket <%s>." % bucket
                 )
@@ -120,7 +132,7 @@ class BaseCommand(object):
         dirname = os.path.dirname(path)
         if dirname != "":
             if os.path.isfile(dirname):
-                uni_print(
+                cls.uni_print(
                     "Error: File with the same name '%s' already exists" %
                     dirname
                 )
@@ -128,9 +140,9 @@ class BaseCommand(object):
             elif not os.path.isdir(dirname):
                 try:
                     os.makedirs(dirname)
-                    uni_print("Directory '%s' created" % dirname)
+                    cls.uni_print("Directory '%s' created" % dirname)
                 except OSError as e:
-                    uni_print(
+                    cls.uni_print(
                         "Error: Failed to create directory '%s': %s" %
                         (dirname, e)
                     )
@@ -147,7 +159,7 @@ class BaseCommand(object):
         elif len(qs_path_split) == 2:
             bucket, prefix = qs_path_split[0], qs_path_split[1]
         if not validate_bucket_name(bucket):
-            uni_print("Error: Invalid Bucket name")
+            cls.uni_print("Error: Invalid Bucket name")
             sys.exit(-1)
         if cls.command not in ("mb", "rb"):
             cls.validate_bucket(bucket)
@@ -168,17 +180,17 @@ class BaseCommand(object):
         if resp.status_code == HTTP_OK:
             if resp.headers["Content-Type"] == "application/x-directory":
                 statement = "Directory should be deleted with -r"
-                uni_print(statement)
+                cls.uni_print(statement)
             else:
                 resp = current_bucket.delete_object(key)
                 if resp.status_code == HTTP_OK_NO_CONTENT:
                     statement = "Key <%s> deleted" % key
-                    uni_print(statement)
+                    cls.uni_print(statement)
                 else:
-                    uni_print(resp.content)
+                    cls.uni_print(resp.content)
         else:
             statement = "Key <%s> does not exist" % key
-            uni_print(statement)
+            cls.uni_print(statement)
 
     @classmethod
     def confirm_key_remove(cls, key_name):
@@ -210,15 +222,15 @@ class BaseCommand(object):
                 keys_removed = [i["key"] for i in resp["deleted"]]
                 for key in keys_removed:
                     statement = "Key <%s> deleted" % key
-                    uni_print(statement)
+                    cls.uni_print(statement)
                 keys_error = resp["errors"]
                 for key in keys_error:
                     statement = "Key <%s> deleted failed for <%s> " % (
                         key["key"], key["message"]
                     )
-                    uni_print(statement)
+                    cls.uni_print(statement)
             else:
-                uni_print(resp.content)
+                cls.uni_print(resp.content)
             if marker == "":
                 break
 
@@ -277,4 +289,27 @@ class BaseCommand(object):
         # Handler function for signal.SIGINT
         if cls.recorder:
             cls.recorder.close()
+        if cls.workers:
+            cls.workers.shutdown(False)
+        if cls.print_worker:
+            cls.print_worker.shutdown(False)
         sys.exit(0)
+
+    @classmethod
+    def uni_print(cls, statement):
+        """This function is used to properly write unicode to console.
+        It ensures that the proper encoding is used in different os platforms.
+        """
+        try:
+            if is_python2:
+                statement = statement.encode(stdout_encoding)
+        except UnicodeError:
+            statement = (
+                "Warning: Your shell's encoding <%s> does not "
+                "support printing this content" % stdout_encoding
+            )
+
+        if cls.pbar:
+            cls.print_worker.submit(cls.pbar.write, statement)
+        else:
+            cls.print_worker.submit(print, statement)

@@ -24,7 +24,7 @@ import time
 from .transfer import TransferCommand
 
 from ..constants import HTTP_OK
-from ..utils import is_pattern_match, to_unix_path, join_local_path, uni_print
+from ..utils import is_pattern_match, to_unix_path, join_local_path
 
 
 class SyncCommand(TransferCommand):
@@ -74,7 +74,7 @@ class SyncCommand(TransferCommand):
                         )
                 ):
                     os.remove(local_path)
-                    uni_print("File '%s' deleted" % local_path)
+                    cls.uni_print("File '%s' deleted" % local_path)
 
         for rt, dirs, files in os.walk(cls.options.dest_path):
             for d in dirs:
@@ -92,7 +92,7 @@ class SyncCommand(TransferCommand):
                 ):
                     if not os.listdir(local_path):
                         os.rmdir(local_path)
-                        uni_print("Directory '%s' deleted" % local_path)
+                        cls.uni_print("Directory '%s' deleted" % local_path)
 
     @classmethod
     def clean_keys(cls, bucket, prefix):
@@ -118,7 +118,7 @@ class SyncCommand(TransferCommand):
             )
         else:
             statement = "Error: Failed to head key <%s>" % key
-            uni_print(statement)
+            cls.uni_print(statement)
             sys.exit(-1)
 
     @classmethod

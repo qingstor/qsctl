@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 import sys
 
 from .base import BaseCommand
-from ..utils import uni_print
+
 from ..constants import HTTP_OK_CREATED
 
 
@@ -46,7 +46,7 @@ class MbCommand(BaseCommand):
     def send_request(cls):
         bucket, prefix = cls.validate_qs_path(cls.options.bucket)
         if prefix != "":
-            uni_print("Error: Invalid bucket name")
+            cls.uni_print("Error: Invalid bucket name")
             sys.exit(-1)
         zone = ""
         if cls.options.zone:
@@ -54,6 +54,6 @@ class MbCommand(BaseCommand):
         current_bucket = cls.client.Bucket(bucket, zone)
         resp = current_bucket.put()
         if resp.status_code == HTTP_OK_CREATED:
-            uni_print("Bucket <%s> created" % bucket)
+            cls.uni_print("Bucket <%s> created" % bucket)
         else:
-            uni_print(resp.content)
+            cls.uni_print(resp.content)
