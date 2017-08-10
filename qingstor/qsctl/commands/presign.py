@@ -57,37 +57,46 @@ class PresignCommand(BaseCommand):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         resp = current_bucket.head_object(prefix)
+
+        # Handle common errors
         if resp.status_code == 404:
             cls.uni_print("Error: Please check if object <%s> exists" % prefix)
             sys.exit(-1)
-        elif resp.status_code == 403:
+        if resp.status_code == 403:
             cls.uni_print(
                 "Error: Please check if you have enough"
                 " permission to access object <%s>." % prefix
             )
             sys.exit(-1)
-        elif resp.status_code == 200:
-            current_acl = current_bucket.get_acl()
-            for v in current_acl["acl"]:
-                if v["grantee"]["name"] == "QS_ALL_USERS":  # check whether the bucket is public
-                    public_url = "{protocol}://{bucket_name}.{zone}.{host}/{object_key}".format(
-                        protocol=current_bucket.config.protocol,
-                        bucket_name=bucket,
-                        zone=cls.bucket_map[bucket],
-                        host=current_bucket.config.host,
-                        object_key=prefix
-                    )
-                    cls.uni_print(public_url)
-                    return public_url
-            prepared = current_bucket.get_object_request(prefix).sign_query(  # if the bucket is non-public,
-                # generate the link with signature, expire seconds and other formatted parameters
+        if resp.status_code != 200:
+            cls.uni_print(resp.content)
+            sys.exit(-1)
+
+        is_public = False
+        # check whether the bucket is public
+        current_acl = current_bucket.get_acl()
+        for v in current_acl["acl"]:
+            if v["grantee"]["name"] == "QS_ALL_USERS":
+                is_public = True
+
+        if is_public:
+            public_url = "{protocol}://{bucket_name}.{zone}.{host}/{object_key}".format(
+                protocol=current_bucket.config.protocol,
+                bucket_name=bucket,
+                zone=cls.bucket_map[bucket],
+                host=current_bucket.config.host,
+                object_key=prefix
+            )
+            cls.uni_print(public_url)
+            return public_url
+        else:
+            # if the bucket is non-public, generate the link with signature,
+            # expire seconds and other formatted parameters
+            prepared = current_bucket.get_object_request(prefix).sign_query(
                 get_current_time() + cls.options.expire_seconds
             )
             cls.uni_print(prepared.url)
             return prepared.url
-        else:
-            cls.uni_print(resp.content)
-            sys.exit(-1)
 
     @classmethod
     def send_request(cls):
