@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.0] - 2017-08-11
+
+### Added
+
+- Add support for public bucket
+- Add multi thread support for upload and download
+
+### Changed
+
+- Refactor presign command
+- Use independent threads to process output
+- Use a separate thread to process the progress bar
+- Refactor convert_to_bytes function
+- Refactor UploadIDRecoder class
+
 ## [1.6.2] - 2017-06-20
 
 ### Fixed
@@ -169,6 +184,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.0]: https://github.com/yunify/qsctl/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/yunify/qsctl/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/yunify/qsctl/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/yunify/qsctl/compare/1.5.0...1.6.0
