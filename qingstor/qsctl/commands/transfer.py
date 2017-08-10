@@ -47,6 +47,11 @@ class TransferCommand(BaseCommand):
 
     tokens = None
 
+    pbar = None
+
+    # multithreading pool
+    workers = None
+
     @classmethod
     def add_extra_arguments(cls, parser):
         parser.add_argument("source_path", help="Original path")
@@ -264,19 +269,6 @@ class TransferCommand(BaseCommand):
                         "Key <%s> is downloading as File <%s>" %
                         (key, temporary_path)
                     )
-                    if cls.options.no_progress:
-                        pbar = None
-                    else:
-                        pbar = tqdm(
-                            initial=completed,
-                            total=completed + content_length,
-                            unit="B",
-                            unit_scale=True,
-                            desc="Transferring",
-                            bar_format=BAR_FORMAT,
-                            leave=False,
-                            ascii=USE_ASCII
-                        )
                     cache = []
 
                     for chunk in resp.iter_content(1024):
@@ -284,8 +276,8 @@ class TransferCommand(BaseCommand):
                         if cls.get_tokens_obj():
                             while not cls.get_tokens_obj().consume(1024):
                                 continue
-                        if pbar:
-                            pbar.update(1024)
+                        if cls.pbar:
+                            cls.update_pbar(1024)
                         cache.append(chunk)
                         # Write file while cache is over 32M
                         if len(cache) >= 32 * 1024:
@@ -295,9 +287,6 @@ class TransferCommand(BaseCommand):
                     if cache:
                         f.write(b"".join(cache))
                         del cache
-                    if pbar is not None:
-                        pbar.close()
-
                     os.rename(temporary_path, local_path)
                     cls.uni_print(
                         "File <%s> written, rename to original file <%s>" %
@@ -345,24 +334,8 @@ class TransferCommand(BaseCommand):
             return
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        uni_print("Stdin is uploading as Key <%s>" % (key))
-        if cls.options.no_progress:
-            pbar = None
-        else:
-            pbar = tqdm(
-                total=fc.size,
-                unit="B",
-                unit_scale=True,
-                desc="Transferring",
-                bar_format=BAR_FORMAT,
-                leave=False,
-                ascii=USE_ASCII
-            )
-        resp = current_bucket.put_object(
-            key, body=wrapper_stream(data, pbar, cls.get_tokens_obj())
-        )
-        if pbar:
-            pbar.close()
+        cls.uni_print("Stdin is uploading as Key <%s>" % (key))
+        resp = current_bucket.put_object(key, body=cls.wrapper_stream(data))
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             cls.uni_print(statement)
@@ -379,24 +352,10 @@ class TransferCommand(BaseCommand):
                 return
             cls.validate_bucket(bucket)
             current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-            uni_print("File <%s> is uploading as Key <%s>" % (local_path, key))
-            if cls.options.no_progress:
-                pbar = None
-            else:
-                pbar = tqdm(
-                    total=fc.size,
-                    unit="B",
-                    unit_scale=True,
-                    desc="Transferring",
-                    bar_format=BAR_FORMAT,
-                    leave=False,
-                    ascii=USE_ASCII
-                )
-            resp = current_bucket.put_object(
-                key, body=wrapper_stream(data, pbar, cls.get_tokens_obj())
+            cls.uni_print(
+                "File <%s> is uploading as Key <%s>" % (local_path, key)
             )
-            if pbar:
-                pbar.close()
+            resp = current_bucket.put_object(key, body=cls.wrapper_stream(data))
             if resp.status_code == HTTP_OK_CREATED:
                 statement = "Key <%s> created in bucket <%s>" % (key, bucket)
                 cls.uni_print(statement)
@@ -477,20 +436,9 @@ class TransferCommand(BaseCommand):
                     "uploading." % filepath
                 )
                 cur_part_number = 0
-            uni_print("File <%s> is uploading as Key <%s>" % (filepath, key))
-            if cls.options.no_progress:
-                pbar = None
-            else:
-                pbar = tqdm(
-                    initial=cur_part_number * PART_SIZE,
-                    total=fc.size,
-                    unit="B",
-                    unit_scale=True,
-                    desc="Transferring",
-                    bar_format=BAR_FORMAT,
-                    leave=False,
-                    ascii=USE_ASCII
-                )
+            cls.uni_print(
+                "File <%s> is uploading as Key <%s>" % (filepath, key)
+            )
             for (part_number, data) in fc.iter(cur_part_number):
                 is_upload_success = cls.upload_part(
                     upload_id,
@@ -501,8 +449,6 @@ class TransferCommand(BaseCommand):
                 )
                 if not is_upload_success:
                     return (False, part_number)
-            if pbar:
-                pbar.close()
             return (True, fc.parts)
 
     @classmethod
@@ -545,6 +491,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def send_request(cls):
+
         # if has option.limit_rate, create tokens object
         if hasattr(cls.options, "rate_limit"):
             if cls.options.rate_limit:
@@ -552,7 +499,9 @@ class TransferCommand(BaseCommand):
 
         # Register SIGINT handler
         signal.signal(signal.SIGINT, cls._handle_sigint)
+
         transfer_flow = cls.get_transfer_flow()
+
         if transfer_flow == "LOCAL_TO_QS":
             if (cls.command == "sync") or (cls.options.recursive is True):
                 cls.upload_files()
@@ -578,5 +527,42 @@ class TransferCommand(BaseCommand):
         cls.tokens = TokenPail(capacity=limit_rate * 1.2, fill_rate=limit_rate)
 
     @classmethod
-    def get_tokens_obj(cls):
-        return cls.tokens
+    def update_pbar(cls, data):
+        cls.print_worker.submit(cls.pbar.update, data)
+
+    @classmethod
+    def wrapper_stream(cls, stream):
+        """
+        Wrap stream.read() to upload progress bar
+        """
+        if not cls.pbar:
+            return stream
+
+        _read = stream.read
+
+        def _wrapper(size=None):
+            buf = _read(size)
+            cls.update_pbar(size)
+            return buf
+
+        def _wrapper_with_rate_limit(size=None):
+            # Use token bucket, wait while there are not enough tokens
+            # If total tokens less than size, set size=total tokens
+            if cls.tokens.get_total_tokens() < size:
+                size = cls.tokens.get_total_tokens()
+                size = int(size)
+            while not cls.tokens.consume(size):
+                continue
+            buf = _read(size)
+            cls.update_pbar(size)
+            return buf
+
+        _wrapper.__name__ = str("read")
+        _wrapper_with_rate_limit.__name__ = str("read")
+
+        if cls.tokens:
+            # rate limit
+            stream.read = _wrapper_with_rate_limit
+        else:
+            stream.read = _wrapper
+        return stream

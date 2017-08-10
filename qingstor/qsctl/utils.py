@@ -250,42 +250,6 @@ class FileChunk:
             yield (i, data)
 
 
-def wrapper_stream(stream, pbar=None, tokens=None):
-    """
-    Wrap stream.read() to upload progress bar
-    """
-    if not pbar:
-        return stream
-
-    _read = stream.read
-
-    def _wrapper(size=None):
-        buf = _read(size)
-        pbar.update(size)
-        return buf
-
-    def _wrapper_with_rate_limit(size=None):
-        # Use token bucket, wait while there are not enough tokens
-        # If total tokens less than size, set size=total tokens
-        if tokens.get_total_tokens() < size:
-            size = tokens.get_total_tokens()
-            size = int(size)
-        while not tokens.consume(size):
-            continue
-        buf = _read(size)
-        pbar.update(size)
-        return buf
-
-    _wrapper.__name__ = str("read")
-    _wrapper_with_rate_limit.__name__ = str("read")
-    if isinstance(tokens, TokenPail):
-        # rate limit
-        stream.read = _wrapper_with_rate_limit
-    else:
-        stream.read = _wrapper
-    return stream
-
-
 def validate_bucket_name(bucket_name):
     """
     Validate bucket name
