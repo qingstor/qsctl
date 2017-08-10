@@ -6,7 +6,6 @@ import subprocess
 from qingstor.qsctl.utils import (
     yaml_load,
     load_conf,
-    uni_print,
     is_windows,
     format_size,
     to_unix_path,
@@ -99,10 +98,6 @@ class TestUtils(unittest.TestCase):
         else:
             path1, path2 = "foo/", "bar/test.txt"
             self.assertEqual(join_local_path(path1, path2), "foo/bar/test.txt")
-
-    def test_uni_print(self):
-        notice = b"utf8\xe5\xb7\xb2\xe6\x94\xaf\xe6\x8c\x81"
-        uni_print(notice)
 
     def test_format_size(self):
         size = os.path.getsize(self.large_file)
