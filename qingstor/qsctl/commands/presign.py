@@ -75,9 +75,10 @@ class PresignCommand(BaseCommand):
         is_public = False
         # check whether the bucket is public
         current_acl = current_bucket.get_acl()
-        for v in current_acl["acl"]:
-            if v["grantee"]["name"] == "QS_ALL_USERS":
-                is_public = True
+        if current_acl.status_code == 200:
+            for v in current_acl["acl"]:
+                if v["grantee"]["name"] == "QS_ALL_USERS":
+                    is_public = True
 
         if is_public:
             public_url = "{protocol}://{bucket_name}.{zone}.{host}/{object_key}".format(
