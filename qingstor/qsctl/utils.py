@@ -24,11 +24,12 @@ import time
 import calendar
 from math import ceil
 from yaml import load
-from .constants import PART_SIZE, UNITS
+from threading import RLock
+
+from .constants import PART_SIZE, UNITS, SI_UNITS
 from .compat import (
     is_python2, is_python3, is_windows, Loader, StringIO, stdout_encoding
 )
-from threading import RLock
 
 
 class UploadIdRecorder(object):
@@ -333,33 +334,31 @@ def convert_to_bytes(data):
     :param data: eg: 10K
     :return: bytes
     """
-    multi = 1000
-    unlimit = multi * multi * multi * multi
-    result = unlimit
+    result = SI_UNITS(3)
     if data:
         data = data.lower()
         try:
             if data.endswith("k"):
                 data = data[:-1]
-                result = int(data) * multi
+                result = int(data) * SI_UNITS(0)
             elif data.endswith("m"):
                 data = data[:-1]
-                result = int(data) * multi * multi
+                result = int(data) * SI_UNITS(1)
             elif data.endswith("g"):
                 data = data[:-1]
-                result = int(data) * multi * multi * multi
+                result = int(data) * SI_UNITS(2)
             else:
                 result = int(data)
         except ValueError:
-            uni_print(
-                "Warning: rate limit include invaild character," \
+            print(
+                "Warning: rate limit include invaild character,"
                 "use 1G/s rate limit  as default"
             )
-            result = unlimit
+            result = SI_UNITS(3)
     if result <= 0:
-        uni_print(
-            "Warning: rate limit cannot be negative," \
+        print(
+            "Warning: rate limit cannot be negative,"
             "use 1G/s rate limit  as default"
         )
-        result = unlimit
+        result = SI_UNITS(3)
     return result
