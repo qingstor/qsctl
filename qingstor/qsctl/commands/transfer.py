@@ -15,7 +15,7 @@
 # limitations under the License.
 # =========================================================================
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import os
 import sys
@@ -162,7 +162,7 @@ class TransferCommand(BaseCommand):
         if prefix != "" and (not prefix.endswith("/")):
             prefix += "/"
 
-        for rt, dirs, files in os.walk(source_path):
+        for rt, dirs, files in cls.walk(source_path, onerror=print):
             for d in dirs:
                 local_path = os.path.join(rt, d)
                 key_path = os.path.relpath(local_path, source_path) + "/"

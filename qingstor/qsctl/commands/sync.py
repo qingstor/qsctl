@@ -15,7 +15,7 @@
 # limitations under the License.
 # =========================================================================
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import os
 import sys
@@ -61,7 +61,7 @@ class SyncCommand(TransferCommand):
     def clean_files(cls, bucket, prefix):
         cls.validate_bucket(bucket)
         current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        for rt, dirs, files in os.walk(cls.options.dest_path):
+        for rt, dirs, files in cls.walk(cls.options.dest_path, onerror=print):
             for f in files:
                 local_path = os.path.join(rt, f)
                 key_path = os.path.relpath(local_path, cls.options.dest_path)
@@ -76,7 +76,7 @@ class SyncCommand(TransferCommand):
                     os.remove(local_path)
                     cls.uni_print("File '%s' deleted" % local_path)
 
-        for rt, dirs, files in os.walk(cls.options.dest_path):
+        for rt, dirs, files in cls.walk(cls.options.dest_path, onerror=print):
             for d in dirs:
                 local_path = os.path.join(rt, d)
                 key_path = os.path.relpath(
