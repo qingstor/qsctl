@@ -27,8 +27,8 @@ from concurrent.futures import ThreadPoolExecutor
 from qingstor.sdk.config import Config
 from qingstor.sdk.service.qingstor import QingStor
 
-from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
 from ..compat import is_python2, stdout_encoding
+from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
 from ..utils import (
     load_conf, to_unix_path, is_pattern_match, validate_bucket_name,
     UploadIdRecorder
@@ -313,3 +313,55 @@ class BaseCommand(object):
             cls.print_worker.submit(cls.pbar.write, statement)
         else:
             cls.print_worker.submit(print, statement)
+
+    @classmethod
+    def safe_walk(cls, top, topdown=True, onerror=None, followlinks=False):
+        """
+        ref: https://github.com/yunify/qsctl/issues/49
+
+        os.listdir in python 2.x on linux with return str while there are
+        illegal characters in the file name, with this override function
+        we cloud handle this situation and did nothing else.
+        """
+        islink, join, isdir = os.path.islink, os.path.join, os.path.isdir
+
+        try:
+            # Note that listdir and error are globals in this module due
+            # to earlier import-*.
+            names = os.listdir(top)
+            # force non-ascii text out
+            for i in names:
+                if type(i) == str:
+                    i.decode("utf-8", "strict")
+        except UnicodeError as err:
+            if onerror is not None:
+                onerror(b"This file's name <%s> contains illegal characters." % i)
+            return
+        except OSError as err:
+            if onerror is not None:
+                onerror(err)
+            return
+
+        dirs, nondirs = [], []
+        for name in names:
+            if isdir(join(top, name)):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+
+        if topdown:
+            yield top, dirs, nondirs
+        for name in dirs:
+            new_path = join(top, name)
+            if followlinks or not islink(new_path):
+                for x in cls.safe_walk(new_path, topdown, onerror, followlinks):
+                    yield x
+        if not topdown:
+            yield top, dirs, nondirs
+
+    @classmethod
+    def walk(cls, top, topdown=True, onerror=None, followlinks=False):
+        if is_python2:
+            return cls.safe_walk(top, topdown, onerror, followlinks)
+        else:
+            return cls.walk(top, topdown, onerror, followlinks)
