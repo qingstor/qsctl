@@ -16,6 +16,7 @@ help:
 	@echo "  release-darwin  to build qsctl release for darwin"
 	@echo "  release-windows to build qsctl release for windows"
 	@echo "  format          to format code with google style"
+	@echo "  offline-package to generate a gzip file for offline installation"
 
 all: unit build
 
@@ -74,6 +75,11 @@ release-darwin: package
 	@echo "ok"
 
 release-windows: package
+	@echo "generate a zip file for offline installation"
+	mkdir dist/dependence
+	pip download qsctl -d dist/dependence
+	zip -FSj "dist/qsctl-offline-${VERSION}-windows.zip" dist/dependence
+	@echo "ok"
 	@echo "build qsctl release for windows"
 	zip -FS "dist/qsctl-${VERSION}-windows.zip" dist/qsctl.exe
 	copy "dist/qsctl-${VERSION}-windows.zip" "dist/qsctl-latest-windows.zip"
@@ -84,4 +90,13 @@ release-windows: package
 format:
 	@echo "format code with google style"
 	yapf -i -r ./qingstor ./tests ./scenarios
+	@echo "ok"
+
+offline-package: build
+	@echo "generate a gzip file for offline installation"
+	mkdir dist/dependence
+	pip download qsctl -d dist/dependence
+	cp dist/qsctl-${VERSION}-py2.py3-none-any.whl dist/dependence
+	tar -czvf dist/qsctl-offline-${VERSION}.tar.gz dist/dependence --transform "s/^dist\/dependence//"
+	rm -r dist/dependence
 	@echo "ok"
