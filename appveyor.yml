@@ -17,9 +17,10 @@ build_script:
   - python setup.py sdist bdist_wheel --universal
   - pip install dist\qsctl-%QSCTL_VERSION%-py2.py3-none-any.whl -U
   - pyinstaller --onefile bin/qsctl --hidden-import queue
-  - 7z a dist/qsctl-%QSCTL_VERSION%-windows.zip dist/qsctl.exe
+  - 7z a dist/qsctl-%QSCTL_VERSION%-windows.zip ./dist/qsctl.exe
 deploy_script:
   - "echo access_key_id: %QINGSTOR_ACCESS_KEY_ID% > config.yaml"
   - "echo secret_access_key: %QINGSTOR_SECRET_ACCESS_KEY% >> config.yaml"
   - if %APPVEYOR_REPO_TAG% == true qsctl cp dist/qsctl-%QSCTL_VERSION%-windows.zip qs://releases-qs/qsctl/qsctl-%QSCTL_VERSION%-windows.zip -f -c config.yaml
-  - qsctl cp dist/qsctl-%QSCTL_VERSION%-windows.zip qs://releases-qs/qsctl/qsctl-latest-windows.zip -f -c config.yaml
+  - if %APPVEYOR_REPO_BRANCH% == master qsctl cp dist/qsctl-%QSCTL_VERSION%-windows.zip qs://releases-qs/qsctl/qsctl-latest-windows.zip -f -c config.yaml
+  - qsctl cp dist/qsctl-%QSCTL_VERSION%-windows.zip qs://releases-qs/qsctl/qsctl-%APPVEYOR_REPO_COMMIT%-windows.zip -f -c config.yaml
