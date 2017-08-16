@@ -27,8 +27,8 @@ from concurrent.futures import ThreadPoolExecutor
 from qingstor.sdk.config import Config
 from qingstor.sdk.service.qingstor import QingStor
 
-from ..compat import is_python2, stdout_encoding
 from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
+from ..compat import is_python2, stdout_encoding
 from ..utils import (
     load_conf, to_unix_path, is_pattern_match, validate_bucket_name,
     UploadIdRecorder
@@ -330,12 +330,20 @@ class BaseCommand(object):
             # to earlier import-*.
             names = os.listdir(top)
             # force non-ascii text out
-            for i in names:
-                if type(i) == str:
-                    i.decode("utf-8", "strict")
+            for i in range(names):
+                if type(names[i]) == str:
+                    names[i].decode("utf-8", "strict")
         except UnicodeError as err:
             if onerror is not None:
-                onerror(b"Error: This file's name <%s> contains illegal characters." % i)
+                onerror(
+                    b"Error: This file's name <%s> contains illegal characters."
+                    % names[i]
+                )
+                onerror(
+                    b"Error: The illegal File is under <%s> and is skipped." %
+                    top
+                )
+                del names[i]
         except OSError as err:
             if onerror is not None:
                 onerror(err)
