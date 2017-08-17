@@ -89,6 +89,22 @@ class BaseCommand(object):
         return QingStor(config)
 
     @classmethod
+    def fallback_zones(cls, bucket):
+        zones = ['pek3a','gd1','sh1a']
+        for zone in zones:
+            url = "{protocol}://{bucket}.{zone}.{host}:{port}".format(
+                protocol=cls.client.config.protocol,
+                zone=zone,
+                host=cls.client.config.host,
+                bucket=bucket,
+                port=cls.client.config.port,
+            )
+            resp = cls.client.client.head(url)
+            if "Location" in resp.headers:
+                return zone
+        return ""
+
+    @classmethod
     def get_zone(cls, bucket):
         url = "{protocol}://{bucket}.{host}:{port}".format(
             protocol=cls.client.config.protocol,
@@ -103,7 +119,7 @@ class BaseCommand(object):
             zone = resp.headers["Location"].split(".")[1]
             return zone
         else:
-            return ""
+            return cls.fallback_zones(bucket)
 
     @classmethod
     def send_request(cls):
