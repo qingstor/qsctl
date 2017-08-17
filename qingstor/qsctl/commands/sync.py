@@ -59,15 +59,13 @@ class SyncCommand(TransferCommand):
 
     @classmethod
     def clean_files(cls, bucket, prefix):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         for rt, dirs, files in cls.walk(cls.options.dest_path, onerror=print):
             for f in files:
                 local_path = os.path.join(rt, f)
                 key_path = os.path.relpath(local_path, cls.options.dest_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                resp = current_bucket.head_object(key)
+                resp = cls.current_bucket.head_object(key)
                 if (resp.status_code != HTTP_OK) or (
                         not is_pattern_match(
                             key_path, cls.options.exclude, cls.options.include
@@ -84,7 +82,7 @@ class SyncCommand(TransferCommand):
                 ) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                resp = current_bucket.head_object(key)
+                resp = cls.current_bucket.head_object(key)
                 if (resp.status_code != HTTP_OK) or (
                         not is_pattern_match(
                             key_path, cls.options.exclude, cls.options.include
@@ -100,17 +98,15 @@ class SyncCommand(TransferCommand):
 
     @classmethod
     def confirm_key_upload(cls, local_path, bucket, key):
-        if cls.key_exists(bucket, key):
+        if cls.key_exists(key):
             time_key_modified = cls.get_time_key_modified(bucket, key)
             return cls.is_local_file_modified(local_path, time_key_modified)
         else:
             return True
 
     @classmethod
-    def get_time_key_modified(cls, bucket, key):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.head_object(key)
+    def get_time_key_modified(cls, key):
+        resp = cls.current_bucket.head_object(key)
         if resp.status_code == HTTP_OK:
             time_str_key = resp.headers["Last-Modified"]
             return time.mktime(
