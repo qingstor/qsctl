@@ -117,7 +117,7 @@ class LsCommand(BaseCommand):
 
         while True:
             keys, marker, dirs = cls.list_multiple_keys(
-                bucket, prefix, delimiter, marker, limit
+                prefix, delimiter, marker, limit
             )
             cls.print_to_console(keys, dirs)
             if marker == "":

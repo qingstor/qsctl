@@ -70,4 +70,4 @@ class RmCommand(BaseCommand):
                     "such as 'qs://testbucket/testfile'."
                 )
                 sys.exit(-1)
-            cls.remove_key(bucket, key)
+            cls.remove_key(key)
