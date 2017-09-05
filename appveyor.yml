@@ -1,13 +1,13 @@
-image: Visual Studio 2017
-platform: x64
 environment:
   matrix:
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2013"
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.3"
       PYTHON_ARCH: "64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - for /f "delims=" %%t in ('python -c "import qingstor.qsctl;print(qingstor.qsctl.__version__)"') do set QSCTL_VERSION=%%t
