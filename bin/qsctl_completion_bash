@@ -1,0 +1,6 @@
+#This file should be added into one of the following folders:
+# - /etc/bash_completion.d
+# - /usr/local/etc/bash_completion.d
+# - /usr/share/bash-completion/completions
+
+complete -C qsctl_completer -o nospace qsctl

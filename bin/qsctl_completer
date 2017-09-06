@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import os
+import sys
+
+from qingstor.sdk.config import Config
+from qingstor.sdk.service.qingstor import QingStor
+from qingstor.qsctl.utils import load_conf
+from qingstor.qsctl.buckets_completion import complete
+
+config_path = ["~/.qingstor/config.yaml", "~/.qingcloud/config.yaml"]
+config = None
+for path in config_path:
+    conf = load_conf(path)
+    if conf is not None:
+        config = Config().load_config_from_data(conf)
+        break
+
+if config is None:
+    sys.exit(-1)
+
+output = QingStor(config).list_buckets()
+
+if os.environ.get('LC_CTYPE', '') is not 'UTF-8':
+    os.environ['LC_CTYPE'] = 'UTF-8'
+
+if __name__ == '__main__':
+    cline = os.environ.get('COMP_LINE')
+    cpoint = int(os.environ.get('COMP_POINT'))
+    complete(output, cline, cpoint)
