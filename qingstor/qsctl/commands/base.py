@@ -62,6 +62,14 @@ class BaseCommand(object):
             default="~/.qingstor/config.yaml",
             help="Configuration file"
         )
+        parser.add_argument(
+            "-z",
+            "--zone",
+            dest="zone",
+            action="store",
+            type=str,
+            help="In which zone to do the operation"
+        )
 
     @classmethod
     def add_extra_arguments(cls, parser):
@@ -90,20 +98,23 @@ class BaseCommand(object):
 
     @classmethod
     def get_zone(cls, bucket):
-        url = "{protocol}://{bucket}.{host}:{port}".format(
-            protocol=cls.client.config.protocol,
-            host=cls.client.config.host,
-            bucket=bucket,
-            port=cls.client.config.port,
-        )
-        # cls.client.client is a Request Session
-        resp = cls.client.client.head(url)
-        if "Location" in resp.headers:
-            # Location: http://test-bucket.zone.qingstor.com/
-            zone = resp.headers["Location"].split(".")[1]
-            return zone
+        if hasattr(cls.options,"zone") and cls.options.zone is not None:
+            return cls.options.zone
         else:
-            return ""
+            url = "{protocol}://{bucket}.{host}:{port}".format(
+                protocol=cls.client.config.protocol,
+                host=cls.client.config.host,
+                bucket=bucket,
+                port=cls.client.config.port,
+            )
+            # cls.client.client is a Request Session
+            resp = cls.client.client.head(url)
+            if "Location" in resp.headers:
+                # Location: http://test-bucket.zone.qingstor.com/
+                zone = resp.headers["Location"].split(".")[1]
+                return zone
+            else:
+                return ""
 
     @classmethod
     def send_request(cls):
