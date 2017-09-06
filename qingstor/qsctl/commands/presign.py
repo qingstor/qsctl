@@ -54,9 +54,7 @@ class PresignCommand(BaseCommand):
         if prefix == "":
             cls.uni_print("Error: please specify object in qs-path")
             sys.exit(-1)
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.head_object(prefix)
+        resp = cls.current_bucket.head_object(prefix)
 
         # Handle common errors
         if resp.status_code == 404:
@@ -74,7 +72,7 @@ class PresignCommand(BaseCommand):
 
         is_public = False
         # check whether the bucket is public
-        current_acl = current_bucket.get_acl()
+        current_acl = cls.current_bucket.get_acl()
         if current_acl.status_code == 200:
             for v in current_acl["acl"]:
                 if v["grantee"]["name"] == "QS_ALL_USERS":
@@ -82,10 +80,10 @@ class PresignCommand(BaseCommand):
 
         if is_public:
             public_url = "{protocol}://{bucket_name}.{zone}.{host}/{object_key}".format(
-                protocol=current_bucket.config.protocol,
+                protocol=cls.current_bucket.config.protocol,
                 bucket_name=bucket,
                 zone=cls.bucket_map[bucket],
-                host=current_bucket.config.host,
+                host=cls.current_bucket.config.host,
                 object_key=prefix
             )
             cls.uni_print(public_url)
@@ -93,7 +91,7 @@ class PresignCommand(BaseCommand):
         else:
             # if the bucket is non-public, generate the link with signature,
             # expire seconds and other formatted parameters
-            prepared = current_bucket.get_object_request(prefix).sign_query(
+            prepared = cls.current_bucket.get_object_request(prefix).sign_query(
                 get_current_time() + cls.options.expire_seconds
             )
             cls.uni_print(prepared.url)

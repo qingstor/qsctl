@@ -40,6 +40,7 @@ class BaseCommand(object):
     usage = ""
     description = ""
 
+    current_bucket = None
     client = None
     bucket_map = {}
     recorder = None
@@ -89,6 +90,7 @@ class BaseCommand(object):
         cls.add_common_arguments(parser)
         cls.add_extra_arguments(parser)
         cls.add_transfer_arguments(parser)
+
         return parser
 
     @classmethod
@@ -129,8 +131,8 @@ class BaseCommand(object):
                     "Error: Please check if bucket <%s> exists" % bucket
                 )
                 sys.exit(-1)
-            current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-            resp = current_bucket.head()
+            cls.current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+            resp = cls.current_bucket.head()
             if resp.status_code != HTTP_OK:
                 cls.uni_print(
                     "Error: Please check if you have enough"
@@ -172,28 +174,22 @@ class BaseCommand(object):
         if not validate_bucket_name(bucket):
             cls.uni_print("Error: Invalid Bucket name")
             sys.exit(-1)
-        if cls.command not in ("mb", "rb"):
-            cls.validate_bucket(bucket)
         return bucket, prefix
 
     @classmethod
-    def key_exists(cls, bucket, key):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.head_object(key)
+    def key_exists(cls, key):
+        resp = cls.current_bucket.head_object(key)
         return resp.status_code == HTTP_OK
 
     @classmethod
-    def remove_key(cls, bucket, key):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.head_object(key)
+    def remove_key(cls, key):
+        resp = cls.current_bucket.head_object(key)
         if resp.status_code == HTTP_OK:
             if resp.headers["Content-Type"] == "application/x-directory":
                 statement = "Directory should be deleted with -r"
                 cls.uni_print(statement)
             else:
-                resp = current_bucket.delete_object(key)
+                resp = cls.current_bucket.delete_object(key)
                 if resp.status_code == HTTP_OK_NO_CONTENT:
                     statement = "Key <%s> deleted" % key
                     cls.uni_print(statement)
@@ -214,19 +210,17 @@ class BaseCommand(object):
 
     @classmethod
     def remove_multiple_keys(cls, bucket, prefix=""):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
-                bucket, marker=marker, prefix=prefix, limit="1000"
+                marker=marker, prefix=prefix, limit="1000"
             )
             keys_to_remove = [i["key"] for i in keys]
             for key in keys_to_remove:
                 if not cls.confirm_key_remove(key[len(prefix):]):
                     keys_to_remove.remove(key)
             keys_to_remove = [{"key": key} for key in keys_to_remove]
-            resp = current_bucket.delete_multiple_objects(
+            resp = cls.current_bucket.delete_multiple_objects(
                 objects=keys_to_remove
             )
             if resp.status_code == HTTP_OK:
@@ -247,17 +241,47 @@ class BaseCommand(object):
 
     @classmethod
     def list_multiple_keys(
-            cls, bucket, prefix="", delimiter="", marker="", limit="200"
+            cls, prefix="", delimiter="", marker="", limit="200"
     ):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.list_objects(
+        resp = cls.current_bucket.list_objects(
             marker=marker, prefix=prefix, delimiter=delimiter, limit=limit
         )
         keys = resp["keys"]
         dirs = resp["common_prefixes"]
         next_marker = resp["next_marker"]
         return keys, next_marker, dirs
+
+    @classmethod
+    def init_current_bucket(cls):
+        if cls.command in ("rb"):
+            bucket, prefix = cls.validate_qs_path(cls.options.bucket)
+            if prefix != "":
+                cls.uni_print("Error: Invalid bucket name")
+                sys.exit(-1)
+            cls.validate_bucket(bucket)
+        elif cls.command in ("mb"):
+            bucket, prefix = cls.validate_qs_path(cls.options.bucket)
+            if prefix != "":
+                cls.uni_print("Error: Invalid bucket name")
+                sys.exit(-1)
+            zone = ""
+            if cls.options.zone:
+                zone = cls.options.zone
+            cls.current_bucket = cls.client.Bucket(bucket, zone)
+        elif cls.command in ("ls"):
+            if cls.options.qs_path != "qs://":
+                bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
+                cls.validate_bucket(bucket)
+        else:
+            if hasattr(cls.options,"dest_path") and "qs://" in cls.options.dest_path:
+                bucket, prefix = cls.validate_qs_path(cls.options.dest_path)
+                cls.validate_bucket(bucket)
+            elif hasattr(cls.options,"source_path") and "qs://" in cls.options.source_path:
+                bucket, prefix = cls.validate_qs_path(cls.options.source_path)
+                cls.validate_bucket(bucket)
+            elif hasattr(cls.options,"qs_path"):
+                bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
+                cls.validate_bucket(bucket)
 
     @classmethod
     def main(cls, args):
@@ -279,6 +303,8 @@ class BaseCommand(object):
                 break
 
         cls._init_recorder()
+
+        cls.init_current_bucket()
 
         if cls.client is None:
             sys.exit(-1)
@@ -341,7 +367,7 @@ class BaseCommand(object):
             # to earlier import-*.
             names = os.listdir(top)
             # force non-ascii text out
-            for i in range(names):
+            for i in range(len(names)):
                 if type(names[i]) == str:
                     names[i].decode("utf-8", "strict")
         except UnicodeError as err:

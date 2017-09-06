@@ -43,16 +43,10 @@ class RbCommand(BaseCommand):
 
     @classmethod
     def send_request(cls):
-        bucket, prefix = cls.validate_qs_path(cls.options.bucket)
-        if prefix != "":
-            print("Error: Invalid bucket name")
-            sys.exit(-1)
         if cls.options.force == True:
-            cls.remove_multiple_keys(bucket)
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.delete()
+            cls.remove_multiple_keys(cls.options.bucket)
+        resp = cls.current_bucket.delete()
         if resp.status_code != HTTP_OK_NO_CONTENT:
             cls.uni_print(resp.content)
         else:
-            cls.uni_print("Bucket <%s> deleted" % bucket)
+            cls.uni_print("Bucket <%s> deleted" % cls.options.bucket)
