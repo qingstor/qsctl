@@ -78,7 +78,7 @@ release-windows: package
 	@echo "generate a zip file for offline installation"
 	mkdir dist/dependence
 	pip download qsctl -d dist/dependence
-	zip -FSj "dist/qsctl-offline-${VERSION}-windows.zip" dist/dependence
+	zip -FSjr "dist/qsctl-offline-${VERSION}-windows.zip" dist/dependence
 	@echo "ok"
 	@echo "build qsctl release for windows"
 	zip -FS "dist/qsctl-${VERSION}-windows.zip" dist/qsctl.exe
@@ -89,7 +89,7 @@ release-windows: package
 
 format:
 	@echo "format code with google style"
-	yapf -i -r ./qingstor ./tests ./scenarios
+	yapf -i -r ./qingstor ./tests ./scenarios ./bin/qsctl_completer
 	@echo "ok"
 
 offline-package: build
