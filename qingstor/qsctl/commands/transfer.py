@@ -132,7 +132,7 @@ class TransferCommand(BaseCommand):
             # Skip temporary file created in downloading process
             return False
 
-        if cls.options.force or not cls.key_exists(bucket, key):
+        if cls.options.force or not cls.key_exists(key):
             return True
         else:
             notice = "Key <%s> already existed in bucket <%s>.\n" % (
@@ -221,7 +221,7 @@ class TransferCommand(BaseCommand):
         marker = ""
         while True:
             keys, marker, _ = cls.list_multiple_keys(
-                bucket, marker=marker, prefix=prefix
+                marker=marker, prefix=prefix
             )
             for item in keys:
                 key = item["key"]
@@ -262,19 +262,16 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def write_local_file(cls, local_path, bucket, key):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-
         completed = 0
         temporary_path = local_path + TEMPORARY_FILE_SUFFIX
         if os.path.isfile(temporary_path):
             completed = os.path.getsize(temporary_path)
 
         if completed > 0:
-            resp = current_bucket.get_object(key, range="bytes=%d-" % completed)
+            resp = cls.current_bucket.get_object(key, range="bytes=%d-" % completed)
             cls.uni_print("Resume downloading key <%s>" % key)
         else:
-            resp = current_bucket.get_object(key)
+            resp = cls.current_bucket.get_object(key)
         if resp.status_code in (HTTP_OK, HTTP_OK_PARTIAL_CONTENT):
             cls.validate_local_path(local_path)
             open_flag = "wb"
@@ -316,7 +313,7 @@ class TransferCommand(BaseCommand):
                 )
 
             if cls.command == "mv":
-                cls.remove_key(bucket, key)
+                cls.remove_key(key)
         else:
             cls.uni_print(resp.content)
             sys.exit(-1)
@@ -324,9 +321,7 @@ class TransferCommand(BaseCommand):
     @classmethod
     def put_directory(cls, bucket, key):
         content_type = "application/x-directory"
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.put_object(key, content_type=content_type)
+        resp = cls.current_bucket.put_object(key, content_type=content_type)
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Directory <%s> created in bucket <%s>" % (key, bucket)
             cls.uni_print(statement)
@@ -354,10 +349,8 @@ class TransferCommand(BaseCommand):
             (_, data) = next(fc.iter())
         except StopIteration:
             return
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         cls.uni_print("Stdin is uploading as Key <%s>" % (key))
-        resp = current_bucket.put_object(key, body=cls.wrapper_stream(data))
+        resp = cls.current_bucket.put_object(key, body=cls.wrapper_stream(data))
         if resp.status_code == HTTP_OK_CREATED:
             statement = "Key <%s> created in bucket <%s>" % (key, bucket)
             cls.uni_print(statement)
@@ -372,12 +365,10 @@ class TransferCommand(BaseCommand):
                 (_, data) = next(fc.iter())
             except StopIteration:
                 return
-            cls.validate_bucket(bucket)
-            current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
             cls.uni_print(
                 "File <%s> is uploading as Key <%s>" % (local_path, key)
             )
-            resp = current_bucket.put_object(key, body=cls.wrapper_stream(data))
+            resp = cls.current_bucket.put_object(key, body=cls.wrapper_stream(data))
             if resp.status_code == HTTP_OK_CREATED:
                 statement = "Key <%s> created in bucket <%s>" % (key, bucket)
                 cls.uni_print(statement)
@@ -392,7 +383,7 @@ class TransferCommand(BaseCommand):
         resume_multipart, upload_id, cur_part_number = \
             cls.try_to_resume_multipart(local_path, bucket, key)
         if not resume_multipart:
-            upload_id = cls.init_multipart(bucket, key)
+            upload_id = cls.init_multipart(key)
             cls.recorder.put(local_path, bucket, key, upload_id)
         is_upload_success, cur_parts = cls.upload_multipart(
             local_path, upload_id, bucket, key, cur_part_number
@@ -409,9 +400,7 @@ class TransferCommand(BaseCommand):
         upload_id = cls.recorder.get(local_path, bucket, key)
         if not upload_id:
             return False, "", 0
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.list_multipart(key, upload_id=upload_id)
+        resp = cls.current_bucket.list_multipart(key, upload_id=upload_id)
         if resp.status_code == HTTP_BAD_REQUEST:
             # Previous upload has been aborted or completed.
             cls.uni_print(
@@ -431,15 +420,13 @@ class TransferCommand(BaseCommand):
         return True, upload_id, int(resp["count"])
 
     @classmethod
-    def init_multipart(cls, bucket, key):
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.initiate_multipart_upload(key)
+    def init_multipart(cls, key):
+        resp = cls.current_bucket.initiate_multipart_upload(key)
         if resp.status_code == HTTP_OK:
             upload_id = resp["upload_id"]
         elif resp.status_code == HTTP_BAD_REQUEST:
-            current_bucket.delete_object(key)
-            resp = current_bucket.initiate_multipart_upload(key)
+            cls.current_bucket.delete_object(key)
+            resp = cls.current_bucket.initiate_multipart_upload(key)
             upload_id = resp["upload_id"]
         else:
             upload_id = ""
@@ -466,7 +453,6 @@ class TransferCommand(BaseCommand):
                     upload_id,
                     part_number,
                     cls.wrapper_stream(data),
-                    bucket,
                     key,
                 )
                 if not is_upload_success:
@@ -474,12 +460,10 @@ class TransferCommand(BaseCommand):
             return (True, fc.parts)
 
     @classmethod
-    def upload_part(cls, upload_id, part_number, data, bucket, key):
+    def upload_part(cls, upload_id, part_number, data, key):
         """upload one part of large file.
         """
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
-        resp = current_bucket.upload_multipart(
+        resp = cls.current_bucket.upload_multipart(
             key, upload_id=upload_id, part_number=part_number, body=data
         )
         if resp.status_code != HTTP_OK_CREATED:
@@ -493,10 +477,8 @@ class TransferCommand(BaseCommand):
         parts = []
         for part_number in range(cur_parts):
             parts.append({"part_number": part_number})
-        cls.validate_bucket(bucket)
-        current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
         cls.recorder.remove(filepath, bucket, key)
-        resp = current_bucket.complete_multipart_upload(
+        resp = cls.current_bucket.complete_multipart_upload(
             key, upload_id=upload_id, object_parts=parts
         )
         if resp.status_code != HTTP_OK_CREATED:
