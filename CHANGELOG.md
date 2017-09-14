@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.1] - 2017-09-14
+
+### Added
+
+- Add zone options support
+- Add tab completion for linux
+
+### Changed
+
+- Handle illegal characters in a better way
+- Modify current_bucket to variable of class
+
+### Fixed
+
+- Fix arg conflict bug
+- Fix bug which leads to recursion depth exceeded
+
 ## [1.7.0] - 2017-08-11
 
 ### Added
@@ -184,6 +201,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.1]: https://github.com/yunify/qsctl/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/yunify/qsctl/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/yunify/qsctl/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/yunify/qsctl/compare/1.6.0...1.6.1
