@@ -409,4 +409,4 @@ class BaseCommand(object):
         if is_python2:
             return cls.safe_walk(top, topdown, onerror, followlinks)
         else:
-            return cls.walk(top, topdown, onerror, followlinks)
+            return os.walk(top, topdown, onerror, followlinks)
