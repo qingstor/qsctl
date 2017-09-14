@@ -32,14 +32,6 @@ class MbCommand(BaseCommand):
     @classmethod
     def add_extra_arguments(cls, parser):
         parser.add_argument("bucket", help="Name of the bucket to be created")
-
-        parser.add_argument(
-            "-z",
-            "--zone",
-            dest="zone",
-            help="In which zone to create the bucket",
-            required=True
-        )
         return parser
 
     @classmethod

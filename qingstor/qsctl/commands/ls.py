@@ -37,13 +37,6 @@ class LsCommand(BaseCommand):
     @classmethod
     def add_extra_arguments(cls, parser):
         parser.add_argument(
-            "-z",
-            "--zone",
-            dest="zone",
-            help="List buckets located in this zone"
-        )
-
-        parser.add_argument(
             "qs_path", nargs="?", default="qs://", help="The qs-path to list"
         )
 

@@ -128,7 +128,8 @@ class BaseCommand(object):
             cls.bucket_map[bucket] = cls.get_zone(bucket)
             if cls.bucket_map[bucket] == "":
                 cls.uni_print(
-                    "Error: Please check if bucket <%s> exists" % bucket
+                    "Error: Please check if bucket <%s> exists. If you are "
+                    "trying to create a bucket, please specify the zone name." % bucket
                 )
                 sys.exit(-1)
             cls.current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
