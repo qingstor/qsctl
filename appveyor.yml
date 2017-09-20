@@ -12,10 +12,11 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - for /f "delims=" %%t in ('python -c "import qingstor.qsctl;print(qingstor.qsctl.__version__)"') do set QSCTL_VERSION=%%t
   - python --version
-  - pip install wheel pyinstaller
+  - pip install pyinstaller
+  - pip install setuptools -U
 build_script:
-  - python setup.py sdist bdist_wheel --universal
-  - pip install dist\qsctl-%QSCTL_VERSION%-py2.py3-none-any.whl -U
+  - python setup.py sdist
+  - pip install dist\qsctl-%QSCTL_VERSION%.tar.gz -U
   - pyinstaller --onefile bin/qsctl --hidden-import queue
   - 7z a dist/qsctl-%QSCTL_VERSION%-windows.zip ./dist/qsctl.exe
 deploy_script:
