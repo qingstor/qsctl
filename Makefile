@@ -44,13 +44,13 @@ clean:
 	@echo "ok"
 
 build: clean
-	@echo "build sdist and bdist_wheel"
-	python setup.py sdist bdist_wheel --universal
+	@echo "build sdist"
+	python setup.py sdist
 	@echo "ok"
 
 install: build
 	@echo "install with whl"
-	pip install dist/*.whl -U
+	pip install dist/*.tar.gz -U
 	@echo "ok"
 
 package: install
@@ -62,7 +62,6 @@ release-linux: package
 	@echo "build qsctl release for linux"
 	cd dist && tar -czvf qsctl-${VERSION}-linux.tar.gz qsctl
 	cp dist/qsctl-${VERSION}-linux.tar.gz dist/qsctl-latest-linux.tar.gz
-	cp dist/qsctl-${VERSION}-py2.py3-none-any.whl dist/qsctl-latest-py2.py3-none-any.whl
 	cp dist/qsctl-${VERSION}.tar.gz dist/qsctl-latest.tar.gz
 	@echo "ok"
 
@@ -70,7 +69,6 @@ release-darwin: package
 	@echo "build qsctl release for darwin"
 	cd dist && tar -czvf qsctl-${VERSION}-darwin.tar.gz qsctl
 	cp dist/qsctl-${VERSION}-darwin.tar.gz dist/qsctl-latest-darwin.tar.gz
-	cp dist/qsctl-${VERSION}-py2.py3-none-any.whl dist/qsctl-latest-py2.py3-none-any.whl
 	cp dist/qsctl-${VERSION}.tar.gz dist/qsctl-latest.tar.gz
 	@echo "ok"
 
@@ -83,7 +81,6 @@ release-windows: package
 	@echo "build qsctl release for windows"
 	zip -FS "dist/qsctl-${VERSION}-windows.zip" dist/qsctl.exe
 	copy "dist/qsctl-${VERSION}-windows.zip" "dist/qsctl-latest-windows.zip"
-	copy "qsctl-${VERSION}-py2.py3-none-any.whl" "qsctl-latest-py2.py3-none-any.whl"
 	copy "qsctl-${VERSION}.tar.gz" "qsctl-latest.tar.gz"
 	@echo "ok"
 
@@ -96,7 +93,7 @@ offline-package: build
 	@echo "generate a gzip file for offline installation"
 	mkdir dist/dependence
 	pip download qsctl -d dist/dependence
-	cp dist/qsctl-${VERSION}-py2.py3-none-any.whl dist/dependence
+	cp dist/qsctl-${VERSION}.tar.gz dist/dependence
 	tar -czvf dist/qsctl-offline-${VERSION}.tar.gz dist/dependence --transform "s/^dist\/dependence//"
 	rm -r dist/dependence
 	@echo "ok"
