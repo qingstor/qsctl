@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.2] - 2017-09-20
+
+### Fixed
+
+- Broken dependence on python 2
+
 ## [1.7.1] - 2017-09-14
 
 ### Added
@@ -201,6 +207,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.2]: https://github.com/yunify/qsctl/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/yunify/qsctl/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/yunify/qsctl/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/yunify/qsctl/compare/1.6.1...1.6.2
