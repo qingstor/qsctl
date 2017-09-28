@@ -100,7 +100,7 @@ class BaseCommand(object):
 
     @classmethod
     def get_zone(cls, bucket):
-        if hasattr(cls.options,"zone") and cls.options.zone is not None:
+        if hasattr(cls.options, "zone") and cls.options.zone is not None:
             return cls.options.zone
         else:
             url = "{protocol}://{bucket}.{host}:{port}".format(
@@ -129,10 +129,13 @@ class BaseCommand(object):
             if cls.bucket_map[bucket] == "":
                 cls.uni_print(
                     "Error: Please check if bucket <%s> exists. If you are "
-                    "trying to create a bucket, please specify the zone name." % bucket
+                    "trying to create a bucket, please specify the zone name." %
+                    bucket
                 )
                 sys.exit(-1)
-            cls.current_bucket = cls.client.Bucket(bucket, cls.bucket_map[bucket])
+            cls.current_bucket = cls.client.Bucket(
+                bucket, cls.bucket_map[bucket]
+            )
             resp = cls.current_bucket.head()
             if resp.status_code != HTTP_OK:
                 cls.uni_print(
@@ -274,13 +277,17 @@ class BaseCommand(object):
                 bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
                 cls.validate_bucket(bucket)
         else:
-            if hasattr(cls.options,"dest_path") and "qs://" in cls.options.dest_path:
+            if hasattr(
+                    cls.options, "dest_path"
+            ) and "qs://" in cls.options.dest_path:
                 bucket, prefix = cls.validate_qs_path(cls.options.dest_path)
                 cls.validate_bucket(bucket)
-            elif hasattr(cls.options,"source_path") and "qs://" in cls.options.source_path:
+            elif hasattr(
+                    cls.options, "source_path"
+            ) and "qs://" in cls.options.source_path:
                 bucket, prefix = cls.validate_qs_path(cls.options.source_path)
                 cls.validate_bucket(bucket)
-            elif hasattr(cls.options,"qs_path"):
+            elif hasattr(cls.options, "qs_path"):
                 bucket, prefix = cls.validate_qs_path(cls.options.qs_path)
                 cls.validate_bucket(bucket)
 
