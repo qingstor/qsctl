@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.3] - 2017-09-28
+
+### Added
+
+- Add SectionReader to replace StringIO
+
+### Changed
+
+- Use 64M for part size
+- Fixed read blocksize to 4M
+
+### Fixed
+
+- Improve upload speed on windows platform
+
 ## [1.7.2] - 2017-09-20
 
 ### Fixed
@@ -207,6 +222,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.3]: https://github.com/yunify/qsctl/compare/1.7.2...1.7.3
 [1.7.2]: https://github.com/yunify/qsctl/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/yunify/qsctl/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/yunify/qsctl/compare/1.6.2...1.7.0
