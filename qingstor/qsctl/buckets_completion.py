@@ -46,7 +46,8 @@ def complete(output, cmdline, point=None):
             # Input bucket with "qs://"
             for x in output["buckets"]:
                 if x["name"].encode("utf-8").startswith(
-                        current_arg[5:current_arg_point + 1]):
+                        current_arg[5:current_arg_point + 1]
+                ):
                     bucket_list.append(("//" + x["name"] + "/").encode("utf-8"))
             print(" \n".join(bucket_list))
     else:

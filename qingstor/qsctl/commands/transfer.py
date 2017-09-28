@@ -168,9 +168,9 @@ class TransferCommand(BaseCommand):
                 key_path = os.path.relpath(local_path, source_path) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
-                    and cls.confirm_key_upload(local_path, bucket,
-                                               key)):
+                if (is_pattern_match(key_path, cls.options.exclude,
+                                     cls.options.include)
+                        and cls.confirm_key_upload(local_path, bucket, key)):
                     cls.workers.submit(cls.put_directory, bucket, key)
 
             for f in files:
@@ -178,9 +178,9 @@ class TransferCommand(BaseCommand):
                 key_path = os.path.relpath(local_path, source_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
-                if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
-                    and cls.confirm_key_upload(local_path, bucket,
-                                               key)):
+                if (is_pattern_match(key_path, cls.options.exclude,
+                                     cls.options.include)
+                        and cls.confirm_key_upload(local_path, bucket, key)):
                     if cls.pbar:
                         cls.pbar.total += os.path.getsize(local_path)
                     cls.workers.submit(
@@ -268,7 +268,9 @@ class TransferCommand(BaseCommand):
             completed = os.path.getsize(temporary_path)
 
         if completed > 0:
-            resp = cls.current_bucket.get_object(key, range="bytes=%d-" % completed)
+            resp = cls.current_bucket.get_object(
+                key, range="bytes=%d-" % completed
+            )
             cls.uni_print("Resume downloading key <%s>" % key)
         else:
             resp = cls.current_bucket.get_object(key)
@@ -368,7 +370,9 @@ class TransferCommand(BaseCommand):
             cls.uni_print(
                 "File <%s> is uploading as Key <%s>" % (local_path, key)
             )
-            resp = cls.current_bucket.put_object(key, body=cls.wrapper_stream(data))
+            resp = cls.current_bucket.put_object(
+                key, body=cls.wrapper_stream(data)
+            )
             if resp.status_code == HTTP_OK_CREATED:
                 statement = "Key <%s> created in bucket <%s>" % (key, bucket)
                 cls.uni_print(statement)
