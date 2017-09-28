@@ -227,9 +227,51 @@ class FileChunk:
 
     def iter(self, offset=0):
         for i in range(offset, self.parts):
-            self.fileobj.seek(i * PART_SIZE)
-            data = StringIO(self.fileobj.read(PART_SIZE))
+            data = SectionReader(self.fileobj, i * PART_SIZE, PART_SIZE)
             yield (i, data)
+
+
+class SectionReader:
+    """
+    WARNING: Currently, SectionReader is not thread safe.
+    """
+
+    def __init__(self, fd, start, length):
+        self.fd = fd
+        self.pos = fd.tell()
+
+        # Check does this file support seek and read.
+        if not (hasattr(fd, 'seek') and hasattr(fd, 'read')):
+            raise ValueError("SectionReader doesn't support this object")
+
+        # Calculate the max readable length of this file.
+        fd.seek(0, os.SEEK_END)
+        max_length = fd.tell()
+        self.length = min(length, max_length - start)
+        self.remain_length = self.length
+
+        # Rewind to start, ready for read data.
+        self.fd.seek(start, os.SEEK_SET)
+
+    def read(self, size=None):
+        if size is None:
+            size = self.remain_length
+            self.remain_length = 0
+            return self.fd.read(size)
+        if self.remain_length >= size:
+            self.remain_length -= size
+            return self.fd.read(size)
+        elif 0 < self.remain_length < size:
+            self.remain_length = 0
+            return self.fd.read(size)
+        else:
+            return self.fd.read(0)
+
+    def __len__(self):
+        return self.length
+
+    def len(self):
+        return self.length
 
 
 def validate_bucket_name(bucket_name):
