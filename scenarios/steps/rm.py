@@ -57,13 +57,13 @@ def step_impl(context):
         bucket.put_object(row["name"])
 
 
-@when(u'delete keys with prefix "中文目录测试"')
-def step_impl(context):
+@when(u'delete keys with prefix "{prefix}"')
+def step_impl(context, prefix):
     qsctl(
         "rm",
         "qs://{bucket}/{prefix}".format(
             bucket=test_data['bucket_name'],
-            prefix=context.text,
+            prefix=prefix,
         ),
         "-r",
     ).wait()
@@ -73,7 +73,7 @@ def step_impl(context):
 def step_impl(context):
     for row in context.table:
         assert_that(bucket.head_object(row["name"]).status_code
-                    ).is_equal_to(404 if row["deleted"] is "1" else 200)
+                    ).is_equal_to(404 if row["deleted"] == "1" else 200)
 
     for row in context.table:
         bucket.delete_object(row["name"])
