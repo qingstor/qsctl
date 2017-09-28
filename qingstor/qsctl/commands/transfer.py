@@ -566,11 +566,13 @@ class TransferCommand(BaseCommand):
         if not cls.pbar:
             return stream
 
+        block_size = 4 * 1024 * 1024
+
         _read = stream.read
 
         def _wrapper(size=None):
-            buf = _read(size)
-            cls.update_pbar(size)
+            buf = _read(block_size)
+            cls.update_pbar(len(buf))
             return buf
 
         def _wrapper_with_rate_limit(size=None):
