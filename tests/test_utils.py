@@ -54,7 +54,7 @@ class TestUtils(unittest.TestCase):
         self.conf_file = conf_file
         self.bad_conf_file = bad_conf_file
 
-        # Create a large file(~64MB)
+        # Create a large file(~128MB)
         self.large_file = os.path.join(current_path, "data/large_file")
         command = (
             "dd if=/dev/urandom of=%s bs=%s count=2 > /dev/null 2>&1" %
@@ -101,7 +101,7 @@ class TestUtils(unittest.TestCase):
 
     def test_format_size(self):
         size = os.path.getsize(self.large_file)
-        self.assertEqual(format_size(size), "64.0 MiB")
+        self.assertEqual(format_size(size), "128.0 MiB")
 
     def test_pattern_match(self):
         self.assertTrue(pattern_match("xyz", "x?z"))
@@ -118,9 +118,11 @@ class TestUtils(unittest.TestCase):
     def test_File_Chunk(self):
         with open(self.large_file, "rb") as f:
             file = FileChunk(f)
-            (_, part0), (_, part1), (_, part2) = file.iter()
+            (_, part0) = next(file.iter())
             self.assertEqual(len(part0.read()), PART_SIZE)
+            (_, part1) = next(file.iter(1))
             self.assertEqual(len(part1.read()), PART_SIZE)
+            (_, part2) = next(file.iter(2))
             self.assertEqual(part2.read(5), b"just ")
             self.assertEqual(part2.read(), b"for testing")
 
