@@ -1,5 +1,5 @@
 qingstor-sdk >= 2.0.2
 assertpy >= 0.10
 argparse >= 1.1
-behave >= 1.2
+git+https://github.com/behave/behave.git
 sh >= 1.12
