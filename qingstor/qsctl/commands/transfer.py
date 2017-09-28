@@ -29,6 +29,7 @@ from .base import BaseCommand
 
 from ..constants import (
     PART_SIZE,
+    BUFFER_SIZE,
     BAR_FORMAT,
     USE_ASCII,
     HTTP_OK,
@@ -291,22 +292,14 @@ class TransferCommand(BaseCommand):
                     )
                     cache = []
 
-                    for chunk in resp.iter_content(1024):
+                    for chunk in resp.iter_content(BUFFER_SIZE):
                         # cls.tokens is not None , rate limit
                         if cls.tokens:
-                            while not cls.tokens.consume(1024):
+                            while not cls.tokens.consume(BUFFER_SIZE):
                                 continue
                         if cls.pbar:
-                            cls.update_pbar(1024)
-                        cache.append(chunk)
-                        # Write file while cache is over 32M
-                        if len(cache) >= 32 * 1024:
-                            f.write(b"".join(cache))
-                            cache = []
-
-                    if cache:
-                        f.write(b"".join(cache))
-                        del cache
+                            cls.update_pbar(BUFFER_SIZE)
+                        f.write(chunk)
 
                 os.rename(temporary_path, local_path)
                 cls.uni_print(
@@ -570,12 +563,10 @@ class TransferCommand(BaseCommand):
         if not cls.pbar:
             return stream
 
-        block_size = 4 * 1024 * 1024
-
         _read = stream.read
 
         def _wrapper(size=None):
-            buf = _read(block_size)
+            buf = _read(BUFFER_SIZE)
             cls.update_pbar(len(buf))
             return buf
 
