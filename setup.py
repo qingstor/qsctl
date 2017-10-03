@@ -6,7 +6,7 @@ from qingstor.qsctl import __version__
 
 install_requires = [
     'PyYAML >= 3.1',
-    'qingstor-sdk >= 2.1.3',
+    'qingstor-sdk >= 2.2.5',
     'docutils >= 0.10',
     'tqdm >= 4.0.0'
 ]
