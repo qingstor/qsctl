@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.4] - 2017-10-03
+
+### Changed
+
+- Use larger BUFFER_SIZE for downloads
+
+### Fixed
+
+- Fix bug lead to mkdir conflict in multi threads
+
 ## [1.7.3] - 2017-09-28
 
 ### Added
@@ -222,6 +232,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.4]: https://github.com/yunify/qsctl/compare/1.7.3...1.7.4
 [1.7.3]: https://github.com/yunify/qsctl/compare/1.7.2...1.7.3
 [1.7.2]: https://github.com/yunify/qsctl/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/yunify/qsctl/compare/1.7.0...1.7.1
