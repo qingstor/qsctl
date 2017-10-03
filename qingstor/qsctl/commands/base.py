@@ -20,6 +20,7 @@ from __future__ import print_function
 
 import os
 import sys
+import errno
 import argparse
 
 from concurrent.futures import ThreadPoolExecutor
@@ -159,11 +160,15 @@ class BaseCommand(object):
                     os.makedirs(dirname)
                     cls.uni_print("Directory '%s' created" % dirname)
                 except OSError as e:
-                    cls.uni_print(
-                        "Error: Failed to create directory '%s': %s" %
-                        (dirname, e)
-                    )
-                    sys.exit(-1)
+                    if e.errno != errno.EEXIST:
+                        cls.uni_print(
+                            "Error: Failed to create directory '%s': %s" %
+                            (dirname, e)
+                        )
+                        sys.exit(-1)
+                    else:
+                        cls.uni_print("Directory '%s' exists, ignore." % dirname)
+
 
     @classmethod
     def validate_qs_path(cls, qs_path):
