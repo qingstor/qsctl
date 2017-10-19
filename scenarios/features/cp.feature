@@ -33,3 +33,29 @@ Feature: Copy local file(s) to QingStor or QingStor key(s) to local.
       | name           |
       | 中文测试           |
       | qsctl_test_big |
+
+  Scenario: Copy local files to Qingstor keys using wildcard
+    Given several similar local files
+      | name           |
+      | ab             |
+      | aba            |
+      | abb            |
+      | aab            |
+      | aaba           |
+      | aabab          |
+      | aabba          |
+    When copy to QingStor key using wildcard
+      | name           | pattern        |
+      | ab             | a*b?           |
+      | aba            |                |
+      | abb            |                |
+      | aab            |                |
+      | aaba           |                |
+      | aabab          |                |
+      | aabba          |                |
+    Then QingStor should have matched keys
+      | name           |
+      | aba            |
+      | abb            |
+      | aaba           |
+      | aabba          |

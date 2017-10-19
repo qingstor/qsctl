@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os
+import re
 
 import sh
 import yaml
@@ -82,3 +83,48 @@ def step_impl(context):
         bucket.delete_object(row["name"])
 
     sh.rm("-rf", "tmp").wait()
+
+
+@given(u'several similar local directories with files')
+def step_impl(context):
+    sh.mkdir("tmp_similar").wait()
+    for row in context.table:
+        dirs = row["name"].split("/")
+        if len(dirs) > 2:
+            sh.mkdir("tmp_similar/" + dirs[1]).wait()
+        sh.dd(
+            "if=/dev/zero",
+            "of={filename}".format(filename=row["name"]),
+            "bs=1048576",
+            "count=1"
+        ).wait()
+
+
+@when(u'sync local directories to QingStor prefix using wildcard')
+def step_impl(context):
+    pattern = context.table[0][1]
+    pattern = pattern.replace("*", ".*")
+    pattern = pattern.replace("?", "[\S]{1}")
+    pattern = re.compile(pattern)
+    for row in context.table:
+        result = re.findall(pattern, row["name"])
+        for x in result:
+            if x == row["name"]:
+                qsctl(
+                    "sync",
+                    "tmp_similar/{filename}".format(filename=row["name"]),
+                    "qs://{bucket}/{prefix}".format(
+                        bucket=test_data["bucket_name"],
+                        prefix="tmp_similar")
+                ).wait()
+
+
+@then(u'QingStor should have keys with matched prefix')
+def step_impl(context):
+    for row in context.table:
+        assert_that(os.path.isfile(row["name"])).is_equal_to(True)
+
+    for row in context.table:
+        bucket.delete_object(row["name"])
+
+    sh.rm("-rf", "tmp_similar").wait()

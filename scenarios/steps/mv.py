@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os
+import re
 
 import sh
 import yaml
@@ -90,3 +91,49 @@ def step_impl(context):
         assert_that(os.path.isfile("tmp/" + row["name"])).is_equal_to(True)
 
     sh.rm("-rf", "tmp").wait()
+
+
+@given(u'a set of similar local files')
+def step_impl(context):
+    context.input = context.table
+    sh.mkdir("tmp_similar").wait()
+    for row in context.input:
+        dirs = row["name"].split("/")
+        if len(dirs) > 1:
+            sh.mkdir("tmp_similar/" + dirs[0]).wait()
+        sh.dd(
+            "if=/dev/zero",
+            "of=tmp_similar/{filename}".format(filename=row["name"]),
+            "bs=1048576",
+            "count=1"
+        ).wait()
+
+
+@when(u'move to QingStor using wildcard')
+def step_impl(context):
+    pattern = context.table[0][1]
+    pattern = pattern.replace("*", ".*")
+    pattern = pattern.replace("?", "[\S]{1}")
+    pattern = re.compile(pattern)
+    for row in context.table:
+        result = re.findall(pattern, row["name"])
+        for x in result:
+            if x == row["name"]:
+                qsctl(
+                    "mv",
+                    "tmp_similar/{filename}".format(filename=row["name"]),
+                    "qs://{bucket}/{filename}".format(
+                        bucket=test_data["bucket_name"],
+                        filename=row["name"],
+                    )
+                ).wait()
+
+
+@then(u'QingStor should have matched files and local ones should be deleted')
+def step_impl(context):
+    for row in context.input:
+        assert_that(bucket.head_object(row["name"]).status_code
+                    ).is_equal_to(200)
+        assert_that(os.path.isfile("tmp_similar/" + row["name"])).is_equal_to(False)
+
+    sh.rm("-rf", "tmp_similar").wait()

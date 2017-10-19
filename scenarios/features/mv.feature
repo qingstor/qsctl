@@ -19,3 +19,29 @@ Feature: Move local file(s) to QingStor or QingStor key(s) to local.
       | test_directory/test_file_with_directory |
     When move to local
     Then local should have same file and QingStor keys should be deleted
+
+  Scenario: Move local files to Qingstor using wildcard
+    Given a set of similar local files
+      | name           |
+      | ab             |
+      | aba            |
+      | abb            |
+      | aab            |
+      | aaba           |
+      | aabab          |
+      | aabba          |
+    When move to QingStor using wildcard
+      | name           | pattern        |
+      | ab             | a*b?           |
+      | aba            |                |
+      | abb            |                |
+      | aab            |                |
+      | aaba           |                |
+      | aabab          |                |
+      | aabba          |                |
+    Then QingStor should have matched files and local ones should be deleted
+      | name           |
+      | aba            |
+      | abb            |
+      | aaba           |
+      | aabba          |

@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os
+import re
 
 import sh
 import yaml
@@ -124,6 +125,57 @@ def step_impl(context):
     assert_that(ok).is_equal_to(True)
 
     sh.rm("-rf", "tmp")
+
+    for row in context.table:
+        bucket.delete_object(row["name"])
+
+
+@given(u'several similar local files')
+def step_impl(context):
+    context.input = context.table
+    sh.mkdir("tmp_similar").wait()
+    for row in context.input:
+        dirs = row["name"].split("/")
+        if len(dirs) > 1:
+            sh.mkdir("tmp_similar/" + dirs[0]).wait()
+        sh.dd(
+            "if=/dev/zero",
+            "of=tmp_similar/{filename}".format(filename=row["name"]),
+            "bs=1048576",
+            "count=1"
+        ).wait()
+
+
+@when(u'copy to QingStor key using wildcard')
+def step_impl(context):
+    pattern = context.table[0][1]
+    pattern = pattern.replace("*", ".*")
+    pattern = pattern.replace("?", "[\S]{1}")
+    pattern = re.compile(pattern)
+    for row in context.table:
+        result = re.findall(pattern, row["name"])
+        for x in result:
+            if x == row["name"]:
+                qsctl(
+                    "cp",
+                    "tmp_similar/{filename}".format(filename=row["name"]),
+                    "qs://{bucket}/{filename}".format(
+                        bucket=test_data['bucket_name'], filename=row["name"]
+                    )
+                ).wait()
+
+
+@then(u'QingStor should have matched keys')
+def step_impl(context):
+    output = sh.ls("tmp_similar").stdout.decode("utf-8")
+    ok = True
+    for row in context.table:
+        if row["name"] not in output:
+            ok = False
+            break
+    assert_that(ok).is_equal_to(True)
+
+    sh.rm("-rf", "tmp_similar")
 
     for row in context.table:
         bucket.delete_object(row["name"])
