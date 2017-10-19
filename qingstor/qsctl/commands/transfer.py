@@ -29,6 +29,7 @@ from .base import BaseCommand
 
 from ..constants import (
     PART_SIZE,
+    BUFFER_SIZE,
     BAR_FORMAT,
     USE_ASCII,
     HTTP_OK,
@@ -56,7 +57,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def add_extra_arguments(cls, parser):
-        parser.add_argument("source_path", help="Original path")
+        parser.add_argument("source_path", help="Original path", nargs="+")
 
         parser.add_argument("dest_path", help="Destination path")
 
@@ -114,7 +115,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def get_transfer_flow(cls):
-        source, dest = cls.options.source_path, cls.options.dest_path
+        source, dest = cls.options.source_path[0], cls.options.dest_path
         if source.startswith("qs://") and not (dest.startswith("qs://")):
             return "QS_TO_LOCAL"
         elif dest.startswith("qs://") and not (source.startswith("qs://")):
@@ -291,22 +292,14 @@ class TransferCommand(BaseCommand):
                     )
                     cache = []
 
-                    for chunk in resp.iter_content(1024):
+                    for chunk in resp.iter_content(BUFFER_SIZE):
                         # cls.tokens is not None , rate limit
                         if cls.tokens:
-                            while not cls.tokens.consume(1024):
+                            while not cls.tokens.consume(BUFFER_SIZE):
                                 continue
                         if cls.pbar:
-                            cls.update_pbar(1024)
-                        cache.append(chunk)
-                        # Write file while cache is over 32M
-                        if len(cache) >= 32 * 1024:
-                            f.write(b"".join(cache))
-                            cache = []
-
-                    if cache:
-                        f.write(b"".join(cache))
-                        del cache
+                            cls.update_pbar(BUFFER_SIZE)
+                        f.write(chunk)
 
                 os.rename(temporary_path, local_path)
                 cls.uni_print(
@@ -526,9 +519,29 @@ class TransferCommand(BaseCommand):
         signal.signal(signal.SIGINT, cls._handle_sigint)
 
         transfer_flow = cls.get_transfer_flow()
+        source_path_num = len(cls.options.source_path)
+
+        if source_path_num > 1:
+            if cls.command not in ["cp", "mv", "sync"]:
+                cls.uni_print("Error: Too many arguments: %s"
+                              % " ".join(cls.options.source_path).encode("utf-8"))
+                sys.exit(-1)
+            else:
+                for v in cls.options.source_path:
+                    if v.startswith("qs://"):
+                        cls.uni_print("Error: Please correct source path: %s"
+                                      % " ".join(cls.options.source_path).encode("utf-8"))
+                        sys.exit(-1)
+        else:
+            cls.options.source_path = cls.options.source_path[0]
 
         if transfer_flow == "LOCAL_TO_QS":
-            if (cls.command == "sync") or (cls.options.recursive is True):
+            if source_path_num > 1:
+                if cls.command in ["cp", "mv"]:
+                    cls.upload_file_patterns()
+                elif cls.command in ["sync"]:
+                    cls.upload_dir_patterns()
+            elif (cls.command == "sync") or (cls.options.recursive is True):
                 cls.upload_files()
             else:
                 cls.upload_file()
@@ -570,12 +583,10 @@ class TransferCommand(BaseCommand):
         if not cls.pbar:
             return stream
 
-        block_size = 4 * 1024 * 1024
-
         _read = stream.read
 
         def _wrapper(size=None):
-            buf = _read(block_size)
+            buf = _read(BUFFER_SIZE)
             cls.update_pbar(len(buf))
             return buf
 
@@ -600,3 +611,73 @@ class TransferCommand(BaseCommand):
         else:
             stream.read = _wrapper
         return stream
+
+    @classmethod
+    def upload_file_patterns(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+
+        bucket, prefix = cls.validate_qs_path(dest_path)
+        if prefix != "" and (not prefix.endswith("/")):
+            prefix += "/"
+
+        for pattern in source_path:
+            if os.path.isdir(pattern):
+                cls.uni_print("Error: No such file: %s" % pattern.encode("utf-8"))
+                sys.exit(-1)
+
+            local_path = pattern
+            key_path = os.path.relpath(local_path, os.path.dirname(pattern))
+            key_path = to_unix_path(key_path)
+            key = prefix + key_path
+            if (is_pattern_match(key_path, cls.options.exclude, cls.options.include)
+                and cls.confirm_key_upload(local_path, bucket,
+                                           key)):
+                if cls.pbar:
+                    cls.pbar.total += os.path.getsize(local_path)
+                cls.workers.submit(
+                    cls.send_local_file, local_path, bucket, key
+                )
+
+        cls.cleanup("LOCAL_TO_QS", bucket, prefix)
+
+    @classmethod
+    def upload_dir_patterns(cls):
+        source_path = cls.options.source_path
+        dest_path = cls.options.dest_path
+
+        bucket, prefix = cls.validate_qs_path(dest_path)
+        if prefix != "" and (not prefix.endswith("/")):
+            prefix += "/"
+
+        for path in source_path:
+            if not os.path.isdir(path):
+                cls.uni_print("Error: No such directory: %s" % path.encode("utf-8"))
+                sys.exit(-1)
+
+            for rt, dirs, files in cls.walk(path, onerror=print):
+                for d in dirs:
+                    local_path = os.path.join(rt, d)
+                    key_path = os.path.relpath(local_path, path) + "/"
+                    key_path = to_unix_path(key_path)
+                    key = prefix + key_path
+                    if (is_pattern_match(key_path, cls.options.exclude,
+                                         cls.options.include) and
+                            cls.confirm_key_upload(local_path, bucket, key)):
+                        cls.workers.submit(cls.put_directory, bucket, key)
+
+                for f in files:
+                    local_path = os.path.join(rt, f)
+                    key_path = os.path.relpath(local_path, path)
+                    key_path = to_unix_path(key_path)
+                    key = prefix + key_path
+                    if (is_pattern_match(key_path, cls.options.exclude,
+                                         cls.options.include) and
+                            cls.confirm_key_upload(local_path, bucket, key)):
+                        if cls.pbar:
+                            cls.pbar.total += os.path.getsize(local_path)
+                        cls.workers.submit(
+                            cls.send_local_file, local_path, bucket, key
+                        )
+
+        cls.cleanup("LOCAL_TO_QS", bucket, prefix)
