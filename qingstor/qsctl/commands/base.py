@@ -33,7 +33,7 @@ from ..constants import HTTP_OK, HTTP_OK_NO_CONTENT
 from ..compat import is_python2, stdout_encoding
 from ..utils import (
     load_conf, to_unix_path, is_pattern_match, validate_bucket_name,
-    UploadIdRecorder
+    UploadIdRecorder, uni_join
 )
 
 
@@ -339,7 +339,7 @@ class BaseCommand(object):
         qsctl_dir = os.path.expanduser("~/.qingstor/qsctl")
         if not os.path.exists(qsctl_dir):
             os.makedirs(qsctl_dir)
-        record_path = os.path.join(qsctl_dir, "record")
+        record_path = uni_join(qsctl_dir, "record")
         cls.recorder = UploadIdRecorder(record_path)
 
     @classmethod
@@ -390,7 +390,7 @@ class BaseCommand(object):
             # force non-ascii text out
             for i in range(len(names)):
                 if type(names[i]) == str:
-                    names[i].decode("utf-8", "strict")
+                    names[i].decode(stdout_encoding, "strict")
         except UnicodeError as err:
             if onerror is not None:
                 onerror(

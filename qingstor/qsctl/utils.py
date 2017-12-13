@@ -391,3 +391,17 @@ def uni_int(v):
     if is_python2:
         return long(v)
     return int(v)
+
+def uni_join(path, *paths):
+    # A trick for python2 on windows.
+    if is_python2 and is_windows:
+        if type(path) == str:
+            path = path.decode(stdout_encoding)
+        new_paths = []
+        for i in paths:
+            if type(i) == str:
+                i = i.decode(stdout_encoding)
+            new_paths.append(i)
+        return os.path.join(path, *new_paths)
+
+    return os.path.join(path, *paths)
