@@ -26,7 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from .base import BaseCommand
 
-from ..compat import queue
+from ..compat import queue, is_python2
 from ..constants import (
     PART_SIZE,
     BUFFER_SIZE,
@@ -40,7 +40,7 @@ from ..constants import (
 )
 from ..utils import (
     confirm_by_user, is_pattern_match, to_unix_path, join_local_path, FileChunk,
-    convert_to_bytes, TokenPail
+    convert_to_bytes, TokenPail, uni_int
 )
 
 
@@ -279,7 +279,7 @@ class TransferCommand(BaseCommand):
             cls.validate_local_path(local_path)
             open_flag = "wb"
             if key[-1] != "/":
-                content_length = int(resp.headers["Content-Length"])
+                content_length = uni_int(resp.headers["Content-Length"])
                 if cls.pbar:
                     cls.pbar.total += content_length
                 if completed > 0:
@@ -506,7 +506,7 @@ class TransferCommand(BaseCommand):
             if not cls.options.no_progress:
                 cls.pbar = tqdm(
                     initial=0,
-                    total=1,
+                    total=uni_int(1),
                     unit="B",
                     unit_scale=True,
                     desc="Transferring",
