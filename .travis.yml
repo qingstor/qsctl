@@ -21,19 +21,18 @@ matrix:
       dist: trusty
       python: '3.6'
     - os: osx
-      language: objective-c
-      env: PYENV_VERSION=2.7.12
+      python: '2.7'
     - os: osx
-      language: objective-c
-      env: PYENV_VERSION=3.5.2
+      python: '3.5'
 
 install:
+  - if [[ "$TRAVIS_OS_NAME" == "os"  ]]; then brew install "$TRAVIS_PYTHON_VERSION"; fi
   - pip install pytest
   - make install
 
 script:
   - py.test tests
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYENV_VERSION" == "3.5.2" ]]; then pip install pyinstaller && make release-darwin; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install pyinstaller && make release-darwin; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install pyinstaller && make release-linux; fi
 
 after_script:
