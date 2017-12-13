@@ -385,3 +385,9 @@ def convert_to_bytes(data):
         )
         result = SI_UNITS(3)
     return result
+
+def uni_int(v):
+    # A trick for python 2 on x86.
+    if is_python2:
+        return long(v)
+    return int(v)
