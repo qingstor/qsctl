@@ -357,19 +357,19 @@ def convert_to_bytes(data):
     :param data: eg: 10K
     :return: bytes
     """
-    result = SI_UNITS(3)
+    result = SI_UNITS[3]
     if data:
         data = data.lower()
         try:
             if data.endswith("k"):
                 data = data[:-1]
-                result = int(data) * SI_UNITS(0)
+                result = int(data) * SI_UNITS[0]
             elif data.endswith("m"):
                 data = data[:-1]
-                result = int(data) * SI_UNITS(1)
+                result = int(data) * SI_UNITS[1]
             elif data.endswith("g"):
                 data = data[:-1]
-                result = int(data) * SI_UNITS(2)
+                result = int(data) * SI_UNITS[2]
             else:
                 result = int(data)
         except ValueError:
@@ -377,13 +377,13 @@ def convert_to_bytes(data):
                 "Warning: rate limit include invaild character,"
                 "use 1G/s rate limit  as default"
             )
-            result = SI_UNITS(3)
+            result = SI_UNITS[3]
     if result <= 0:
         print(
             "Warning: rate limit cannot be negative,"
             "use 1G/s rate limit  as default"
         )
-        result = SI_UNITS(3)
+        result = SI_UNITS[3]
     return result
 
 def uni_int(v):
