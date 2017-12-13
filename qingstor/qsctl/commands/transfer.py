@@ -20,13 +20,13 @@ from __future__ import unicode_literals, print_function
 import os
 import sys
 import errno
-import signal
 
-from tqdm import tqdm
+from ..tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 
 from .base import BaseCommand
 
+from ..compat import queue
 from ..constants import (
     PART_SIZE,
     BUFFER_SIZE,
@@ -290,15 +290,14 @@ class TransferCommand(BaseCommand):
                         "Key <%s> is downloading as File <%s>" %
                         (key, temporary_path)
                     )
-                    cache = []
 
                     for chunk in resp.iter_content(BUFFER_SIZE):
                         # cls.tokens is not None , rate limit
                         if cls.tokens:
-                            while not cls.tokens.consume(BUFFER_SIZE):
+                            while not cls.tokens.consume(len(chunk)):
                                 continue
                         if cls.pbar:
-                            cls.update_pbar(BUFFER_SIZE)
+                            cls.update_pbar(len(chunk))
                         f.write(chunk)
 
                 os.rename(temporary_path, local_path)
@@ -500,6 +499,7 @@ class TransferCommand(BaseCommand):
 
         # set workers
         cls.workers = ThreadPoolExecutor(max_workers=cls.options.workers)
+        cls.workers._work_queue = queue.Queue(cls.options.workers * 2)
 
         # if doesn't have option.no_progress, create progress bar
         if hasattr(cls.options, "no_progress"):
@@ -514,9 +514,6 @@ class TransferCommand(BaseCommand):
                     leave=False,
                     ascii=USE_ASCII
                 )
-
-        # Register SIGINT handler
-        signal.signal(signal.SIGINT, cls._handle_sigint)
 
         transfer_flow = cls.get_transfer_flow()
 
@@ -533,7 +530,6 @@ class TransferCommand(BaseCommand):
 
         # Wait for all tasks done
         cls.workers.shutdown()
-        cls.print_worker.shutdown()
 
         if cls.recorder:
             cls.recorder.close()

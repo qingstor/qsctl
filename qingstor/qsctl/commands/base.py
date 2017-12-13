@@ -21,6 +21,7 @@ from __future__ import print_function
 import os
 import sys
 import errno
+import signal
 import argparse
 
 from concurrent.futures import ThreadPoolExecutor
@@ -322,8 +323,14 @@ class BaseCommand(object):
         if cls.client is None:
             sys.exit(-1)
 
+        # Register SIGINT handler
+        signal.signal(signal.SIGINT, cls._handle_sigint)
+
         # Send request
-        return cls.send_request()
+        cls.send_request()
+        # Close print worker
+        cls.print_worker.shutdown()
+        return
 
     @classmethod
     def _init_recorder(cls):
