@@ -168,8 +168,9 @@ class BaseCommand(object):
                         )
                         sys.exit(-1)
                     else:
-                        cls.uni_print("Directory '%s' exists, ignore." % dirname)
-
+                        cls.uni_print(
+                            "Directory '%s' exists, ignore." % dirname
+                        )
 
     @classmethod
     def validate_qs_path(cls, qs_path):

@@ -22,12 +22,23 @@ import platform
 
 try:
     from yaml import CLoader as Loader
-    from StringIO import cStringIO as StringIO
-    import cPickle as pickle
 except ImportError:
     from yaml import Loader
+
+try:
+    from StringIO import cStringIO as StringIO
+except ImportError:
     from io import BytesIO as StringIO
+
+try:
+    import cPickle as pickle
+except ImportError:
     import pickle
+
+try:
+    import Queue as queue
+except ImportError:
+    import queue
 
 _ver = sys.version_info
 is_python2 = (_ver[0] == 2)

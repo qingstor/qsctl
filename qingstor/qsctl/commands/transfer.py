@@ -21,7 +21,7 @@ import os
 import sys
 import errno
 
-from ..tqdm import tqdm
+from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 
 from .base import BaseCommand
@@ -171,7 +171,7 @@ class TransferCommand(BaseCommand):
                 key = prefix + key_path
                 if (is_pattern_match(key_path, cls.options.exclude,
                                      cls.options.include)
-                        and cls.confirm_key_upload(local_path, bucket, key)):
+                    and cls.confirm_key_upload(local_path, bucket, key)):
                     cls.workers.submit(cls.put_directory, bucket, key)
 
             for f in files:
@@ -181,7 +181,7 @@ class TransferCommand(BaseCommand):
                 key = prefix + key_path
                 if (is_pattern_match(key_path, cls.options.exclude,
                                      cls.options.include)
-                        and cls.confirm_key_upload(local_path, bucket, key)):
+                    and cls.confirm_key_upload(local_path, bucket, key)):
                     if cls.pbar:
                         cls.pbar.total += os.path.getsize(local_path)
                     cls.workers.submit(
@@ -575,7 +575,7 @@ class TransferCommand(BaseCommand):
             while not cls.tokens.consume(size):
                 continue
             buf = _read(size)
-            cls.update_pbar(size)
+            cls.update_pbar(len(buf))
             return buf
 
         _wrapper.__name__ = str("read")
