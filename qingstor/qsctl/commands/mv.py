@@ -21,7 +21,7 @@ import os
 
 from .transfer import TransferCommand
 
-from ..utils import is_pattern_match, to_unix_path
+from ..utils import is_pattern_match, to_unix_path, uni_join
 
 
 class MvCommand(TransferCommand):
@@ -37,7 +37,7 @@ class MvCommand(TransferCommand):
         local_dirs = []
         for rt, dirs, files in os.walk(cls.options.source_path):
             for d in dirs:
-                local_dirs.append(os.path.join(rt, d))
+                local_dirs.append(uni_join(rt, d))
 
         for local_dir in local_dirs[::-1]:
             key_path = os.path.relpath(local_dir, cls.options.source_path) + "/"

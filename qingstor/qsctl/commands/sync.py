@@ -24,7 +24,7 @@ import time
 from .transfer import TransferCommand
 
 from ..constants import HTTP_OK
-from ..utils import is_pattern_match, to_unix_path, join_local_path
+from ..utils import is_pattern_match, to_unix_path, join_local_path, uni_join
 
 
 class SyncCommand(TransferCommand):
@@ -61,7 +61,7 @@ class SyncCommand(TransferCommand):
     def clean_files(cls, prefix):
         for rt, dirs, files in cls.walk(cls.options.dest_path, onerror=print):
             for f in files:
-                local_path = os.path.join(rt, f)
+                local_path = uni_join(rt, f)
                 key_path = os.path.relpath(local_path, cls.options.dest_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
@@ -76,7 +76,7 @@ class SyncCommand(TransferCommand):
 
         for rt, dirs, files in cls.walk(cls.options.dest_path, onerror=print):
             for d in dirs:
-                local_path = os.path.join(rt, d)
+                local_path = uni_join(rt, d)
                 key_path = os.path.relpath(
                     local_path, cls.options.dest_path
                 ) + "/"

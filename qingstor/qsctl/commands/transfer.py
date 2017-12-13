@@ -40,7 +40,7 @@ from ..constants import (
 )
 from ..utils import (
     confirm_by_user, is_pattern_match, to_unix_path, join_local_path, FileChunk,
-    convert_to_bytes, TokenPail, uni_int
+    convert_to_bytes, TokenPail, uni_int, uni_join
 )
 
 
@@ -165,7 +165,7 @@ class TransferCommand(BaseCommand):
 
         for rt, dirs, files in cls.walk(source_path, onerror=print):
             for d in dirs:
-                local_path = os.path.join(rt, d)
+                local_path = uni_join(rt, d)
                 key_path = os.path.relpath(local_path, source_path) + "/"
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
@@ -175,7 +175,7 @@ class TransferCommand(BaseCommand):
                     cls.workers.submit(cls.put_directory, bucket, key)
 
             for f in files:
-                local_path = os.path.join(rt, f)
+                local_path = uni_join(rt, f)
                 key_path = os.path.relpath(local_path, source_path)
                 key_path = to_unix_path(key_path)
                 key = prefix + key_path
@@ -375,7 +375,7 @@ class TransferCommand(BaseCommand):
 
     @classmethod
     def multipart_upload_file(cls, local_path, bucket, key):
-        local_path = os.path.join(os.getcwd(), local_path)
+        local_path = uni_join(os.getcwd(), local_path)
         resume_multipart, upload_id, cur_part_number = \
             cls.try_to_resume_multipart(local_path, bucket, key)
         if not resume_multipart:
