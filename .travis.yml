@@ -20,10 +20,10 @@ matrix:
     - os: linux
       dist: trusty
       python: '3.6'
-    - os: osx
-      python: '2.7'
-    - os: osx
-      python: '3.5'
+    # - os: osx
+    #   python: '2.7'
+    # - os: osx
+    #   python: '3.5'
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "os"  ]]; then brew install "$TRAVIS_PYTHON_VERSION"; fi
