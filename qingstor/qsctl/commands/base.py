@@ -226,10 +226,13 @@ class BaseCommand(object):
             keys, marker, _ = cls.list_multiple_keys(
                 marker=marker, prefix=prefix, limit="1000"
             )
-            keys_to_remove = [i["key"] for i in keys]
-            for key in keys_to_remove:
+
+            keys_to_check = [i["key"] for i in keys]
+            keys_to_remove = keys_to_check[:]
+            for key in keys_to_check:
                 if not cls.confirm_key_remove(key[len(prefix):]):
                     keys_to_remove.remove(key)
+
             keys_to_remove = [{"key": key} for key in keys_to_remove]
             resp = cls.current_bucket.delete_multiple_objects(
                 objects=keys_to_remove
