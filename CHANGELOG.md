@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.6] - 2018-08-21
+
+### Fixed
+
+- Fix bug which leads to wrong key deleted
+
 ## [1.7.5] - 2017-12-15
 
 ### Fixed
@@ -241,6 +247,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Hello, qsctl.
 
+[1.7.6]: https://github.com/yunify/qsctl/compare/1.7.5...1.7.6
 [1.7.5]: https://github.com/yunify/qsctl/compare/1.7.4...1.7.5
 [1.7.4]: https://github.com/yunify/qsctl/compare/1.7.3...1.7.4
 [1.7.3]: https://github.com/yunify/qsctl/compare/1.7.2...1.7.3
