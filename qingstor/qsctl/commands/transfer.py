@@ -355,10 +355,14 @@ class TransferCommand(BaseCommand):
     def send_file(cls, local_path, bucket, key):
         with open(local_path, "rb") as f:
             fc = FileChunk(f)
-            try:
-                (_, data) = next(fc.iter())
-            except StopIteration:
-                return
+
+            if fc.size == 0:
+                data = None
+            else:
+                try:
+                    (_, data) = next(fc.iter())
+                except StopIteration:
+                    return
             cls.uni_print(
                 "File <%s> is uploading as Key <%s>" % (local_path, key)
             )
@@ -556,6 +560,10 @@ class TransferCommand(BaseCommand):
         """
         Wrap stream.read() to upload progress bar
         """
+        # Input stream cloud be None.
+        if stream is None:
+            return None
+
         if not cls.pbar:
             return stream
 
