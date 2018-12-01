@@ -109,11 +109,11 @@ class LsCommand(BaseCommand):
             limit = str(cls.options.page_size)
 
         while True:
-            keys, marker, dirs = cls.list_multiple_keys(
+            keys, marker, dirs, has_more = cls.list_multiple_keys(
                 prefix, delimiter, marker, limit
             )
             cls.print_to_console(keys, dirs)
-            if len(keys) + len(dirs) == 0:
+            if not has_more:
                 break
 
     @classmethod

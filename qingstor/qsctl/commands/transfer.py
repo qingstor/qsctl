@@ -221,7 +221,7 @@ class TransferCommand(BaseCommand):
             prefix += "/"
         marker = ""
         while True:
-            keys, marker, _ = cls.list_multiple_keys(
+            keys, marker, _, has_more = cls.list_multiple_keys(
                 marker=marker, prefix=prefix
             )
             for item in keys:
@@ -238,7 +238,7 @@ class TransferCommand(BaseCommand):
                     cls.workers.submit(
                         cls.write_local_file, local_path, bucket, key
                     )
-            if marker == "":
+            if not has_more:
                 break
 
         cls.cleanup("QS_TO_LOCAL", bucket, prefix)

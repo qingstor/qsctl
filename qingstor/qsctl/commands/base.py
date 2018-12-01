@@ -223,7 +223,7 @@ class BaseCommand(object):
     def remove_multiple_keys(cls, bucket, prefix=""):
         marker = ""
         while True:
-            keys, marker, _ = cls.list_multiple_keys(
+            keys, marker, _, has_more = cls.list_multiple_keys(
                 marker=marker, prefix=prefix, limit="1000"
             )
 
@@ -250,7 +250,7 @@ class BaseCommand(object):
                     cls.uni_print(statement)
             else:
                 cls.uni_print(resp.content)
-            if marker == "":
+            if not has_more:
                 break
 
     @classmethod
@@ -263,7 +263,16 @@ class BaseCommand(object):
         keys = resp["keys"]
         dirs = resp["common_prefixes"]
         next_marker = resp["next_marker"]
-        return keys, next_marker, dirs
+
+        # Check next_marker as default.
+        has_more = next_marker != ""
+        # Server may return non-empty marker, we should check length.
+        if len(keys) + len(dirs) == 0:
+            has_more = False
+        # If server returned has_more, we can use directly.
+        if resp.get("has_more") is not None:
+            has_more = resp.get("has_more")
+        return keys, next_marker, dirs, has_more
 
     @classmethod
     def init_current_bucket(cls):
