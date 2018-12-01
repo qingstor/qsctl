@@ -113,7 +113,7 @@ class LsCommand(BaseCommand):
                 prefix, delimiter, marker, limit
             )
             cls.print_to_console(keys, dirs)
-            if marker == "":
+            if len(keys) + len(dirs) == 0:
                 break
 
     @classmethod
