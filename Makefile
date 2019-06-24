@@ -1,99 +1,95 @@
 SHELL := /bin/bash
 
-VERSION=$(shell cat qingstor/qsctl/__init__.py | grep "__version__\ =" | sed -e s/^.*\ //g | sed -e s/\'//g)
+.PHONY: all check format　vet lint build install uninstall release clean test coverage
+
+VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
+DIRS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
+PKGS_TO_CHECK=$(shell go list ./... | grep -vE "/vendor/|/tests/")
+INGR_TEST=$(shell go list ./... | grep "/tests/" | grep -v "/utils")
 
 help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  all             to unit test and build this tool"
-	@echo "  unit            to run all sort of unit tests except runtime"
-	@echo "  tox             to run unit test in multi python version"
-	@echo "  text            to run service test"
-	@echo "  clean           to clean build and dist files"
-	@echo "  build           to build sdist and bdist_wheel"
-	@echo "  install         to install with whl"
-	@echo "  package         to pack qsctl into onefile"
-	@echo "  release-linux   to build qsctl release for linux"
-	@echo "  release-darwin  to build qsctl release for darwin"
-	@echo "  release-windows to build qsctl release for windows"
-	@echo "  format          to format code with google style"
-	@echo "  offline-package to generate a gzip file for offline installation"
+	@echo "Please use \`make <target>\` where <target> is one of"
+	@echo "  check      to format, vet and lint "
+	@echo "  build      to create bin directory and build qsctl"
+	@echo "  install    to install qsctl to /usr/local/bin/qsctl"
+	@echo "  uninstall  to uninstall qsctl"
+	@echo "  release    to release qsctl"
+	@echo "  clean      to clean build and test files"
+	@echo "  test       to run test"
+	@echo "  coverage   to test with coverage"
 
-all: unit build
+check: format vet lint
 
-unit:
-	@echo "run unit test"
-	pip install pytest mock
-	py.test
+format:
+	@echo "go fmt, skipping vendor packages"
+	@for pkg in ${PKGS_TO_CHECK}; do go fmt $${pkg}; done;
 	@echo "ok"
 
-tox:
-	@echo "run unit test in multi python version"
-	@echo "please do pyenv local before run this script"
-	tox
+vet:
+	@echo "go vet, skipping vendor packages"
+	@go vet -all ${DIRS_TO_CHECK}
 	@echo "ok"
 
-test:
-	@echo "run service test"
-	pip install -r scenarios/requirements.txt
-	behave scenarios/features
+lint:
+	@echo "golint, skipping vendor packages"
+	@lint=$$(for pkg in ${PKGS_TO_CHECK}; do golint $${pkg}; done); \
+	 lint=$$(echo "$${lint}"); \
+	 if [[ -n $${lint} ]]; then echo "$${lint}"; exit 1; fi
 	@echo "ok"
 
-clean:
-	@echo "clean build and dist files"
-	rm -rf build dist qsctl.egg-info
-	@echo "ok"
-
-build: clean
-	@echo "build sdist"
-	python setup.py sdist
+build: check
+	@echo "build qsctl"
+	@mkdir -p ./bin
+	@go build -tags netgo -o ./bin/qsctl .
 	@echo "ok"
 
 install: build
-	@echo "install with whl"
-	pip install dist/*.tar.gz -U
+	@echo "install qsctl to GOPATH"
+	@cp ./bin/qsctl ${GOPATH}/bin/qsctl
 	@echo "ok"
 
-package: install
-	@echo "pack qsctl into onefile"
-	pyinstaller --onefile bin/qsctl --hidden-import queue
+uninstall:
+	@echo "delete /usr/local/bin/qsctl"
+	@rm -f /usr/local/bin/qsctl
 	@echo "ok"
 
-release-linux: package
-	@echo "build qsctl release for linux"
-	cd dist && tar -czvf qsctl-${VERSION}-linux.tar.gz qsctl
-	cp dist/qsctl-${VERSION}-linux.tar.gz dist/qsctl-latest-linux.tar.gz
-	cp dist/qsctl-${VERSION}.tar.gz dist/qsctl-latest.tar.gz
+release:
+	@echo "release qsctl"
+	@rm ./release/*
+	@mkdir -p ./release
+
+	@echo "build for linux"
+	@GOOS=linux GOARCH=amd64 go build -o ./bin/linux/qsctl_v${VERSION}_linux_amd64 .
+	@tar -C ./bin/linux/ -czf ./release/qsctl_v${VERSION}_linux_amd64.tar.gz qsctl_v${VERSION}_linux_amd64
+
+	@echo "build for macOS"
+	@GOOS=darwin GOARCH=amd64 go build -o ./bin/macos/qsctl_v${VERSION}_macos_amd64 .
+	@tar -C ./bin/macos/ -czf ./release/qsctl_v${VERSION}_macos_amd64.tar.gz qsctl_v${VERSION}_macos_amd64
+
+	@echo "build for windows"
+	@GOOS=windows GOARCH=amd64 go build -o ./bin/windows/qsctl_v${VERSION}_windows_amd64.exe .
+	@tar -C ./bin/windows/ -czf ./release/qsctl_v${VERSION}_windows_amd64.tar.gz qsctl_v${VERSION}_windows_amd64.exe
+
 	@echo "ok"
 
-release-darwin: package
-	@echo "build qsctl release for darwin"
-	cd dist && tar -czvf qsctl-${VERSION}-darwin.tar.gz qsctl
-	cp dist/qsctl-${VERSION}-darwin.tar.gz dist/qsctl-latest-darwin.tar.gz
-	cp dist/qsctl-${VERSION}.tar.gz dist/qsctl-latest.tar.gz
+clean:
+	@rm -rf ./bin
+	@rm -rf ./release
+	@rm -rf ./coverage
+
+test:
+	@echo "run test"
+	@go test -v ${PKGS_TO_CHECK}
 	@echo "ok"
 
-release-windows: package
-	@echo "generate a zip file for offline installation"
-	mkdir dist/dependence
-	pip download qsctl -d dist/dependence
-	zip -FSjr "dist/qsctl-offline-${VERSION}-windows.zip" dist/dependence
-	@echo "ok"
-	@echo "build qsctl release for windows"
-	zip -FS "dist/qsctl-${VERSION}-windows.zip" dist/qsctl.exe
-	copy "dist/qsctl-${VERSION}-windows.zip" "dist/qsctl-latest-windows.zip"
-	copy "qsctl-${VERSION}.tar.gz" "qsctl-latest.tar.gz"
-	@echo "ok"
-
-format:
-	@echo "format code with google style"
-	yapf -i -r ./qingstor ./tests ./scenarios ./bin/qsctl_completer
-	@echo "ok"
-
-offline-package: build
-	@echo "generate a gzip file for offline installation"
-	mkdir dist/dependence
-	pip download qsctl -d dist/dependence
-	cp dist/qsctl-${VERSION}.tar.gz dist/dependence
-	tar -czvf dist/qsctl-offline-${VERSION}.tar.gz dist/dependence --transform "s/^dist\/dependence//"
-	rm -r dist/dependence
+coverage:
+	@echo "run test with coverage"
+	@for pkg in ${PKGS_TO_CHECK}; do \
+		output="coverage$${pkg#github.com/yunify/qsctl}"; \
+		mkdir -p $${output}; \
+		go test -v -cover -coverprofile="$${output}/profile.out" $${pkg}; \
+		if [[ -e "$${output}/profile.out" ]]; then \
+			go tool cover -html="$${output}/profile.out" -o "$${output}/profile.html"; \
+		fi; \
+	done
 	@echo "ok"
