@@ -1,11 +1,13 @@
 package helper
 
 import (
-	"github.com/yunify/qingstor-sdk-go/service"
+	"github.com/yunify/qingstor-sdk-go/v3/service"
+
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
 )
 
+// ListObjects will list object by prefix.
 func ListObjects(prefix string) (
 	commonPrefix chan string, keys chan service.KeyType, err error,
 ) {
@@ -19,13 +21,12 @@ func ListObjects(prefix string) (
 	marker := ""
 	for {
 		resp, err := bucket.ListObjects(&service.ListObjectsInput{
-			Delimiter: service.String("/"),
-			Limit:     service.Int(200),
-			Marker:    service.String(marker),
-			Prefix:    service.String(prefix),
+			Limit:  service.Int(200),
+			Marker: service.String(marker),
+			Prefix: service.String(prefix),
 		})
 		if err != nil {
-			return
+			return nil, nil, err
 		}
 
 		for _, v := range resp.CommonPrefixes {
