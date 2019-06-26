@@ -53,6 +53,13 @@ func initConfig() {
 		fmt.Println("Can't read config:", err)
 		os.Exit(1)
 	}
+
+	// Set default value for config.
+	viper.SetDefault(constants.ConfigHost, "qingstor.com")
+	viper.SetDefault(constants.ConfigPort, 443)
+	viper.SetDefault(constants.ConfigProtocol, "https")
+	viper.SetDefault(constants.ConfigConnectionRetries, 3)
+	viper.SetDefault(constants.ConfigLogLevel, "info")
 }
 
 func main() {

@@ -19,6 +19,7 @@ github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/9
 github.com/pengsrc/go-shared v0.0.0-20180504052330-db9bcfc42355/go.mod h1:jVblp62SafmidSkvWrXyxAme3gaTfEtWwRPGz5cpvHg=
 github.com/pengsrc/go-shared v0.2.0 h1:Ho86LhaXOYgv9FjBmIp5CO0LmaIj49H2HZhYh0+7uW8=
 github.com/pengsrc/go-shared v0.2.0/go.mod h1:jVblp62SafmidSkvWrXyxAme3gaTfEtWwRPGz5cpvHg=
+github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14 h1:XeOYlK9W1uCmhjJSsY78Mcuh7MVkNjTzmHx1yBzizSU=
 github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14/go.mod h1:jVblp62SafmidSkvWrXyxAme3gaTfEtWwRPGz5cpvHg=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/spf13/afero v1.1.2 h1:m8/z1t7/fwjysjQRYbP0RD+bUIF/8tJwPdEZsI83ACI=
@@ -42,6 +43,7 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yunify/qingstor-sdk-go v0.0.0-20190425063759-60a6f6383677/go.mod h1:qjlKvmJzovoh6cARuXTOg4qvXyJrKBy/2w9J05Ga5fs=
 github.com/yunify/qingstor-sdk-go v2.2.15+incompatible h1:/Z0q3/eSMoPYAuRmhjWtuGSmVVciFC6hfm3yfCKuvz0=
 github.com/yunify/qingstor-sdk-go v2.2.15+incompatible/go.mod h1:w6wqLDQ5bBTzxGJ55581UrSwLrsTAsdo9N6yX/8d9RY=
+github.com/yunify/qingstor-sdk-go/v3 v3.0.0 h1:uUuR0IhknMHTqLMmYjO3JYv9SaLwYFXbSw8E3TNf5M8=
 github.com/yunify/qingstor-sdk-go/v3 v3.0.0/go.mod h1:KciFNuMu6F4WLk9nGwwK69sCGKLCdd9f97ac/wfumS4=
 golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/sys v0.0.0-20181205085412-a5c9d58dba9a h1:1n5lsVfiQW3yfsRGu98756EH1YthsFqr/5mxHduZW2A=
