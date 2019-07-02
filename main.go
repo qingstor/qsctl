@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/yunify/qsctl/cmd"
 	"github.com/yunify/qsctl/constants"
 )
 
@@ -22,6 +23,8 @@ var (
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	application.AddCommand(cmd.CpCommand)
 
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
