@@ -5,3 +5,9 @@ const (
 	Name        = "qsctl"
 	Description = "Advanced command line tool for QingStor."
 )
+
+// Available direction types.
+const (
+	DirectionLocalToRemote = "local_to_remote"
+	DirectionRemoteToLocal = "remote_to_local"
+)
