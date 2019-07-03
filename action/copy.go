@@ -1,14 +1,19 @@
 package action
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
+	"runtime/pprof"
+	"sync"
+	"time"
 
-	"github.com/gammazero/workerpool"
+	"github.com/c2h5oh/datasize"
+	"github.com/panjf2000/ants"
+	"github.com/pengsrc/go-shared/buffer"
 
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
@@ -72,6 +77,24 @@ func CopySeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 
 // CopyNotSeekableFileToRemote will copy a not seekable file to remote.
 func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
+	totalSize := int64(0)
+	if contexts.Bench {
+		f, err := os.Create("profile")
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+
+		cur := time.Now()
+		defer func() {
+			elapsed := time.Since(cur)
+			fmt.Printf("Copied %s in %s, avgerage %s/s\n",
+				datasize.ByteSize(totalSize).HumanReadable(),
+				elapsed,
+				datasize.ByteSize(float64(totalSize)/elapsed.Seconds()).HumanReadable())
+		}()
+	}
 	if contexts.ExpectSize == 0 {
 		panic("invalid expect size")
 	}
@@ -87,35 +110,54 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 		panic(err)
 	}
 
-	wp := workerpool.New(CalculateConcurrentWorkers(partSize))
+	var wg sync.WaitGroup
+	pool, err := ants.NewPool(CalculateConcurrentWorkers(partSize))
+	if err != nil {
+		panic(err)
+	}
+	defer pool.Release()
+
+	bytesPool := buffer.NewBytesPool()
 
 	partNumber := 0
 
 	for {
-		lr := io.LimitReader(r, partSize)
-		b, err := ioutil.ReadAll(lr)
-		l := len(b)
-		if l == 0 {
+		lr := bufio.NewReader(io.LimitReader(r, partSize))
+		b := bytesPool.Get()
+		n, err := io.Copy(b, lr)
+		if contexts.Bench {
+			totalSize += int64(n)
+		}
+		if n == 0 {
 			break
 		}
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Read %d bytes.\n", l)
+		fmt.Printf("Read %d bytes.\n", n)
 
 		localPartNumber := partNumber
-		wp.Submit(func() {
-			err = helper.UploadMultipart(objectKey, uploadID, int64(l), localPartNumber, md5.Sum(b), bytes.NewReader(b))
+		err = pool.Submit(func() {
+			wg.Add(1)
+			defer wg.Done()
+
+			// We should free the bytes after upload.
+			defer b.Free()
+
+			err = helper.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5.Sum(b.Bytes()), bytes.NewReader(b.Bytes()))
 			if err != nil {
 				panic(err)
 			}
 			fmt.Printf("Part %d uploaded.\n", localPartNumber)
 		})
+		if err != nil {
+			panic(err)
+		}
 
 		partNumber++
 	}
 
-	wp.StopWait()
+	wg.Wait()
 
 	err = helper.CompleteMultipartUpload(objectKey, uploadID, partNumber)
 	if err != nil {

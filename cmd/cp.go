@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yunify/qsctl/constants"
-
 	"github.com/yunify/qsctl/action"
+	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
 )
 
@@ -31,6 +30,7 @@ func run(_ *cobra.Command, args []string) (err error) {
 }
 
 func init() {
-	CpCommand.PersistentFlags().Int64VarP(&contexts.ExpectSize, "expect-size", "", 0, "expected size of the input file (only used for input from stdin)")
-	CpCommand.PersistentFlags().Int64VarP(&contexts.MaximumMemoryContent, "maximum-memory-content", "", constants.DefaultMaximumMemoryContent, "maximum content loaded in memory (only used for input from stdin)")
+	// TODO: support input x MB
+	CpCommand.PersistentFlags().Int64Var(&contexts.ExpectSize, "expect-size", 0, "expected size of the input file (only used for input from stdin)")
+	CpCommand.PersistentFlags().Int64Var(&contexts.MaximumMemoryContent, "maximum-memory-content", constants.DefaultMaximumMemoryContent, "maximum content loaded in memory (only used for input from stdin)")
 }

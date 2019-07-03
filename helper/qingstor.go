@@ -75,6 +75,22 @@ func UploadMultipart(
 	return
 }
 
+// UploadMultipartWithoutMD5 will upload a multipart.
+func UploadMultipartWithoutMD5(
+	objectKey, uploadID string, size int64, partNumber int, r io.Reader,
+) (err error) {
+	_, err = contexts.Bucket.UploadMultipart(objectKey, &service.UploadMultipartInput{
+		Body:          r,
+		ContentLength: convert.Int64(size),
+		UploadID:      convert.String(uploadID),
+		PartNumber:    convert.Int(partNumber),
+	})
+	if err != nil {
+		return
+	}
+	return
+}
+
 // CompleteMultipartUpload will complete a multipart upload.
 func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err error) {
 	parts := make([]*service.ObjectPartType, totalNumber)

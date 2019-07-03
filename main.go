@@ -10,6 +10,7 @@ import (
 
 	"github.com/yunify/qsctl/cmd"
 	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/contexts"
 )
 
 var application = &cobra.Command{
@@ -28,6 +29,8 @@ func init() {
 
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
+	// Add config flag which can be used in all sub commands.
+	application.PersistentFlags().BoolVar(&contexts.Bench, "bench", false, "enable benchmark or not")
 }
 
 func initConfig() {

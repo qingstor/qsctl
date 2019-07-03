@@ -22,6 +22,7 @@ var (
 // Available flags.
 var (
 	// Global flags.
+	Bench bool
 	// Copy commands flags.
 	ExpectSize           int64
 	MaximumMemoryContent int64
