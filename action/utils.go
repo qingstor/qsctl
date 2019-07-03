@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/contexts"
 )
 
 // ParseDirection will parse the data direction
@@ -44,5 +45,22 @@ func ParseQsPathForRead() {}
 
 // ParseQsPathForWrite will parse a qs path for write.
 func ParseQsPathForWrite(remotePath string) (objectKey string, err error) {
+	// qs://abc/xyz -> []string{"qs:", "", "abc", "xyz"}
+	p := strings.Split(remotePath, "/")
+	if p[0] != "qs:" || p[1] != "" || p[2] == "" {
+		// FIXME
+		panic("invalid qs path")
+	}
+	bucketName := p[2]
+
+	_, err = contexts.SetupBuckets(bucketName, "")
+	if err != nil {
+		// FIXME
+		panic(err)
+	}
+
+	// FIXME: user may input qs://abc
+	// Trim "qs://" + bucketName + "/"
+	objectKey = remotePath[5+len(bucketName)+1:]
 	return
 }

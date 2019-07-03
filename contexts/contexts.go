@@ -77,6 +77,7 @@ func SetupBuckets(name, zone string) (bucket *service.Bucket, err error) {
 		return
 	}
 
+	// FIXME: not found bucket will return 404, no location.
 	// Example URL: https://bucket.zone.qingstor.com
 	zone = strings.Split(r.Header.Get("Location"), ".")[1]
 	Bucket, _ = Service.Bucket(name, zone)
