@@ -94,25 +94,3 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 	}
 	return nil
 }
-
-// calculatePartSize will calculate the object's part size.
-func calculatePartSize(size int64) (partSize int64, err error) {
-	partSize = constants.DefaultPartSize
-
-	if size > constants.MaximumObjectSize {
-		err = constants.ErrorFileTooLarge
-		return
-	}
-
-	for size/partSize >= int64(constants.MaximumMultipartNumber) {
-		if partSize < constants.MaximumAutoMultipartSize {
-			partSize = partSize << 1
-			continue
-		}
-		// Try to adjust partSize if it is too small and account for
-		// integer division truncation.
-		partSize = size/int64(constants.MaximumMultipartNumber) + 1
-		break
-	}
-	return
-}

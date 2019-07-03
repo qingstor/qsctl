@@ -64,3 +64,35 @@ func ParseQsPathForWrite(remotePath string) (objectKey string, err error) {
 	objectKey = remotePath[5+len(bucketName)+1:]
 	return
 }
+
+// CalculateConcurrentWorkers will calculate the current workers via limit and part size.
+func CalculateConcurrentWorkers(partSize int64) (n int) {
+	// If the part size is over the limit, we will only use one worker.
+	if contexts.MaximumMemoryContent <= partSize {
+		return 1
+	}
+
+	return int(contexts.MaximumMemoryContent / partSize)
+}
+
+// CalculatePartSize will calculate the object's part size.
+func CalculatePartSize(size int64) (partSize int64, err error) {
+	partSize = constants.DefaultPartSize
+
+	if size > constants.MaximumObjectSize {
+		err = constants.ErrorFileTooLarge
+		return
+	}
+
+	for size/partSize >= int64(constants.MaximumMultipartNumber) {
+		if partSize < constants.MaximumAutoMultipartSize {
+			partSize = partSize << 1
+			continue
+		}
+		// Try to adjust partSize if it is too small and account for
+		// integer division truncation.
+		partSize = size/int64(constants.MaximumMultipartNumber) + 1
+		break
+	}
+	return
+}
