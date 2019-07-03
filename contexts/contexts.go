@@ -19,6 +19,14 @@ var (
 	Bucket *service.Bucket
 )
 
+// Available flags.
+var (
+	// Global flags.
+	// Copy commands flags.
+	ExpectSize           int64
+	MaximumMemoryContent int64
+)
+
 // SetupServices will setup services.
 func SetupServices() (err error) {
 	if Service != nil {

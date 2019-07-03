@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/constants"
+
 	"github.com/yunify/qsctl/action"
+	"github.com/yunify/qsctl/contexts"
 )
 
 // CpCommand will handle copy command.
@@ -19,10 +22,15 @@ var CpCommand = &cobra.Command{
 	RunE: run,
 }
 
-func run(cmd *cobra.Command, args []string) (err error) {
+func run(_ *cobra.Command, args []string) (err error) {
 	err = action.Copy(args[0], args[1])
 	if err != nil {
 		panic(err)
 	}
 	return
+}
+
+func init() {
+	CpCommand.PersistentFlags().Int64VarP(&contexts.ExpectSize, "expect-size", "", 0, "expected size of the input file (only used for input from stdin)")
+	CpCommand.PersistentFlags().Int64VarP(&contexts.MaximumMemoryContent, "maximum-memory-content", "", constants.DefaultMaximumMemoryContent, "maximum content loaded in memory (only used for input from stdin)")
 }

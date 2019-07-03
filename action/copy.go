@@ -8,7 +8,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/gammazero/workerpool"
+
 	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/contexts"
 	"github.com/yunify/qsctl/helper"
 )
 
@@ -69,16 +72,27 @@ func CopySeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 
 // CopyNotSeekableFileToRemote will copy a not seekable file to remote.
 func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
+	if contexts.ExpectSize == 0 {
+		panic("invalid expect size")
+	}
+
 	uploadID, err := helper.InitiateMultipartUpload(objectKey)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Upload ID is %s.\n", uploadID)
 
+	partSize, err := CalculatePartSize(contexts.ExpectSize)
+	if err != nil {
+		panic(err)
+	}
+
+	wp := workerpool.New(CalculateConcurrentWorkers(partSize))
+
 	partNumber := 0
 
 	for {
-		lr := io.LimitReader(r, constants.DefaultPartSize)
+		lr := io.LimitReader(r, partSize)
 		b, err := ioutil.ReadAll(lr)
 		l := len(b)
 		if l == 0 {
@@ -87,16 +101,21 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 		if err != nil {
 			panic(err)
 		}
-
 		fmt.Printf("Read %d bytes.\n", l)
-		err = helper.UploadMultipart(objectKey, uploadID, int64(l), partNumber, md5.Sum(b), bytes.NewReader(b))
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Part %d uploaded.\n", partNumber)
+
+		localPartNumber := partNumber
+		wp.Submit(func() {
+			err = helper.UploadMultipart(objectKey, uploadID, int64(l), localPartNumber, md5.Sum(b), bytes.NewReader(b))
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("Part %d uploaded.\n", localPartNumber)
+		})
 
 		partNumber++
 	}
+
+	wp.StopWait()
 
 	err = helper.CompleteMultipartUpload(objectKey, uploadID, partNumber)
 	if err != nil {
