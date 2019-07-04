@@ -3,6 +3,7 @@ package helper
 import (
 	"encoding/hex"
 	"io"
+	"time"
 
 	"github.com/pengsrc/go-shared/convert"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
@@ -10,6 +11,17 @@ import (
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
 )
+
+// ObjectMeta is the metadata for an object.
+type ObjectMeta struct {
+	Key string
+
+	ContentLength int64
+	ContentType   string
+	ETag          string
+	LastModified  time.Time
+	StorageClass  string
+}
 
 // ListObjects will list object by prefix.
 func ListObjects(prefix string) (
@@ -44,6 +56,24 @@ func ListObjects(prefix string) (
 		}
 	}
 
+	return
+}
+
+// HeadObject will head object.
+func HeadObject(objectKey string) (om *ObjectMeta, err error) {
+	resp, err := contexts.Bucket.HeadObject(objectKey, nil)
+	if err != nil {
+		return
+	}
+
+	om = &ObjectMeta{
+		Key:           objectKey,
+		ContentLength: convert.Int64Value(resp.ContentLength),
+		ContentType:   convert.StringValue(resp.ContentType),
+		ETag:          convert.StringValue(resp.ETag),
+		LastModified:  convert.TimeValue(resp.LastModified),
+		StorageClass:  convert.StringValue(resp.XQSStorageClass),
+	}
 	return
 }
 
