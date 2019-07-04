@@ -9,7 +9,7 @@ import (
 
 // CatCommand will handle cat command.
 var CatCommand = &cobra.Command{
-	Use:   "cat <remote-path>",
+	Use:   "cat qs://<bucket_name>/<object_key>",
 	Short: "cat a remote object to stdout",
 	Long:  "qsctl cat can cat a remote object to stdout",
 	Example: utils.AlignPrintWithColon(

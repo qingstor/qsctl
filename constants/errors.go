@@ -13,6 +13,8 @@ var (
 
 	// ErrorQsPathInvalid returned while qs-path is invalid.
 	ErrorQsPathInvalid = errors.New("qingstor path invalid")
+	// ErrorQsPathObjectKeyRequired returned while object key is required but not given.
+	ErrorQsPathObjectKeyRequired = errors.New("qingstor path object key is required")
 
 	// ErrorFileTooLarge returned while file is too large.
 	ErrorFileTooLarge = errors.New("file too large")

@@ -16,7 +16,7 @@ import (
 func ParseDirection(src, dst string) (flow string, err error) {
 	// If src and dst both local file or both remote object, the path is invalid.
 	if strings.HasPrefix(src, "qs://") == strings.HasPrefix(dst, "qs://") {
-		log.Errorf("Action between %s and %s is invalid", src, dst)
+		log.Errorf("Action between <%s> and <%s> is invalid", src, dst)
 		return "", constants.ErrorFlowInvalid
 	}
 
@@ -35,7 +35,7 @@ func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
 
 	_, err = os.Stat(filePath)
 	if os.IsNotExist(err) {
-		log.Infof("File %s is not exist, please check your input path", filePath)
+		log.Infof("File <%s> is not exist, please check your input path", filePath)
 		return nil, constants.ErrorFileNotExist
 	}
 	if err != nil {
@@ -56,7 +56,7 @@ func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
 	// Create dir automatically.
 	err = os.MkdirAll(filepath.Dir(filePath), os.ModeDir|0664)
 	if err != nil {
-		log.Errorf("Mkdir %s failed [%v]", filePath, err)
+		log.Errorf("Mkdir <%s> failed [%v]", filePath, err)
 		return nil, err
 	}
 
@@ -64,11 +64,11 @@ func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
 }
 
 // ParseQsPath will parse a qs path and prepare a bucket.
-func ParseQsPath(remotePath string) (objectKey string, err error) {
+func ParseQsPath(remotePath string, objectKeyRequired bool) (objectKey string, err error) {
 	// qs://abc/xyz -> []string{"qs:", "", "abc", "xyz"}
 	p := strings.Split(remotePath, "/")
 	if p[0] != "qs:" || p[1] != "" || p[2] == "" {
-		log.Infof("%s is not a valid qingstor path", remotePath)
+		log.Infof("<%s> is not a valid qingstor path", remotePath)
 		return "", constants.ErrorQsPathInvalid
 	}
 	bucketName := p[2]
@@ -78,10 +78,16 @@ func ParseQsPath(remotePath string) (objectKey string, err error) {
 		return
 	}
 
-	// FIXME: user may input qs://abc
-	// Trim "qs://" + bucketName + "/"
-	objectKey = remotePath[5+len(bucketName)+1:]
-	return
+	if len(p) >= 4 {
+		// Trim "qs://" + bucketName + "/"
+		objectKey = remotePath[5+len(bucketName)+1:]
+	}
+
+	if objectKeyRequired {
+		return "", constants.ErrorQsPathObjectKeyRequired
+	}
+	// Handle user input "qs://abc"
+	return "", nil
 }
 
 // CalculateConcurrentWorkers will calculate the current workers via limit and part size.
@@ -99,7 +105,7 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize
 
 	if size > constants.MaximumObjectSize {
-		log.Errorf("File with size %d is too large", size)
+		log.Errorf("File with size <%d> is too large", size)
 		return 0, constants.ErrorFileTooLarge
 	}
 
