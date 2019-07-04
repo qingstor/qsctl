@@ -110,3 +110,12 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 	}
 	return nil
 }
+
+// GetObject will get an object.
+func GetObject(objectKey string) (r io.Reader, err error) {
+	resp, err := contexts.Bucket.GetObject(objectKey, nil)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Body, nil
+}

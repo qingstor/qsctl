@@ -69,5 +69,8 @@ func initConfig() {
 }
 
 func main() {
-	application.Execute()
+	err := application.Execute()
+	if err != nil {
+		panic(err)
+	}
 }
