@@ -14,7 +14,4 @@ const (
 	MaximumAutoMultipartSize = MaximumPartSize / 5
 	// DefaultPartSize is the default part size, 128MB.
 	DefaultPartSize = 128 * 1024 * 1024
-
-	// DefaultMaximumMemoryContent is the default maximum memory content, 1GB
-	DefaultMaximumMemoryContent = 1024 * 1024 * 1024
 )
