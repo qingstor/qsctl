@@ -3,6 +3,7 @@ package action
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/yunify/qsctl/constants"
@@ -38,10 +39,42 @@ func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
 }
 
 // ParseFilePathForWrite will parse a file path and open an io.Write for write.
-func ParseFilePathForWrite() {}
+func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
+	// Use - means we will read from stdin.
+	if filePath == "-" {
+		return os.Stdout, nil
+	}
+
+	// Create dir automatically.
+	err = os.MkdirAll(filepath.Dir(filePath), os.ModeDir|0664)
+	if err != nil {
+		panic(err)
+	}
+
+	return os.Create(filePath)
+}
 
 // ParseQsPathForRead will parse a qs path and open an io.Reader for read.
-func ParseQsPathForRead() {}
+func ParseQsPathForRead(remotePath string) (objectKey string, err error) {
+	// qs://abc/xyz -> []string{"qs:", "", "abc", "xyz"}
+	p := strings.Split(remotePath, "/")
+	if p[0] != "qs:" || p[1] != "" || p[2] == "" {
+		// FIXME
+		panic("invalid qs path")
+	}
+	bucketName := p[2]
+
+	_, err = contexts.SetupBuckets(bucketName, "")
+	if err != nil {
+		// FIXME
+		panic(err)
+	}
+
+	// FIXME: user may input qs://abc
+	// Trim "qs://" + bucketName + "/"
+	objectKey = remotePath[5+len(bucketName)+1:]
+	return
+}
 
 // ParseQsPathForWrite will parse a qs path for write.
 func ParseQsPathForWrite(remotePath string) (objectKey string, err error) {

@@ -63,7 +63,26 @@ func Copy(src, dest string) (err error) {
 		return nil
 
 	case constants.DirectionRemoteToLocal:
-		panic("invalid flow")
+		objectKey, err := ParseQsPathForRead(src)
+		if err != nil {
+			panic(err)
+		}
+
+		w, err := ParseFilePathForWrite(dest)
+		if err != nil {
+			panic(err)
+		}
+
+		switch x := w.(type) {
+		case *os.File:
+			if x.Name() == "/dev/stdout" {
+				err = CopyObjectToNotSeekableFile(w, objectKey)
+				return err
+			}
+		default:
+			return nil
+		}
+		return nil
 
 	default:
 		panic("invalid flow")
@@ -165,4 +184,38 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 	}
 	fmt.Printf("Upload ID %s for %s finished.\n", uploadID, objectKey)
 	return nil
+}
+
+// CopyObjectToNotSeekableFile will copy an object to not seekable file.
+func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (err error) {
+	totalSize := int64(0)
+	if contexts.Bench {
+		f, err := os.Create("profile")
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+
+		cur := time.Now()
+		defer func() {
+			elapsed := time.Since(cur)
+			_, _ = fmt.Fprintf(os.Stderr, "Copied %s in %s, avgerage %s/s\n",
+				datasize.ByteSize(totalSize).HumanReadable(),
+				elapsed,
+				datasize.ByteSize(float64(totalSize)/elapsed.Seconds()).HumanReadable())
+		}()
+	}
+
+	r, err := helper.GetObject(objectKey)
+	if err != nil {
+		return
+	}
+
+	bw, br := bufio.NewWriter(w), bufio.NewReader(r)
+	totalSize, err = io.Copy(bw, br)
+	if err != nil {
+		panic(err)
+	}
+	return
 }

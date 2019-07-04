@@ -14,6 +14,5 @@ const (
 	ConfigSecretAccessKey = "secret_access_key"
 
 	// Runtime config.
-	ConfigZone       = "zone"
-	ConfigBucketName = "bucket_name"
+	ConfigZone = "zone"
 )
