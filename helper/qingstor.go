@@ -3,10 +3,12 @@ package helper
 import (
 	"encoding/hex"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/pengsrc/go-shared/convert"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qingstor-sdk-go/v3/request/errors"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
 
 	"github.com/yunify/qsctl/constants"
@@ -64,8 +66,14 @@ func ListObjects(prefix string) (
 // HeadObject will head object.
 func HeadObject(objectKey string) (om *ObjectMeta, err error) {
 	resp, err := contexts.Bucket.HeadObject(objectKey, nil)
-	// TODO: handle not found here.
 	if err != nil {
+		if e, ok := err.(*errors.QingStorError); ok {
+			if e.StatusCode == http.StatusNotFound {
+				return nil, constants.ErrorQsPathNotFound
+			} else if e.StatusCode == http.StatusForbidden {
+				return nil, constants.ErrorQsPathAccessForbidden
+			}
+		}
 		return
 	}
 
