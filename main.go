@@ -70,12 +70,17 @@ func initConfig() {
 		return
 	}
 
-	lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
-	if err != nil {
-		log.Errorf("main: Parse log level failed [%v]", err)
-		return
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	if viper.GetString(constants.ConfigLogLevel) != "" {
+		lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
+		if err != nil {
+			log.Errorf("main: Parse log level failed [%v]", err)
+			return
+		}
+		log.SetLevel(lvl)
 	}
-	log.SetLevel(lvl)
 }
 
 func main() {
