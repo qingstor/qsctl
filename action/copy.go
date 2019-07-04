@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/md5"
-	"fmt"
 	"io"
 	"os"
 	"runtime/pprof"
@@ -14,6 +13,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/panjf2000/ants"
 	"github.com/pengsrc/go-shared/buffer"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
@@ -24,79 +24,10 @@ import (
 func Copy(src, dest string) (err error) {
 	flow, err := ParseDirection(src, dest)
 	if err != nil {
-		panic(err)
+		return
 	}
 
-	switch flow {
-	case constants.DirectionLocalToRemote:
-		r, err := ParseFilePathForRead(src)
-		if err != nil {
-			panic(err)
-		}
-
-		objectKey, err := ParseQsPath(dest)
-		if err != nil {
-			panic(err)
-		}
-
-		switch x := r.(type) {
-		case *os.File:
-			if x.Name() == "/dev/stdin" {
-				err = CopyNotSeekableFileToRemote(r, objectKey)
-				return err
-			}
-			err = CopySeekableFileToRemote(r, objectKey)
-			return err
-		case io.ReadSeeker:
-			fmt.Printf("Start CopySeekableFileToRemote")
-			err = CopySeekableFileToRemote(r, objectKey)
-			if err != nil {
-				panic(err)
-			}
-		default:
-			fmt.Printf("Start CopyNotSeekableFileToRemote")
-			err = CopyNotSeekableFileToRemote(r, objectKey)
-			if err != nil {
-				panic(err)
-			}
-		}
-		return nil
-
-	case constants.DirectionRemoteToLocal:
-		objectKey, err := ParseQsPath(src)
-		if err != nil {
-			panic(err)
-		}
-
-		w, err := ParseFilePathForWrite(dest)
-		if err != nil {
-			panic(err)
-		}
-
-		switch x := w.(type) {
-		case *os.File:
-			if x.Name() == "/dev/stdout" {
-				err = CopyObjectToNotSeekableFile(w, objectKey)
-				return err
-			}
-		default:
-			return nil
-		}
-		return nil
-
-	default:
-		panic("invalid flow")
-	}
-}
-
-// CopySeekableFileToRemote will copy a seekable file to remote.
-func CopySeekableFileToRemote(r io.Reader, objectKey string) (err error) {
-	return nil
-}
-
-// CopyNotSeekableFileToRemote will copy a not seekable file to remote.
-func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
-	totalSize := int64(0)
+	var totalSize int64
 	if contexts.Bench {
 		f, err := os.Create("profile")
 		if err != nil {
@@ -108,25 +39,85 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 		cur := time.Now()
 		defer func() {
 			elapsed := time.Since(cur)
-			fmt.Printf("Copied %s in %s, avgerage %s/s\n",
+			log.Debugf("Copied %s in %s, average %s/s\n",
 				datasize.ByteSize(totalSize).HumanReadable(),
 				elapsed,
 				datasize.ByteSize(float64(totalSize)/elapsed.Seconds()).HumanReadable())
 		}()
 	}
+
+	switch flow {
+	case constants.DirectionLocalToRemote:
+		r, err := ParseFilePathForRead(src)
+		if err != nil {
+			return err
+		}
+
+		objectKey, err := ParseQsPath(dest)
+		if err != nil {
+			return err
+		}
+
+		switch x := r.(type) {
+		case *os.File:
+			if x.Name() == "/dev/stdin" {
+				totalSize, err = CopyNotSeekableFileToRemote(r, objectKey)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			return constants.ErrorActionNotImplemented
+		default:
+			return constants.ErrorActionNotImplemented
+		}
+
+	case constants.DirectionRemoteToLocal:
+		objectKey, err := ParseQsPath(src)
+		if err != nil {
+			return err
+		}
+
+		w, err := ParseFilePathForWrite(dest)
+		if err != nil {
+			return err
+		}
+
+		switch x := w.(type) {
+		case *os.File:
+			if x.Name() == "/dev/stdout" {
+				totalSize, err = CopyObjectToNotSeekableFile(w, objectKey)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			return constants.ErrorActionNotImplemented
+		default:
+			return constants.ErrorActionNotImplemented
+		}
+
+	default:
+		panic(constants.ErrorFlowInvalid)
+	}
+}
+
+// CopyNotSeekableFileToRemote will copy a not seekable file to remote.
+func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, err error) {
 	if contexts.ExpectSize == 0 {
-		panic("invalid expect size")
+		return 0, constants.ErrorExpectSizeRequired
 	}
 
 	uploadID, err := helper.InitiateMultipartUpload(objectKey)
 	if err != nil {
-		panic(err)
+		return
 	}
-	fmt.Printf("Upload ID is %s.\n", uploadID)
+
+	log.Debugf("Object %s uploading via upload ID %s", objectKey, uploadID)
 
 	partSize, err := CalculatePartSize(contexts.ExpectSize)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	var wg sync.WaitGroup
@@ -139,21 +130,22 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 	bytesPool := buffer.NewBytesPool()
 
 	partNumber := 0
-
 	for {
 		lr := bufio.NewReader(io.LimitReader(r, partSize))
 		b := bytesPool.Get()
 		n, err := io.Copy(b, lr)
+
 		if contexts.Bench {
-			totalSize += int64(n)
+			total += int64(n)
 		}
+
 		if n == 0 {
 			break
 		}
 		if err != nil {
-			panic(err)
+			log.Errorf("action: Read failed [%v]", err)
+			return 0, err
 		}
-		fmt.Printf("Read %d bytes.\n", n)
 
 		localPartNumber := partNumber
 		err = pool.Submit(func() {
@@ -167,7 +159,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("Part %d uploaded.\n", localPartNumber)
+			log.Debugf("Object %s part %d uploaded", objectKey, localPartNumber)
 		})
 		if err != nil {
 			panic(err)
@@ -180,42 +172,24 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (err error) {
 
 	err = helper.CompleteMultipartUpload(objectKey, uploadID, partNumber)
 	if err != nil {
-		panic(err)
+		return
 	}
-	fmt.Printf("Upload ID %s for %s finished.\n", uploadID, objectKey)
-	return nil
+	log.Infof("Object %s upload finished", objectKey)
+	return total, nil
 }
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.
-func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (err error) {
-	totalSize := int64(0)
-	if contexts.Bench {
-		f, err := os.Create("profile")
-		if err != nil {
-			panic(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-
-		cur := time.Now()
-		defer func() {
-			elapsed := time.Since(cur)
-			_, _ = fmt.Fprintf(os.Stderr, "Copied %s in %s, avgerage %s/s\n",
-				datasize.ByteSize(totalSize).HumanReadable(),
-				elapsed,
-				datasize.ByteSize(float64(totalSize)/elapsed.Seconds()).HumanReadable())
-		}()
-	}
-
+func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (total int64, err error) {
 	r, err := helper.GetObject(objectKey)
 	if err != nil {
 		return
 	}
 
 	bw, br := bufio.NewWriter(w), bufio.NewReader(r)
-	totalSize, err = io.Copy(bw, br)
+	total, err = io.Copy(bw, br)
 	if err != nil {
-		panic(err)
+		log.Errorf("action: Copy failed [%v]", err)
+		return 0, err
 	}
 	return
 }

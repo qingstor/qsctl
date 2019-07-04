@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pengsrc/go-shared/convert"
+	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
 
 	"github.com/yunify/qsctl/constants"
@@ -38,6 +39,7 @@ func ListObjects(prefix string) (
 			Prefix: service.String(prefix),
 		})
 		if err != nil {
+			log.Errorf("qingstor: prefix %s ListObjects failed [%v]", prefix, err)
 			return nil, err
 		}
 
@@ -62,6 +64,7 @@ func ListObjects(prefix string) (
 // HeadObject will head object.
 func HeadObject(objectKey string) (om *ObjectMeta, err error) {
 	resp, err := contexts.Bucket.HeadObject(objectKey, nil)
+	// TODO: handle not found here.
 	if err != nil {
 		return
 	}
@@ -81,6 +84,7 @@ func HeadObject(objectKey string) (om *ObjectMeta, err error) {
 func InitiateMultipartUpload(objectKey string) (uploadID string, err error) {
 	resp, err := contexts.Bucket.InitiateMultipartUpload(objectKey, nil)
 	if err != nil {
+		log.Errorf("qingstor: object %s InitiateMultipartUpload failed [%v]", objectKey, err)
 		return
 	}
 
@@ -100,22 +104,7 @@ func UploadMultipart(
 		ContentMD5:    convert.String(hex.EncodeToString(md5sum[:])),
 	})
 	if err != nil {
-		return
-	}
-	return
-}
-
-// UploadMultipartWithoutMD5 will upload a multipart.
-func UploadMultipartWithoutMD5(
-	objectKey, uploadID string, size int64, partNumber int, r io.Reader,
-) (err error) {
-	_, err = contexts.Bucket.UploadMultipart(objectKey, &service.UploadMultipartInput{
-		Body:          r,
-		ContentLength: convert.Int64(size),
-		UploadID:      convert.String(uploadID),
-		PartNumber:    convert.Int(partNumber),
-	})
-	if err != nil {
+		log.Errorf("qingstor: object %s part %d UploadMultipart failed [%v]", objectKey, partNumber, err)
 		return
 	}
 	return
@@ -136,6 +125,7 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 			ObjectParts: parts,
 		})
 	if err != nil {
+		log.Errorf("qingstor: object %s CompleteMultipartUpload failed [%v]", objectKey, err)
 		return err
 	}
 	return nil
@@ -145,6 +135,7 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 func GetObject(objectKey string) (r io.Reader, err error) {
 	resp, err := contexts.Bucket.GetObject(objectKey, nil)
 	if err != nil {
+		log.Errorf("qingstor: object %s GetObject failed [%v]", objectKey, err)
 		return nil, err
 	}
 	return resp.Body, nil
