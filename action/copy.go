@@ -143,7 +143,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 			break
 		}
 		if err != nil {
-			log.Errorf("action: Read failed [%v]", err)
+			log.Errorf("Read failed [%v]", err)
 			return 0, err
 		}
 
@@ -188,7 +188,7 @@ func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (total int64, er
 	bw, br := bufio.NewWriter(w), bufio.NewReader(r)
 	total, err = io.Copy(bw, br)
 	if err != nil {
-		log.Errorf("action: Copy failed [%v]", err)
+		log.Errorf("Copy failed [%v]", err)
 		return 0, err
 	}
 	return

@@ -1,12 +1,11 @@
 package main
 
 import (
-	"os"
-
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 
 	"github.com/yunify/qsctl/cmd"
 	"github.com/yunify/qsctl/constants"
@@ -56,7 +55,7 @@ func initConfig() {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			log.Errorf("main: Get homedir failed [%v]", err)
+			log.Errorf("Get homedir failed [%v]", err)
 			return
 		}
 
@@ -66,7 +65,7 @@ func initConfig() {
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Errorf("main: Load config failed [%v]", err)
+		log.Errorf("Load config failed [%v]", err)
 		return
 	}
 
@@ -76,7 +75,7 @@ func initConfig() {
 	if viper.GetString(constants.ConfigLogLevel) != "" {
 		lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
 		if err != nil {
-			log.Errorf("main: Parse log level failed [%v]", err)
+			log.Errorf("Parse log level failed [%v]", err)
 			return
 		}
 		log.SetLevel(lvl)

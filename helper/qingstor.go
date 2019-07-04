@@ -39,7 +39,7 @@ func ListObjects(prefix string) (
 			Prefix: service.String(prefix),
 		})
 		if err != nil {
-			log.Errorf("qingstor: prefix %s ListObjects failed [%v]", prefix, err)
+			log.Errorf("prefix %s ListObjects failed [%v]", prefix, err)
 			return nil, err
 		}
 
@@ -84,7 +84,7 @@ func HeadObject(objectKey string) (om *ObjectMeta, err error) {
 func InitiateMultipartUpload(objectKey string) (uploadID string, err error) {
 	resp, err := contexts.Bucket.InitiateMultipartUpload(objectKey, nil)
 	if err != nil {
-		log.Errorf("qingstor: object %s InitiateMultipartUpload failed [%v]", objectKey, err)
+		log.Errorf("object %s InitiateMultipartUpload failed [%v]", objectKey, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func UploadMultipart(
 		ContentMD5:    convert.String(hex.EncodeToString(md5sum[:])),
 	})
 	if err != nil {
-		log.Errorf("qingstor: object %s part %d UploadMultipart failed [%v]", objectKey, partNumber, err)
+		log.Errorf("object %s part %d UploadMultipart failed [%v]", objectKey, partNumber, err)
 		return
 	}
 	return
@@ -125,7 +125,7 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 			ObjectParts: parts,
 		})
 	if err != nil {
-		log.Errorf("qingstor: object %s CompleteMultipartUpload failed [%v]", objectKey, err)
+		log.Errorf("object %s CompleteMultipartUpload failed [%v]", objectKey, err)
 		return err
 	}
 	return nil
@@ -135,7 +135,7 @@ func CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err e
 func GetObject(objectKey string) (r io.Reader, err error) {
 	resp, err := contexts.Bucket.GetObject(objectKey, nil)
 	if err != nil {
-		log.Errorf("qingstor: object %s GetObject failed [%v]", objectKey, err)
+		log.Errorf("object %s GetObject failed [%v]", objectKey, err)
 		return nil, err
 	}
 	return resp.Body, nil

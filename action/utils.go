@@ -35,11 +35,11 @@ func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
 
 	_, err = os.Stat(filePath)
 	if os.IsNotExist(err) {
-		log.Infof("File <%s> is not exist, please check your input path", filePath)
+		log.Infof("File <%s> is not exist, please check your input", filePath)
 		return nil, constants.ErrorFileNotExist
 	}
 	if err != nil {
-		log.Errorf("action: Stat file failed [%s]", err)
+		log.Errorf("Stat file failed [%s]", err)
 		return
 	}
 
