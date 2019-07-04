@@ -11,6 +11,8 @@ var (
 	// ErrorExpectSizeRequired returned while expect size is required but not given.
 	ErrorExpectSizeRequired = errors.New("expect-size is required")
 
+	// ErrorQsPathAccessForbidden returned while qingstor path access is forbidden.
+	ErrorQsPathAccessForbidden = errors.New("qingstor path access forbidden")
 	// ErrorQsPathNotFound returned while qingstor path is not found.
 	ErrorQsPathNotFound = errors.New("qingstor path not found")
 	// ErrorQsPathInvalid returned while qs-path is invalid.
