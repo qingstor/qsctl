@@ -89,7 +89,7 @@ func SetupBuckets(name, zone string) (bucket *service.Bucket, err error) {
 		log.Errorf("contexts: Head location failed [%v]", err)
 		return
 	}
-	if r.StatusCode != http.StatusOK {
+	if r.StatusCode != http.StatusTemporaryRedirect {
 		log.Infof("Detect bucket location failed, please check your input")
 		return nil, constants.ErrorQsPathNotFound
 	}
