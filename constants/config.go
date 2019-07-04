@@ -7,7 +7,7 @@ const (
 	ConfigPort              = "port"
 	ConfigProtocol          = "protocol"
 	ConfigConnectionRetries = "connection_retries"
-	ConfigLogLevel          = "level"
+	ConfigLogLevel          = "log_level"
 
 	// Required config.
 	ConfigAccessKeyID     = "access_key_id"

@@ -113,7 +113,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 		return
 	}
 
-	log.Debugf("Object %s uploading via upload ID %s", objectKey, uploadID)
+	log.Debugf("Object <%s> uploading via upload ID <%s>", objectKey, uploadID)
 
 	partSize, err := CalculatePartSize(contexts.ExpectSize)
 	if err != nil {
@@ -159,7 +159,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 			if err != nil {
 				panic(err)
 			}
-			log.Debugf("Object %s part %d uploaded", objectKey, localPartNumber)
+			log.Debugf("Object <%s> part <%d> uploaded", objectKey, localPartNumber)
 		})
 		if err != nil {
 			panic(err)
@@ -174,7 +174,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 	if err != nil {
 		return
 	}
-	log.Infof("Object %s upload finished", objectKey)
+	log.Infof("Object <%s> upload finished", objectKey)
 	return total, nil
 }
 
