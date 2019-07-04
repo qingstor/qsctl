@@ -9,7 +9,7 @@ import (
 
 // Stat will handle all stat actions.
 func Stat(remote string) (err error) {
-	objectKey, err := ParseQsPath(remote)
+	objectKey, err := ParseQsPath(remote, true)
 	if err != nil {
 		return
 	}

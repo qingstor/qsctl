@@ -9,7 +9,7 @@ import (
 
 // StatCommand will handle stat command.
 var StatCommand = &cobra.Command{
-	Use:   "stat <remote-path>",
+	Use:   "stat qs://<bucket_name>/<object_key>",
 	Short: "stat a remote object",
 	Long:  "qsctl stat show the detailed info of this object",
 	Example: utils.AlignPrintWithColon(

@@ -9,7 +9,7 @@ import (
 
 // TeeCommand will handle tee command.
 var TeeCommand = &cobra.Command{
-	Use:   "tee <remote-path>",
+	Use:   "tee qs://<bucket_name>/<object_key>",
 	Short: "tee a remote object from stdin",
 	Long: `qsctl tee can tee a remote object from stdin.
 
