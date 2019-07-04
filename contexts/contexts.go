@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/yunify/qingstor-sdk-go/v3/config"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
@@ -39,6 +40,7 @@ func SetupServices() (err error) {
 		viper.GetString(constants.ConfigSecretAccessKey),
 	)
 	if err != nil {
+		log.Errorf("contexts: Init config failed [%v]", err)
 		return
 	}
 	cfg.Host = viper.GetString(constants.ConfigHost)
@@ -49,6 +51,7 @@ func SetupServices() (err error) {
 
 	Service, err = service.Init(cfg)
 	if err != nil {
+		log.Errorf("contexts: Init service failed [%v]", err)
 		return
 	}
 	return
@@ -83,6 +86,7 @@ func SetupBuckets(name, zone string) (bucket *service.Bucket, err error) {
 
 	r, err := client.Head(url)
 	if err != nil {
+		log.Errorf("contexts: Head location failed [%v]", err)
 		return
 	}
 

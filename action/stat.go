@@ -2,16 +2,16 @@ package action
 
 import (
 	"github.com/c2h5oh/datasize"
-	"github.com/jedib0t/go-pretty/text"
+
 	"github.com/yunify/qsctl/helper"
-	"strings"
+	"github.com/yunify/qsctl/utils"
 )
 
 // Stat will handle all stat actions.
 func Stat(remote string) (err error) {
 	objectKey, err := ParseQsPath(remote)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	return StatRemoteObject(objectKey)
@@ -21,21 +21,21 @@ func Stat(remote string) (err error) {
 func StatRemoteObject(objectKey string) (err error) {
 	om, err := helper.HeadObject(objectKey)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	content := []string{
-		text.AlignLeft.Apply("Key: ", 14) + text.AlignLeft.Apply(om.Key, 1),
-		text.AlignLeft.Apply("Size: ", 14) + text.AlignLeft.Apply(datasize.ByteSize(om.ContentLength).String(), 1),
-		text.AlignLeft.Apply("Type: ", 14) + text.AlignLeft.Apply(om.ContentType, 1),
-		text.AlignLeft.Apply("Modify: ", 14) + text.AlignLeft.Apply(om.LastModified.String(), 1),
-		text.AlignLeft.Apply("StorageClass: ", 14) + text.AlignLeft.Apply(om.StorageClass, 1),
+		"Key: " + om.Key,
+		"Size: " + datasize.ByteSize(om.ContentLength).String(),
+		"Type: " + om.ContentType,
+		"Modify: " + om.LastModified.String(),
+		"StorageClass: " + om.StorageClass,
 	}
 
 	if om.ETag != "" {
-		content = append(content, text.AlignLeft.Apply("MD5: ", 14)+text.AlignLeft.Apply(om.ETag, 1))
+		content = append(content, "MD5: "+om.ETag)
 	}
 
-	println(strings.Join(content, "\n"))
+	println(utils.AlignPrintWithColon(content...))
 	return
 }

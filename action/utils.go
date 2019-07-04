@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
 )
@@ -14,7 +16,8 @@ import (
 func ParseDirection(src, dst string) (flow string, err error) {
 	// If src and dst both local file or both remote object, the path is invalid.
 	if strings.HasPrefix(src, "qs://") == strings.HasPrefix(dst, "qs://") {
-		return "", constants.ErrorInvalidFlow
+		log.Errorf("Action between %s and %s is invalid", src, dst)
+		return "", constants.ErrorFlowInvalid
 	}
 
 	if strings.HasPrefix(src, "qs://") {
@@ -31,8 +34,13 @@ func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
 	}
 
 	_, err = os.Stat(filePath)
+	if os.IsNotExist(err) {
+		log.Infof("File %s is not exist, please check your input path", filePath)
+		return nil, constants.ErrorFileNotExist
+	}
 	if err != nil {
-		panic(err)
+		log.Errorf("action: Stat file failed [%s]", err)
+		return
 	}
 
 	return os.Open(filePath)
@@ -48,7 +56,8 @@ func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
 	// Create dir automatically.
 	err = os.MkdirAll(filepath.Dir(filePath), os.ModeDir|0664)
 	if err != nil {
-		panic(err)
+		log.Errorf("Mkdir %s failed [%v]", filePath, err)
+		return nil, err
 	}
 
 	return os.Create(filePath)
@@ -59,15 +68,14 @@ func ParseQsPath(remotePath string) (objectKey string, err error) {
 	// qs://abc/xyz -> []string{"qs:", "", "abc", "xyz"}
 	p := strings.Split(remotePath, "/")
 	if p[0] != "qs:" || p[1] != "" || p[2] == "" {
-		// FIXME
-		panic("invalid qs path")
+		log.Infof("%s is not a valid qingstor path", remotePath)
+		return "", constants.ErrorQsPathInvalid
 	}
 	bucketName := p[2]
 
 	_, err = contexts.SetupBuckets(bucketName, "")
 	if err != nil {
-		// FIXME
-		panic(err)
+		return
 	}
 
 	// FIXME: user may input qs://abc
@@ -91,8 +99,8 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize
 
 	if size > constants.MaximumObjectSize {
-		err = constants.ErrorFileTooLarge
-		return
+		log.Errorf("File with size %d is too large", size)
+		return 0, constants.ErrorFileTooLarge
 	}
 
 	for size/partSize >= int64(constants.MaximumMultipartNumber) {

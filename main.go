@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -41,6 +41,13 @@ func initConfig() {
 	viper.SetEnvPrefix("qsctl")
 	viper.AutomaticEnv()
 
+	// Set default value for config.
+	viper.SetDefault(constants.ConfigHost, "qingstor.com")
+	viper.SetDefault(constants.ConfigPort, 443)
+	viper.SetDefault(constants.ConfigProtocol, "https")
+	viper.SetDefault(constants.ConfigConnectionRetries, 3)
+	viper.SetDefault(constants.ConfigLogLevel, "info")
+
 	// Load config from config file.
 	if configPath != "" {
 		// Use config file from the flag.
@@ -49,8 +56,8 @@ func initConfig() {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Errorf("main: Get homedir failed [%v]", err)
+			return
 		}
 
 		// Search config in home directory with name ".qingstor" (without extension).
@@ -59,16 +66,16 @@ func initConfig() {
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
-		os.Exit(1)
+		log.Errorf("main: Load config failed [%v]", err)
+		return
 	}
 
-	// Set default value for config.
-	viper.SetDefault(constants.ConfigHost, "qingstor.com")
-	viper.SetDefault(constants.ConfigPort, 443)
-	viper.SetDefault(constants.ConfigProtocol, "https")
-	viper.SetDefault(constants.ConfigConnectionRetries, 3)
-	viper.SetDefault(constants.ConfigLogLevel, "info")
+	lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
+	if err != nil {
+		log.Errorf("main: Parse log level failed [%v]", err)
+		return
+	}
+	log.SetLevel(lvl)
 }
 
 func main() {
