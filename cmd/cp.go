@@ -18,10 +18,10 @@ var CpCommand = &cobra.Command{
   Write to stdout: qsctl cp qs://prefix/b - > /path/to/file
 `,
 	Args: cobra.ExactArgs(2),
-	RunE: run,
+	RunE: cpRun,
 }
 
-func run(_ *cobra.Command, args []string) (err error) {
+func cpRun(_ *cobra.Command, args []string) (err error) {
 	err = action.Copy(args[0], args[1])
 	if err != nil {
 		panic(err)
