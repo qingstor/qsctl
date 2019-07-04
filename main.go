@@ -25,7 +25,9 @@ var (
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	application.AddCommand(cmd.CatCommand)
 	application.AddCommand(cmd.CpCommand)
+	application.AddCommand(cmd.TeeCommand)
 
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
@@ -71,6 +73,6 @@ func initConfig() {
 func main() {
 	err := application.Execute()
 	if err != nil {
-		panic(err)
+		os.Exit(1)
 	}
 }
