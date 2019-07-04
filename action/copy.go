@@ -34,7 +34,7 @@ func Copy(src, dest string) (err error) {
 			panic(err)
 		}
 
-		objectKey, err := ParseQsPathForWrite(dest)
+		objectKey, err := ParseQsPath(dest)
 		if err != nil {
 			panic(err)
 		}
@@ -63,7 +63,7 @@ func Copy(src, dest string) (err error) {
 		return nil
 
 	case constants.DirectionRemoteToLocal:
-		objectKey, err := ParseQsPathForRead(src)
+		objectKey, err := ParseQsPath(src)
 		if err != nil {
 			panic(err)
 		}
