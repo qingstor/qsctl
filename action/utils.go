@@ -81,6 +81,7 @@ func ParseQsPath(remotePath string, objectKeyRequired bool) (objectKey string, e
 	if len(p) >= 4 {
 		// Trim "qs://" + bucketName + "/"
 		objectKey = remotePath[5+len(bucketName)+1:]
+		return
 	}
 
 	if objectKeyRequired {
