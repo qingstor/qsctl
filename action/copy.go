@@ -60,7 +60,7 @@ func Copy(src, dest string) (err error) {
 
 		switch x := r.(type) {
 		case *os.File:
-			if x.Name() == "/dev/stdin" {
+			if x == os.Stdin {
 				totalSize, err = CopyNotSeekableFileToRemote(r, objectKey)
 				if err != nil {
 					return err
@@ -85,7 +85,7 @@ func Copy(src, dest string) (err error) {
 
 		switch x := w.(type) {
 		case *os.File:
-			if x.Name() == "/dev/stdout" {
+			if x == os.Stdout {
 				totalSize, err = CopyObjectToNotSeekableFile(w, objectKey)
 				if err != nil {
 					return err
