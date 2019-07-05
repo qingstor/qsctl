@@ -13,8 +13,9 @@ import (
 )
 
 var application = &cobra.Command{
-	Use:  constants.Name,
-	Long: constants.Description,
+	Use:     constants.Name,
+	Long:    constants.Description,
+	Version: constants.Version,
 }
 
 var (
