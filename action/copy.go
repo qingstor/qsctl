@@ -191,5 +191,10 @@ func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (total int64, er
 		log.Errorf("Copy failed [%v]", err)
 		return 0, err
 	}
+	err = bw.Flush()
+	if err != nil {
+		log.Errorf("Buffer flush failed [%v]", err)
+		return 0, err
+	}
 	return
 }
