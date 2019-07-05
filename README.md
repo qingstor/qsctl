@@ -46,17 +46,15 @@ Commands supported by qsctl are listed below:
 
 ## Examples
 
-List keys in bucket <mybucket> by running::
+Stat key in bucket <mybucket> by running
 
-  $ qsctl ls qs://mybucket
-  Directory                          test/
-  2016-04-03 11:16:04     4 Bytes    test1.txt
-  2016-04-03 11:16:04     4 Bytes    test2.txt
-
-Sync from QingStor prefix to local directory::
-
-  $ qsctl sync qs://mybucket3/test/ test/
-  File 'test/README.md' written
-  File 'test/commands.py' written
+```bash
+:) qsctl stat qs://mybucket/test
+Key         : test
+Size        : 10GB
+Type        : application/octet-stream
+Modify      : 2019-07-04 09:50:46 +0000 UTC
+StorageClass: STANDARD
+```
 
 See the detailed usage and more examples with 'qsctl help' or 'qsctl <command> help'.
