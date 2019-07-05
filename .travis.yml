@@ -1,41 +1,16 @@
-language: python
+language: go
+go:
+  - "1.12"
+  - master
 
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      python: '2.7'
-    - os: linux
-      dist: trusty
-      python: '3.3'
-    - os: linux
-      dist: trusty
-      python: '3.4'
-    - os: linux
-      dist: trusty
-      python: '3.5'
-    - os: linux
-      dist: trusty
-      python: '3.6'
-    # - os: osx
-    #   python: '2.7'
-    # - os: osx
-    #   python: '3.5'
+env:
+  - GO111MODULE=on
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "os"  ]]; then brew install "$TRAVIS_PYTHON_VERSION"; fi
-  - pip install pytest
-  - make install
+  - go get -u golang.org/x/lint/golint
 
 script:
-  - py.test tests
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install pyinstaller && make release-darwin; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then pip install pyinstaller && make release-linux; fi
-
-after_script:
-  - VERSION=$(cat qingstor/qsctl/__init__.py | grep "__version__\ =" | sed -e s/^.*\ //g | sed -e s/\'//g)
-  - if [[ ! -n "$TRAVIS_TAG" && -d "dist" ]]; then rm dist/qsctl-$VERSION*; fi
-  - "echo access_key_id: $ACCESS_KEY_ID > config.yaml"
-  - "echo secret_access_key: $SECRET_ACCESS_KEY >> config.yaml"
-  - if [[ -n "$TRAVIS_TAG" ]]; then qsctl cp dist qs://releases-qs/qsctl -rf -c config.yaml; fi
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then qsctl cp dist qs://releases-qs/qsctl -rf -c config.yaml; fi
+  - make check
+  - make build
+  - make test
+  - make coverage
