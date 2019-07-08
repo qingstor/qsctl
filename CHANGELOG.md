@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.2] - 2019-07-08
+
+### Fixed
+
+- action/copy: Fix buffer writer not flushed
+
 ## [2.0.0-alpha.1] - 2019-07-05
 
 ### Added
@@ -260,6 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.2]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.1...2.0.0-alpha.2
 [2.0.0-alpha.1]: https://github.com/yunify/qsctl/compare/1.7.7...2.0.0-alpha.1
 [1.7.7]: https://github.com/yunify/qsctl/compare/1.7.6...1.7.7
 [1.7.6]: https://github.com/yunify/qsctl/compare/1.7.5...1.7.6
