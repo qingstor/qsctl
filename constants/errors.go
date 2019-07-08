@@ -10,6 +10,8 @@ var (
 
 	// ErrorExpectSizeRequired returned while expect size is required but not given.
 	ErrorExpectSizeRequired = errors.New("expect-size is required")
+	// ErrorByteSizeInvalid returned while byte size is invalid.
+	ErrorByteSizeInvalid = errors.New("byte size is invalid")
 
 	// ErrorQsPathAccessForbidden returned while qingstor path access is forbidden.
 	ErrorQsPathAccessForbidden = errors.New("qingstor path access forbidden")
