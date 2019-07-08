@@ -19,18 +19,22 @@ var (
 )
 
 // initFlags will init all available flags.
-func initFlags() {
-	pflag.StringVar(&expectSize,
+func initFlags() *pflag.FlagSet {
+	p := pflag.NewFlagSet("", pflag.ExitOnError)
+
+	p.StringVar(&expectSize,
 		expectSizeFlag,
 		"",
 		`expected size of the input file
 accept: 100MB, 1.8G
 (only used for input from stdin)`)
 
-	pflag.StringVar(&maximumMemoryContent,
+	p.StringVar(&maximumMemoryContent,
 		maximumMemoryContentFlag,
 		"",
 		"maximum content loaded in memory \n (only used for input from stdin)")
+
+	return p
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
@@ -53,13 +57,13 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 }
 
 func init() {
-	initFlags()
+	p := initFlags()
 
 	// Flags for cp.
-	CpCommand.PersistentFlags().AddFlag(pflag.Lookup(expectSizeFlag))
-	CpCommand.PersistentFlags().AddFlag(pflag.Lookup(maximumMemoryContentFlag))
+	CpCommand.PersistentFlags().AddFlag(p.Lookup(expectSizeFlag))
+	CpCommand.PersistentFlags().AddFlag(p.Lookup(maximumMemoryContentFlag))
 
 	// Flags for tee.
-	TeeCommand.PersistentFlags().AddFlag(pflag.Lookup(expectSizeFlag))
-	TeeCommand.PersistentFlags().AddFlag(pflag.Lookup(maximumMemoryContentFlag))
+	TeeCommand.PersistentFlags().AddFlag(p.Lookup(expectSizeFlag))
+	TeeCommand.PersistentFlags().AddFlag(p.Lookup(maximumMemoryContentFlag))
 }
