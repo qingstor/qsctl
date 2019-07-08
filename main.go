@@ -25,6 +25,8 @@ var (
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	application.PersistentPreRunE = cmd.ParseFlagIntoContexts
+
 	application.AddCommand(cmd.CatCommand)
 	application.AddCommand(cmd.CpCommand)
 	application.AddCommand(cmd.StatCommand)
