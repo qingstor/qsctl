@@ -9,7 +9,7 @@ import (
 
 // MbCommand will handle make bucket command.
 var MbCommand = &cobra.Command{
-	Use:   "mb <bucket-name>",
+	Use:   "mb [qs://]<bucket-name>",
 	Short: "make a new bucket",
 	Long: `qsctl mb can make a new bucket with the specific name,
 
