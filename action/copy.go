@@ -53,7 +53,14 @@ func Copy(src, dest string) (err error) {
 			return err
 		}
 
-		objectKey, err := ParseQsPath(dest, true)
+		bucketName, objectKey, err := ParseQsPath(dest)
+		if err != nil {
+			return err
+		}
+		if objectKey == "" {
+			return constants.ErrorQsPathObjectKeyRequired
+		}
+		_, err = contexts.SetupBuckets(bucketName, "")
 		if err != nil {
 			return err
 		}
@@ -73,7 +80,14 @@ func Copy(src, dest string) (err error) {
 		}
 
 	case constants.DirectionRemoteToLocal:
-		objectKey, err := ParseQsPath(src, true)
+		bucketName, objectKey, err := ParseQsPath(dest)
+		if err != nil {
+			return err
+		}
+		if objectKey == "" {
+			return constants.ErrorQsPathObjectKeyRequired
+		}
+		_, err = contexts.SetupBuckets(bucketName, "")
 		if err != nil {
 			return err
 		}

@@ -3,13 +3,22 @@ package action
 import (
 	"github.com/c2h5oh/datasize"
 
+	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/contexts"
 	"github.com/yunify/qsctl/helper"
 	"github.com/yunify/qsctl/utils"
 )
 
 // Stat will handle all stat actions.
 func Stat(remote string) (err error) {
-	objectKey, err := ParseQsPath(remote, true)
+	bucketName, objectKey, err := ParseQsPath(remote)
+	if err != nil {
+		return err
+	}
+	if objectKey == "" {
+		return constants.ErrorQsPathObjectKeyRequired
+	}
+	_, err = contexts.SetupBuckets(bucketName, "")
 	if err != nil {
 		return
 	}
