@@ -8,9 +8,9 @@ import (
 )
 
 // MakeBucket will make a bucket with specific name.
-func MakeBucket(bucketPath string) (err error) {
+func MakeBucket(remote string) (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(bucketPath)
+	bucketName, _, err := ParseQsPath(remote)
 	if err != nil {
 		return
 	}
