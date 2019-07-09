@@ -1,11 +1,12 @@
 package main
 
 import (
+	"os"
+
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
 
 	"github.com/yunify/qsctl/cmd"
 	"github.com/yunify/qsctl/constants"

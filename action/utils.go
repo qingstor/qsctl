@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -63,32 +64,25 @@ func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
 	return os.Create(filePath)
 }
 
-// ParseQsPath will parse a qs path and prepare a bucket.
-func ParseQsPath(remotePath string, objectKeyRequired bool) (objectKey string, err error) {
-	// qs://abc/xyz -> []string{"qs:", "", "abc", "xyz"}
-	p := strings.Split(remotePath, "/")
-	if p[0] != "qs:" || p[1] != "" || p[2] == "" {
-		log.Infof("<%s> is not a valid qingstor path", remotePath)
-		return "", constants.ErrorQsPathInvalid
-	}
-	bucketName := p[2]
+// ParseQsPath will parse a qs path.
+func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
+	// qs-path includes three part: "qs://" prefix, bucket name and object key.
+	// "qs://" prefix could be emit.
+	pattern := "^(?:qs://)?([a-z][a-z0-9]+)([/a-z0-9]*)$"
 
-	_, err = contexts.SetupBuckets(bucketName, "")
-	if err != nil {
-		return
+	x := regexp.MustCompile(pattern).FindStringSubmatch(remotePath)
+	if len(x) != 3 {
+		return "", "", constants.ErrorQsPathInvalid
 	}
 
-	if len(p) >= 4 {
-		// Trim "qs://" + bucketName + "/"
-		objectKey = remotePath[5+len(bucketName)+1:]
-		return
-	}
+	bucketName, objectKey = x[1], x[2]
 
-	if objectKeyRequired {
-		return "", constants.ErrorQsPathObjectKeyRequired
-	}
-	// Handle user input "qs://abc"
-	return "", nil
+	// TODO: add bucket name and object key check here.
+
+	// Trim all left "/"
+	objectKey = strings.TrimLeft(objectKey, "/")
+
+	return bucketName, objectKey, nil
 }
 
 // CalculateConcurrentWorkers will calculate the current workers via limit and part size.
