@@ -68,7 +68,7 @@ func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
 func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
 	// qs-path includes three part: "qs://" prefix, bucket name and object key.
 	// "qs://" prefix could be emit.
-	pattern := "^(?:qs://)?([a-z0-9\\-]{6,63})?(.*)?$"
+	pattern := "^(?:qs://)?([a-z\\d][a-z-\\d]{4,61}[a-z\\d])?(.*)?$"
 
 	x := regexp.MustCompile(pattern).FindStringSubmatch(remotePath)
 	if len(x) != 3 || x[1] == "" {
