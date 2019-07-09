@@ -86,7 +86,8 @@ func init() {
 
 	// Flags for mb.
 	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+	// Mark flag "zone" required
 	if err := MbCommand.MarkFlagRequired(zoneFlag); err != nil {
-		log.Errorf("mark mb required flag failed [%v]", err)
+		log.Errorf("cmd mb: Mark flag zone required failed [%v]", err)
 	}
 }
