@@ -82,6 +82,7 @@ func TestParseQsPath(t *testing.T) {
 		{"case6", "abc", "abc", "", nil},
 		{"case7", "abc/def/ghi", "abc", "def/ghi", nil},
 		{"case8", "xx://abc", "", "", constants.ErrorQsPathInvalid},
+		{"case9", "qs://a-bcd", "a-bcd", "", nil},
 	}
 
 	for _, v := range cases {
