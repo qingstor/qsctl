@@ -8,33 +8,37 @@ import (
 	"github.com/yunify/qsctl/utils"
 )
 
+// flagSet stores all flags in itself
+var flagSet *pflag.FlagSet
+
 const (
+	// all flags' input here
 	expectSizeFlag           = "expect-size"
 	maximumMemoryContentFlag = "maximum-memory-content"
 )
 
 var (
+	// register available flag vars here
 	expectSize           string
 	maximumMemoryContent string
 )
 
 // initFlags will init all available flags.
-func initFlags() *pflag.FlagSet {
-	p := pflag.NewFlagSet("", pflag.ExitOnError)
+func initFlags() {
+	flagSet = pflag.NewFlagSet("", pflag.ExitOnError)
 
-	p.StringVar(&expectSize,
+	flagSet.StringVar(&expectSize,
 		expectSizeFlag,
 		"",
 		`expected size of the input file
 accept: 100MB, 1.8G
 (only used for input from stdin)`)
 
-	p.StringVar(&maximumMemoryContent,
+	flagSet.StringVar(&maximumMemoryContent,
 		maximumMemoryContentFlag,
 		"",
 		"maximum content loaded in memory \n (only used for input from stdin)")
 
-	return p
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
@@ -57,13 +61,14 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 }
 
 func init() {
-	p := initFlags()
+	initFlags()
 
 	// Flags for cp.
-	CpCommand.PersistentFlags().AddFlag(p.Lookup(expectSizeFlag))
-	CpCommand.PersistentFlags().AddFlag(p.Lookup(maximumMemoryContentFlag))
+	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
+	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
 
 	// Flags for tee.
-	TeeCommand.PersistentFlags().AddFlag(p.Lookup(expectSizeFlag))
-	TeeCommand.PersistentFlags().AddFlag(p.Lookup(maximumMemoryContentFlag))
+	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
+	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
+
 }
