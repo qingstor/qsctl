@@ -84,6 +84,11 @@ func initConfig() {
 		}
 		log.SetLevel(lvl)
 	}
+	// Setup global qs service
+	if err := contexts.SetupServices(); err != nil {
+		log.Errorf("Setup up service failed [%v]", err)
+		return
+	}
 }
 
 func main() {

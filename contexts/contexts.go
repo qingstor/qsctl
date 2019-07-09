@@ -59,11 +59,6 @@ func SetupServices() (err error) {
 
 // SetupBuckets will create a new bucket instance.
 func SetupBuckets(name, zone string) (bucket *service.Bucket, err error) {
-	err = SetupServices()
-	if err != nil {
-		return
-	}
-
 	if Bucket != nil {
 		return Bucket, nil
 	}
@@ -89,6 +84,7 @@ func SetupBuckets(name, zone string) (bucket *service.Bucket, err error) {
 		log.Errorf("contexts: Head location failed [%v]", err)
 		return
 	}
+	log.Debugf("head url: %s; status code: %d\n", url, r.StatusCode)
 	if r.StatusCode != http.StatusTemporaryRedirect {
 		log.Infof("Detect bucket location failed, please check your input")
 		return nil, constants.ErrorQsPathNotFound
