@@ -74,15 +74,17 @@ func TestParseQsPath(t *testing.T) {
 		expected2 string
 		err       error
 	}{
-		{"case1", "qs://abc/def", "abc", "def", nil},
-		{"case2", "qs://abc", "abc", "", nil},
-		{"case3", "qs://abc/", "abc", "", nil},
+		{"case1", "qs://abcdef/def", "abcdef", "def", nil},
+		{"case2", "qs://abcdef", "abcdef", "", nil},
+		{"case3", "qs://abcdef/", "abcdef", "", nil},
 		{"case4", "qs://", "", "", constants.ErrorQsPathInvalid},
-		{"case5", "qs://abc/def/ghi", "abc", "def/ghi", nil},
-		{"case6", "abc", "abc", "", nil},
-		{"case7", "abc/def/ghi", "abc", "def/ghi", nil},
-		{"case8", "xx://abc", "", "", constants.ErrorQsPathInvalid},
-		{"case9", "qs://a-bcd", "a-bcd", "", nil},
+		{"case5", "qs://abcdef/def/ghi", "abcdef", "def/ghi", nil},
+		{"case6", "abcdef", "abcdef", "", nil},
+		{"case7", "abcdef/def/ghi", "abcdef", "def/ghi", nil},
+		{"case8", "xx://abcdef", "", "", constants.ErrorQsPathInvalid},
+		{"case9", "qs://a-bcdef", "a-bcdef", "", nil},
+		{"case10", "abcdef/👾 🙇 💁 🙅 🙆 🙋 🙎 🙍 ", "abcdef", "👾 🙇 💁 🙅 🙆 🙋 🙎 🙍 ", nil},
+		{"case11", "ABCDEF", "", "", constants.ErrorQsPathInvalid},
 	}
 
 	for _, v := range cases {
