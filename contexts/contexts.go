@@ -27,6 +27,8 @@ var (
 	// Copy commands flags.
 	ExpectSize           int64
 	MaximumMemoryContent int64
+	// Bucket operation flags.
+	Zone string
 )
 
 // SetupServices will setup services.

@@ -32,6 +32,7 @@ func init() {
 	application.AddCommand(cmd.CpCommand)
 	application.AddCommand(cmd.StatCommand)
 	application.AddCommand(cmd.TeeCommand)
+	application.AddCommand(cmd.MbCommand)
 
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
