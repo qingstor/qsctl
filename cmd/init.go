@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -15,12 +16,14 @@ const (
 	// all flags' input here
 	expectSizeFlag           = "expect-size"
 	maximumMemoryContentFlag = "maximum-memory-content"
+	zoneFlag                 = "zone"
 )
 
 var (
 	// register available flag vars here
 	expectSize           string
 	maximumMemoryContent string
+	zone                 string
 )
 
 // initFlags will init all available flags.
@@ -39,6 +42,12 @@ accept: 100MB, 1.8G
 		"",
 		"maximum content loaded in memory \n (only used for input from stdin)")
 
+	flagSet.StringVarP(&zone,
+		zoneFlag,
+		"z",
+		"",
+		"In which zone to do the operation (required)",
+	)
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
@@ -57,6 +66,10 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	if zone != "" {
+		contexts.Zone = zone
+	}
+
 	return nil
 }
 
@@ -71,4 +84,9 @@ func init() {
 	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
 	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
 
+	// Flags for mb.
+	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+	if err := MbCommand.MarkFlagRequired(zoneFlag); err != nil {
+		log.Errorf("mark mb required flag failed [%v]", err)
+	}
 }
