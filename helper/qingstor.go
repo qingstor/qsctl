@@ -148,3 +148,20 @@ func GetObject(objectKey string) (r io.Reader, err error) {
 	}
 	return resp.Body, nil
 }
+
+// PutBucket will make a bucket with specific name.
+func PutBucket(bucketName, zone string) error {
+	bucket, err := contexts.Service.Bucket(bucketName, zone)
+	if err != nil {
+		log.Errorf("Initial bucket <%s> in zone <%s> failed [%v]",
+			bucketName, zone, err)
+		return err
+	}
+	// Request and create bucket
+	if _, err = bucket.Put(); err != nil {
+		log.Errorf("Make bucket <%s> in zone <%s> failed [%v]",
+			bucketName, zone, err)
+		return err
+	}
+	return nil
+}
