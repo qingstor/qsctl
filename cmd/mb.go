@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/action"
+	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/contexts"
 	"github.com/yunify/qsctl/utils"
 )
 
@@ -27,5 +29,9 @@ bucket name should follow DNS name rule with:
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
+	// check zone flag (required)
+	if contexts.Zone == "" {
+		return constants.ErrorZoneRequired
+	}
 	return action.MakeBucket(args[0])
 }

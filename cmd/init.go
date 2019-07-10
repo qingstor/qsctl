@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -46,7 +45,7 @@ accept: 100MB, 1.8G
 		zoneFlag,
 		"z",
 		"",
-		"In which zone to do the operation (required)",
+		"In which zone to do the operation",
 	)
 }
 
@@ -86,8 +85,4 @@ func init() {
 
 	// Flags for mb.
 	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
-	// Mark flag "zone" required
-	if err := MbCommand.MarkFlagRequired(zoneFlag); err != nil {
-		log.Errorf("cmd mb: Mark flag zone required failed [%v]", err)
-	}
 }
