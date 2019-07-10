@@ -4,7 +4,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/helper"
 )
 
 // MakeBucket will make a bucket with specific name.
@@ -15,7 +14,11 @@ func MakeBucket(remote string) (err error) {
 		return
 	}
 	// Init bucket
-	if err = helper.PutBucket(bucketName, contexts.Zone); err != nil {
+	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	if err != nil {
+		return err
+	}
+	if err = contexts.Storage.PutBucket(); err != nil {
 		return
 	}
 	log.Infof("Bucket <%s> created.", bucketName)

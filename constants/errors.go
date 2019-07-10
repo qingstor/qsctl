@@ -15,6 +15,9 @@ var (
 	// ErrorZoneRequired returned while zone is required but not given.
 	ErrorZoneRequired = errors.New("zone is required")
 
+	// ErrorExternalServiceError returned while external service error happened.
+	ErrorExternalServiceError = errors.New("external service error happened")
+
 	// ErrorQsPathAccessForbidden returned while qingstor path access is forbidden.
 	ErrorQsPathAccessForbidden = errors.New("qingstor path access forbidden")
 	// ErrorQsPathNotFound returned while qingstor path is not found.

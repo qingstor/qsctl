@@ -17,7 +17,6 @@ import (
 
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/helper"
 )
 
 // Copy will handle all copy actions.
@@ -60,7 +59,7 @@ func Copy(src, dest string) (err error) {
 		if objectKey == "" {
 			return constants.ErrorQsPathObjectKeyRequired
 		}
-		_, err = contexts.SetupBuckets(bucketName, "")
+		err = contexts.Storage.SetupBucket(bucketName, "")
 		if err != nil {
 			return err
 		}
@@ -87,7 +86,7 @@ func Copy(src, dest string) (err error) {
 		if objectKey == "" {
 			return constants.ErrorQsPathObjectKeyRequired
 		}
-		_, err = contexts.SetupBuckets(bucketName, "")
+		err = contexts.Storage.SetupBucket(bucketName, "")
 		if err != nil {
 			return err
 		}
@@ -122,7 +121,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 		return 0, constants.ErrorExpectSizeRequired
 	}
 
-	uploadID, err := helper.InitiateMultipartUpload(objectKey)
+	uploadID, err := contexts.Storage.InitiateMultipartUpload(objectKey)
 	if err != nil {
 		return
 	}
@@ -169,7 +168,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 			// We should free the bytes after upload.
 			defer b.Free()
 
-			err = helper.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5.Sum(b.Bytes()), bytes.NewReader(b.Bytes()))
+			err = contexts.Storage.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5.New().Sum(b.Bytes()), bytes.NewReader(b.Bytes()))
 			if err != nil {
 				log.Errorf("Object <%s> part <%d> upload failed [%s]", objectKey, localPartNumber, err)
 			}
@@ -184,7 +183,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 
 	wg.Wait()
 
-	err = helper.CompleteMultipartUpload(objectKey, uploadID, partNumber)
+	err = contexts.Storage.CompleteMultipartUpload(objectKey, uploadID, partNumber)
 	if err != nil {
 		return
 	}
@@ -194,7 +193,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.
 func CopyObjectToNotSeekableFile(w io.Writer, objectKey string) (total int64, err error) {
-	r, err := helper.GetObject(objectKey)
+	r, err := contexts.Storage.GetObject(objectKey)
 	if err != nil {
 		return
 	}
