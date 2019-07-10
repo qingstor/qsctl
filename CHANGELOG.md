@@ -4,11 +4,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.3] - 2019-07-10
+
+### Added
+
+- action: Add unit tests for utils
+- Add mb make bucket command
+- storage/mock: Implement MockObjectStorage (#82)
+
+### Changed
+
+- action/utils: Refactor ParseQsPath
+- Refactor the way to init commands' flags and global service
+- action/bucket: Unify the format of logs, and modify bucket created callback into log
+- action/bucket: Move put bucket logic by qingstor into helpers
+- cmd/mb: modify the way to check required flags (#78)
+- storage: Convert helper into storage interface for better testing (#79)
+
+
+### Fixed
+
+- cmd: Fix subcommands' flags been polluted wrongly
+- action/utils: Fix object key not parsed correctly
+- action/utils: Fix bucket name can't starts or ends with "-"
+- action/copy: Fix wg.Add(1) not executed after task submit
+- cmd/rm: Implement rm command for single object (#81)
+
 ## [2.0.0-alpha.2] - 2019-07-08
 
 ### Fixed
 
 - action/copy: Fix buffer writer not flushed
+- action/utils: "-" in bucket name should be allowed
 
 ## [2.0.0-alpha.1] - 2019-07-05
 
@@ -266,6 +293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.3]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.2...2.0.0-alpha.3
 [2.0.0-alpha.2]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.1...2.0.0-alpha.2
 [2.0.0-alpha.1]: https://github.com/yunify/qsctl/compare/1.7.7...2.0.0-alpha.1
 [1.7.7]: https://github.com/yunify/qsctl/compare/1.7.6...1.7.7
