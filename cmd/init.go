@@ -79,10 +79,13 @@ func init() {
 	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
 	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
 
+	// Flags for mb.
+	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+
+	// Flags for rm.
+	RmCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+
 	// Flags for tee.
 	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
 	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
-
-	// Flags for mb.
-	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
 }
