@@ -162,8 +162,8 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 		}
 
 		localPartNumber := partNumber
+		wg.Add(1)
 		err = pool.Submit(func() {
-			wg.Add(1)
 			defer wg.Done()
 
 			// We should free the bytes after upload.
@@ -171,7 +171,7 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 
 			err = helper.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5.Sum(b.Bytes()), bytes.NewReader(b.Bytes()))
 			if err != nil {
-				panic(err)
+				log.Errorf("Object <%s> part <%d> upload failed [%s]", objectKey, localPartNumber, err)
 			}
 			log.Debugf("Object <%s> part <%d> uploaded", objectKey, localPartNumber)
 		})
