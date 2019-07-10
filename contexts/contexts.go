@@ -1,7 +1,7 @@
 package contexts
 
 import (
-	"github.com/yunify/qsctl/storage"
+	"github.com/yunify/qsctl/v2/storage"
 )
 
 var (

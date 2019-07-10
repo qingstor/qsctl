@@ -15,8 +15,8 @@ import (
 	"github.com/pengsrc/go-shared/buffer"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/constants"
-	"github.com/yunify/qsctl/contexts"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // Copy will handle all copy actions.

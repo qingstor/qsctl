@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/yunify/qsctl/cmd"
-	"github.com/yunify/qsctl/constants"
-	"github.com/yunify/qsctl/contexts"
+	"github.com/yunify/qsctl/v2/cmd"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/contexts"
 )
 
 var application = &cobra.Command{

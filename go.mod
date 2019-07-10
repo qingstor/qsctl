@@ -1,4 +1,4 @@
-module github.com/yunify/qsctl
+module github.com/yunify/qsctl/v2
 
 go 1.12
 

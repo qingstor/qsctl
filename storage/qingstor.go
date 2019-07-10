@@ -14,7 +14,7 @@ import (
 	"github.com/yunify/qingstor-sdk-go/v3/request/errors"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
 
-	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/v2/constants"
 )
 
 // QingStorObjectStorage will implement ObjectStorage interface.
