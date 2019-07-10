@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/action"
-	"github.com/yunify/qsctl/utils"
+	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 // RmCommand will handle remove object command.

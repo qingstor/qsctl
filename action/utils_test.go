@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/v2/constants"
 )
 
 func TestParseDirection(t *testing.T) {

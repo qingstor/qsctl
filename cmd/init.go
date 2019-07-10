@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/utils"
+	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 // flagSet stores all flags in itself
