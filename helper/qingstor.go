@@ -165,3 +165,12 @@ func PutBucket(bucketName, zone string) error {
 	}
 	return nil
 }
+
+// DeleteObject will delete an object with specific key.
+func DeleteObject(objectKey string) (err error) {
+	if _, err = contexts.Bucket.DeleteObject(objectKey); err != nil {
+		log.Errorf("Delete object <%s> failed [%v]", objectKey, err)
+		return
+	}
+	return nil
+}
