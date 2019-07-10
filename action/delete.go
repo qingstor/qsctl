@@ -3,8 +3,8 @@ package action
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/constants"
-	"github.com/yunify/qsctl/contexts"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // Delete will delete a remote object.

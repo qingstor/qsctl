@@ -4,7 +4,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/v2/constants"
 )
 
 // ParseByteSize will tried to parse string to byte size.

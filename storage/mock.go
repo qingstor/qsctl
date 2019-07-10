@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/yunify/qsctl/constants"
+	"github.com/yunify/qsctl/v2/constants"
 )
 
 // MockObjectStorage will implement ObjectStorage interface.

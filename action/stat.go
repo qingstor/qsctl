@@ -3,9 +3,9 @@ package action
 import (
 	"github.com/c2h5oh/datasize"
 
-	"github.com/yunify/qsctl/constants"
-	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/utils"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 // Stat will handle all stat actions.

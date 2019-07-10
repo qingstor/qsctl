@@ -3,7 +3,7 @@ package action
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/contexts"
+	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // MakeBucket will make a bucket with specific name.

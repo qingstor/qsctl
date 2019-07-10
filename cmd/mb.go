@@ -3,10 +3,10 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/action"
-	"github.com/yunify/qsctl/constants"
-	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/utils"
+	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 // MbCommand will handle make bucket command.
