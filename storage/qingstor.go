@@ -30,7 +30,7 @@ func NewQingStorObjectStorage() (q *QingStorObjectStorage, err error) {
 		viper.GetString(constants.ConfigSecretAccessKey),
 	)
 	if err != nil {
-		log.Errorf("contexts: Init config failed [%v]", err)
+		log.Errorf("Init config failed [%v]", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func NewQingStorObjectStorage() (q *QingStorObjectStorage, err error) {
 
 	q.service, err = service.Init(cfg)
 	if err != nil {
-		log.Errorf("contexts: Init service failed [%v]", err)
+		log.Errorf("Init service failed [%v]", err)
 		return
 	}
 	return
@@ -117,7 +117,7 @@ func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, er
 func (q *QingStorObjectStorage) InitiateMultipartUpload(objectKey string) (uploadID string, err error) {
 	resp, err := q.bucket.InitiateMultipartUpload(objectKey, nil)
 	if err != nil {
-		log.Errorf("Object <%service> InitiateMultipartUpload failed [%v]", objectKey, err)
+		log.Errorf("Object <%s> InitiateMultipartUpload failed [%v]", objectKey, err)
 		return
 	}
 
@@ -137,7 +137,7 @@ func (q *QingStorObjectStorage) UploadMultipart(
 		ContentMD5:    convert.String(hex.EncodeToString(md5sum[:])),
 	})
 	if err != nil {
-		log.Errorf("Object <%service> part <%d> UploadMultipart failed [%v]", objectKey, partNumber, err)
+		log.Errorf("Object <%s> part <%d> UploadMultipart failed [%v]", objectKey, partNumber, err)
 		return
 	}
 	return
@@ -158,7 +158,7 @@ func (q *QingStorObjectStorage) CompleteMultipartUpload(objectKey, uploadID stri
 			ObjectParts: parts,
 		})
 	if err != nil {
-		log.Errorf("Object <%service> CompleteMultipartUpload failed [%v]", objectKey, err)
+		log.Errorf("Object <%s> CompleteMultipartUpload failed [%v]", objectKey, err)
 		return err
 	}
 	return nil
@@ -168,24 +168,19 @@ func (q *QingStorObjectStorage) CompleteMultipartUpload(objectKey, uploadID stri
 func (q *QingStorObjectStorage) GetObject(objectKey string) (r io.Reader, err error) {
 	resp, err := q.bucket.GetObject(objectKey, nil)
 	if err != nil {
-		log.Errorf("Object <%service> GetObject failed [%v]", objectKey, err)
+		log.Errorf("Object <%s> GetObject failed [%v]", objectKey, err)
 		return nil, err
 	}
 	return resp.Body, nil
 }
 
 // PutBucket will make a bucket with specific name.
-func (q *QingStorObjectStorage) PutBucket(bucketName, zone string) error {
-	bucket, err := q.service.Bucket(bucketName, zone)
-	if err != nil {
-		log.Errorf("Initial bucket <%service> in zone <%service> failed [%v]",
-			bucketName, zone, err)
-		return err
-	}
+func (q *QingStorObjectStorage) PutBucket() error {
 	// Request and create bucket
-	if _, err = bucket.Put(); err != nil {
-		log.Errorf("Make bucket <%service> in zone <%service> failed [%v]",
-			bucketName, zone, err)
+	_, err := q.bucket.Put()
+	if err != nil {
+		log.Errorf("Make bucket <%s> in zone <%s> failed [%v]",
+			*q.bucket.Properties.BucketName, *q.bucket.Properties.Zone, err)
 		return err
 	}
 	return nil

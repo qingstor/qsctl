@@ -19,7 +19,7 @@ type ObjectMeta struct {
 // ObjectStorage is the interface to communicate with object storage service.
 type ObjectStorage interface {
 	SetupBucket(name, zone string) (err error)
-	PutBucket(bucketName, zone string) error
+	PutBucket() error
 
 	DeleteObject(objectKey string) (err error)
 	HeadObject(objectKey string) (om *ObjectMeta, err error)

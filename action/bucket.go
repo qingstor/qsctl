@@ -14,7 +14,11 @@ func MakeBucket(remote string) (err error) {
 		return
 	}
 	// Init bucket
-	if err = contexts.Storage.SetupBucket(bucketName, contexts.Zone); err != nil {
+	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	if err != nil {
+		return err
+	}
+	if err = contexts.Storage.PutBucket(); err != nil {
 		return
 	}
 	log.Infof("Bucket <%s> created.", bucketName)
