@@ -85,4 +85,7 @@ func init() {
 
 	// Flags for mb.
 	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+
+	// Flags for rm.
+	RmCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
 }
