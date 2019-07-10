@@ -57,7 +57,11 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 	}
 
 	if zone != "" {
-		q.bucket, _ = q.service.Bucket(name, zone)
+		q.bucket, err = q.service.Bucket(name, zone)
+		if err != nil {
+			log.Errorf("Init bucket <%s> in zone <%s> failed [%v]", name, zone, err)
+			return constants.ErrorExternalServiceError
+		}
 		return
 	}
 
@@ -84,7 +88,11 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 
 	// Example URL: https://bucket.zone.qingstor.com
 	zone = strings.Split(r.Header.Get("Location"), ".")[1]
-	q.bucket, _ = q.service.Bucket(name, zone)
+	q.bucket, err = q.service.Bucket(name, zone)
+	if err != nil {
+		log.Errorf("Init bucket <%s> in zone <%s> failed [%v]", name, zone, err)
+		return constants.ErrorExternalServiceError
+	}
 	return
 }
 
@@ -127,7 +135,7 @@ func (q *QingStorObjectStorage) InitiateMultipartUpload(objectKey string) (uploa
 
 // UploadMultipart will upload a multipart.
 func (q *QingStorObjectStorage) UploadMultipart(
-	objectKey, uploadID string, size int64, partNumber int, md5sum [16]byte, r io.Reader,
+	objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader,
 ) (err error) {
 	_, err = q.bucket.UploadMultipart(objectKey, &service.UploadMultipartInput{
 		Body:          r,

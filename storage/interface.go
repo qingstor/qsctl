@@ -26,6 +26,6 @@ type ObjectStorage interface {
 	GetObject(objectKey string) (r io.Reader, err error)
 
 	InitiateMultipartUpload(objectKey string) (uploadID string, err error)
-	UploadMultipart(objectKey, uploadID string, size int64, partNumber int, md5sum [16]byte, r io.Reader) (err error)
+	UploadMultipart(objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader) (err error)
 	CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err error)
 }
