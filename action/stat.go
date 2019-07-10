@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/constants"
 	"github.com/yunify/qsctl/contexts"
-	"github.com/yunify/qsctl/helper"
 	"github.com/yunify/qsctl/utils"
 )
 
@@ -18,7 +17,7 @@ func Stat(remote string) (err error) {
 	if objectKey == "" {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
-	_, err = contexts.SetupBuckets(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, "")
 	if err != nil {
 		return
 	}
@@ -28,7 +27,7 @@ func Stat(remote string) (err error) {
 
 // StatRemoteObject will stat a remote object.
 func StatRemoteObject(objectKey string) (err error) {
-	om, err := helper.HeadObject(objectKey)
+	om, err := contexts.Storage.HeadObject(objectKey)
 	if err != nil {
 		return
 	}

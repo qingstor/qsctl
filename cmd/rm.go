@@ -20,5 +20,5 @@ var RmCommand = &cobra.Command{
 }
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
-	return action.DeleteObject(args[0])
+	return action.Delete(args[0])
 }
