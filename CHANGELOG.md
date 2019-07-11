@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.5] - 2019-07-11
+
+### Added
+
+- action: Add unit tests for copy (#88)
+
+### Fixed
+
+- action/copy: Fix wrong path parsed in copying from remote (#87)
+
 ## [2.0.0-alpha.4] - 2019-07-11
 
 ### Changed
@@ -303,6 +313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.5]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.4...v2.0.0-alpha.5
 [2.0.0-alpha.4]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.3...v2.0.0-alpha.4
 [2.0.0-alpha.3]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.2...2.0.0-alpha.3
 [2.0.0-alpha.2]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.1...2.0.0-alpha.2
