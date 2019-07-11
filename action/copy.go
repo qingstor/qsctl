@@ -79,7 +79,7 @@ func Copy(src, dest string) (err error) {
 		}
 
 	case constants.DirectionRemoteToLocal:
-		bucketName, objectKey, err := ParseQsPath(dest)
+		bucketName, objectKey, err := ParseQsPath(src)
 		if err != nil {
 			return err
 		}
