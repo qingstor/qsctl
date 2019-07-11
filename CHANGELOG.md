@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.4] - 2019-07-11
+
+### Changed
+
+-  misc: Upgrade go-sdk to 3.0.1
+
+### Fixed
+
+- action/copy: Fix md5 sum incorrectly (#85)
+
 ## [2.0.0-alpha.3] - 2019-07-10
 
 ### Added
@@ -293,6 +303,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.4]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.3...v2.0.0-alpha.4
 [2.0.0-alpha.3]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.2...2.0.0-alpha.3
 [2.0.0-alpha.2]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.1...2.0.0-alpha.2
 [2.0.0-alpha.1]: https://github.com/yunify/qsctl/compare/1.7.7...2.0.0-alpha.1
