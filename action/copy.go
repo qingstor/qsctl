@@ -168,7 +168,9 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 			// We should free the bytes after upload.
 			defer b.Free()
 
-			err = contexts.Storage.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5.New().Sum(b.Bytes()), bytes.NewReader(b.Bytes()))
+			md5sum := md5.Sum(b.Bytes())
+
+			err = contexts.Storage.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5sum[:], bytes.NewReader(b.Bytes()))
 			if err != nil {
 				log.Errorf("Object <%s> part <%d> upload failed [%s]", objectKey, localPartNumber, err)
 			}
