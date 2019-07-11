@@ -4,9 +4,19 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
+)
+
+// MbCommandFlags records all flags for MbCommand
+var MbCommandFlags = FlagSet{}
+
+var (
+	zoneFlagInfo = NewStringCtlFlag(
+		zoneFlag,
+		"z",
+		"In which zone to do the operation",
+		"",
+	)
 )
 
 // MbCommand will handle make bucket command.
@@ -29,9 +39,18 @@ bucket name should follow DNS name rule with:
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
-	// check zone flag (required)
-	if contexts.Zone == "" {
-		return constants.ErrorZoneRequired
-	}
 	return action.MakeBucket(args[0])
+}
+
+func initMbCommandFlag() {
+	addFlagToMbCommand()
+	if flag, ok := MbCommandFlags[zoneFlag]; ok {
+		MbCommand.PersistentFlags().StringVarP(flag.(StringCtlFlag).StringVarP(&zone))
+	}
+	// register MbCommandFlags to cmd-flag map
+	cmdToFlagSet.AddFlagSet(MbCommand.Name(), &MbCommandFlags)
+}
+
+func addFlagToMbCommand() {
+	MbCommandFlags.AddFlag(zoneFlag, zoneFlagInfo.SetRequired())
 }

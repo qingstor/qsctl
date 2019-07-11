@@ -12,8 +12,8 @@ var (
 	ErrorExpectSizeRequired = errors.New("expect-size is required")
 	// ErrorByteSizeInvalid returned while byte size is invalid.
 	ErrorByteSizeInvalid = errors.New("byte size is invalid")
-	// ErrorZoneRequired returned while zone is required but not given.
-	ErrorZoneRequired = errors.New("zone is required")
+	// ErrorRequiredFlagsNotSet returned while required flags not set
+	ErrorRequiredFlagsNotSet = errors.New("required flags not set, add --help for detail")
 
 	// ErrorExternalServiceError returned while external service error happened.
 	ErrorExternalServiceError = errors.New("external service error happened")

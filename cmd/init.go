@@ -1,55 +1,23 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-// flagSet stores all flags in itself
-var flagSet *pflag.FlagSet
-
-const (
-	// all flags' input here
-	expectSizeFlag           = "expect-size"
-	maximumMemoryContentFlag = "maximum-memory-content"
-	zoneFlag                 = "zone"
-)
-
-var (
-	// register available flag vars here
-	expectSize           string
-	maximumMemoryContent string
-	zone                 string
-)
-
-// initFlags will init all available flags.
-func initFlags() {
-	flagSet = pflag.NewFlagSet("", pflag.ExitOnError)
-
-	flagSet.StringVar(&expectSize,
-		expectSizeFlag,
-		"",
-		`expected size of the input file
-accept: 100MB, 1.8G
-(only used for input from stdin)`)
-
-	flagSet.StringVar(&maximumMemoryContent,
-		maximumMemoryContentFlag,
-		"",
-		"maximum content loaded in memory \n (only used for input from stdin)")
-
-	flagSet.StringVarP(&zone,
-		zoneFlag,
-		"z",
-		"",
-		"In which zone to do the operation",
-	)
+func init() {
+	initCpCommandFlag()
+	initMbCommandFlag()
+	// initRmCommandFlag()
+	initTeeCommandFlag()
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
+// And check required flags
 func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 	if expectSize != "" {
 		contexts.ExpectSize, err = utils.ParseByteSize(expectSize)
@@ -69,23 +37,20 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 		contexts.Zone = zone
 	}
 
-	return nil
+	return checkRequiredFlags(cmd)
 }
 
-func init() {
-	initFlags()
-
-	// Flags for cp.
-	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
-	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
-
-	// Flags for mb.
-	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
-
-	// Flags for rm.
-	RmCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
-
-	// Flags for tee.
-	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
-	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
+func checkRequiredFlags(cmd *cobra.Command) error {
+	// iterate all required flags for current cmd
+	for _, requireFlag := range cmdToFlagSet.GetRequiredFlags(cmd.Name()) {
+		// get flag name
+		flagName := requireFlag.GetName()
+		log.Debugf("required flag <%s> value: <%v>", flagName, cmd.Flag(flagName).Value)
+		// if CheckRequired not ok, return error
+		if !requireFlag.CheckRequired(cmd.Flag(flagName).Value.String()) {
+			log.Errorf("Flag <%s> is required", flagName)
+			return constants.ErrorRequiredFlagsNotSet
+		}
+	}
+	return nil
 }
