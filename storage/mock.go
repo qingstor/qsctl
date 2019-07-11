@@ -13,6 +13,14 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 )
 
+// Available preset object for mock storage.
+const (
+	Mock0BObject = "0b"
+	MockMBObject = "mb"
+	MockGBObject = "gb"
+	MockTBObject = "tb"
+)
+
 // MockObjectStorage will implement ObjectStorage interface.
 type MockObjectStorage struct {
 	meta      map[string]*ObjectMeta
@@ -26,10 +34,34 @@ type multipart struct {
 
 // NewMockObjectStorage will create a new mock object storage.
 func NewMockObjectStorage() *MockObjectStorage {
-	return &MockObjectStorage{
+	s := &MockObjectStorage{
 		meta:      make(map[string]*ObjectMeta),
 		multipart: make(map[string]*multipart),
 	}
+
+	// Adding persist keys.
+	s.meta[Mock0BObject] = &ObjectMeta{
+		Key:           Mock0BObject,
+		ContentLength: 0,
+		LastModified:  time.Unix(612889200, 0),
+	}
+	s.meta[MockMBObject] = &ObjectMeta{
+		Key:           MockMBObject,
+		ContentLength: 1024 * 1024,
+		LastModified:  time.Unix(612889200, 0),
+	}
+	s.meta[MockGBObject] = &ObjectMeta{
+		Key:           MockGBObject,
+		ContentLength: 1024 * 1024 * 1024,
+		LastModified:  time.Unix(612889200, 0),
+	}
+	s.meta[MockTBObject] = &ObjectMeta{
+		Key:           MockTBObject,
+		ContentLength: 1024 * 1024 * 1024 * 1024,
+		LastModified:  time.Unix(612889200, 0),
+	}
+
+	return s
 }
 
 // SetupBucket implements ObjectStorage.SetupBucket
