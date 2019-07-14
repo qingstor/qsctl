@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,9 +23,14 @@ var (
 )
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	application.PersistentPreRunE = func(c *cobra.Command, args []string) error {
+		err := initConfig()
+		if err != nil {
+			return err
+		}
 
-	application.PersistentPreRunE = cmd.ParseFlagIntoContexts
+		return cmd.ParseFlagIntoContexts(c, args)
+	}
 
 	application.AddCommand(cmd.CatCommand)
 	application.AddCommand(cmd.CpCommand)
@@ -41,7 +45,7 @@ func init() {
 	application.PersistentFlags().BoolVar(&contexts.Bench, "bench", false, "enable benchmark or not")
 }
 
-func initConfig() {
+func initConfig() (err error) {
 	// Allow viper read from env.
 	viper.SetEnvPrefix("qsctl")
 	viper.AutomaticEnv()
@@ -58,21 +62,25 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(configPath)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			log.Errorf("Get homedir failed [%v]", err)
-			return
-		}
-
 		// Search config in home directory with name ".qingstor" (without extension).
-		viper.AddConfigPath(home + "/" + ".qingstor")
+		viper.AddConfigPath("$HOME/.qingstor")
+		// Search config in XDG style.
+		viper.AddConfigPath("$HOME/.config/qingstor")
+		// Read from "/etc/qingstor" instead if not found.
+		viper.AddConfigPath("/etc/qingstor")
 		viper.SetConfigName("config")
 	}
 
-	if err := viper.ReadInConfig(); err != nil {
-		log.Errorf("Load config failed [%v]", err)
-		return
+	err = viper.ReadInConfig()
+	if err != nil {
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			log.Warnf("Config not loaded, use default and environment value instead.")
+			err = nil
+		default:
+			log.Errorf("Load config failed [%v]", err)
+			return
+		}
 	}
 
 	log.SetFormatter(&log.TextFormatter{
@@ -82,15 +90,17 @@ func initConfig() {
 		lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
 		if err != nil {
 			log.Errorf("Parse log level failed [%v]", err)
-			return
+			return err
 		}
 		log.SetLevel(lvl)
 	}
 	// Setup global qs service
 	if err := contexts.SetupServices(); err != nil {
 		log.Errorf("Setup up service failed [%v]", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func main() {
