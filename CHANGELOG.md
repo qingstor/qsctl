@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.6] - 2019-07-14
+
+### Added
+
+- cmd: Add rb command to remove an empty bucket (#91)
+
+### Changed
+
+- main: Refactor config file load logic (#92)
+
 ## [2.0.0-alpha.5] - 2019-07-11
 
 ### Added
@@ -313,6 +323,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.6]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.5...v2.0.0-alpha.6
 [2.0.0-alpha.5]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.4...v2.0.0-alpha.5
 [2.0.0-alpha.4]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.3...v2.0.0-alpha.4
 [2.0.0-alpha.3]: https://github.com/yunify/qsctl/compare/2.0.0-alpha.2...2.0.0-alpha.3

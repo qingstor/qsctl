@@ -8,7 +8,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/jedib0t/go-pretty v4.2.1+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/panjf2000/ants v1.0.0
 	github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14
 	github.com/sirupsen/logrus v1.4.2
