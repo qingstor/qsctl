@@ -23,6 +23,11 @@ var (
 )
 
 func init() {
+	// Set log formatter firstly.
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+
 	application.PersistentPreRunE = func(c *cobra.Command, args []string) error {
 		err := initConfig()
 		if err != nil {
@@ -84,9 +89,6 @@ func initConfig() (err error) {
 		}
 	}
 
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
 	if viper.GetString(constants.ConfigLogLevel) != "" {
 		lvl, err := log.ParseLevel(viper.GetString(constants.ConfigLogLevel))
 		if err != nil {
