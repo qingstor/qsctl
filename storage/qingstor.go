@@ -194,6 +194,18 @@ func (q *QingStorObjectStorage) PutBucket() error {
 	return nil
 }
 
+// DeleteBucket will delete a bucket.
+func (q *QingStorObjectStorage) DeleteBucket() error {
+	// Request and delete bucket
+	_, err := q.bucket.Delete()
+	if err != nil {
+		log.Errorf("Delete bucket <%s> failed [%v]",
+			*q.bucket.Properties.BucketName, err)
+		return err
+	}
+	return nil
+}
+
 // DeleteObject will delete an object with specific key.
 func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 	if _, err = q.bucket.DeleteObject(objectKey); err != nil {

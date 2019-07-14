@@ -74,6 +74,11 @@ func (m *MockObjectStorage) PutBucket() error {
 	return nil
 }
 
+// DeleteBucket implements ObjectStorage.DeleteBucket
+func (m *MockObjectStorage) DeleteBucket() error {
+	return nil
+}
+
 // HeadObject implements ObjectStorage.HeadObject
 func (m *MockObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, err error) {
 	if om, ok := m.meta[objectKey]; ok {

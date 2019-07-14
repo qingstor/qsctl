@@ -37,6 +37,7 @@ func init() {
 	application.AddCommand(cmd.StatCommand)
 	application.AddCommand(cmd.TeeCommand)
 	application.AddCommand(cmd.MbCommand)
+	application.AddCommand(cmd.RbCommand)
 	application.AddCommand(cmd.RmCommand)
 
 	// Add config flag which can be used in all sub commands.
