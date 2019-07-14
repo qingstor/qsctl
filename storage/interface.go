@@ -20,6 +20,7 @@ type ObjectMeta struct {
 type ObjectStorage interface {
 	SetupBucket(name, zone string) (err error)
 	PutBucket() error
+	DeleteBucket() error
 
 	DeleteObject(objectKey string) (err error)
 	HeadObject(objectKey string) (om *ObjectMeta, err error)
