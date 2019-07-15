@@ -1,6 +1,8 @@
 package action
 
 import (
+	"fmt"
+
 	"github.com/c2h5oh/datasize"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -44,6 +46,6 @@ func StatRemoteObject(objectKey string) (err error) {
 		content = append(content, "MD5: "+om.ETag)
 	}
 
-	println(utils.AlignPrintWithColon(content...))
+	fmt.Println(utils.AlignPrintWithColon(content...))
 	return
 }
