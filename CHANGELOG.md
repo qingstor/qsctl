@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.7] - 2019-07-15
+
+### Added
+
+- action/stat: Add format support for stat (#95)
+
+### Fixed
+
+- cmd/stat: Use fmt.Println instead to print to stdout (#94)
+
 ## [2.0.0-alpha.6] - 2019-07-14
 
 ### Added
@@ -323,6 +333,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.7]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.6...v2.0.0-alpha.7
 [2.0.0-alpha.6]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.5...v2.0.0-alpha.6
 [2.0.0-alpha.5]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.4...v2.0.0-alpha.5
 [2.0.0-alpha.4]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.3...v2.0.0-alpha.4
