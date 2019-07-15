@@ -16,6 +16,7 @@ const (
 	expectSizeFlag           = "expect-size"
 	maximumMemoryContentFlag = "maximum-memory-content"
 	zoneFlag                 = "zone"
+	formatFlag               = "format"
 )
 
 var (
@@ -23,6 +24,7 @@ var (
 	expectSize           string
 	maximumMemoryContent string
 	zone                 string
+	format               string
 )
 
 // initFlags will init all available flags.
@@ -47,6 +49,24 @@ accept: 100MB, 1.8G
 		"",
 		"In which zone to do the operation",
 	)
+
+	flagSet.StringVarP(&format,
+		formatFlag,
+		"",
+		"",
+		`use the specified FORMAT instead of the default;
+output a newline after each use of FORMAT
+
+The valid format sequences for files:
+
+  %F   file type
+  %h   content md5 of the file
+  %n   file name
+  %s   total size, in bytes
+  %y   time of last data modification, human-readable
+  %Y   time of last data modification, seconds since Epoch
+	`,
+	)
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
@@ -69,6 +89,10 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 		contexts.Zone = zone
 	}
 
+	if format != "" {
+		contexts.Format = format
+	}
+
 	return nil
 }
 
@@ -84,6 +108,9 @@ func init() {
 
 	// Flags for rm.
 	RmCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+
+	// Flags for stat.
+	StatCommand.Flags().AddFlag(flagSet.Lookup(formatFlag))
 
 	// Flags for tee.
 	TeeCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))

@@ -18,6 +18,8 @@ var (
 	MaximumMemoryContent int64
 	// Bucket operation flags.
 	Zone string
+	// Format for stat.
+	Format string
 )
 
 // SetupServices will setup services.
