@@ -2,11 +2,14 @@ package action
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/c2h5oh/datasize"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -34,6 +37,11 @@ func StatRemoteObject(objectKey string) (err error) {
 		return
 	}
 
+	if contexts.Format != "" {
+		fmt.Println(statFormat(contexts.Format, om))
+		return
+	}
+
 	content := []string{
 		"Key: " + om.Key,
 		"Size: " + datasize.ByteSize(om.ContentLength).String(),
@@ -48,4 +56,15 @@ func StatRemoteObject(objectKey string) (err error) {
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 	return
+}
+
+func statFormat(input string, om *storage.ObjectMeta) string {
+	input = strings.ReplaceAll(input, "%F", om.ContentType)
+	input = strings.ReplaceAll(input, "%h", om.ETag)
+	input = strings.ReplaceAll(input, "%n", om.Key)
+	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.ContentLength, 10))
+	input = strings.ReplaceAll(input, "%y", om.LastModified.String())
+	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
+
+	return input
 }

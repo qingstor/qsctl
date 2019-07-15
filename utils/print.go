@@ -23,7 +23,7 @@ func AlignPrintWithColon(s ...string) string {
 
 	for _, v := range s {
 		x := strings.Split(v, ":")
-		a = append(a, text.AlignLeft.Apply(x[0], width)+text.AlignLeft.Apply(v[len(x[0]):], 1))
+		a = append(a, text.AlignRight.Apply(x[0], width)+text.AlignLeft.Apply(v[len(x[0]):], 1))
 	}
 	return strings.Join(a, "\n")
 }
