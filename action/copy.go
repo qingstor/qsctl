@@ -68,12 +68,11 @@ func Copy(src, dest string) (err error) {
 		case *os.File:
 			if x == os.Stdin {
 				totalSize, err = CopyNotSeekableFileToRemote(r, objectKey)
-				if err != nil {
-					return err
-				}
-				return nil
+				return err
 			}
-			return constants.ErrorActionNotImplemented
+			// if copy from file
+			totalSize, err = CopySeekableFileToRemote(x, objectKey)
+			return err
 		default:
 			return constants.ErrorActionNotImplemented
 		}
@@ -191,6 +190,18 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 	}
 	log.Infof("Object <%s> upload finished", objectKey)
 	return total, nil
+}
+
+// CopySeekableFileToRemote will copy a seekable file to remote.
+func CopySeekableFileToRemote(r *os.File, objectKey string) (total int64, err error) {
+	defer r.Close()
+	fileInfo, err := r.Stat()
+	if err != nil {
+		log.Errorf("Get file size failed [%v]", err)
+		return 0, constants.ErrorFileSizeInvalid
+	}
+	contexts.ExpectSize = fileInfo.Size()
+	return CopyNotSeekableFileToRemote(r, objectKey)
 }
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.

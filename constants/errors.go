@@ -31,4 +31,6 @@ var (
 	ErrorFileTooLarge = errors.New("file too large")
 	// ErrorFileNotExist returned while file is not found.
 	ErrorFileNotExist = errors.New("file not exist")
+	// ErrorFileSizeInvalid returned while get file size not valid.
+	ErrorFileSizeInvalid = errors.New("file size invalid")
 )

@@ -3,12 +3,14 @@ package action
 import (
 	"io"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
@@ -53,6 +55,10 @@ func (suite CopyTestSuite) TestCopyNotSeekableFileToRemote() {
 	total, err := CopyNotSeekableFileToRemote(r, objectKey)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
+
+	contexts.ExpectSize = 0
+	_, err = CopyNotSeekableFileToRemote(r, objectKey)
+	assert.Equal(suite.T(), err, constants.ErrorExpectSizeRequired)
 }
 
 func (suite CopyTestSuite) TestCopyObjectToNotSeekableFile() {
@@ -61,6 +67,19 @@ func (suite CopyTestSuite) TestCopyObjectToNotSeekableFile() {
 	w := ioutil.Discard
 
 	total, err := CopyObjectToNotSeekableFile(w, storage.MockGBObject)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), size, total)
+}
+
+func (suite CopyTestSuite) TestCopySeekableFileToRemote() {
+	size := int64(1024 * 1024) // 1M
+	f, err := os.Create("seekable_test_file")
+	defer os.Remove("seekable_test_file")
+	defer f.Close()
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+	total, err := CopyObjectToSeekableFile(f, storage.MockMBObject)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }
