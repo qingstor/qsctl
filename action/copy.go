@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime/pprof"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/c2h5oh/datasize"
@@ -18,6 +19,13 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 )
+
+// ReadAtCloseSeeker contains io.ReadCloser and io.Seeker
+type ReadAtCloseSeeker interface {
+	io.ReadCloser
+	io.Seeker
+	io.ReaderAt
+}
 
 // Copy will handle all copy actions.
 func Copy(src, dest string) (err error) {
@@ -68,12 +76,11 @@ func Copy(src, dest string) (err error) {
 		case *os.File:
 			if x == os.Stdin {
 				totalSize, err = CopyNotSeekableFileToRemote(r, objectKey)
-				if err != nil {
-					return err
-				}
-				return nil
+				return err
 			}
-			return constants.ErrorActionNotImplemented
+			// if copy from file
+			totalSize, err = CopySeekableFileToRemote(x, objectKey)
+			return err
 		default:
 			return constants.ErrorActionNotImplemented
 		}
@@ -186,6 +193,71 @@ func CopyNotSeekableFileToRemote(r io.Reader, objectKey string) (total int64, er
 	wg.Wait()
 
 	err = contexts.Storage.CompleteMultipartUpload(objectKey, uploadID, partNumber)
+	if err != nil {
+		return
+	}
+	log.Infof("Object <%s> upload finished", objectKey)
+	return total, nil
+}
+
+// CopySeekableFileToRemote will copy a seekable file to remote.
+func CopySeekableFileToRemote(r ReadAtCloseSeeker, objectKey string) (total int64, err error) {
+	defer r.Close()
+	dataLen, err := r.Seek(0, io.SeekEnd)
+	if err != nil {
+		log.Errorf("Get file size failed [%v]", err)
+		return 0, constants.ErrorFileSizeInvalid
+	}
+	uploadID, err := contexts.Storage.InitiateMultipartUpload(objectKey)
+	if err != nil {
+		return
+	}
+
+	log.Debugf("Object <%s> uploading via upload ID <%s>", objectKey, uploadID)
+
+	partSize, partCount, err := CalculatePartSizeAndCount(dataLen)
+	if err != nil {
+		return
+	}
+
+	_, err = r.Seek(0, io.SeekStart)
+	if err != nil {
+		return 0, err
+	}
+	var wg sync.WaitGroup
+	var uploadErrFlag bool
+	for partNumber := 0; partNumber < partCount; partNumber++ {
+		wg.Add(1)
+		go func(r ReadAtCloseSeeker, partNumber int) {
+			bsr := bufio.NewReader(io.NewSectionReader(r, int64(partNumber)*partSize, partSize))
+			h := md5.New()
+			n, err := io.Copy(h, bsr)
+			if err != nil {
+				return
+			}
+
+			if contexts.Bench {
+				atomic.AddInt64(&total, n)
+			}
+
+			bsr = bufio.NewReader(io.NewSectionReader(r, int64(partNumber)*partSize, partSize))
+			defer wg.Done()
+			log.Debugf("Object <%s> part <%d> uploading", objectKey, partNumber)
+			err = contexts.Storage.UploadMultipart(objectKey, uploadID, n, partNumber, h.Sum(nil)[:16], bsr)
+			if err != nil {
+				log.Errorf("Object <%s> part <%d> upload failed [%s]", objectKey, partNumber, err)
+				uploadErrFlag = true
+				return
+			}
+			log.Debugf("Object <%s> part <%d> uploaded", objectKey, partNumber)
+		}(r, partNumber)
+	}
+	wg.Wait()
+	// Check if there is upload error
+	if uploadErrFlag {
+		return 0, constants.ErrorFileUploadFail
+	}
+	err = contexts.Storage.CompleteMultipartUpload(objectKey, uploadID, partCount)
 	if err != nil {
 		return
 	}

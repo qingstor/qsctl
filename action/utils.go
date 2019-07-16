@@ -116,3 +116,15 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	}
 	return
 }
+
+// CalculatePartSizeAndCount will calculate the object's part size and partNumber.
+func CalculatePartSizeAndCount(size int64) (partSize int64, partNumber int, err error) {
+	partSize, err = CalculatePartSize(size)
+	if err != nil {
+		return 0, 0, err
+	}
+	if size%partSize == 0 {
+		return partSize, int(size / partSize), nil
+	}
+	return partSize, int(size/partSize) + 1, nil
+}
