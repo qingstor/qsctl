@@ -163,3 +163,18 @@ func (m *MockObjectStorage) DeleteObject(objectKey string) (err error) {
 	delete(m.meta, objectKey)
 	return nil
 }
+
+// ListBuckets implements ObjectStorage.ListBuckets
+func (m *MockObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
+	return []string{}, nil
+}
+
+// ListObjects implements ObjectStorage.ListObjects
+func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error) {
+	return []*ObjectMeta{}, nil
+}
+
+// GetBucketACL implements ObjectStorage.GetBucketACL
+func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
+	return &ACLResp{}, nil
+}

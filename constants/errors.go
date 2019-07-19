@@ -31,4 +31,7 @@ var (
 	ErrorFileTooLarge = errors.New("file too large")
 	// ErrorFileNotExist returned while file is not found.
 	ErrorFileNotExist = errors.New("file not exist")
+
+	// ErrorReadableSizeFormat returned while transfer readable size format
+	ErrorReadableSizeFormat = errors.New("readable size format error")
 )

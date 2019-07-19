@@ -20,6 +20,12 @@ var (
 	Zone string
 	// Format for stat.
 	Format string
+	// Recursive for ls and rm.
+	Recursive bool
+	// HumanReadable for ls
+	HumanReadable bool
+	// LongFormat for ls
+	LongFormat bool
 )
 
 // SetupServices will setup services.
