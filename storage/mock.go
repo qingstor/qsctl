@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,12 +20,19 @@ const (
 	MockMBObject = "mb"
 	MockGBObject = "gb"
 	MockTBObject = "tb"
+
+	MockPek3a = "mock-pek3a"
+	MockSh1a  = "mock-sh1a"
+	MockPek3b = "mock-pek3b"
+	MockGd2   = "mock-gd2"
 )
 
 // MockObjectStorage will implement ObjectStorage interface.
 type MockObjectStorage struct {
-	meta      map[string]*ObjectMeta
-	multipart map[string]*multipart
+	meta          map[string]*ObjectMeta
+	multipart     map[string]*multipart
+	buckets       map[string]*bucketMeta
+	currentBucket *bucketMeta
 }
 
 type multipart struct {
@@ -32,11 +40,20 @@ type multipart struct {
 	Parts  []int
 }
 
+type bucketMeta struct {
+	Created  time.Time
+	Location string
+	Name     string
+	URL      string
+	OwnerID  string
+}
+
 // NewMockObjectStorage will create a new mock object storage.
 func NewMockObjectStorage() *MockObjectStorage {
 	s := &MockObjectStorage{
 		meta:      make(map[string]*ObjectMeta),
 		multipart: make(map[string]*multipart),
+		buckets:   make(map[string]*bucketMeta),
 	}
 
 	// Adding persist keys.
@@ -61,21 +78,61 @@ func NewMockObjectStorage() *MockObjectStorage {
 		LastModified:  time.Unix(612889200, 0),
 	}
 
+	// Adding test buckets.
+	s.buckets[MockPek3a] = &bucketMeta{
+		Name:     MockPek3a,
+		Created:  time.Unix(612889200, 0),
+		Location: MockPek3a,
+		OwnerID:  MockPek3a + "user",
+	}
+	s.buckets[MockSh1a] = &bucketMeta{
+		Name:     MockSh1a,
+		Created:  time.Unix(612889200, 0),
+		Location: MockSh1a,
+		OwnerID:  MockSh1a + "user",
+	}
+	s.buckets[MockPek3b] = &bucketMeta{
+		Name:     MockPek3b,
+		Created:  time.Unix(612889200, 0),
+		Location: MockPek3b,
+		OwnerID:  MockPek3b + "user",
+	}
+	s.buckets[MockGd2] = &bucketMeta{
+		Name:     MockGd2,
+		Created:  time.Unix(612889200, 0),
+		Location: MockGd2,
+		OwnerID:  MockGd2 + "user",
+	}
 	return s
 }
 
 // SetupBucket implements ObjectStorage.SetupBucket
 func (m *MockObjectStorage) SetupBucket(bucketName, zone string) error {
+	if zone != "" {
+		m.currentBucket = &bucketMeta{
+			Name:     bucketName,
+			Created:  time.Unix(612889200, 0),
+			Location: zone,
+			OwnerID:  zone + "user",
+		}
+		return nil
+	}
+	m.currentBucket = m.buckets[bucketName]
 	return nil
 }
 
 // PutBucket implements ObjectStorage.PutBucket
 func (m *MockObjectStorage) PutBucket() error {
+	if _, ok := m.buckets[m.currentBucket.Name]; ok {
+		return constants.ErrorBucketAlreadyExists
+	}
+	m.buckets[m.currentBucket.Name] = m.currentBucket
 	return nil
 }
 
 // DeleteBucket implements ObjectStorage.DeleteBucket
 func (m *MockObjectStorage) DeleteBucket() error {
+	delete(m.buckets, m.currentBucket.Name)
 	return nil
 }
 
@@ -166,15 +223,51 @@ func (m *MockObjectStorage) DeleteObject(objectKey string) (err error) {
 
 // ListBuckets implements ObjectStorage.ListBuckets
 func (m *MockObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
-	return []string{}, nil
+	buckets = make([]string, 0, len(m.buckets))
+	for _, b := range m.buckets {
+		if zone == "" || b.Location == zone {
+			buckets = append(buckets, b.Name)
+		}
+	}
+	return
 }
 
 // ListObjects implements ObjectStorage.ListObjects
 func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error) {
-	return []*ObjectMeta{}, nil
+	om = make([]*ObjectMeta, 0)
+	for k, obj := range m.meta {
+		if strings.HasPrefix(k, prefix) {
+			om = append(om, obj)
+		}
+	}
+	return
+}
+
+// AddMockObjects add mock objects with specific prefix for test
+func (m *MockObjectStorage) AddMockObjects(prefix string, num int) {
+	dirKey := prefix + "/"
+	m.meta[dirKey] = &ObjectMeta{
+		Key:         dirKey,
+		ContentType: constants.DirectoryContentType,
+	}
+	for i := 0; i < num; i++ {
+		key := fmt.Sprintf("%s_%d", prefix, i)
+		m.meta[key] = &ObjectMeta{
+			Key:           key,
+			ContentLength: int64(i * 1024),
+		}
+
+		key = fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
+		m.meta[key] = &ObjectMeta{
+			Key:           key,
+			ContentLength: int64(i * 1024),
+		}
+	}
 }
 
 // GetBucketACL implements ObjectStorage.GetBucketACL
 func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
-	return &ACLResp{}, nil
+	return &ACLResp{
+		OwnerID: m.currentBucket.OwnerID,
+	}, nil
 }

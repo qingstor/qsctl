@@ -14,6 +14,8 @@ var (
 	ErrorByteSizeInvalid = errors.New("byte size is invalid")
 	// ErrorZoneRequired returned while zone is required but not given.
 	ErrorZoneRequired = errors.New("zone is required")
+	// ErrorBucketAlreadyExists returned while make new bucket which already exists.
+	ErrorBucketAlreadyExists = errors.New("bucket already exists")
 
 	// ErrorExternalServiceError returned while external service error happened.
 	ErrorExternalServiceError = errors.New("external service error happened")

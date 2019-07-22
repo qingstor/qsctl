@@ -75,8 +75,8 @@ func listObjectsLong(prefix, delimiter string) (err error) {
 			}
 		} else {
 			acl = constants.ACLObject
-			lasModified = om.FormatLastModified(constants.CTLCustom) // format time
-			contentNum = 1                                           // object will show content num only 1
+			lasModified = om.FormatLastModified(constants.LsDefaultFormat) // format time
+			contentNum = 1                                                 // object will show content num only 1
 		}
 
 		if contexts.HumanReadable {
