@@ -218,7 +218,7 @@ func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 
 // ListBuckets will list all buckets of the user.
 func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
-	res, err := q.service.ListBuckets(&service.ListBucketsInput{})
+	res, err := q.service.ListBuckets(&service.ListBucketsInput{Location: convert.String(zone)})
 	if err != nil {
 		log.Errorf("List bucket failed [%v]", err)
 		return nil, err

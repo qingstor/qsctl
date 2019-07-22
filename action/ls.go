@@ -19,7 +19,7 @@ func ListObjects(remote string) (err error) {
 		return err
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
 	if err != nil {
 		return
 	}
