@@ -16,6 +16,8 @@ type ObjectMeta struct {
 	ETag          string
 	LastModified  time.Time
 	StorageClass  string
+
+	Children []*ObjectMeta
 }
 
 // ACLResp is the response struct for acl request.
@@ -63,4 +65,18 @@ func (om *ObjectMeta) FormatLastModified(format string) string {
 // IsDir will return whether the obj is a directory
 func (om ObjectMeta) IsDir() bool {
 	return om.ContentType == constants.DirectoryContentType
+}
+
+// Equal will return whether the obj's is equal with the given key
+func (om ObjectMeta) Equal(key string) bool {
+	return om.Key == key
+}
+
+// ChildrenCount will return all children objs count with the root of om
+func (om *ObjectMeta) ChildrenCount() int {
+	total := len(om.Children)
+	for _, obj := range om.Children {
+		total += obj.ChildrenCount()
+	}
+	return total
 }

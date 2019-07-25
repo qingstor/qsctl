@@ -21,10 +21,8 @@ const (
 	MockGBObject = "gb"
 	MockTBObject = "tb"
 
-	MockPek3a = "mock-pek3a"
-	MockSh1a  = "mock-sh1a"
-	MockPek3b = "mock-pek3b"
-	MockGd2   = "mock-gd2"
+	MockZoneAlpha = "mock-alpha"
+	MockZoneBeta  = "mock-beta"
 )
 
 // MockObjectStorage will implement ObjectStorage interface.
@@ -79,29 +77,17 @@ func NewMockObjectStorage() *MockObjectStorage {
 	}
 
 	// Adding test buckets.
-	s.buckets[MockPek3a] = &bucketMeta{
-		Name:     MockPek3a,
+	s.buckets[MockZoneAlpha] = &bucketMeta{
+		Name:     MockZoneAlpha,
 		Created:  time.Unix(612889200, 0),
-		Location: MockPek3a,
-		OwnerID:  MockPek3a + "user",
+		Location: MockZoneAlpha,
+		OwnerID:  MockZoneAlpha + "user",
 	}
-	s.buckets[MockSh1a] = &bucketMeta{
-		Name:     MockSh1a,
+	s.buckets[MockZoneBeta] = &bucketMeta{
+		Name:     MockZoneBeta,
 		Created:  time.Unix(612889200, 0),
-		Location: MockSh1a,
-		OwnerID:  MockSh1a + "user",
-	}
-	s.buckets[MockPek3b] = &bucketMeta{
-		Name:     MockPek3b,
-		Created:  time.Unix(612889200, 0),
-		Location: MockPek3b,
-		OwnerID:  MockPek3b + "user",
-	}
-	s.buckets[MockGd2] = &bucketMeta{
-		Name:     MockGd2,
-		Created:  time.Unix(612889200, 0),
-		Location: MockGd2,
-		OwnerID:  MockGd2 + "user",
+		Location: MockZoneBeta,
+		OwnerID:  MockZoneBeta + "user",
 	}
 	return s
 }
@@ -235,31 +221,70 @@ func (m *MockObjectStorage) ListBuckets(zone string) (buckets []string, err erro
 // ListObjects implements ObjectStorage.ListObjects
 func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error) {
 	om = make([]*ObjectMeta, 0)
+	// delimiter blank means no directory concept
+	if delimiter == "" {
+		for k, obj := range m.meta {
+			if strings.HasPrefix(k, prefix) {
+				om = append(om, obj)
+			}
+		}
+		return
+	}
 	for k, obj := range m.meta {
-		if strings.HasPrefix(k, prefix) {
+		if strings.HasPrefix(k, prefix) &&
+			(strings.Count(obj.Key, "/") == strings.Count(prefix, "/") ||
+				(strings.Count(obj.Key, "/") == strings.Count(prefix, "/")+1 &&
+					strings.HasSuffix(obj.Key, "/"))) {
 			om = append(om, obj)
 		}
 	}
 	return
 }
 
-// AddMockObjects add mock objects with specific prefix for test
-func (m *MockObjectStorage) AddMockObjects(prefix string, num int) {
+// ResetMockObjects reset mock objects with specific prefix for test
+func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
 	dirKey := prefix + "/"
+	// obj/
 	m.meta[dirKey] = &ObjectMeta{
 		Key:         dirKey,
 		ContentType: constants.DirectoryContentType,
 	}
+	// obj/obj/
+	m.meta[dirKey+dirKey] = &ObjectMeta{
+		Key:         dirKey + dirKey,
+		ContentType: constants.DirectoryContentType,
+	}
 	for i := 0; i < num; i++ {
 		key := fmt.Sprintf("%s_%d", prefix, i)
+		// obj_0 ... obj_19
 		m.meta[key] = &ObjectMeta{
 			Key:           key,
 			ContentLength: int64(i * 1024),
 		}
-
-		key = fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
-		m.meta[key] = &ObjectMeta{
-			Key:           key,
+		// obj/obj_0/ ... obj/obj_19
+		secondLvlDir := fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
+		m.meta[secondLvlDir] = &ObjectMeta{
+			Key:           secondLvlDir,
+			ContentLength: int64(0),
+			ContentType:   constants.DirectoryContentType,
+		}
+		// obj/obj_0/obj ... obj/obj_19/obj
+		secondLvlKey := fmt.Sprintf("%s%s", secondLvlDir, prefix)
+		m.meta[secondLvlKey] = &ObjectMeta{
+			Key:           secondLvlKey,
+			ContentLength: int64(i * 1024),
+		}
+		// obj/obj/obj_0/ ... obj/obj/obj_19/
+		thirdLvlDir := fmt.Sprintf("%s/%s/%s_%d/", prefix, prefix, prefix, i)
+		m.meta[thirdLvlDir] = &ObjectMeta{
+			Key:           thirdLvlDir,
+			ContentLength: int64(0),
+			ContentType:   constants.DirectoryContentType,
+		}
+		// obj/obj/obj_0/obj ... obj/obj/obj_19/obj
+		thirdLvlKey := fmt.Sprintf("%s%s", thirdLvlDir, prefix)
+		m.meta[thirdLvlKey] = &ObjectMeta{
+			Key:           thirdLvlKey,
 			ContentLength: int64(i * 1024),
 		}
 	}

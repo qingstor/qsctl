@@ -261,6 +261,7 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 				convert.StringValue(obj.Etag),
 				time.Unix(int64(convert.IntValue(obj.Modified)), 0),
 				convert.StringValue(obj.StorageClass),
+				nil,
 			})
 		}
 

@@ -26,10 +26,10 @@ func (suite BucketTestSuite) TestMakeBucket() {
 		name     string
 		expected error
 	}{
-		{storage.MockPek3a, "new-pek3a-bucket", nil},
-		{storage.MockPek3a, "new-pek3a-bucket", constants.ErrorBucketAlreadyExists},
-		{storage.MockPek3b, "qs://new-pek3b-bucket", nil},
-		{storage.MockPek3b, "qs://", constants.ErrorQsPathInvalid},
+		{storage.MockZoneAlpha, "new-pek3a-bucket", nil},
+		{storage.MockZoneAlpha, "new-pek3a-bucket", constants.ErrorBucketAlreadyExists},
+		{storage.MockZoneBeta, "qs://new-pek3b-bucket", nil},
+		{storage.MockZoneBeta, "qs://", constants.ErrorQsPathInvalid},
 	}
 	for _, c := range cases {
 		contexts.Zone = c.zone
@@ -43,16 +43,14 @@ func (suite BucketTestSuite) TestListBuckets() {
 		expected1 error
 		expected2 int
 	}{
-		{storage.MockPek3a, nil, 1},
-		{storage.MockSh1a, nil, 1},
-		{storage.MockPek3b, nil, 1},
-		{storage.MockGd2, nil, 1},
-		{"", nil, 4},
+		{storage.MockZoneAlpha, nil, 1},
+		{storage.MockZoneBeta, nil, 1},
+		{"", nil, 2},
 	}
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, ListBuckets(c.zone))
+		assert.Equal(suite.T(), c.expected1, ListBuckets(c.zone), c.zone)
 		buckets, _ := contexts.Storage.ListBuckets(c.zone)
-		assert.Equal(suite.T(), c.expected2, len(buckets))
+		assert.Equal(suite.T(), c.expected2, len(buckets), c.zone)
 	}
 }
 
@@ -62,15 +60,15 @@ func (suite BucketTestSuite) TestRemoveBucket() {
 		expected1 error
 		expected2 int
 	}{
-		{storage.MockPek3a, nil, 3},
-		{storage.MockPek3b, nil, 2},
-		{"qs://", constants.ErrorQsPathInvalid, 2},
+		{storage.MockZoneAlpha, nil, 1},
+		{storage.MockZoneBeta, nil, 0},
+		{"qs://", constants.ErrorQsPathInvalid, 0},
 	}
 	contexts.Zone = ""
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, RemoveBucket(c.name))
+		assert.Equal(suite.T(), c.expected1, RemoveBucket(c.name), c.name)
 		buckets, _ := contexts.Storage.ListBuckets("")
-		assert.Equal(suite.T(), c.expected2, len(buckets))
+		assert.Equal(suite.T(), c.expected2, len(buckets), c.name)
 	}
 }
 

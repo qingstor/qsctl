@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -9,8 +10,12 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
 )
+
+// ownerID record the current bucket's owner ID
+var ownerID string
 
 // ListObjects will handle all ls actions.
 func ListObjects(remote string) (err error) {
@@ -24,97 +29,233 @@ func ListObjects(remote string) (err error) {
 		return
 	}
 
-	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively)
+	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively for next level)
 	delimiter := "/"
-	if contexts.Recursive {
-		delimiter = ""
-	}
 
-	if contexts.LongFormat {
-		return listObjectsLong(objectKey, delimiter)
-	}
-	return listObjects(objectKey, delimiter)
-}
-
-// listObjects list objects with specific prefix and delimiter from a bucket.
-func listObjects(prefix, delimiter string) (err error) {
-	oms, err := contexts.Storage.ListObjects(prefix, delimiter, nil)
+	// construct the object tree
+	root, err := listObjects(objectKey, delimiter)
 	if err != nil {
-		return
+		return err
 	}
-	for _, om := range oms {
-		fmt.Println(om.Key)
+
+	// if long format (-l), set bucket owner for printing
+	if contexts.LongFormat {
+		if err = getBucketOwner(); err != nil {
+			return err
+		}
+	}
+	// print first level children keys
+	if err = printChildrenKeys(root); err != nil {
+		return err
+	}
+
+	// if recursive (-R), print next level keys recursively
+	if contexts.Recursive {
+		for _, om := range root.Children {
+			if om.IsDir() {
+				if err := printChildrenKeysRecursively(om); err != nil {
+					return err
+				}
+			}
+		}
 	}
 	return nil
 }
 
-// listObjects list objects in long format with specific prefix and delimiter from a bucket.
-func listObjectsLong(prefix, delimiter string) (err error) {
+// listObjects list objects with specific prefix and delimiter from a bucket,
+// return the root of object tree.
+func listObjects(prefix, delimiter string) (root *storage.ObjectMeta, err error) {
 	oms, err := contexts.Storage.ListObjects(prefix, delimiter, nil)
 	if err != nil {
 		return
 	}
-	curUser, err := getBucketOwner()
+	root = &storage.ObjectMeta{
+		Key: prefix,
+	}
+	// if prefix end with "/", handle it as a directory
+	if strings.HasSuffix(prefix, "/") {
+		root.ContentType = constants.DirectoryContentType
+	}
+
+	// append children to root
+	for _, om := range oms {
+		// if om is a dir and same with the prefix, not add as a child
+		if om.IsDir() && om.Equal(prefix) {
+			continue
+		}
+		root.Children = append(root.Children, om)
+	}
+
+	if !contexts.Recursive && !contexts.LongFormat {
+		return
+	}
+
+	var once bool
+	// if long-format (-l) and not recursive (-R), list only one more level for counting contentNum
+	if contexts.LongFormat && !contexts.Recursive {
+		once = true
+	}
+	// recursively list keys appended from each dir
+	for _, om := range root.Children {
+		// cuz all children om is not same with the prefix,
+		// so we need only determine whether om is a dir
+		if om.IsDir() {
+			if err = recursiveListObjects(om, once); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return root, nil
+}
+
+// recursiveListObjects list objects recursively for each dir,
+// if once is true, only recurse once, for contentNum count.
+func recursiveListObjects(root *storage.ObjectMeta, once bool) error {
+	oms, err := contexts.Storage.ListObjects(root.Key, "/", nil)
 	if err != nil {
 		return err
 	}
-	res := make([][]string, 0, len(oms))
-	var (
-		acl         string
-		size        string
-		lasModified string
-		contentNum  int
-	)
+	// for every om, if is dir and equal with root, not add as children
 	for _, om := range oms {
+		if om.IsDir() && om.Equal(root.Key) {
+			continue
+		}
+		root.Children = append(root.Children, om)
+	}
+	// if recurse once set true, not list objects for next level
+	if once {
+		return nil
+	}
+	for _, om := range root.Children {
+		// list children for dir next level
 		if om.IsDir() {
-			acl = constants.ACLDirectory
-			lasModified = "" // directory will not show last modified time
-			contentNum, err = getDirectoryObjCount(om.Key)
-			if err != nil {
+			if err := recursiveListObjects(om, once); err != nil {
 				return err
 			}
-		} else {
-			acl = constants.ACLObject
-			lasModified = om.FormatLastModified(constants.LsDefaultFormat) // format time
-			contentNum = 1                                                 // object will show content num only 1
 		}
-
-		if contexts.HumanReadable {
-			// if human readable flag true, print size as human readable format
-			size, err = utils.UnixReadableSize(datasize.ByteSize(om.ContentLength).HR())
-			if err != nil {
-				return err
-			}
-		} else {
-			// otherwise print size by bytes
-			size = strconv.FormatInt(om.ContentLength, 10)
-		}
-		res = append(res, []string{acl, strconv.Itoa(contentNum), curUser, curUser, size, lasModified, om.Key})
 	}
-
-	// align the result and print
-	res = utils.AlignLinux(res...)
-	fmt.Println("total", len(res))
-	for _, line := range res {
-		fmt.Println(strings.Join(line, " "))
-	}
-	return
+	return nil
 }
 
-// getBucketOwner will return the owner id of current bucket
-func getBucketOwner() (name string, err error) {
+// getBucketOwner will assign the owner id of current bucket
+func getBucketOwner() error {
 	ar, err := contexts.Storage.GetBucketACL()
 	if err != nil {
-		return "", err
+		return err
 	}
-	return ar.OwnerID, nil
+	ownerID = ar.OwnerID
+	return nil
 }
 
-// getDirectoryObjCount will return objects count from a specific directory (prefix actually)
-func getDirectoryObjCount(key string) (count int, err error) {
-	oms, err := contexts.Storage.ListObjects(key, "/", nil)
-	if err != nil {
-		return 0, err
+// printChildrenKeys will print the keys of the first layer
+func printChildrenKeys(root *storage.ObjectMeta) (err error) {
+	// if no children, return
+	if root.Children == nil {
+		return
 	}
-	return len(oms), nil
+	sortOms(root.Children)
+
+	// if not long-format (-l), only print key
+	if !contexts.LongFormat {
+		for _, om := range root.Children {
+			// if root is dir, trim prefix
+			if root.IsDir() {
+				fmt.Printf("%s\n", strings.TrimPrefix(om.Key, root.Key))
+			} else {
+				fmt.Printf("%s\n", om.Key)
+			}
+		}
+		return nil
+	}
+	// if long-format (-l), print key's detail info
+	res := make([][]string, 0)
+	var total int64
+	for _, om := range root.Children {
+		total += om.ContentLength
+		key := om.Key
+		// if root is dir, trim prefix
+		if root.IsDir() {
+			key = strings.TrimPrefix(om.Key, root.Key)
+		}
+		// format this line
+		line, err := omInfoSlice(om)
+		if err != nil {
+			return err
+		}
+		// before append this line into res, append key to the end of line
+		res = append(res, append(line, key))
+	}
+
+	// print total
+	if contexts.HumanReadable {
+		totalSize, err := utils.UnixReadableSize(datasize.ByteSize(total).HR())
+		if err != nil {
+			return err
+		}
+		fmt.Println("total", totalSize)
+	} else {
+		fmt.Println("total", strconv.FormatInt(total, 10))
+	}
+	// align the result and print
+	for _, line := range utils.AlignLinux(res...) {
+		fmt.Println(strings.Join(line, " "))
+	}
+	return nil
+}
+
+// printChildrenKeysRecursively will recursively print keys
+func printChildrenKeysRecursively(root *storage.ObjectMeta) (err error) {
+	dirKey := root.Key
+	fmt.Println()
+	fmt.Printf("%s:\n", dirKey)
+
+	if err = printChildrenKeys(root); err != nil {
+		return err
+	}
+
+	for _, om := range root.Children {
+		if om.IsDir() && !om.Equal(dirKey) {
+			if err = printChildrenKeysRecursively(om); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// sortOms sort the oms slice by contexts.Reverse
+// if true, desc; if false, asc (default)
+func sortOms(oms []*storage.ObjectMeta) {
+	sort.Slice(oms, func(i, j int) bool {
+		if contexts.Reverse {
+			return oms[i].Key > oms[j].Key
+		}
+		return oms[i].Key < oms[j].Key
+	})
+}
+
+// omInfoSlice returns the om detail info slice
+func omInfoSlice(om *storage.ObjectMeta) (line []string, err error) {
+	// if om is a dir, set size to 0 and last modified blank
+	if om.IsDir() {
+		contentNum := 0
+		if om.Children != nil {
+			contentNum = len(om.Children)
+		}
+		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), ownerID, ownerID, "0", ""}, nil
+	}
+	size := ""
+	if contexts.HumanReadable {
+		// if human readable flag true, print size as human readable format
+		size, err = utils.UnixReadableSize(datasize.ByteSize(om.ContentLength).HR())
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// otherwise print size by bytes
+		size = strconv.FormatInt(om.ContentLength, 10)
+	}
+	// if om is a obj, set content num to 1
+	return []string{constants.ACLObject, "1", ownerID, ownerID, size,
+		om.FormatLastModified(constants.LsDefaultFormat)}, nil
 }

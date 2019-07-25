@@ -19,6 +19,7 @@ const (
 	longFormatFlag           = "long-format"
 	maximumMemoryContentFlag = "maximum-memory-content"
 	recursiveFlag            = "recursive"
+	reverseFlag              = "reverse"
 	zoneFlag                 = "zone"
 )
 
@@ -30,6 +31,7 @@ var (
 	longFormat           bool
 	maximumMemoryContent string
 	recursive            bool
+	reverse              bool
 	zone                 string
 )
 
@@ -84,13 +86,6 @@ The valid format sequences for files:
 		"maximum content loaded in memory \n (only used for input from stdin)",
 	)
 
-	flagSet.BoolVarP(&recursive,
-		recursiveFlag,
-		"r",
-		false,
-		"execute recursively",
-	)
-
 	flagSet.StringVarP(&zone,
 		zoneFlag,
 		"z",
@@ -124,6 +119,7 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	contexts.Recursive = recursive
+	contexts.Reverse = reverse
 
 	if zone != "" {
 		contexts.Zone = zone
@@ -142,8 +138,11 @@ func init() {
 	// Flags for ls.
 	LsCommand.Flags().AddFlag(flagSet.Lookup(humanReadableFlag))
 	LsCommand.Flags().AddFlag(flagSet.Lookup(longFormatFlag))
-	LsCommand.Flags().AddFlag(flagSet.Lookup(recursiveFlag))
 	LsCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+	LsCommand.Flags().BoolVarP(&recursive, recursiveFlag, "R",
+		false, "recursively list subdirectories encountered")
+	LsCommand.Flags().BoolVarP(&reverse, reverseFlag, "r",
+		false, "reverse the order of the sort to get reverse lexicographical order")
 
 	// Flags for mb.
 	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))

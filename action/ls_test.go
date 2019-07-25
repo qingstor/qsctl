@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	objNum    int    = 20
+	objNum    int    = 5
 	objPrefix string = "obj"
 )
 
@@ -22,9 +22,7 @@ type LsTestSuite struct {
 
 func (suite LsTestSuite) SetupTest() {
 	contexts.Bench = true
-	s := storage.NewMockObjectStorage()
-	s.AddMockObjects(objPrefix, objNum)
-	contexts.Storage = s
+	contexts.Storage = storage.NewMockObjectStorage()
 }
 
 func (suite LsTestSuite) TestListObjects() {
@@ -34,36 +32,59 @@ func (suite LsTestSuite) TestListObjects() {
 		humanReadable bool
 		longFormat    bool
 		recursive     bool
-		expected      int
+		reverse       bool
+		omsCount      int
+		childrenCount int
 		err           error
 	}{
-		// Add / as postfix to simulate the non-recursive situation
-		{fmt.Sprintf("qs://%s//%s", storage.MockPek3a, objPrefix+"/"),
-			objPrefix + "/", true, false, false,
-			objNum + 1, nil},
-		{fmt.Sprintf("qs://%s//%s", storage.MockPek3a, objPrefix),
-			objPrefix, true, false, true,
-			2*objNum + 1, nil},
-		{fmt.Sprintf("qs://%s//%s", storage.MockPek3a, objPrefix),
-			objPrefix, false, true, true,
-			2*objNum + 1, nil},
-		{fmt.Sprintf("qs://%s//%s", storage.MockPek3a, objPrefix),
-			objPrefix, true, true, true,
-			2*objNum + 1, nil},
+		// ls qs://alpha/obj
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix), objPrefix,
+			false, false, false, false,
+			objNum + 1, objNum + 1, nil},
+		// ls qs://alpha/obj -l
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix), objPrefix,
+			false, true, false, false,
+			objNum + 1, 2*objNum + 2, nil},
+		// ls qs://alpha/obj -lh
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix), objPrefix,
+			true, true, false, false,
+			objNum + 1, 2*objNum + 2, nil},
+		// ls qs://alpha/obj -lhRr
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix), objPrefix,
+			true, true, true, true,
+			objNum + 1, 5*objNum + 2, nil},
+		// ls qs://alpha/obj/ -r
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix+"/"), objPrefix + "/",
+			false, false, false, true,
+			objNum + 2, objNum + 1, nil},
+		// ls qs://alpha/obj/ -l
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix+"/"), objPrefix + "/",
+			false, true, false, false,
+			objNum + 2, 3*objNum + 1, nil},
+		// ls qs://alpha/obj/ -lhRr
+		{fmt.Sprintf("qs://%s/%s", storage.MockZoneAlpha, objPrefix+"/"), objPrefix + "/",
+			true, true, true, true,
+			objNum + 2, 4*objNum + 1, nil},
 	}
-	contexts.LongFormat = false
-	for _, c := range cases {
+
+	for k, c := range cases {
 		contexts.HumanReadable = c.humanReadable
 		contexts.LongFormat = c.longFormat
 		contexts.Recursive = c.recursive
+		contexts.Reverse = c.reverse
 		delimiter := "/"
-		if c.recursive {
-			delimiter = ""
-		}
-		assert.Equal(suite.T(), ListObjects(c.remote), c.err)
-		om, err := contexts.Storage.ListObjects(c.key, delimiter, nil)
-		assert.Equal(suite.T(), err, c.err)
-		assert.Equal(suite.T(), len(om), c.expected)
+		s := contexts.Storage.(*storage.MockObjectStorage)
+		s.ResetMockObjects(objPrefix, objNum)
+		assert.Equal(suite.T(), c.err, ListObjects(c.remote), k)
+		s.ResetMockObjects(objPrefix, objNum)
+		oms, err := contexts.Storage.ListObjects(c.key, delimiter, nil)
+		assert.Equal(suite.T(), c.err, err, k)
+		assert.Equal(suite.T(), c.omsCount, len(oms), k)
+
+		s.ResetMockObjects(objPrefix, objNum)
+		root, _ := listObjects(c.key, delimiter)
+		count := root.ChildrenCount()
+		assert.Equal(suite.T(), c.childrenCount, count, k)
 	}
 
 }

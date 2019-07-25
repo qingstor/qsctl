@@ -15,7 +15,7 @@ func ParseByteSize(s string) (int64, error) {
 	var v datasize.ByteSize
 	err := v.UnmarshalText([]byte(s))
 	if err != nil {
-		log.Errorf("Expect size <%s> is invalid [%s]", s, err)
+		log.Errorf("Expect size <%s> is invalid [%v]", s, err)
 		return 0, constants.ErrorByteSizeInvalid
 	}
 	return int64(v), nil
@@ -28,6 +28,7 @@ func UnixReadableSize(hrSize string) (string, error) {
 	if len(parts) < 2 || // no space
 		!strings.ContainsRune(parts[1], 'B') || // second part does not contain 'B'
 		len(parts[0]) < 1 { // no first part
+		log.Errorf("Parse readable size <%s> failed", hrSize)
 		return "", constants.ErrorReadableSizeFormat
 	}
 	return fmt.Sprintf("%s%c", parts[0], parts[1][0]), nil
