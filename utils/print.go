@@ -27,3 +27,41 @@ func AlignPrintWithColon(s ...string) string {
 	}
 	return strings.Join(a, "\n")
 }
+
+// AlignLinux will align print by lines (element in slice)
+func AlignLinux(input ...[]string) [][]string {
+	if len(input) == 0 {
+		return nil
+	}
+	// init colNum equal with the first line
+	lineNum, colNum := len(input), len(input[0])
+	res := make([][]string, 0, lineNum)
+	widths := make([]int, colNum)
+	for _, line := range input {
+		for i, str := range line {
+			// if current line column greater than colNum,
+			// directly append str-len to width, and colNum++
+			if i >= colNum {
+				widths = append(widths, len(str))
+				colNum++
+				continue
+			}
+			if widths[i] < len(str) {
+				widths[i] = len(str)
+			}
+		}
+	}
+	for _, line := range input {
+		newLine := make([]string, colNum)
+		for i, str := range line {
+			// align left if last column
+			if i == colNum-1 {
+				newLine[i] = text.AlignLeft.Apply(str, 1)
+			} else {
+				newLine[i] = text.AlignRight.Apply(str, widths[i])
+			}
+		}
+		res = append(res, newLine)
+	}
+	return res
+}

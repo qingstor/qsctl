@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,12 +20,17 @@ const (
 	MockMBObject = "mb"
 	MockGBObject = "gb"
 	MockTBObject = "tb"
+
+	MockZoneAlpha = "mock-alpha"
+	MockZoneBeta  = "mock-beta"
 )
 
 // MockObjectStorage will implement ObjectStorage interface.
 type MockObjectStorage struct {
-	meta      map[string]*ObjectMeta
-	multipart map[string]*multipart
+	meta          map[string]*ObjectMeta
+	multipart     map[string]*multipart
+	buckets       map[string]*bucketMeta
+	currentBucket *bucketMeta
 }
 
 type multipart struct {
@@ -32,11 +38,20 @@ type multipart struct {
 	Parts  []int
 }
 
+type bucketMeta struct {
+	Created  time.Time
+	Location string
+	Name     string
+	URL      string
+	OwnerID  string
+}
+
 // NewMockObjectStorage will create a new mock object storage.
 func NewMockObjectStorage() *MockObjectStorage {
 	s := &MockObjectStorage{
 		meta:      make(map[string]*ObjectMeta),
 		multipart: make(map[string]*multipart),
+		buckets:   make(map[string]*bucketMeta),
 	}
 
 	// Adding persist keys.
@@ -61,21 +76,49 @@ func NewMockObjectStorage() *MockObjectStorage {
 		LastModified:  time.Unix(612889200, 0),
 	}
 
+	// Adding test buckets.
+	s.buckets[MockZoneAlpha] = &bucketMeta{
+		Name:     MockZoneAlpha,
+		Created:  time.Unix(612889200, 0),
+		Location: MockZoneAlpha,
+		OwnerID:  MockZoneAlpha + "user",
+	}
+	s.buckets[MockZoneBeta] = &bucketMeta{
+		Name:     MockZoneBeta,
+		Created:  time.Unix(612889200, 0),
+		Location: MockZoneBeta,
+		OwnerID:  MockZoneBeta + "user",
+	}
 	return s
 }
 
 // SetupBucket implements ObjectStorage.SetupBucket
 func (m *MockObjectStorage) SetupBucket(bucketName, zone string) error {
+	if zone != "" {
+		m.currentBucket = &bucketMeta{
+			Name:     bucketName,
+			Created:  time.Unix(612889200, 0),
+			Location: zone,
+			OwnerID:  zone + "user",
+		}
+		return nil
+	}
+	m.currentBucket = m.buckets[bucketName]
 	return nil
 }
 
 // PutBucket implements ObjectStorage.PutBucket
 func (m *MockObjectStorage) PutBucket() error {
+	if _, ok := m.buckets[m.currentBucket.Name]; ok {
+		return constants.ErrorBucketAlreadyExists
+	}
+	m.buckets[m.currentBucket.Name] = m.currentBucket
 	return nil
 }
 
 // DeleteBucket implements ObjectStorage.DeleteBucket
 func (m *MockObjectStorage) DeleteBucket() error {
+	delete(m.buckets, m.currentBucket.Name)
 	return nil
 }
 
@@ -162,4 +205,98 @@ func (m *MockObjectStorage) DeleteObject(objectKey string) (err error) {
 
 	delete(m.meta, objectKey)
 	return nil
+}
+
+// ListBuckets implements ObjectStorage.ListBuckets
+func (m *MockObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
+	buckets = make([]string, 0, len(m.buckets))
+	for _, b := range m.buckets {
+		if zone == "" || b.Location == zone {
+			buckets = append(buckets, b.Name)
+		}
+	}
+	return
+}
+
+// ListObjects implements ObjectStorage.ListObjects
+func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error) {
+	om = make([]*ObjectMeta, 0)
+	// delimiter blank means no directory concept
+	if delimiter == "" {
+		for k, obj := range m.meta {
+			if strings.HasPrefix(k, prefix) {
+				om = append(om, obj)
+			}
+		}
+		return
+	}
+	for _, obj := range m.meta {
+		// Determine whether obj is the sub-object of prefix
+		// obj.Key must start with prefix
+		if strings.HasPrefix(obj.Key, prefix) &&
+			// obj.Key contains as same amount as prefix (corresponding to obj is not a directory) OR
+			(strings.Count(obj.Key, "/") == strings.Count(prefix, "/") ||
+				// obj.Key contains one more '/' than prefix AND end with '/' (corresponding to obj is a directory)
+				(strings.Count(obj.Key, "/") == strings.Count(prefix, "/")+1 &&
+					strings.HasSuffix(obj.Key, "/"))) {
+			om = append(om, obj)
+		}
+	}
+	return
+}
+
+// ResetMockObjects reset mock objects with specific prefix for test
+func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
+	dirKey := prefix + "/"
+	// obj/
+	m.meta[dirKey] = &ObjectMeta{
+		Key:         dirKey,
+		ContentType: constants.DirectoryContentType,
+	}
+	// obj/obj/
+	m.meta[dirKey+dirKey] = &ObjectMeta{
+		Key:         dirKey + dirKey,
+		ContentType: constants.DirectoryContentType,
+	}
+	for i := 0; i < num; i++ {
+		key := fmt.Sprintf("%s_%d", prefix, i)
+		// obj_0 ... obj_19
+		m.meta[key] = &ObjectMeta{
+			Key:           key,
+			ContentLength: int64(i * 1024),
+		}
+		// obj/obj_0/ ... obj/obj_19
+		secondLvlDir := fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
+		m.meta[secondLvlDir] = &ObjectMeta{
+			Key:           secondLvlDir,
+			ContentLength: int64(0),
+			ContentType:   constants.DirectoryContentType,
+		}
+		// obj/obj_0/obj ... obj/obj_19/obj
+		secondLvlKey := fmt.Sprintf("%s%s", secondLvlDir, prefix)
+		m.meta[secondLvlKey] = &ObjectMeta{
+			Key:           secondLvlKey,
+			ContentLength: int64(i * 1024),
+		}
+		// obj/obj/obj_0/ ... obj/obj/obj_19/
+		thirdLvlDir := fmt.Sprintf("%s/%s/%s_%d/", prefix, prefix, prefix, i)
+		m.meta[thirdLvlDir] = &ObjectMeta{
+			Key:           thirdLvlDir,
+			ContentLength: int64(0),
+			ContentType:   constants.DirectoryContentType,
+		}
+		// obj/obj/obj_0/obj ... obj/obj/obj_19/obj
+		thirdLvlKey := fmt.Sprintf("%s%s", thirdLvlDir, prefix)
+		m.meta[thirdLvlKey] = &ObjectMeta{
+			Key:           thirdLvlKey,
+			ContentLength: int64(i * 1024),
+		}
+	}
+}
+
+// GetBucketACL implements ObjectStorage.GetBucketACL
+func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
+	return &ACLResp{
+		OwnerID: m.currentBucket.OwnerID,
+	}, nil
 }

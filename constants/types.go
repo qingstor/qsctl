@@ -4,6 +4,13 @@ package constants
 const DirectoryContentType = "application/x-directory"
 
 const (
+	// ACLDirectory is the acl of qingstor x-directory
+	ACLDirectory = "drwxr-xr-x"
+	// ACLObject is the acl of qingstor object
+	ACLObject = "-rwxr-xr-x"
+)
+
+const (
 	// MaximumMultipartNumber is the max multipart number.
 	MaximumMultipartNumber = 10000
 	// MaximumPartSize is the max part size for single part, 5GB.

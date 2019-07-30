@@ -14,17 +14,25 @@ var flagSet *pflag.FlagSet
 const (
 	// all flags' input here
 	expectSizeFlag           = "expect-size"
-	maximumMemoryContentFlag = "maximum-memory-content"
-	zoneFlag                 = "zone"
 	formatFlag               = "format"
+	humanReadableFlag        = "human-readable"
+	longFormatFlag           = "long-format"
+	maximumMemoryContentFlag = "maximum-memory-content"
+	recursiveFlag            = "recursive"
+	reverseFlag              = "reverse"
+	zoneFlag                 = "zone"
 )
 
 var (
 	// register available flag vars here
 	expectSize           string
-	maximumMemoryContent string
-	zone                 string
 	format               string
+	humanReadable        bool
+	longFormat           bool
+	maximumMemoryContent string
+	recursive            bool
+	reverse              bool
+	zone                 string
 )
 
 // initFlags will init all available flags.
@@ -36,18 +44,7 @@ func initFlags() {
 		"",
 		`expected size of the input file
 accept: 100MB, 1.8G
-(only used for input from stdin)`)
-
-	flagSet.StringVar(&maximumMemoryContent,
-		maximumMemoryContentFlag,
-		"",
-		"maximum content loaded in memory \n (only used for input from stdin)")
-
-	flagSet.StringVarP(&zone,
-		zoneFlag,
-		"z",
-		"",
-		"In which zone to do the operation",
+(only used for input from stdin)`,
 	)
 
 	flagSet.StringVarP(&format,
@@ -67,6 +64,35 @@ The valid format sequences for files:
   %Y   time of last data modification, seconds since Epoch
 	`,
 	)
+
+	flagSet.BoolVarP(&humanReadable,
+		humanReadableFlag,
+		"h",
+		false,
+		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
+			" in order to reduce the number of digits to three or less using base 2 for sizes",
+	)
+
+	flagSet.BoolVarP(&longFormat,
+		longFormatFlag,
+		"l",
+		false,
+		"list in long format and a total sum for all the file sizes is output on a line before the long listing",
+	)
+
+	flagSet.StringVar(&maximumMemoryContent,
+		maximumMemoryContentFlag,
+		"",
+		"maximum content loaded in memory \n (only used for input from stdin)",
+	)
+
+	flagSet.StringVarP(&zone,
+		zoneFlag,
+		"z",
+		"",
+		"in which zone to do the operation",
+	)
+
 }
 
 // ParseFlagIntoContexts will executed before any commands to init the flags in contexts.
@@ -78,6 +104,13 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	if format != "" {
+		contexts.Format = format
+	}
+
+	contexts.HumanReadable = humanReadable
+	contexts.LongFormat = longFormat
+
 	if maximumMemoryContent != "" {
 		contexts.MaximumMemoryContent, err = utils.ParseByteSize(maximumMemoryContent)
 		if err != nil {
@@ -85,12 +118,11 @@ func ParseFlagIntoContexts(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	contexts.Recursive = recursive
+	contexts.Reverse = reverse
+
 	if zone != "" {
 		contexts.Zone = zone
-	}
-
-	if format != "" {
-		contexts.Format = format
 	}
 
 	return nil
@@ -102,6 +134,15 @@ func init() {
 	// Flags for cp.
 	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(expectSizeFlag))
 	CpCommand.PersistentFlags().AddFlag(flagSet.Lookup(maximumMemoryContentFlag))
+
+	// Flags for ls.
+	LsCommand.Flags().AddFlag(flagSet.Lookup(humanReadableFlag))
+	LsCommand.Flags().AddFlag(flagSet.Lookup(longFormatFlag))
+	LsCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))
+	LsCommand.Flags().BoolVarP(&recursive, recursiveFlag, "R",
+		false, "recursively list subdirectories encountered")
+	LsCommand.Flags().BoolVarP(&reverse, reverseFlag, "r",
+		false, "reverse the order of the sort to get reverse lexicographical order")
 
 	// Flags for mb.
 	MbCommand.Flags().AddFlag(flagSet.Lookup(zoneFlag))

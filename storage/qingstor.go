@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/pengsrc/go-shared/convert"
 	log "github.com/sirupsen/logrus"
@@ -213,4 +214,86 @@ func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 		return
 	}
 	return nil
+}
+
+// ListBuckets will list all buckets of the user.
+func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
+	res, err := q.service.ListBuckets(&service.ListBucketsInput{Location: convert.String(zone)})
+	if err != nil {
+		log.Errorf("List bucket failed [%v]", err)
+		return nil, err
+	}
+	log.Debugf("<%d> buckets found.\n", *res.Count)
+	for _, b := range res.Buckets {
+		log.Debugf("Bucket <%s>, url <%s>, created <%s>, location <%s>\n",
+			*b.Name, *b.URL, *b.Created, *b.Location)
+		buckets = append(buckets, *b.Name)
+	}
+	return buckets, nil
+}
+
+// ListObjects will list all objects with specific prefix and delimiter from a bucket.
+func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *string) (oms []*ObjectMeta, err error) {
+	for {
+		res, err := q.bucket.ListObjects(&service.ListObjectsInput{
+			Delimiter: convert.String(delimiter),
+			Prefix:    convert.String(prefix),
+			Marker:    marker,
+		})
+		if err != nil {
+			log.Errorf("List objects from bucket <%s> at marker <%s> failed [%v]",
+				*q.bucket.Properties.BucketName, convert.StringValue(marker), err)
+			return nil, err
+		}
+		// Add directories into oms (if exists)
+		for _, cpf := range res.CommonPrefixes {
+			oms = append(oms, &ObjectMeta{
+				Key:         convert.StringValue(cpf),
+				ContentType: constants.DirectoryContentType,
+			})
+		}
+		// Add objects into oms
+		for _, obj := range res.Keys {
+			oms = append(oms, &ObjectMeta{
+				convert.StringValue(obj.Key),
+				convert.Int64Value(obj.Size),
+				convert.StringValue(obj.MimeType),
+				convert.StringValue(obj.Etag),
+				time.Unix(int64(convert.IntValue(obj.Modified)), 0),
+				convert.StringValue(obj.StorageClass),
+				nil,
+			})
+		}
+
+		// recursively for next marker request
+		if !convert.BoolValue(res.HasMore) {
+			break
+		}
+
+		marker = res.NextMarker
+	}
+	return
+}
+
+// GetBucketACL will get acl from a bucket.
+func (q *QingStorObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
+	res, err := q.bucket.GetACL()
+	if err != nil {
+		log.Errorf("Get bucket <%s> acl failed [%v]", *q.bucket.Properties.BucketName, err)
+		return nil, err
+	}
+	ar = &ACLResp{
+		OwnerID:   convert.StringValue(res.Owner.ID),
+		OwnerName: convert.StringValue(res.Owner.Name),
+	}
+	ar.ACLs = make([]*ACLMeta, 0)
+	for _, acl := range res.ACL {
+		ar.ACLs = append(ar.ACLs, &ACLMeta{
+			convert.StringValue(acl.Grantee.Type),
+			convert.StringValue(acl.Grantee.ID),
+			convert.StringValue(acl.Grantee.Name),
+			convert.StringValue(acl.Permission),
+		})
+	}
+	return
 }

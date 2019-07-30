@@ -1,6 +1,8 @@
 package action
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/contexts"
@@ -41,5 +43,17 @@ func RemoveBucket(remote string) (err error) {
 		return
 	}
 	log.Infof("Bucket <%s> removed.", bucketName)
+	return nil
+}
+
+// ListBuckets list all buckets.
+func ListBuckets(zone string) (err error) {
+	buckets, err := contexts.Storage.ListBuckets(zone)
+	if err != nil {
+		return
+	}
+	for _, b := range buckets {
+		fmt.Println(b)
+	}
 	return nil
 }
