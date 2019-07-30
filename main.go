@@ -39,16 +39,22 @@ func init() {
 
 	application.AddCommand(cmd.CatCommand)
 	application.AddCommand(cmd.CpCommand)
-	application.AddCommand(cmd.StatCommand)
-	application.AddCommand(cmd.TeeCommand)
+	application.AddCommand(cmd.LsCommand)
 	application.AddCommand(cmd.MbCommand)
 	application.AddCommand(cmd.RbCommand)
 	application.AddCommand(cmd.RmCommand)
+	application.AddCommand(cmd.StatCommand)
+	application.AddCommand(cmd.TeeCommand)
 
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
 	// Add config flag which can be used in all sub commands.
 	application.PersistentFlags().BoolVar(&contexts.Bench, "bench", false, "enable benchmark or not")
+
+	// Overwrite the default help flag to free -h shorthand.
+	overwriteDefaultHelp(application, func(c *cobra.Command) {
+		c.Flags().Bool("help", false, "help for "+c.Name())
+	})
 }
 
 func initConfig() (err error) {
@@ -104,6 +110,14 @@ func initConfig() (err error) {
 	}
 
 	return nil
+}
+
+// overwriteDefaultHelp will overwrite "help" flag for every command by call f(c)
+func overwriteDefaultHelp(c *cobra.Command, f func(*cobra.Command)) {
+	f(c)
+	for _, c := range c.Commands() {
+		overwriteDefaultHelp(c, f)
+	}
 }
 
 func main() {
