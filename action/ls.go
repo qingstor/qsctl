@@ -147,7 +147,7 @@ func getBucketOwner() error {
 	return nil
 }
 
-// printChildrenKeys will print the keys of the first layer
+// printChildrenKeys will handle the main logic of printing the children info of root
 func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 	// if no children, return
 	if root.Children == nil {
@@ -158,9 +158,9 @@ func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 	// if not long-format (-l), only print key
 	if !contexts.LongFormat {
 		for _, om := range root.Children {
-			// if root is dir, trim prefix
+			// if root is dir, trim prefix, as well as suffix "/"
 			if root.IsDir() {
-				fmt.Printf("%s\n", strings.TrimPrefix(om.Key, root.Key))
+				fmt.Printf("%s\n", strings.TrimSuffix(strings.TrimPrefix(om.Key, root.Key), "/"))
 			} else {
 				fmt.Printf("%s\n", om.Key)
 			}
@@ -173,9 +173,9 @@ func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 	for _, om := range root.Children {
 		total += om.ContentLength
 		key := om.Key
-		// if root is dir, trim prefix
+		// if root is dir, trim prefix, as well as suffix "/"
 		if root.IsDir() {
-			key = strings.TrimPrefix(om.Key, root.Key)
+			key = strings.TrimSuffix(strings.TrimPrefix(om.Key, root.Key), "/")
 		}
 		// format this line
 		line, err := omInfoSlice(om)

@@ -230,9 +230,13 @@ func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string
 		}
 		return
 	}
-	for k, obj := range m.meta {
-		if strings.HasPrefix(k, prefix) &&
+	for _, obj := range m.meta {
+		// Determine whether obj is the sub-object of prefix
+		// obj.Key must start with prefix
+		if strings.HasPrefix(obj.Key, prefix) &&
+			// obj.Key contains as same amount as prefix (corresponding to obj is not a directory) OR
 			(strings.Count(obj.Key, "/") == strings.Count(prefix, "/") ||
+				// obj.Key contains one more '/' than prefix AND end with '/' (corresponding to obj is a directory)
 				(strings.Count(obj.Key, "/") == strings.Count(prefix, "/")+1 &&
 					strings.HasSuffix(obj.Key, "/"))) {
 			om = append(om, obj)
