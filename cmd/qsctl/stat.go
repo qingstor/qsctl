@@ -1,9 +1,10 @@
-package cmd
+package main
 
 import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -21,4 +22,23 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	return action.Stat(args[0])
+}
+
+func initStatFlag() {
+	StatCommand.Flags().StringVar(&contexts.Format,
+		"format",
+		"",
+		`use the specified FORMAT instead of the default;
+output a newline after each use of FORMAT
+
+The valid format sequences for files:
+
+  %F   file type
+  %h   content md5 of the file
+  %n   file name
+  %s   total size, in bytes
+  %y   time of last data modification, human-readable
+  %Y   time of last data modification, seconds since Epoch
+	`,
+	)
 }

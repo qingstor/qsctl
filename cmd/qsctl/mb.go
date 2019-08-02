@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/spf13/cobra"
@@ -24,14 +24,24 @@ bucket name should follow DNS name rule with:
 	Example: utils.AlignPrintWithColon(
 		"Make bucket: qsctl mb bucket-name",
 	),
-	Args: cobra.ExactArgs(1),
-	RunE: mbRun,
+	Args:    cobra.ExactArgs(1),
+	RunE:    mbRun,
+	PreRunE: validateMbFlag,
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
+	return action.MakeBucket(args[0])
+}
+
+func initMbFlag() {
+	MbCommand.Flags().StringVarP(&contexts.Zone, "zone", "z",
+		"", "in which zone to make the bucket (required)")
+}
+
+func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
 	if contexts.Zone == "" {
 		return constants.ErrorZoneRequired
 	}
-	return action.MakeBucket(args[0])
+	return nil
 }

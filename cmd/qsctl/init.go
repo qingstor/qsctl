@@ -1,60 +1,57 @@
 package main
 
 import (
-	"os"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/yunify/qsctl/v2/cmd"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
-var application = &cobra.Command{
+var (
+	// configPath will be set if config flag was set
+	configPath string
+	// register to-be-parsed flag vars here
+	expectSize           string
+	maximumMemoryContent string
+)
+
+// rootCmd is the main command of qsctl
+var rootCmd = &cobra.Command{
 	Use:     constants.Name,
 	Long:    constants.Description,
 	Version: constants.Version,
 }
 
-var (
-	configPath string
-)
-
 func init() {
-	// Set log formatter firstly.
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
+	initGlobalFlag()
+	// init flags for every single cmd
+	initCpFlag()
+	initLsFlag()
+	initMbFlag()
+	initRmFlag()
+	initStatFlag()
+	initTeeFlag()
 
-	application.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		err := initConfig()
-		if err != nil {
+	// init config before command run
+	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
+		if err := initConfig(); err != nil {
 			return err
 		}
 
-		return cmd.ParseFlagIntoContexts(c, args)
+		return nil
 	}
 
-	application.AddCommand(cmd.CatCommand)
-	application.AddCommand(cmd.CpCommand)
-	application.AddCommand(cmd.LsCommand)
-	application.AddCommand(cmd.MbCommand)
-	application.AddCommand(cmd.RbCommand)
-	application.AddCommand(cmd.RmCommand)
-	application.AddCommand(cmd.StatCommand)
-	application.AddCommand(cmd.TeeCommand)
-
-	// Add config flag which can be used in all sub commands.
-	application.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config path")
-	// Add config flag which can be used in all sub commands.
-	application.PersistentFlags().BoolVar(&contexts.Bench, "bench", false, "enable benchmark or not")
-
-	// Overwrite the default help flag to free -h shorthand.
-	overwriteDefaultHelp(application, func(c *cobra.Command) {
-		c.Flags().Bool("help", false, "help for "+c.Name())
-	})
+	// add sub-command to rootCmd
+	rootCmd.AddCommand(CatCommand)
+	rootCmd.AddCommand(CpCommand)
+	rootCmd.AddCommand(LsCommand)
+	rootCmd.AddCommand(MbCommand)
+	rootCmd.AddCommand(RbCommand)
+	rootCmd.AddCommand(RmCommand)
+	rootCmd.AddCommand(StatCommand)
+	rootCmd.AddCommand(TeeCommand)
 }
 
 func initConfig() (err error) {
@@ -112,17 +109,13 @@ func initConfig() (err error) {
 	return nil
 }
 
-// overwriteDefaultHelp will overwrite "help" flag for every command by call f(c)
-func overwriteDefaultHelp(c *cobra.Command, f func(*cobra.Command)) {
-	f(c)
-	for _, c := range c.Commands() {
-		overwriteDefaultHelp(c, f)
-	}
-}
-
-func main() {
-	err := application.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+func initGlobalFlag() {
+	// Add config flag which can be used in all sub commands.
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
+		"", "assign config path manually")
+	// Add config flag which can be used in all sub commands.
+	rootCmd.PersistentFlags().BoolVar(&contexts.Bench, "bench",
+		false, "enable benchmark or not")
+	// Overwrite the default help flag to free -h shorthand.
+	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
 }
