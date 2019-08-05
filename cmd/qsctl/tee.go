@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -25,7 +26,10 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 }
 
 func teeRun(_ *cobra.Command, args []string) (err error) {
-	return action.Copy("-", args[0])
+	// Package context
+	ctx = contexts.SetContext(ctx, "src", "-")
+	ctx = contexts.SetContext(ctx, "dest", args[0])
+	return action.Copy(ctx)
 }
 
 func initTeeFlag() {
@@ -46,17 +50,23 @@ func initTeeFlag() {
 
 func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
 	if expectSize != "" {
-		contexts.ExpectSize, err = utils.ParseByteSize(expectSize)
+		res, err := utils.ParseByteSize(expectSize)
 		if err != nil {
-			return
+			return err
 		}
+		ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, res)
+	} else {
+		ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, int64(0))
 	}
 
 	if maximumMemoryContent != "" {
-		contexts.MaximumMemoryContent, err = utils.ParseByteSize(maximumMemoryContent)
+		res, err := utils.ParseByteSize(maximumMemoryContent)
 		if err != nil {
-			return
+			return err
 		}
+		ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, res)
+	} else {
+		ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, int64(0))
 	}
 
 	return nil

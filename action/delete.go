@@ -1,6 +1,8 @@
 package action
 
 import (
+	"context"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -8,7 +10,11 @@ import (
 )
 
 // Delete will delete a remote object.
-func Delete(remote string) (err error) {
+func Delete(ctx context.Context) (err error) {
+	// Get params from context
+	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
+	remote := contexts.FromContext(ctx, "remote").(string)
+
 	bucketName, objectKey, err := ParseQsPath(remote)
 	if err != nil {
 		return
@@ -18,7 +24,7 @@ func Delete(remote string) (err error) {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, zone)
 	if err != nil {
 		return
 	}

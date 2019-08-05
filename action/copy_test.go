@@ -1,6 +1,7 @@
 package action
 
 import (
+	"context"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
@@ -20,12 +22,10 @@ type CopyTestSuite struct {
 
 func (suite CopyTestSuite) SetupTest() {
 	contexts.Storage = storage.NewMockObjectStorage()
-	contexts.Bench = true
 }
 
 func (suite CopyTestSuite) TestCopy() {
-	contexts.ExpectSize = int64(1024 * 1024)
-
+	expectSize := int64(1024 * 1024)
 	cases := []struct {
 		msg       string
 		inputSrc  string
@@ -37,30 +37,52 @@ func (suite CopyTestSuite) TestCopy() {
 	}
 
 	for _, v := range cases {
-		err := Copy(v.inputSrc, v.inputDest)
+		// Package context
+		var ctx context.Context
+		ctx = contexts.NewMockCmdContext()
+		ctx = contexts.SetContext(ctx, constants.BenchFlag, true)
+		ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, expectSize)
+		ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, int64(0))
+		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
+		ctx = contexts.SetContext(ctx, "src", v.inputSrc)
+		ctx = contexts.SetContext(ctx, "dest", v.inputDest)
+
+		err := Copy(ctx)
 		assert.Equal(suite.T(), v.err, err, v.msg)
 	}
 }
 
 func (suite CopyTestSuite) TestCopyNotSeekableFileToRemote() {
 	size := int64(1024 * 1024 * 1024) // 1G
-
-	contexts.ExpectSize = size
-
 	r := io.LimitReader(utils.NewRand(), size)
 	objectKey := uuid.New().String()
 
-	total, err := CopyNotSeekableFileToRemote(r, objectKey)
+	// Package context
+	var ctx context.Context
+	ctx = contexts.NewMockCmdContext()
+	ctx = contexts.SetContext(ctx, constants.BenchFlag, true)
+	ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, size)
+	ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, int64(0))
+	ctx = contexts.SetContext(ctx, "objectKey", objectKey)
+	ctx = contexts.SetContext(ctx, "reader", r)
+
+	total, err := CopyNotSeekableFileToRemote(ctx)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }
 
 func (suite CopyTestSuite) TestCopyObjectToNotSeekableFile() {
 	size := int64(1024 * 1024 * 1024) // 1G
-
 	w := ioutil.Discard
 
-	total, err := CopyObjectToNotSeekableFile(w, storage.MockGBObject)
+	// Package context
+	var ctx context.Context
+	ctx = contexts.NewMockCmdContext()
+	ctx = contexts.SetContext(ctx, constants.BenchFlag, true)
+	ctx = contexts.SetContext(ctx, "objectKey", storage.MockGBObject)
+	ctx = contexts.SetContext(ctx, "writer", w)
+
+	total, err := CopyObjectToNotSeekableFile(ctx)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }

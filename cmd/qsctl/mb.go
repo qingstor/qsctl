@@ -30,17 +30,18 @@ bucket name should follow DNS name rule with:
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
-	return action.MakeBucket(args[0])
+	ctx = contexts.SetContext(ctx, "remote", args[0])
+	return action.MakeBucket(ctx)
 }
 
 func initMbFlag() {
-	MbCommand.Flags().StringVarP(&contexts.Zone, "zone", "z",
+	MbCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z",
 		"", "in which zone to make the bucket (required)")
 }
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
-	if contexts.Zone == "" {
+	if zone == "" {
 		return constants.ErrorZoneRequired
 	}
 	return nil

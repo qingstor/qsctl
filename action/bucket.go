@@ -1,22 +1,27 @@
 package action
 
 import (
+	"context"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // MakeBucket will make a bucket with specific name.
-func MakeBucket(remote string) (err error) {
+func MakeBucket(ctx context.Context) (err error) {
+	// Get params from context
+	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
+	remote := contexts.FromContext(ctx, "remote").(string)
 	// Get bucket name from path
 	bucketName, _, err := ParseQsPath(remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	err = contexts.Storage.SetupBucket(bucketName, zone)
 	if err != nil {
 		return err
 	}
@@ -28,14 +33,17 @@ func MakeBucket(remote string) (err error) {
 }
 
 // RemoveBucket remove a bucket with specific remote qs path.
-func RemoveBucket(remote string) (err error) {
+func RemoveBucket(ctx context.Context) (err error) {
+	// Get params from context
+	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
+	remote := contexts.FromContext(ctx, "remote").(string)
 	// Get bucket name from path
 	bucketName, _, err := ParseQsPath(remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	err = contexts.Storage.SetupBucket(bucketName, zone)
 	if err != nil {
 		return err
 	}
@@ -47,7 +55,10 @@ func RemoveBucket(remote string) (err error) {
 }
 
 // ListBuckets list all buckets.
-func ListBuckets(zone string) (err error) {
+func ListBuckets(ctx context.Context) (err error) {
+	// Get params from context
+	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
+
 	buckets, err := contexts.Storage.ListBuckets(zone)
 	if err != nil {
 		return

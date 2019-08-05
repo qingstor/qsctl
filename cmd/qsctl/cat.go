@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -20,5 +21,8 @@ var CatCommand = &cobra.Command{
 }
 
 func catRun(_ *cobra.Command, args []string) (err error) {
-	return action.Copy(args[0], "-")
+	// Package context
+	ctx = contexts.SetContext(ctx, "src", args[0])
+	ctx = contexts.SetContext(ctx, "dest", "-")
+	return action.Copy(ctx)
 }

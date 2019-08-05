@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -10,11 +12,23 @@ import (
 )
 
 var (
+	// register available flag vars here
+	bench                bool
+	expectSize           string
+	format               string
+	humanReadable        bool
+	longFormat           bool
+	maximumMemoryContent string
+	recursive            bool
+	reverse              bool
+	zone                 string
+)
+
+var (
 	// configPath will be set if config flag was set
 	configPath string
-	// register to-be-parsed flag vars here
-	expectSize           string
-	maximumMemoryContent string
+	// ctx will store contexts of a command life-cycle
+	ctx context.Context
 )
 
 // rootCmd is the main command of qsctl
@@ -39,7 +53,7 @@ func init() {
 		if err := initConfig(); err != nil {
 			return err
 		}
-
+		initContext()
 		return nil
 	}
 
@@ -114,8 +128,22 @@ func initGlobalFlag() {
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
 		"", "assign config path manually")
 	// Add config flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().BoolVar(&contexts.Bench, "bench",
+	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
+}
+
+// initContext init the cmd context with all available flags
+func initContext() {
+	ctx = contexts.NewCmdCtx()
+	ctx = contexts.SetContext(ctx, constants.BenchFlag, bench)
+	ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, expectSize)
+	ctx = contexts.SetContext(ctx, constants.FormatFlag, format)
+	ctx = contexts.SetContext(ctx, constants.HumanReadableFlag, humanReadable)
+	ctx = contexts.SetContext(ctx, constants.LongFormatFlag, longFormat)
+	ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, maximumMemoryContent)
+	ctx = contexts.SetContext(ctx, constants.RecursiveFlag, recursive)
+	ctx = contexts.SetContext(ctx, constants.ReverseFlag, reverse)
+	ctx = contexts.SetContext(ctx, constants.ZoneFlag, zone)
 }

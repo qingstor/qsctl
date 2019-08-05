@@ -1,6 +1,7 @@
 package action
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -14,7 +15,11 @@ import (
 )
 
 // Stat will handle all stat actions.
-func Stat(remote string) (err error) {
+func Stat(ctx context.Context) (err error) {
+	// Get params from context
+	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
+	remote := contexts.FromContext(ctx, "remote").(string)
+
 	bucketName, objectKey, err := ParseQsPath(remote)
 	if err != nil {
 		return err
@@ -22,23 +27,27 @@ func Stat(remote string) (err error) {
 	if objectKey == "" {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
-	err = contexts.Storage.SetupBucket(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, zone)
 	if err != nil {
 		return
 	}
-
-	return StatRemoteObject(objectKey)
+	ctx = contexts.SetContext(ctx, "objectKey", objectKey)
+	return StatRemoteObject(ctx)
 }
 
 // StatRemoteObject will stat a remote object.
-func StatRemoteObject(objectKey string) (err error) {
+func StatRemoteObject(ctx context.Context) (err error) {
+	// Get params from context
+	format := contexts.FromContext(ctx, constants.FormatFlag).(string)
+	objectKey := contexts.FromContext(ctx, "objectKey").(string)
+
 	om, err := contexts.Storage.HeadObject(objectKey)
 	if err != nil {
 		return
 	}
 
-	if contexts.Format != "" {
-		fmt.Println(statFormat(contexts.Format, om))
+	if format != "" {
+		fmt.Println(statFormat(format, om))
 		return
 	}
 

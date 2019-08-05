@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -21,10 +22,11 @@ var RmCommand = &cobra.Command{
 }
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
-	return action.Delete(args[0])
+	ctx = contexts.SetContext(ctx, "remote", args[0])
+	return action.Delete(ctx)
 }
 
 func initRmFlag() {
-	RmCommand.Flags().StringVarP(&contexts.Zone, "zone", "z",
+	RmCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z",
 		"", "in which zone to remove object")
 }

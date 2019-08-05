@@ -1,12 +1,14 @@
 package action
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 )
@@ -21,7 +23,6 @@ type LsTestSuite struct {
 }
 
 func (suite LsTestSuite) SetupTest() {
-	contexts.Bench = true
 	contexts.Storage = storage.NewMockObjectStorage()
 }
 
@@ -67,22 +68,31 @@ func (suite LsTestSuite) TestListObjects() {
 			objNum + 2, 4*objNum + 1, nil},
 	}
 
+	delimiter := "/"
 	for k, c := range cases {
-		contexts.HumanReadable = c.humanReadable
-		contexts.LongFormat = c.longFormat
-		contexts.Recursive = c.recursive
-		contexts.Reverse = c.reverse
-		delimiter := "/"
+		// Package context
+		var ctx context.Context
+		ctx = contexts.NewMockCmdContext()
+		ctx = contexts.SetContext(ctx, constants.HumanReadableFlag, c.humanReadable)
+		ctx = contexts.SetContext(ctx, constants.LongFormatFlag, c.longFormat)
+		ctx = contexts.SetContext(ctx, constants.RecursiveFlag, c.recursive)
+		ctx = contexts.SetContext(ctx, constants.ReverseFlag, c.reverse)
+		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
+		ctx = contexts.SetContext(ctx, "remote", c.remote)
+		ctx = contexts.SetContext(ctx, "prefix", c.key)
+		ctx = contexts.SetContext(ctx, "delimiter", delimiter)
+		// Reset mock objects after each call
 		s := contexts.Storage.(*storage.MockObjectStorage)
 		s.ResetMockObjects(objPrefix, objNum)
-		assert.Equal(suite.T(), c.err, ListObjects(c.remote), k)
+		assert.Equal(suite.T(), c.err, ListObjects(ctx), k)
+
 		s.ResetMockObjects(objPrefix, objNum)
 		oms, err := contexts.Storage.ListObjects(c.key, delimiter, nil)
 		assert.Equal(suite.T(), c.err, err, k)
 		assert.Equal(suite.T(), c.omsCount, len(oms), k)
 
 		s.ResetMockObjects(objPrefix, objNum)
-		root, _ := listObjects(c.key, delimiter)
+		root, _ := listObjects(ctx)
 		count := root.ChildrenCount()
 		assert.Equal(suite.T(), c.childrenCount, count, k)
 	}

@@ -1,6 +1,7 @@
 package action
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,6 @@ type BucketTestSuite struct {
 
 func (suite BucketTestSuite) SetupTest() {
 	contexts.Storage = storage.NewMockObjectStorage()
-	contexts.Bench = true
 }
 
 func (suite BucketTestSuite) TestMakeBucket() {
@@ -32,8 +32,13 @@ func (suite BucketTestSuite) TestMakeBucket() {
 		{storage.MockZoneBeta, "qs://", constants.ErrorQsPathInvalid},
 	}
 	for _, c := range cases {
-		contexts.Zone = c.zone
-		assert.Equal(suite.T(), c.expected, MakeBucket(c.name))
+		// Package context
+		var ctx context.Context
+		ctx = contexts.NewMockCmdContext()
+		ctx = contexts.SetContext(ctx, constants.ZoneFlag, c.zone)
+		ctx = contexts.SetContext(ctx, "remote", c.name)
+
+		assert.Equal(suite.T(), c.expected, MakeBucket(ctx))
 	}
 }
 
@@ -48,8 +53,13 @@ func (suite BucketTestSuite) TestListBuckets() {
 		{"", nil, 2},
 	}
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, ListBuckets(c.zone), c.zone)
-		buckets, _ := contexts.Storage.ListBuckets(c.zone)
+		// Package context
+		var ctx context.Context
+		ctx = contexts.NewMockCmdContext()
+		ctx = contexts.SetContext(ctx, constants.ZoneFlag, c.zone)
+
+		assert.Equal(suite.T(), c.expected1, ListBuckets(ctx), c.zone)
+		buckets, _ := contexts.Storage.ListBuckets(contexts.FromContext(ctx, constants.ZoneFlag).(string))
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.zone)
 	}
 }
@@ -64,9 +74,14 @@ func (suite BucketTestSuite) TestRemoveBucket() {
 		{storage.MockZoneBeta, nil, 0},
 		{"qs://", constants.ErrorQsPathInvalid, 0},
 	}
-	contexts.Zone = ""
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, RemoveBucket(c.name), c.name)
+		// Package context
+		var ctx context.Context
+		ctx = contexts.NewMockCmdContext()
+		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
+		ctx = contexts.SetContext(ctx, "remote", c.name)
+
+		assert.Equal(suite.T(), c.expected1, RemoveBucket(ctx), c.name)
 		buckets, _ := contexts.Storage.ListBuckets("")
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.name)
 	}
