@@ -1,7 +1,6 @@
 package action
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -14,11 +13,44 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
+// StatHandler is all params for Stat func
+type StatHandler struct {
+	*FlagHandler
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// ObjectKey is the remote object key
+	ObjectKey string `json:"object_key"`
+}
+
+// WithZone rewrite the WithZone method
+func (sh *StatHandler) WithZone(z string) *StatHandler {
+	sh.FlagHandler = sh.FlagHandler.WithZone(z)
+	return sh
+}
+
+// WithFormat rewrite the WithFormat method
+func (sh *StatHandler) WithFormat(f string) *StatHandler {
+	sh.FlagHandler = sh.FlagHandler.WithFormat(f)
+	return sh
+}
+
+// WithRemote sets the Remote field with given remote path
+func (sh *StatHandler) WithRemote(path string) *StatHandler {
+	sh.Remote = path
+	return sh
+}
+
+// WithObjectKey sets the ObjectKey field with given key
+func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
+	sh.ObjectKey = key
+	return sh
+}
+
 // Stat will handle all stat actions.
-func Stat(ctx context.Context) (err error) {
-	// Get params from context
-	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
-	remote := contexts.FromContext(ctx, "remote").(string)
+func (sh *StatHandler) Stat() (err error) {
+	// Get params from handler
+	zone := sh.GetZone()
+	remote := sh.Remote
 
 	bucketName, objectKey, err := ParseQsPath(remote)
 	if err != nil {
@@ -31,15 +63,14 @@ func Stat(ctx context.Context) (err error) {
 	if err != nil {
 		return
 	}
-	ctx = contexts.SetContext(ctx, "objectKey", objectKey)
-	return StatRemoteObject(ctx)
+	return sh.WithObjectKey(objectKey).StatRemoteObject()
 }
 
 // StatRemoteObject will stat a remote object.
-func StatRemoteObject(ctx context.Context) (err error) {
-	// Get params from context
-	format := contexts.FromContext(ctx, constants.FormatFlag).(string)
-	objectKey := contexts.FromContext(ctx, "objectKey").(string)
+func (sh *StatHandler) StatRemoteObject() (err error) {
+	// Get params from handler
+	format := sh.GetFormat()
+	objectKey := sh.ObjectKey
 
 	om, err := contexts.Storage.HeadObject(objectKey)
 	if err != nil {

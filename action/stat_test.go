@@ -1,7 +1,6 @@
 package action
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -10,7 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 )
@@ -33,14 +31,9 @@ func (suite StatTestSuite) TestStat() {
 	}
 
 	for _, v := range cases {
-		// Package context
-		var ctx context.Context
-		ctx = contexts.NewMockCmdContext()
-		ctx = contexts.SetContext(ctx, constants.FormatFlag, "")
-		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
-		ctx = contexts.SetContext(ctx, "remote", v.input)
-
-		err := Stat(ctx)
+		// Package handler
+		input := StatHandler{}
+		err := input.WithRemote(v.input).Stat()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 	}
 }
@@ -57,13 +50,6 @@ func (suite StatTestSuite) TestStatWithFormat() {
 	}
 
 	for _, v := range cases {
-		// Package context
-		var ctx context.Context
-		ctx = contexts.NewMockCmdContext()
-		ctx = contexts.SetContext(ctx, constants.FormatFlag, v.format)
-		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
-		ctx = contexts.SetContext(ctx, "remote", v.input)
-
 		tempfile, err := ioutil.TempFile("", uuid.New().String())
 		if err != nil {
 			panic(err)
@@ -72,7 +58,9 @@ func (suite StatTestSuite) TestStatWithFormat() {
 
 		os.Stdout = tempfile
 
-		err = Stat(ctx)
+		// Package handler
+		input := StatHandler{}
+		err = input.WithFormat(v.format).WithRemote(v.input).Stat()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 
 		_, err = tempfile.Seek(0, 0)

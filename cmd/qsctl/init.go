@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -13,22 +11,24 @@ import (
 
 var (
 	// register available flag vars here
-	bench                bool
-	expectSize           string
-	format               string
-	humanReadable        bool
-	longFormat           bool
-	maximumMemoryContent string
-	recursive            bool
-	reverse              bool
-	zone                 string
+	bench bool
+	// _expectSize is unparsed value of expectSize
+	_expectSize   string
+	expectSize    int64
+	format        string
+	humanReadable bool
+	longFormat    bool
+	// _maximumMemoryContent is unparsed value of maximumMemoryContent
+	_maximumMemoryContent string
+	maximumMemoryContent  int64
+	recursive             bool
+	reverse               bool
+	zone                  string
 )
 
 var (
 	// configPath will be set if config flag was set
 	configPath string
-	// ctx will store contexts of a command life-cycle
-	ctx context.Context
 )
 
 // rootCmd is the main command of qsctl
@@ -50,11 +50,7 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		if err := initConfig(); err != nil {
-			return err
-		}
-		initContext()
-		return nil
+		return initConfig()
 	}
 
 	// add sub-command to rootCmd
@@ -132,18 +128,4 @@ func initGlobalFlag() {
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
-}
-
-// initContext init the cmd context with all available flags
-func initContext() {
-	ctx = contexts.NewCmdCtx()
-	ctx = contexts.SetContext(ctx, constants.BenchFlag, bench)
-	ctx = contexts.SetContext(ctx, constants.ExpectSizeFlag, expectSize)
-	ctx = contexts.SetContext(ctx, constants.FormatFlag, format)
-	ctx = contexts.SetContext(ctx, constants.HumanReadableFlag, humanReadable)
-	ctx = contexts.SetContext(ctx, constants.LongFormatFlag, longFormat)
-	ctx = contexts.SetContext(ctx, constants.MaximumMemoryContentFlag, maximumMemoryContent)
-	ctx = contexts.SetContext(ctx, constants.RecursiveFlag, recursive)
-	ctx = contexts.SetContext(ctx, constants.ReverseFlag, reverse)
-	ctx = contexts.SetContext(ctx, constants.ZoneFlag, zone)
 }

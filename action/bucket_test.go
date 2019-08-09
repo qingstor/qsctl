@@ -1,7 +1,6 @@
 package action
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,13 +31,9 @@ func (suite BucketTestSuite) TestMakeBucket() {
 		{storage.MockZoneBeta, "qs://", constants.ErrorQsPathInvalid},
 	}
 	for _, c := range cases {
-		// Package context
-		var ctx context.Context
-		ctx = contexts.NewMockCmdContext()
-		ctx = contexts.SetContext(ctx, constants.ZoneFlag, c.zone)
-		ctx = contexts.SetContext(ctx, "remote", c.name)
-
-		assert.Equal(suite.T(), c.expected, MakeBucket(ctx))
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected, input.WithZone(c.zone).WithRemote(c.name).MakeBucket())
 	}
 }
 
@@ -53,13 +48,10 @@ func (suite BucketTestSuite) TestListBuckets() {
 		{"", nil, 2},
 	}
 	for _, c := range cases {
-		// Package context
-		var ctx context.Context
-		ctx = contexts.NewMockCmdContext()
-		ctx = contexts.SetContext(ctx, constants.ZoneFlag, c.zone)
-
-		assert.Equal(suite.T(), c.expected1, ListBuckets(ctx), c.zone)
-		buckets, _ := contexts.Storage.ListBuckets(contexts.FromContext(ctx, constants.ZoneFlag).(string))
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected1, input.WithZone(c.zone).ListBuckets(), c.zone)
+		buckets, _ := contexts.Storage.ListBuckets(c.zone)
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.zone)
 	}
 }
@@ -75,13 +67,9 @@ func (suite BucketTestSuite) TestRemoveBucket() {
 		{"qs://", constants.ErrorQsPathInvalid, 0},
 	}
 	for _, c := range cases {
-		// Package context
-		var ctx context.Context
-		ctx = contexts.NewMockCmdContext()
-		ctx = contexts.SetContext(ctx, constants.ZoneFlag, "")
-		ctx = contexts.SetContext(ctx, "remote", c.name)
-
-		assert.Equal(suite.T(), c.expected1, RemoveBucket(ctx), c.name)
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected1, input.WithRemote(c.name).RemoveBucket(), c.name)
 		buckets, _ := contexts.Storage.ListBuckets("")
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.name)
 	}

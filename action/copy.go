@@ -3,7 +3,6 @@ package action
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"crypto/md5"
 	"io"
 	"os"
@@ -20,13 +19,82 @@ import (
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
+// CopyHandler is all params for Copy func
+type CopyHandler struct {
+	*FlagHandler
+	// Src is the source path
+	Src string `json:"src"`
+	// Dest is the destination path
+	Dest string `json:"dest"`
+	// ObjectKey is the remote object key
+	ObjectKey string `json:"object_key"`
+	// Reader is the stream for upload
+	Reader io.Reader `json:"reader"`
+	// Writer is the stream for download
+	Writer io.Writer `json:"writer"`
+}
+
+// WithBench rewrite the WithBench method
+func (ch *CopyHandler) WithBench(b bool) *CopyHandler {
+	ch.FlagHandler = ch.FlagHandler.WithBench(b)
+	return ch
+}
+
+// WithExpectSize rewrite the WithExpectSize method
+func (ch *CopyHandler) WithExpectSize(size int64) *CopyHandler {
+	ch.FlagHandler = ch.FlagHandler.WithExpectSize(size)
+	return ch
+}
+
+// WithMaximumMemory rewrite the WithMaximumMemory method
+func (ch *CopyHandler) WithMaximumMemory(size int64) *CopyHandler {
+	ch.FlagHandler = ch.FlagHandler.WithMaximumMemory(size)
+	return ch
+}
+
+// WithZone rewrite the WithZone method
+func (ch *CopyHandler) WithZone(z string) *CopyHandler {
+	ch.FlagHandler = ch.FlagHandler.WithZone(z)
+	return ch
+}
+
+// WithSrc sets the Src field with given path
+func (ch *CopyHandler) WithSrc(path string) *CopyHandler {
+	ch.Src = path
+	return ch
+}
+
+// WithDest sets the Dest field with given path
+func (ch *CopyHandler) WithDest(path string) *CopyHandler {
+	ch.Dest = path
+	return ch
+}
+
+// WithObjectKey sets the ObjectKey field with given key
+func (ch *CopyHandler) WithObjectKey(key string) *CopyHandler {
+	ch.ObjectKey = key
+	return ch
+}
+
+// WithReader sets the Reader field with given reader
+func (ch *CopyHandler) WithReader(r io.Reader) *CopyHandler {
+	ch.Reader = r
+	return ch
+}
+
+// WithWriter sets the Writer field with given writer
+func (ch *CopyHandler) WithWriter(w io.Writer) *CopyHandler {
+	ch.Writer = w
+	return ch
+}
+
 // Copy will handle all copy actions.
-func Copy(ctx context.Context) (err error) {
-	// Get params from context
-	bench := contexts.FromContext(ctx, constants.BenchFlag).(bool)
-	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
-	src := contexts.FromContext(ctx, "src").(string)
-	dest := contexts.FromContext(ctx, "dest").(string)
+func (ch *CopyHandler) Copy() (err error) {
+	// Get params from handler
+	bench := ch.Bench
+	zone := ch.Zone
+	src := ch.Src
+	dest := ch.Dest
 
 	flow, err := ParseDirection(src, dest)
 	if err != nil {
@@ -71,12 +139,10 @@ func Copy(ctx context.Context) (err error) {
 			return err
 		}
 
-		ctx = contexts.SetContext(ctx, "objectKey", objectKey)
-		ctx = contexts.SetContext(ctx, "reader", r)
 		switch x := r.(type) {
 		case *os.File:
 			if x == os.Stdin {
-				totalSize, err = CopyNotSeekableFileToRemote(ctx)
+				totalSize, err = ch.WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
 				if err != nil {
 					return err
 				}
@@ -105,12 +171,10 @@ func Copy(ctx context.Context) (err error) {
 			return err
 		}
 
-		ctx = contexts.SetContext(ctx, "objectKey", objectKey)
-		ctx = contexts.SetContext(ctx, "writer", w)
 		switch x := w.(type) {
 		case *os.File:
 			if x == os.Stdout {
-				totalSize, err = CopyObjectToNotSeekableFile(ctx)
+				totalSize, err = ch.WithObjectKey(objectKey).WithWriter(w).CopyObjectToNotSeekableFile()
 				if err != nil {
 					return err
 				}
@@ -127,13 +191,13 @@ func Copy(ctx context.Context) (err error) {
 }
 
 // CopyNotSeekableFileToRemote will copy a not seekable file to remote.
-func CopyNotSeekableFileToRemote(ctx context.Context) (total int64, err error) {
-	// Get params from context
-	bench := contexts.FromContext(ctx, constants.BenchFlag).(bool)
-	expectSize := contexts.FromContext(ctx, constants.ExpectSizeFlag).(int64)
-	maximumMemory := contexts.FromContext(ctx, constants.MaximumMemoryContentFlag).(int64)
-	objectKey := contexts.FromContext(ctx, "objectKey").(string)
-	r := contexts.FromContext(ctx, "reader").(io.Reader)
+func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
+	// Get params from handler
+	bench := ch.Bench
+	expectSize := ch.ExpectSize
+	maximumMemory := ch.MaximumMemoryContent
+	objectKey := ch.ObjectKey
+	r := ch.Reader
 
 	if expectSize == 0 {
 		return 0, constants.ErrorExpectSizeRequired
@@ -212,10 +276,10 @@ func CopyNotSeekableFileToRemote(ctx context.Context) (total int64, err error) {
 }
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.
-func CopyObjectToNotSeekableFile(ctx context.Context) (total int64, err error) {
-	// Get params from context
-	objectKey := contexts.FromContext(ctx, "objectKey").(string)
-	w := contexts.FromContext(ctx, "writer").(io.Writer)
+func (ch *CopyHandler) CopyObjectToNotSeekableFile() (total int64, err error) {
+	// Get params from handler
+	objectKey := ch.ObjectKey
+	w := ch.Writer
 
 	r, err := contexts.Storage.GetObject(objectKey)
 	if err != nil {

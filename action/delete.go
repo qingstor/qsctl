@@ -1,19 +1,36 @@
 package action
 
 import (
-	"context"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
+// DeleteHandler is all params for Delete func
+type DeleteHandler struct {
+	*FlagHandler
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+}
+
+// WithZone rewrite the WithZone method
+func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
+	dh.FlagHandler = dh.FlagHandler.WithZone(z)
+	return dh
+}
+
+// WithRemote sets the Remote field with given remote path
+func (dh *DeleteHandler) WithRemote(path string) *DeleteHandler {
+	dh.Remote = path
+	return dh
+}
+
 // Delete will delete a remote object.
-func Delete(ctx context.Context) (err error) {
-	// Get params from context
-	zone := contexts.FromContext(ctx, constants.ZoneFlag).(string)
-	remote := contexts.FromContext(ctx, "remote").(string)
+func (dh *DeleteHandler) Delete() (err error) {
+	// Get params from handler
+	zone := dh.GetZone()
+	remote := dh.Remote
 
 	bucketName, objectKey, err := ParseQsPath(remote)
 	if err != nil {

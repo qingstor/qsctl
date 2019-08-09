@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -26,10 +25,12 @@ var LsCommand = &cobra.Command{
 
 func lsRun(_ *cobra.Command, args []string) (err error) {
 	if len(args) == 0 {
-		return action.ListBuckets(ctx)
+		bh := &action.BucketHandler{}
+		return bh.WithZone(zone).ListBuckets()
 	}
-	ctx = contexts.SetContext(ctx, "remote", args[0])
-	return action.ListObjects(ctx)
+	lh := &action.ListHandler{}
+	return lh.WithHumanReadable(humanReadable).WithLongFormat(longFormat).WithRecursive(recursive).
+		WithReverse(reverse).WithZone(zone).WithRemote(args[0]).ListObjects()
 }
 
 func initLsFlag() {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -22,8 +21,8 @@ var StatCommand = &cobra.Command{
 }
 
 func statRun(_ *cobra.Command, args []string) (err error) {
-	ctx = contexts.SetContext(ctx, "remote", args[0])
-	return action.Stat(ctx)
+	sh := action.StatHandler{}
+	return sh.WithZone(zone).WithFormat(format).WithRemote(args[0]).Stat()
 }
 
 func initStatFlag() {
