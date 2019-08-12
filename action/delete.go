@@ -9,14 +9,14 @@ import (
 
 // DeleteHandler is all params for Delete func
 type DeleteHandler struct {
-	*FlagHandler
+	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
 }
 
 // WithZone rewrite the WithZone method
 func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
-	dh.FlagHandler = dh.FlagHandler.WithZone(z)
+	dh.Zone = z
 	return dh
 }
 
@@ -28,11 +28,7 @@ func (dh *DeleteHandler) WithRemote(path string) *DeleteHandler {
 
 // Delete will delete a remote object.
 func (dh *DeleteHandler) Delete() (err error) {
-	// Get params from handler
-	zone := dh.GetZone()
-	remote := dh.Remote
-
-	bucketName, objectKey, err := ParseQsPath(remote)
+	bucketName, objectKey, err := ParseQsPath(dh.Remote)
 	if err != nil {
 		return
 	}
@@ -41,7 +37,7 @@ func (dh *DeleteHandler) Delete() (err error) {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, zone)
+	err = contexts.Storage.SetupBucket(bucketName, dh.Zone)
 	if err != nil {
 		return
 	}

@@ -21,7 +21,7 @@ import (
 
 // CopyHandler is all params for Copy func
 type CopyHandler struct {
-	*FlagHandler
+	BaseHandler
 	// Src is the source path
 	Src string `json:"src"`
 	// Dest is the destination path
@@ -36,25 +36,25 @@ type CopyHandler struct {
 
 // WithBench rewrite the WithBench method
 func (ch *CopyHandler) WithBench(b bool) *CopyHandler {
-	ch.FlagHandler = ch.FlagHandler.WithBench(b)
+	ch.Bench = b
 	return ch
 }
 
 // WithExpectSize rewrite the WithExpectSize method
 func (ch *CopyHandler) WithExpectSize(size int64) *CopyHandler {
-	ch.FlagHandler = ch.FlagHandler.WithExpectSize(size)
+	ch.ExpectSize = size
 	return ch
 }
 
 // WithMaximumMemory rewrite the WithMaximumMemory method
 func (ch *CopyHandler) WithMaximumMemory(size int64) *CopyHandler {
-	ch.FlagHandler = ch.FlagHandler.WithMaximumMemory(size)
+	ch.MaximumMemoryContent = size
 	return ch
 }
 
 // WithZone rewrite the WithZone method
 func (ch *CopyHandler) WithZone(z string) *CopyHandler {
-	ch.FlagHandler = ch.FlagHandler.WithZone(z)
+	ch.Zone = z
 	return ch
 }
 
@@ -90,19 +90,13 @@ func (ch *CopyHandler) WithWriter(w io.Writer) *CopyHandler {
 
 // Copy will handle all copy actions.
 func (ch *CopyHandler) Copy() (err error) {
-	// Get params from handler
-	bench := ch.Bench
-	zone := ch.Zone
-	src := ch.Src
-	dest := ch.Dest
-
-	flow, err := ParseDirection(src, dest)
+	flow, err := ParseDirection(ch.Src, ch.Dest)
 	if err != nil {
 		return
 	}
 
 	var totalSize int64
-	if bench {
+	if ch.Bench {
 		f, err := os.Create("profile")
 		if err != nil {
 			panic(err)
@@ -122,19 +116,19 @@ func (ch *CopyHandler) Copy() (err error) {
 
 	switch flow {
 	case constants.DirectionLocalToRemote:
-		r, err := ParseFilePathForRead(src)
+		r, err := ParseFilePathForRead(ch.Src)
 		if err != nil {
 			return err
 		}
 
-		bucketName, objectKey, err := ParseQsPath(dest)
+		bucketName, objectKey, err := ParseQsPath(ch.Dest)
 		if err != nil {
 			return err
 		}
 		if objectKey == "" {
 			return constants.ErrorQsPathObjectKeyRequired
 		}
-		err = contexts.Storage.SetupBucket(bucketName, zone)
+		err = contexts.Storage.SetupBucket(bucketName, ch.Zone)
 		if err != nil {
 			return err
 		}
@@ -154,19 +148,19 @@ func (ch *CopyHandler) Copy() (err error) {
 		}
 
 	case constants.DirectionRemoteToLocal:
-		bucketName, objectKey, err := ParseQsPath(src)
+		bucketName, objectKey, err := ParseQsPath(ch.Src)
 		if err != nil {
 			return err
 		}
 		if objectKey == "" {
 			return constants.ErrorQsPathObjectKeyRequired
 		}
-		err = contexts.Storage.SetupBucket(bucketName, zone)
+		err = contexts.Storage.SetupBucket(bucketName, ch.Zone)
 		if err != nil {
 			return err
 		}
 
-		w, err := ParseFilePathForWrite(dest)
+		w, err := ParseFilePathForWrite(ch.Dest)
 		if err != nil {
 			return err
 		}
@@ -192,31 +186,24 @@ func (ch *CopyHandler) Copy() (err error) {
 
 // CopyNotSeekableFileToRemote will copy a not seekable file to remote.
 func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
-	// Get params from handler
-	bench := ch.Bench
-	expectSize := ch.ExpectSize
-	maximumMemory := ch.MaximumMemoryContent
-	objectKey := ch.ObjectKey
-	r := ch.Reader
-
-	if expectSize == 0 {
+	if ch.ExpectSize == 0 {
 		return 0, constants.ErrorExpectSizeRequired
 	}
 
-	uploadID, err := contexts.Storage.InitiateMultipartUpload(objectKey)
+	uploadID, err := contexts.Storage.InitiateMultipartUpload(ch.ObjectKey)
 	if err != nil {
 		return
 	}
 
-	log.Debugf("Object <%s> uploading via upload ID <%s>", objectKey, uploadID)
+	log.Debugf("Object <%s> uploading via upload ID <%s>", ch.ObjectKey, uploadID)
 
-	partSize, err := CalculatePartSize(expectSize)
+	partSize, err := CalculatePartSize(ch.ExpectSize)
 	if err != nil {
 		return
 	}
 
 	var wg sync.WaitGroup
-	pool, err := ants.NewPool(CalculateConcurrentWorkers(partSize, maximumMemory))
+	pool, err := ants.NewPool(CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
 	if err != nil {
 		panic(err)
 	}
@@ -226,11 +213,11 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 
 	partNumber := 0
 	for {
-		lr := bufio.NewReader(io.LimitReader(r, partSize))
+		lr := bufio.NewReader(io.LimitReader(ch.Reader, partSize))
 		b := bytesPool.Get()
 		n, err := io.Copy(b, lr)
 
-		if bench {
+		if ch.Bench {
 			total += int64(n)
 		}
 
@@ -252,11 +239,11 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 
 			md5sum := md5.Sum(b.Bytes())
 
-			err = contexts.Storage.UploadMultipart(objectKey, uploadID, int64(n), localPartNumber, md5sum[:], bytes.NewReader(b.Bytes()))
+			err = contexts.Storage.UploadMultipart(ch.ObjectKey, uploadID, int64(n), localPartNumber, md5sum[:], bytes.NewReader(b.Bytes()))
 			if err != nil {
-				log.Errorf("Object <%s> part <%d> upload failed [%s]", objectKey, localPartNumber, err)
+				log.Errorf("Object <%s> part <%d> upload failed [%s]", ch.ObjectKey, localPartNumber, err)
 			}
-			log.Debugf("Object <%s> part <%d> uploaded", objectKey, localPartNumber)
+			log.Debugf("Object <%s> part <%d> uploaded", ch.ObjectKey, localPartNumber)
 		})
 		if err != nil {
 			panic(err)
@@ -267,26 +254,22 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 
 	wg.Wait()
 
-	err = contexts.Storage.CompleteMultipartUpload(objectKey, uploadID, partNumber)
+	err = contexts.Storage.CompleteMultipartUpload(ch.ObjectKey, uploadID, partNumber)
 	if err != nil {
 		return
 	}
-	log.Infof("Object <%s> upload finished", objectKey)
+	log.Infof("Object <%s> upload finished", ch.ObjectKey)
 	return total, nil
 }
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.
 func (ch *CopyHandler) CopyObjectToNotSeekableFile() (total int64, err error) {
-	// Get params from handler
-	objectKey := ch.ObjectKey
-	w := ch.Writer
-
-	r, err := contexts.Storage.GetObject(objectKey)
+	r, err := contexts.Storage.GetObject(ch.ObjectKey)
 	if err != nil {
 		return
 	}
 
-	bw, br := bufio.NewWriter(w), bufio.NewReader(r)
+	bw, br := bufio.NewWriter(ch.Writer), bufio.NewReader(r)
 	total, err = io.Copy(bw, br)
 	if err != nil {
 		log.Errorf("Copy failed [%v]", err)

@@ -35,12 +35,8 @@ func (suite CopyTestSuite) TestCopy() {
 	}
 
 	for _, v := range cases {
-		// Package input params
-		input := CopyHandler{
-			FlagHandler: (&FlagHandler{}).WithExpectSize(expectSize),
-		}
-
-		err := input.WithSrc(v.inputSrc).WithDest(v.inputDest).Copy()
+		input := CopyHandler{}
+		err := input.WithExpectSize(expectSize).WithSrc(v.inputSrc).WithDest(v.inputDest).Copy()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 	}
 }
@@ -50,12 +46,8 @@ func (suite CopyTestSuite) TestCopyNotSeekableFileToRemote() {
 	r := io.LimitReader(utils.NewRand(), size)
 	objectKey := uuid.New().String()
 
-	// Package input params
-	input := CopyHandler{
-		FlagHandler: (&FlagHandler{}).WithBench(true).WithExpectSize(size),
-	}
-
-	total, err := input.WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
+	input := CopyHandler{}
+	total, err := input.WithBench(true).WithExpectSize(size).WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }

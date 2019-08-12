@@ -19,7 +19,7 @@ var ownerID string
 
 // ListHandler is all params for List func
 type ListHandler struct {
-	*FlagHandler
+	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
 	// Prefix is the prefix to list
@@ -32,31 +32,31 @@ type ListHandler struct {
 
 // WithHumanReadable rewrite the WithHumanReadable method
 func (lh *ListHandler) WithHumanReadable(h bool) *ListHandler {
-	lh.FlagHandler = lh.FlagHandler.WithHumanReadable(h)
+	lh.HumanReadable = h
 	return lh
 }
 
 // WithLongFormat rewrite the WithLongFormat method
 func (lh *ListHandler) WithLongFormat(l bool) *ListHandler {
-	lh.FlagHandler = lh.FlagHandler.WithLongFormat(l)
+	lh.LongFormat = l
 	return lh
 }
 
 // WithRecursive rewrite the WithRecursive method
 func (lh *ListHandler) WithRecursive(r bool) *ListHandler {
-	lh.FlagHandler = lh.FlagHandler.WithRecursive(r)
+	lh.Recursive = r
 	return lh
 }
 
 // WithReverse rewrite the WithReverse method
 func (lh *ListHandler) WithReverse(r bool) *ListHandler {
-	lh.FlagHandler = lh.FlagHandler.WithReverse(r)
+	lh.Reverse = r
 	return lh
 }
 
 // WithZone rewrite the WithZone method
 func (lh *ListHandler) WithZone(z string) *ListHandler {
-	lh.FlagHandler = lh.FlagHandler.WithZone(z)
+	lh.Zone = z
 	return lh
 }
 
@@ -86,18 +86,12 @@ func (lh *ListHandler) WithRoot(om *storage.ObjectMeta) *ListHandler {
 
 // ListObjects will handle all ls actions.
 func (lh *ListHandler) ListObjects() (err error) {
-	// Get params from handler
-	longFormat := lh.GetLongFormat()
-	recursive := lh.GetRecursive()
-	zone := lh.GetZone()
-	remote := lh.Remote
-
-	bucketName, objectKey, err := ParseQsPath(remote)
+	bucketName, objectKey, err := ParseQsPath(lh.Remote)
 	if err != nil {
 		return err
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, zone)
+	err = contexts.Storage.SetupBucket(bucketName, lh.Zone)
 	if err != nil {
 		return
 	}
@@ -109,7 +103,7 @@ func (lh *ListHandler) ListObjects() (err error) {
 	}
 
 	// if long format (-l), set bucket owner for printing
-	if longFormat {
+	if lh.LongFormat {
 		if err = getBucketOwner(); err != nil {
 			return err
 		}
@@ -120,7 +114,7 @@ func (lh *ListHandler) ListObjects() (err error) {
 	}
 
 	// if recursive (-R), print next level keys recursively
-	if recursive {
+	if lh.Recursive {
 		for _, om := range root.Children {
 			if om.IsDir() {
 				if err := lh.WithRoot(om).printChildrenKeysRecursively(); err != nil {
@@ -135,21 +129,15 @@ func (lh *ListHandler) ListObjects() (err error) {
 // listObjects list objects with specific prefix and delimiter from a bucket,
 // return the root of object tree.
 func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
-	// Get params from handler
-	longFormat := lh.GetLongFormat()
-	recursive := lh.GetRecursive()
-	prefix := lh.Prefix
-	delimiter := lh.Delimiter
-
-	oms, err := contexts.Storage.ListObjects(prefix, delimiter, nil)
+	oms, err := contexts.Storage.ListObjects(lh.Prefix, lh.Delimiter, nil)
 	if err != nil {
 		return
 	}
 	root = &storage.ObjectMeta{
-		Key: prefix,
+		Key: lh.Prefix,
 	}
 	// if prefix end with "/", handle it as a directory
-	if strings.HasSuffix(prefix, "/") {
+	if strings.HasSuffix(lh.Prefix, "/") {
 		root.ContentType = constants.DirectoryContentType
 	}
 
@@ -158,20 +146,20 @@ func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
 		// if om is a dir and same with the prefix, not add as a child
 		// this is because qs will return the same with prefix as the object key,
 		// which should not be considered as the expected child.
-		if om.IsDir() && om.Equal(prefix) {
+		if om.IsDir() && om.Equal(lh.Prefix) {
 			continue
 		}
 		root.Children = append(root.Children, om)
 	}
 
 	// if not recursive (-R) and not long-format (-l), stop here and return.
-	if !recursive && !longFormat {
+	if !lh.Recursive && !lh.LongFormat {
 		return
 	}
 
 	var once bool
 	// if long-format (-l) and not recursive (-R), list only one more level for counting contentNum
-	if longFormat && !recursive {
+	if lh.LongFormat && !lh.Recursive {
 		once = true
 	}
 	// recursively list keys appended from each dir
@@ -228,9 +216,7 @@ func getBucketOwner() error {
 
 // printChildrenKeys will handle the main logic of printing the children info of root
 func (lh *ListHandler) printChildrenKeys() (err error) {
-	// Get params from handler
-	humanReadable := lh.GetHumanReadable()
-	longFormat := lh.GetLongFormat()
+	// Get root from handler
 	root := lh.Root
 	// if no children, return
 	if root.Children == nil {
@@ -239,7 +225,7 @@ func (lh *ListHandler) printChildrenKeys() (err error) {
 	lh.sortChildren()
 
 	// if not long-format (-l), only print key
-	if !longFormat {
+	if !lh.LongFormat {
 		for _, om := range root.Children {
 			// if root is dir, trim prefix, as well as suffix "/"
 			if root.IsDir() {
@@ -270,7 +256,7 @@ func (lh *ListHandler) printChildrenKeys() (err error) {
 	}
 
 	// print total
-	if humanReadable {
+	if lh.HumanReadable {
 		totalSize, err := utils.UnixReadableSize(datasize.ByteSize(total).HR())
 		if err != nil {
 			return err
@@ -311,11 +297,10 @@ func (lh *ListHandler) printChildrenKeysRecursively() (err error) {
 // sortChildren sort the oms slice by reverse flag
 // if true, desc; if false, asc (default)
 func (lh *ListHandler) sortChildren() {
-	// Get params from handler
-	reverse := lh.GetReverse()
+	// Get oms from handler
 	oms := lh.Root.Children
 	sort.Slice(oms, func(i, j int) bool {
-		if reverse {
+		if lh.Reverse {
 			return oms[i].Key > oms[j].Key
 		}
 		return oms[i].Key < oms[j].Key
@@ -324,8 +309,7 @@ func (lh *ListHandler) sortChildren() {
 
 // omInfoSlice returns the om detail info slice
 func (lh *ListHandler) omInfoSlice() (line []string, err error) {
-	// Get params from handler
-	humanReadable := lh.GetHumanReadable()
+	// Get root from handler
 	om := lh.Root
 	// if om is a dir, set size to 0 and last modified blank
 	if om.IsDir() {
@@ -336,7 +320,7 @@ func (lh *ListHandler) omInfoSlice() (line []string, err error) {
 		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), ownerID, ownerID, "0", ""}, nil
 	}
 	size := ""
-	if humanReadable {
+	if lh.HumanReadable {
 		// if human readable flag true, print size as human readable format
 		size, err = utils.UnixReadableSize(datasize.ByteSize(om.ContentLength).HR())
 		if err != nil {

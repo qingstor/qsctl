@@ -15,7 +15,7 @@ import (
 
 // StatHandler is all params for Stat func
 type StatHandler struct {
-	*FlagHandler
+	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
 	// ObjectKey is the remote object key
@@ -24,13 +24,13 @@ type StatHandler struct {
 
 // WithZone rewrite the WithZone method
 func (sh *StatHandler) WithZone(z string) *StatHandler {
-	sh.FlagHandler = sh.FlagHandler.WithZone(z)
+	sh.Zone = z
 	return sh
 }
 
 // WithFormat rewrite the WithFormat method
 func (sh *StatHandler) WithFormat(f string) *StatHandler {
-	sh.FlagHandler = sh.FlagHandler.WithFormat(f)
+	sh.Format = f
 	return sh
 }
 
@@ -48,18 +48,14 @@ func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
 
 // Stat will handle all stat actions.
 func (sh *StatHandler) Stat() (err error) {
-	// Get params from handler
-	zone := sh.GetZone()
-	remote := sh.Remote
-
-	bucketName, objectKey, err := ParseQsPath(remote)
+	bucketName, objectKey, err := ParseQsPath(sh.Remote)
 	if err != nil {
 		return err
 	}
 	if objectKey == "" {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
-	err = contexts.Storage.SetupBucket(bucketName, zone)
+	err = contexts.Storage.SetupBucket(bucketName, sh.Zone)
 	if err != nil {
 		return
 	}
@@ -68,17 +64,13 @@ func (sh *StatHandler) Stat() (err error) {
 
 // StatRemoteObject will stat a remote object.
 func (sh *StatHandler) StatRemoteObject() (err error) {
-	// Get params from handler
-	format := sh.GetFormat()
-	objectKey := sh.ObjectKey
-
-	om, err := contexts.Storage.HeadObject(objectKey)
+	om, err := contexts.Storage.HeadObject(sh.ObjectKey)
 	if err != nil {
 		return
 	}
 
-	if format != "" {
-		fmt.Println(statFormat(format, om))
+	if sh.Format != "" {
+		fmt.Println(statFormat(sh.Format, om))
 		return
 	}
 

@@ -10,35 +10,32 @@ import (
 
 // BucketHandler is all params for Bucket func
 type BucketHandler struct {
-	*FlagHandler
+	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
 }
 
 // WithZone rewrite the WithZone method
-func (sh *BucketHandler) WithZone(z string) *BucketHandler {
-	sh.FlagHandler = sh.FlagHandler.WithZone(z)
-	return sh
+func (bh *BucketHandler) WithZone(z string) *BucketHandler {
+	bh.Zone = z
+	return bh
 }
 
 // WithRemote sets the Remote field with given remote path
-func (sh *BucketHandler) WithRemote(path string) *BucketHandler {
-	sh.Remote = path
-	return sh
+func (bh *BucketHandler) WithRemote(path string) *BucketHandler {
+	bh.Remote = path
+	return bh
 }
 
 // MakeBucket will make a bucket with specific name.
-func (sh *BucketHandler) MakeBucket() (err error) {
-	// Get params from handler
-	zone := sh.GetZone()
-	remote := sh.Remote
+func (bh *BucketHandler) MakeBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(remote)
+	bucketName, _, err := ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, zone)
+	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
@@ -50,17 +47,14 @@ func (sh *BucketHandler) MakeBucket() (err error) {
 }
 
 // RemoveBucket remove a bucket with specific remote qs path.
-func (sh *BucketHandler) RemoveBucket() (err error) {
-	// Get params from handler
-	zone := sh.GetZone()
-	remote := sh.Remote
+func (bh *BucketHandler) RemoveBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(remote)
+	bucketName, _, err := ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, zone)
+	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
@@ -72,11 +66,8 @@ func (sh *BucketHandler) RemoveBucket() (err error) {
 }
 
 // ListBuckets list all buckets.
-func (sh *BucketHandler) ListBuckets() (err error) {
-	// Get params from handler
-	zone := sh.GetZone()
-
-	buckets, err := contexts.Storage.ListBuckets(zone)
+func (bh *BucketHandler) ListBuckets() (err error) {
+	buckets, err := contexts.Storage.ListBuckets(bh.Zone)
 	if err != nil {
 		return
 	}
