@@ -101,7 +101,6 @@ func (lh *ListHandler) ListObjects() (err error) {
 	if err != nil {
 		return
 	}
-	// Package context
 	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively for next level)
 	// construct the object tree
 	root, err := lh.WithPrefix(objectKey).WithDelimiter("/").listObjects()
@@ -124,7 +123,6 @@ func (lh *ListHandler) ListObjects() (err error) {
 	if recursive {
 		for _, om := range root.Children {
 			if om.IsDir() {
-				// ctx = contexts.SetContext(ctx, "root", om)
 				if err := lh.WithRoot(om).printChildrenKeysRecursively(); err != nil {
 					return err
 				}
@@ -158,12 +156,15 @@ func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
 	// append children to root
 	for _, om := range oms {
 		// if om is a dir and same with the prefix, not add as a child
+		// this is because qs will return the same with prefix as the object key,
+		// which should not be considered as the expected child.
 		if om.IsDir() && om.Equal(prefix) {
 			continue
 		}
 		root.Children = append(root.Children, om)
 	}
 
+	// if not recursive (-R) and not long-format (-l), stop here and return.
 	if !recursive && !longFormat {
 		return
 	}
@@ -175,7 +176,7 @@ func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
 	}
 	// recursively list keys appended from each dir
 	for _, om := range root.Children {
-		// cuz all children om is not same with the prefix,
+		// cuz all children oms are not same with the prefix,
 		// so we need only determine whether om is a dir
 		if om.IsDir() {
 			if err = recursiveListObjects(om, once); err != nil {
@@ -235,7 +236,7 @@ func (lh *ListHandler) printChildrenKeys() (err error) {
 	if root.Children == nil {
 		return
 	}
-	lh.sortOms(root.Children)
+	lh.sortChildren()
 
 	// if not long-format (-l), only print key
 	if !longFormat {
@@ -260,7 +261,7 @@ func (lh *ListHandler) printChildrenKeys() (err error) {
 			key = strings.TrimSuffix(strings.TrimPrefix(om.Key, root.Key), "/")
 		}
 		// format this line
-		line, err := lh.omInfoSlice(om)
+		line, err := lh.WithRoot(om).omInfoSlice()
 		if err != nil {
 			return err
 		}
@@ -307,11 +308,12 @@ func (lh *ListHandler) printChildrenKeysRecursively() (err error) {
 	return nil
 }
 
-// sortOms sort the oms slice by reverse flag
+// sortChildren sort the oms slice by reverse flag
 // if true, desc; if false, asc (default)
-func (lh *ListHandler) sortOms(oms []*storage.ObjectMeta) {
+func (lh *ListHandler) sortChildren() {
 	// Get params from handler
 	reverse := lh.GetReverse()
+	oms := lh.Root.Children
 	sort.Slice(oms, func(i, j int) bool {
 		if reverse {
 			return oms[i].Key > oms[j].Key
@@ -321,10 +323,10 @@ func (lh *ListHandler) sortOms(oms []*storage.ObjectMeta) {
 }
 
 // omInfoSlice returns the om detail info slice
-func (lh *ListHandler) omInfoSlice(om *storage.ObjectMeta) (line []string, err error) {
+func (lh *ListHandler) omInfoSlice() (line []string, err error) {
 	// Get params from handler
 	humanReadable := lh.GetHumanReadable()
-
+	om := lh.Root
 	// if om is a dir, set size to 0 and last modified blank
 	if om.IsDir() {
 		contentNum := 0
