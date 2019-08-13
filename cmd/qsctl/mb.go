@@ -29,8 +29,12 @@ bucket name should follow DNS name rule with:
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
-	bh := &action.BucketHandler{}
-	return bh.WithZone(zone).WithRemote(args[0]).MakeBucket()
+	// Package handler
+	mbHandler := &action.BucketHandler{}
+	return mbHandler.
+		WithRemote(args[0]).
+		WithZone(zone).
+		MakeBucket()
 }
 
 func initMbFlag() {

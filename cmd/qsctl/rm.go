@@ -21,8 +21,12 @@ var RmCommand = &cobra.Command{
 }
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
-	dh := action.DeleteHandler{}
-	return dh.WithRemote(args[0]).WithZone(zone).Delete()
+	// Package handler
+	rmHandler := &action.DeleteHandler{}
+	return rmHandler.
+		WithRemote(args[0]).
+		WithZone(zone).
+		Delete()
 }
 
 func initRmFlag() {

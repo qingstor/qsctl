@@ -24,13 +24,22 @@ var LsCommand = &cobra.Command{
 }
 
 func lsRun(_ *cobra.Command, args []string) (err error) {
+	// Package handler
+	// if no args, handle cmd as list buckets, otherwise list objects.
 	if len(args) == 0 {
-		bh := &action.BucketHandler{}
-		return bh.WithZone(zone).ListBuckets()
+		lsHandler := &action.BucketHandler{}
+		return lsHandler.WithZone(zone).ListBuckets()
 	}
-	lh := &action.ListHandler{}
-	return lh.WithHumanReadable(humanReadable).WithLongFormat(longFormat).WithRecursive(recursive).
-		WithReverse(reverse).WithZone(zone).WithRemote(args[0]).ListObjects()
+	lsHandler := &action.ListHandler{}
+	return lsHandler.
+		WithBench(bench).
+		WithHumanReadable(humanReadable).
+		WithLongFormat(longFormat).
+		WithRecursive(recursive).
+		WithRemote(args[0]).
+		WithReverse(reverse).
+		WithZone(zone).
+		ListObjects()
 }
 
 func initLsFlag() {

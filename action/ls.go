@@ -2,11 +2,15 @@ package action
 
 import (
 	"fmt"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/c2h5oh/datasize"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
@@ -14,61 +18,35 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-// ownerID record the current bucket's owner ID
-var ownerID string
-
 // ListHandler is all params for List func
 type ListHandler struct {
-	BaseHandler
-	// Remote is the remote qs path
-	Remote string `json:"remote"`
-	// Prefix is the prefix to list
-	Prefix string `json:"prefix"`
+	// Bench is whether enable benchmark
+	Bench bool `json:"bench"`
 	// Delimiter puts all keys that share a common prefix into a list
 	Delimiter string `json:"delimiter"`
+	// HumanReadable is whether print size by using unit suffixes
+	HumanReadable bool `json:"human_readable"`
+	// LongFormat is whether list objects in long format
+	LongFormat bool `json:"long_format"`
+	// OwnerID record the current bucket's owner ID
+	OwnerID string `json:"owner_id"`
+	// Prefix is the prefix to list
+	Prefix string `json:"prefix"`
+	// Recursive is whether recursively list subdirectories encountered
+	Recursive bool `json:"recursive"`
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Reverse is whether reverse the order
+	Reverse bool `json:"reverse"`
 	// Root is the root node of the file tree structure
 	Root *storage.ObjectMeta `json:"root"`
+	// Zone specifies the zone for ls action
+	Zone string `json:"zone"`
 }
 
-// WithHumanReadable rewrite the WithHumanReadable method
-func (lh *ListHandler) WithHumanReadable(h bool) *ListHandler {
-	lh.HumanReadable = h
-	return lh
-}
-
-// WithLongFormat rewrite the WithLongFormat method
-func (lh *ListHandler) WithLongFormat(l bool) *ListHandler {
-	lh.LongFormat = l
-	return lh
-}
-
-// WithRecursive rewrite the WithRecursive method
-func (lh *ListHandler) WithRecursive(r bool) *ListHandler {
-	lh.Recursive = r
-	return lh
-}
-
-// WithReverse rewrite the WithReverse method
-func (lh *ListHandler) WithReverse(r bool) *ListHandler {
-	lh.Reverse = r
-	return lh
-}
-
-// WithZone rewrite the WithZone method
-func (lh *ListHandler) WithZone(z string) *ListHandler {
-	lh.Zone = z
-	return lh
-}
-
-// WithRemote sets the Remote field with given remote
-func (lh *ListHandler) WithRemote(remote string) *ListHandler {
-	lh.Remote = remote
-	return lh
-}
-
-// WithPrefix sets the Prefix field with given prefix
-func (lh *ListHandler) WithPrefix(prefix string) *ListHandler {
-	lh.Prefix = prefix
+// WithBench sets the Bench field with given bool value
+func (lh *ListHandler) WithBench(b bool) *ListHandler {
+	lh.Bench = b
 	return lh
 }
 
@@ -78,9 +56,51 @@ func (lh *ListHandler) WithDelimiter(delimiter string) *ListHandler {
 	return lh
 }
 
+// WithHumanReadable sets the HumanReadable field with given bool value
+func (lh *ListHandler) WithHumanReadable(h bool) *ListHandler {
+	lh.HumanReadable = h
+	return lh
+}
+
+// WithLongFormat sets the LongFormat field with given bool value
+func (lh *ListHandler) WithLongFormat(l bool) *ListHandler {
+	lh.LongFormat = l
+	return lh
+}
+
+// WithPrefix sets the Prefix field with given prefix
+func (lh *ListHandler) WithPrefix(prefix string) *ListHandler {
+	lh.Prefix = prefix
+	return lh
+}
+
+// WithRecursive sets the Recursive field with given bool value
+func (lh *ListHandler) WithRecursive(r bool) *ListHandler {
+	lh.Recursive = r
+	return lh
+}
+
+// WithRemote sets the Remote field with given remote
+func (lh *ListHandler) WithRemote(remote string) *ListHandler {
+	lh.Remote = remote
+	return lh
+}
+
+// WithReverse sets the Reverse field with given bool value
+func (lh *ListHandler) WithReverse(r bool) *ListHandler {
+	lh.Reverse = r
+	return lh
+}
+
 // WithRoot sets the Root field with given om
 func (lh *ListHandler) WithRoot(om *storage.ObjectMeta) *ListHandler {
 	lh.Root = om
+	return lh
+}
+
+// WithZone sets the Zone field with given zone
+func (lh *ListHandler) WithZone(z string) *ListHandler {
+	lh.Zone = z
 	return lh
 }
 
@@ -95,6 +115,23 @@ func (lh *ListHandler) ListObjects() (err error) {
 	if err != nil {
 		return
 	}
+
+	if lh.Bench {
+		f, err := os.Create("list_objects_profile")
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+
+		cur := time.Now()
+		defer func() {
+			elapsed := time.Since(cur)
+			log.Debugf("List objects with prefix <%s>, -h <%v>, -R <%v>, -r <%v>, -l <%v>, in <%s>\n",
+				lh.Prefix, lh.HumanReadable, lh.Recursive, lh.Reverse, lh.LongFormat, elapsed)
+		}()
+	}
+
 	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively for next level)
 	// construct the object tree
 	root, err := lh.WithPrefix(objectKey).WithDelimiter("/").listObjects()
@@ -104,7 +141,7 @@ func (lh *ListHandler) ListObjects() (err error) {
 
 	// if long format (-l), set bucket owner for printing
 	if lh.LongFormat {
-		if err = getBucketOwner(); err != nil {
+		if err = lh.getBucketOwner(); err != nil {
 			return err
 		}
 	}
@@ -205,12 +242,12 @@ func recursiveListObjects(root *storage.ObjectMeta, once bool) error {
 }
 
 // getBucketOwner will assign the owner id of current bucket
-func getBucketOwner() error {
+func (lh *ListHandler) getBucketOwner() error {
 	ar, err := contexts.Storage.GetBucketACL()
 	if err != nil {
 		return err
 	}
-	ownerID = ar.OwnerID
+	lh.OwnerID = ar.OwnerID
 	return nil
 }
 
@@ -317,7 +354,7 @@ func (lh *ListHandler) omInfoSlice() (line []string, err error) {
 		if om.Children != nil {
 			contentNum = len(om.Children)
 		}
-		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), ownerID, ownerID, "0", ""}, nil
+		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), lh.OwnerID, lh.OwnerID, "0", ""}, nil
 	}
 	size := ""
 	if lh.HumanReadable {
@@ -331,6 +368,6 @@ func (lh *ListHandler) omInfoSlice() (line []string, err error) {
 		size = strconv.FormatInt(om.ContentLength, 10)
 	}
 	// if om is a obj, set content num to 1
-	return []string{constants.ACLObject, "1", ownerID, ownerID, size,
+	return []string{constants.ACLObject, "1", lh.OwnerID, lh.OwnerID, size,
 		om.FormatLastModified(constants.LsDefaultFormat)}, nil
 }

@@ -15,22 +15,25 @@ import (
 
 // StatHandler is all params for Stat func
 type StatHandler struct {
-	BaseHandler
-	// Remote is the remote qs path
-	Remote string `json:"remote"`
+	// Format is the user-specified output format
+	Format string `json:"format"`
 	// ObjectKey is the remote object key
 	ObjectKey string `json:"object_key"`
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Zone specifies the zone for stat action
+	Zone string `json:"zone"`
 }
 
-// WithZone rewrite the WithZone method
-func (sh *StatHandler) WithZone(z string) *StatHandler {
-	sh.Zone = z
+// WithFormat sets the Format field with given format string
+func (sh *StatHandler) WithFormat(f string) *StatHandler {
+	sh.Format = f
 	return sh
 }
 
-// WithFormat rewrite the WithFormat method
-func (sh *StatHandler) WithFormat(f string) *StatHandler {
-	sh.Format = f
+// WithObjectKey sets the ObjectKey field with given key
+func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
+	sh.ObjectKey = key
 	return sh
 }
 
@@ -40,9 +43,9 @@ func (sh *StatHandler) WithRemote(path string) *StatHandler {
 	return sh
 }
 
-// WithObjectKey sets the ObjectKey field with given key
-func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
-	sh.ObjectKey = key
+// WithZone sets the Zone field with given zone
+func (sh *StatHandler) WithZone(z string) *StatHandler {
+	sh.Zone = z
 	return sh
 }
 

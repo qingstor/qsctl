@@ -9,20 +9,21 @@ import (
 
 // DeleteHandler is all params for Delete func
 type DeleteHandler struct {
-	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
-}
-
-// WithZone rewrite the WithZone method
-func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
-	dh.Zone = z
-	return dh
+	// Zone specifies the zone for delete action
+	Zone string `json:"zone"`
 }
 
 // WithRemote sets the Remote field with given remote path
 func (dh *DeleteHandler) WithRemote(path string) *DeleteHandler {
 	dh.Remote = path
+	return dh
+}
+
+// WithZone sets the Zone field with given zone
+func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
+	dh.Zone = z
 	return dh
 }
 

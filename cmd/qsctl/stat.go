@@ -21,8 +21,12 @@ var StatCommand = &cobra.Command{
 }
 
 func statRun(_ *cobra.Command, args []string) (err error) {
-	sh := action.StatHandler{}
-	return sh.WithZone(zone).WithFormat(format).WithRemote(args[0]).Stat()
+	// Package handler
+	statHandler := &action.StatHandler{}
+	return statHandler.
+		WithFormat(format).
+		WithRemote(args[0]).
+		Stat()
 }
 
 func initStatFlag() {

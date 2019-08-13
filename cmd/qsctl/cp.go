@@ -7,6 +7,11 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
+var (
+	cpExpectSize int64
+	cpMaxMemory  int64
+)
+
 // CpCommand will handle copy command.
 var CpCommand = &cobra.Command{
 	Use:   "cp <source-path> <dest-path>",
@@ -28,20 +33,22 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	cpHandler := &action.CopyHandler{}
 	return cpHandler.
 		WithBench(bench).
-		WithExpectSize(expectSize).
-		WithMaximumMemory(maximumMemoryContent).
-		WithSrc(args[0]).WithDest(args[1]).Copy()
+		WithDest(args[1]).
+		WithExpectSize(cpExpectSize).
+		WithMaximumMemory(cpMaxMemory).
+		WithSrc(args[0]).
+		Copy()
 }
 
 func initCpFlag() {
-	CpCommand.PersistentFlags().StringVar(&_expectSize,
+	CpCommand.PersistentFlags().StringVar(&expectSize,
 		"expect-size",
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)",
 	)
-	CpCommand.PersistentFlags().StringVar(&_maximumMemoryContent,
+	CpCommand.PersistentFlags().StringVar(&maximumMemoryContent,
 		"maximum-memory-content",
 		"",
 		"maximum content loaded in memory\n"+
@@ -50,19 +57,18 @@ func initCpFlag() {
 }
 
 func validateCpFlag(_ *cobra.Command, _ []string) (err error) {
-	if _expectSize != "" {
-		expectSize, err = utils.ParseByteSize(_expectSize)
+	if expectSize != "" {
+		cpExpectSize, err = utils.ParseByteSize(expectSize)
 		if err != nil {
 			return err
 		}
 	}
 
-	if _maximumMemoryContent != "" {
-		maximumMemoryContent, err = utils.ParseByteSize(_maximumMemoryContent)
+	if maximumMemoryContent != "" {
+		cpMaxMemory, err = utils.ParseByteSize(maximumMemoryContent)
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }

@@ -11,19 +11,15 @@ import (
 
 var (
 	// register available flag vars here
-	bench bool
-	// _expectSize is unparsed value of expectSize
-	_expectSize   string
-	expectSize    int64
-	format        string
-	humanReadable bool
-	longFormat    bool
-	// _maximumMemoryContent is unparsed value of maximumMemoryContent
-	_maximumMemoryContent string
-	maximumMemoryContent  int64
-	recursive             bool
-	reverse               bool
-	zone                  string
+	bench                bool
+	expectSize           string
+	format               string
+	humanReadable        bool
+	longFormat           bool
+	maximumMemoryContent string
+	recursive            bool
+	reverse              bool
+	zone                 string
 )
 
 var (

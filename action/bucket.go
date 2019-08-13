@@ -10,20 +10,21 @@ import (
 
 // BucketHandler is all params for Bucket func
 type BucketHandler struct {
-	BaseHandler
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
-}
-
-// WithZone rewrite the WithZone method
-func (bh *BucketHandler) WithZone(z string) *BucketHandler {
-	bh.Zone = z
-	return bh
+	// Zone specifies the zone for bucket action
+	Zone string `json:"zone"`
 }
 
 // WithRemote sets the Remote field with given remote path
 func (bh *BucketHandler) WithRemote(path string) *BucketHandler {
 	bh.Remote = path
+	return bh
+}
+
+// WithZone sets the Zone field with given zone
+func (bh *BucketHandler) WithZone(z string) *BucketHandler {
+	bh.Zone = z
 	return bh
 }
 

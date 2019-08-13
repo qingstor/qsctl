@@ -20,9 +20,11 @@ var CatCommand = &cobra.Command{
 }
 
 func catRun(_ *cobra.Command, args []string) (err error) {
-	// Package input params
-	catHandler := action.CopyHandler{}
+	// Package handler
+	catHandler := &action.CopyHandler{}
 	return catHandler.
 		WithBench(bench).
-		WithSrc(args[0]).WithDest("-").Copy()
+		WithDest("-").
+		WithSrc(args[0]).
+		Copy()
 }
