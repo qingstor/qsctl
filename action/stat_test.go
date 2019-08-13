@@ -31,7 +31,9 @@ func (suite StatTestSuite) TestStat() {
 	}
 
 	for _, v := range cases {
-		err := Stat(v.input)
+		// Package handler
+		input := StatHandler{}
+		err := input.WithRemote(v.input).Stat()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 	}
 }
@@ -48,8 +50,6 @@ func (suite StatTestSuite) TestStatWithFormat() {
 	}
 
 	for _, v := range cases {
-		contexts.Format = v.format
-
 		tempfile, err := ioutil.TempFile("", uuid.New().String())
 		if err != nil {
 			panic(err)
@@ -58,7 +58,9 @@ func (suite StatTestSuite) TestStatWithFormat() {
 
 		os.Stdout = tempfile
 
-		err = Stat(v.input)
+		// Package handler
+		input := StatHandler{}
+		err = input.WithFormat(v.format).WithRemote(v.input).Stat()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 
 		_, err = tempfile.Seek(0, 0)

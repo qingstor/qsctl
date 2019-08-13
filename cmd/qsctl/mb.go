@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -30,17 +29,22 @@ bucket name should follow DNS name rule with:
 }
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
-	return action.MakeBucket(args[0])
+	// Package handler
+	mbHandler := &action.BucketHandler{}
+	return mbHandler.
+		WithRemote(args[0]).
+		WithZone(zone).
+		MakeBucket()
 }
 
 func initMbFlag() {
-	MbCommand.Flags().StringVarP(&contexts.Zone, "zone", "z",
+	MbCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z",
 		"", "in which zone to make the bucket (required)")
 }
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
-	if contexts.Zone == "" {
+	if zone == "" {
 		return constants.ErrorZoneRequired
 	}
 	return nil

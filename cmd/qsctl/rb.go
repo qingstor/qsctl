@@ -20,5 +20,9 @@ var RbCommand = &cobra.Command{
 }
 
 func rbRun(_ *cobra.Command, args []string) (err error) {
-	return action.RemoveBucket(args[0])
+	// Package handler
+	rbHandler := &action.BucketHandler{}
+	return rbHandler.
+		WithRemote(args[0]).
+		RemoveBucket()
 }

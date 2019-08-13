@@ -7,9 +7,29 @@ import (
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
+// DeleteHandler is all params for Delete func
+type DeleteHandler struct {
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Zone specifies the zone for delete action
+	Zone string `json:"zone"`
+}
+
+// WithRemote sets the Remote field with given remote path
+func (dh *DeleteHandler) WithRemote(path string) *DeleteHandler {
+	dh.Remote = path
+	return dh
+}
+
+// WithZone sets the Zone field with given zone
+func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
+	dh.Zone = z
+	return dh
+}
+
 // Delete will delete a remote object.
-func Delete(remote string) (err error) {
-	bucketName, objectKey, err := ParseQsPath(remote)
+func (dh *DeleteHandler) Delete() (err error) {
+	bucketName, objectKey, err := ParseQsPath(dh.Remote)
 	if err != nil {
 		return
 	}
@@ -18,7 +38,7 @@ func Delete(remote string) (err error) {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, dh.Zone)
 	if err != nil {
 		return
 	}

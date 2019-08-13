@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
-	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -24,23 +24,35 @@ var LsCommand = &cobra.Command{
 }
 
 func lsRun(_ *cobra.Command, args []string) (err error) {
+	// Package handler
+	// if no args, handle cmd as list buckets, otherwise list objects.
 	if len(args) == 0 {
-		return action.ListBuckets(contexts.Zone)
+		lsHandler := &action.BucketHandler{}
+		return lsHandler.WithZone(zone).ListBuckets()
 	}
-	return action.ListObjects(args[0])
+	lsHandler := &action.ListHandler{}
+	return lsHandler.
+		WithBench(bench).
+		WithHumanReadable(humanReadable).
+		WithLongFormat(longFormat).
+		WithRecursive(recursive).
+		WithRemote(args[0]).
+		WithReverse(reverse).
+		WithZone(zone).
+		ListObjects()
 }
 
 func initLsFlag() {
-	LsCommand.Flags().BoolVarP(&contexts.HumanReadable, "human-readable", "h",
-		false, "print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
+	LsCommand.Flags().BoolVarP(&humanReadable, constants.HumanReadableFlag, "h", false,
+		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
 			" in order to reduce the number of digits to three or less using base 2 for sizes")
-	LsCommand.Flags().BoolVarP(&contexts.LongFormat, "long-format", "l",
-		false, "list in long format and a total sum for all the file sizes is"+
+	LsCommand.Flags().BoolVarP(&longFormat, constants.LongFormatFlag, "l", false,
+		"list in long format and a total sum for all the file sizes is"+
 			" output on a line before the long listing")
-	LsCommand.Flags().StringVarP(&contexts.Zone, "zone", "z",
-		"", "in which zone to do the operation")
-	LsCommand.Flags().BoolVarP(&contexts.Recursive, "recursive", "R",
-		false, "recursively list subdirectories encountered")
-	LsCommand.Flags().BoolVarP(&contexts.Reverse, "reverse", "r",
-		false, "reverse the order of the sort to get reverse lexicographical order")
+	LsCommand.Flags().BoolVarP(&recursive, constants.RecursiveFlag, "R", false,
+		"recursively list subdirectories encountered")
+	LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
+		"reverse the order of the sort to get reverse lexicographical order")
+	LsCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z", "",
+		"in which zone to do the operation")
 }

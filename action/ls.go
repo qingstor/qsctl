@@ -2,11 +2,15 @@ package action
 
 import (
 	"fmt"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/c2h5oh/datasize"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
@@ -14,46 +18,143 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-// ownerID record the current bucket's owner ID
-var ownerID string
+// ListHandler is all params for List func
+type ListHandler struct {
+	// Bench is whether enable benchmark
+	Bench bool `json:"bench"`
+	// Delimiter puts all keys that share a common prefix into a list
+	Delimiter string `json:"delimiter"`
+	// HumanReadable is whether print size by using unit suffixes
+	HumanReadable bool `json:"human_readable"`
+	// LongFormat is whether list objects in long format
+	LongFormat bool `json:"long_format"`
+	// OwnerID record the current bucket's owner ID
+	OwnerID string `json:"owner_id"`
+	// Prefix is the prefix to list
+	Prefix string `json:"prefix"`
+	// Recursive is whether recursively list subdirectories encountered
+	Recursive bool `json:"recursive"`
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Reverse is whether reverse the order
+	Reverse bool `json:"reverse"`
+	// Root is the root node of the file tree structure
+	Root *storage.ObjectMeta `json:"root"`
+	// Zone specifies the zone for ls action
+	Zone string `json:"zone"`
+}
+
+// WithBench sets the Bench field with given bool value
+func (lh *ListHandler) WithBench(b bool) *ListHandler {
+	lh.Bench = b
+	return lh
+}
+
+// WithDelimiter sets the Delimiter field with given delimiter
+func (lh *ListHandler) WithDelimiter(delimiter string) *ListHandler {
+	lh.Delimiter = delimiter
+	return lh
+}
+
+// WithHumanReadable sets the HumanReadable field with given bool value
+func (lh *ListHandler) WithHumanReadable(h bool) *ListHandler {
+	lh.HumanReadable = h
+	return lh
+}
+
+// WithLongFormat sets the LongFormat field with given bool value
+func (lh *ListHandler) WithLongFormat(l bool) *ListHandler {
+	lh.LongFormat = l
+	return lh
+}
+
+// WithPrefix sets the Prefix field with given prefix
+func (lh *ListHandler) WithPrefix(prefix string) *ListHandler {
+	lh.Prefix = prefix
+	return lh
+}
+
+// WithRecursive sets the Recursive field with given bool value
+func (lh *ListHandler) WithRecursive(r bool) *ListHandler {
+	lh.Recursive = r
+	return lh
+}
+
+// WithRemote sets the Remote field with given remote
+func (lh *ListHandler) WithRemote(remote string) *ListHandler {
+	lh.Remote = remote
+	return lh
+}
+
+// WithReverse sets the Reverse field with given bool value
+func (lh *ListHandler) WithReverse(r bool) *ListHandler {
+	lh.Reverse = r
+	return lh
+}
+
+// WithRoot sets the Root field with given om
+func (lh *ListHandler) WithRoot(om *storage.ObjectMeta) *ListHandler {
+	lh.Root = om
+	return lh
+}
+
+// WithZone sets the Zone field with given zone
+func (lh *ListHandler) WithZone(z string) *ListHandler {
+	lh.Zone = z
+	return lh
+}
 
 // ListObjects will handle all ls actions.
-func ListObjects(remote string) (err error) {
-	bucketName, objectKey, err := ParseQsPath(remote)
+func (lh *ListHandler) ListObjects() (err error) {
+	bucketName, objectKey, err := ParseQsPath(lh.Remote)
 	if err != nil {
 		return err
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	err = contexts.Storage.SetupBucket(bucketName, lh.Zone)
 	if err != nil {
 		return
 	}
 
-	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively for next level)
-	delimiter := "/"
+	if lh.Bench {
+		f, err := os.Create("list_objects_profile")
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
 
+		cur := time.Now()
+		defer func() {
+			elapsed := time.Since(cur)
+			log.Debugf("List objects with prefix <%s>, -h <%v>, -R <%v>, -r <%v>, -l <%v>, in <%s>\n",
+				lh.Prefix, lh.HumanReadable, lh.Recursive, lh.Reverse, lh.LongFormat, elapsed)
+		}()
+	}
+
+	// Setting delimiter to "/" will emulate visiting as directory structure (not recursively for next level)
 	// construct the object tree
-	root, err := listObjects(objectKey, delimiter)
+	root, err := lh.WithPrefix(objectKey).WithDelimiter("/").listObjects()
 	if err != nil {
 		return err
 	}
 
 	// if long format (-l), set bucket owner for printing
-	if contexts.LongFormat {
-		if err = getBucketOwner(); err != nil {
+	if lh.LongFormat {
+		if err = lh.getBucketOwner(); err != nil {
 			return err
 		}
 	}
 	// print first level children keys
-	if err = printChildrenKeys(root); err != nil {
+	if err = lh.WithRoot(root).printChildrenKeys(); err != nil {
 		return err
 	}
 
 	// if recursive (-R), print next level keys recursively
-	if contexts.Recursive {
+	if lh.Recursive {
 		for _, om := range root.Children {
 			if om.IsDir() {
-				if err := printChildrenKeysRecursively(om); err != nil {
+				if err := lh.WithRoot(om).printChildrenKeysRecursively(); err != nil {
 					return err
 				}
 			}
@@ -64,40 +165,43 @@ func ListObjects(remote string) (err error) {
 
 // listObjects list objects with specific prefix and delimiter from a bucket,
 // return the root of object tree.
-func listObjects(prefix, delimiter string) (root *storage.ObjectMeta, err error) {
-	oms, err := contexts.Storage.ListObjects(prefix, delimiter, nil)
+func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
+	oms, err := contexts.Storage.ListObjects(lh.Prefix, lh.Delimiter, nil)
 	if err != nil {
 		return
 	}
 	root = &storage.ObjectMeta{
-		Key: prefix,
+		Key: lh.Prefix,
 	}
 	// if prefix end with "/", handle it as a directory
-	if strings.HasSuffix(prefix, "/") {
+	if strings.HasSuffix(lh.Prefix, "/") {
 		root.ContentType = constants.DirectoryContentType
 	}
 
 	// append children to root
 	for _, om := range oms {
 		// if om is a dir and same with the prefix, not add as a child
-		if om.IsDir() && om.Equal(prefix) {
+		// this is because qs will return the same with prefix as the object key,
+		// which should not be considered as the expected child.
+		if om.IsDir() && om.Equal(lh.Prefix) {
 			continue
 		}
 		root.Children = append(root.Children, om)
 	}
 
-	if !contexts.Recursive && !contexts.LongFormat {
+	// if not recursive (-R) and not long-format (-l), stop here and return.
+	if !lh.Recursive && !lh.LongFormat {
 		return
 	}
 
 	var once bool
 	// if long-format (-l) and not recursive (-R), list only one more level for counting contentNum
-	if contexts.LongFormat && !contexts.Recursive {
+	if lh.LongFormat && !lh.Recursive {
 		once = true
 	}
 	// recursively list keys appended from each dir
 	for _, om := range root.Children {
-		// cuz all children om is not same with the prefix,
+		// cuz all children oms are not same with the prefix,
 		// so we need only determine whether om is a dir
 		if om.IsDir() {
 			if err = recursiveListObjects(om, once); err != nil {
@@ -138,25 +242,27 @@ func recursiveListObjects(root *storage.ObjectMeta, once bool) error {
 }
 
 // getBucketOwner will assign the owner id of current bucket
-func getBucketOwner() error {
+func (lh *ListHandler) getBucketOwner() error {
 	ar, err := contexts.Storage.GetBucketACL()
 	if err != nil {
 		return err
 	}
-	ownerID = ar.OwnerID
+	lh.OwnerID = ar.OwnerID
 	return nil
 }
 
 // printChildrenKeys will handle the main logic of printing the children info of root
-func printChildrenKeys(root *storage.ObjectMeta) (err error) {
+func (lh *ListHandler) printChildrenKeys() (err error) {
+	// Get root from handler
+	root := lh.Root
 	// if no children, return
 	if root.Children == nil {
 		return
 	}
-	sortOms(root.Children)
+	lh.sortChildren()
 
 	// if not long-format (-l), only print key
-	if !contexts.LongFormat {
+	if !lh.LongFormat {
 		for _, om := range root.Children {
 			// if root is dir, trim prefix, as well as suffix "/"
 			if root.IsDir() {
@@ -178,7 +284,7 @@ func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 			key = strings.TrimSuffix(strings.TrimPrefix(om.Key, root.Key), "/")
 		}
 		// format this line
-		line, err := omInfoSlice(om)
+		line, err := lh.WithRoot(om).omInfoSlice()
 		if err != nil {
 			return err
 		}
@@ -187,7 +293,7 @@ func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 	}
 
 	// print total
-	if contexts.HumanReadable {
+	if lh.HumanReadable {
 		totalSize, err := utils.UnixReadableSize(datasize.ByteSize(total).HR())
 		if err != nil {
 			return err
@@ -204,18 +310,20 @@ func printChildrenKeys(root *storage.ObjectMeta) (err error) {
 }
 
 // printChildrenKeysRecursively will recursively print keys
-func printChildrenKeysRecursively(root *storage.ObjectMeta) (err error) {
+func (lh *ListHandler) printChildrenKeysRecursively() (err error) {
+	// Get params from handler
+	root := lh.Root
+
 	dirKey := root.Key
 	fmt.Println()
 	fmt.Printf("%s:\n", dirKey)
-
-	if err = printChildrenKeys(root); err != nil {
+	if err = lh.printChildrenKeys(); err != nil {
 		return err
 	}
 
 	for _, om := range root.Children {
 		if om.IsDir() && !om.Equal(dirKey) {
-			if err = printChildrenKeysRecursively(om); err != nil {
+			if err = lh.WithRoot(om).printChildrenKeysRecursively(); err != nil {
 				return err
 			}
 		}
@@ -223,11 +331,13 @@ func printChildrenKeysRecursively(root *storage.ObjectMeta) (err error) {
 	return nil
 }
 
-// sortOms sort the oms slice by contexts.Reverse
+// sortChildren sort the oms slice by reverse flag
 // if true, desc; if false, asc (default)
-func sortOms(oms []*storage.ObjectMeta) {
+func (lh *ListHandler) sortChildren() {
+	// Get oms from handler
+	oms := lh.Root.Children
 	sort.Slice(oms, func(i, j int) bool {
-		if contexts.Reverse {
+		if lh.Reverse {
 			return oms[i].Key > oms[j].Key
 		}
 		return oms[i].Key < oms[j].Key
@@ -235,17 +345,19 @@ func sortOms(oms []*storage.ObjectMeta) {
 }
 
 // omInfoSlice returns the om detail info slice
-func omInfoSlice(om *storage.ObjectMeta) (line []string, err error) {
+func (lh *ListHandler) omInfoSlice() (line []string, err error) {
+	// Get root from handler
+	om := lh.Root
 	// if om is a dir, set size to 0 and last modified blank
 	if om.IsDir() {
 		contentNum := 0
 		if om.Children != nil {
 			contentNum = len(om.Children)
 		}
-		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), ownerID, ownerID, "0", ""}, nil
+		return []string{constants.ACLDirectory, strconv.Itoa(contentNum), lh.OwnerID, lh.OwnerID, "0", ""}, nil
 	}
 	size := ""
-	if contexts.HumanReadable {
+	if lh.HumanReadable {
 		// if human readable flag true, print size as human readable format
 		size, err = utils.UnixReadableSize(datasize.ByteSize(om.ContentLength).HR())
 		if err != nil {
@@ -256,6 +368,6 @@ func omInfoSlice(om *storage.ObjectMeta) (line []string, err error) {
 		size = strconv.FormatInt(om.ContentLength, 10)
 	}
 	// if om is a obj, set content num to 1
-	return []string{constants.ACLObject, "1", ownerID, ownerID, size,
+	return []string{constants.ACLObject, "1", lh.OwnerID, lh.OwnerID, size,
 		om.FormatLastModified(constants.LsDefaultFormat)}, nil
 }
