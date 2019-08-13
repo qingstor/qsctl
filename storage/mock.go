@@ -16,10 +16,11 @@ import (
 
 // Available preset object for mock storage.
 const (
-	Mock0BObject = "0b"
-	MockMBObject = "mb"
-	MockGBObject = "gb"
-	MockTBObject = "tb"
+	Mock0BObject        = "0b"
+	MockMBObject        = "mb"
+	MockGBObject        = "gb"
+	MockTBObject        = "tb"
+	MockForbiddenObject = "forbidden"
 
 	MockZoneAlpha = "mock-alpha"
 	MockZoneBeta  = "mock-beta"
@@ -73,6 +74,11 @@ func NewMockObjectStorage() *MockObjectStorage {
 	s.meta[MockTBObject] = &ObjectMeta{
 		Key:           MockTBObject,
 		ContentLength: 1024 * 1024 * 1024 * 1024,
+		LastModified:  time.Unix(612889200, 0),
+	}
+	s.meta[MockForbiddenObject] = &ObjectMeta{
+		Key:           MockForbiddenObject,
+		ContentLength: 1024,
 		LastModified:  time.Unix(612889200, 0),
 	}
 
@@ -198,12 +204,33 @@ func (m *MockObjectStorage) CompleteMultipartUpload(objectKey, uploadID string, 
 
 // DeleteObject implements ObjectStorage.DeleteObject
 func (m *MockObjectStorage) DeleteObject(objectKey string) (err error) {
+	if objectKey == MockForbiddenObject {
+		return constants.ErrorQsPathAccessForbidden
+	}
 	_, ok := m.meta[objectKey]
 	if !ok {
 		return constants.ErrorQsPathNotFound
 	}
 
 	delete(m.meta, objectKey)
+	return nil
+}
+
+// DeleteMultipleObjects implements ObjectStorage.DeleteMultipleObjects
+func (m *MockObjectStorage) DeleteMultipleObjects(prefix string) (err error) {
+	oms, err := m.ListObjects(prefix, "", nil)
+	if err != nil {
+		return err
+	}
+	objectKeys := make([]string, 0, len(oms))
+	for _, om := range oms {
+		objectKeys = append(objectKeys, om.Key)
+	}
+	for _, key := range objectKeys {
+		if err := m.DeleteObject(key); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -265,7 +292,7 @@ func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
 			Key:           key,
 			ContentLength: int64(i * 1024),
 		}
-		// obj/obj_0/ ... obj/obj_19
+		// obj/obj_0/ ... obj/obj_19/
 		secondLvlDir := fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
 		m.meta[secondLvlDir] = &ObjectMeta{
 			Key:           secondLvlDir,
@@ -299,4 +326,9 @@ func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	return &ACLResp{
 		OwnerID: m.currentBucket.OwnerID,
 	}, nil
+}
+
+// GetObjCount will return the count of exists objects for test
+func (m *MockObjectStorage) GetObjCount() int {
+	return len(m.meta)
 }

@@ -9,10 +9,18 @@ import (
 
 // DeleteHandler is all params for Delete func
 type DeleteHandler struct {
+	// Recursive means whether recursively delete objects
+	Recursive bool `json:"recursive"`
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
 	// Zone specifies the zone for delete action
 	Zone string `json:"zone"`
+}
+
+// WithRecursive sets the Recursive field with given bool value
+func (dh *DeleteHandler) WithRecursive(r bool) *DeleteHandler {
+	dh.Recursive = r
+	return dh
 }
 
 // WithRemote sets the Remote field with given remote path
@@ -43,7 +51,8 @@ func (dh *DeleteHandler) Delete() (err error) {
 		return
 	}
 	// Head to check whether object not found or forbidden
-	if _, err = contexts.Storage.HeadObject(objectKey); err != nil {
+	om, err := contexts.Storage.HeadObject(objectKey)
+	if err != nil {
 		switch err {
 		case constants.ErrorQsPathNotFound:
 			log.Errorf("object key <%s> not found", objectKey)
@@ -52,9 +61,26 @@ func (dh *DeleteHandler) Delete() (err error) {
 		}
 		return
 	}
-	if err = contexts.Storage.DeleteObject(objectKey); err != nil {
+
+	// If om is not a directory, delete the single object.
+	if !om.IsDir() {
+		if err = contexts.Storage.DeleteObject(objectKey); err != nil {
+			return
+		}
+		log.Infof("Object <%s> removed.", objectKey)
 		return
 	}
-	log.Infof("Object <%s> removed.", objectKey)
+
+	// If om is a directory, and recursive flag not set, return error.
+	if !dh.Recursive {
+		log.Errorf("directory should be deleted with -r")
+		return constants.ErrorRecursiveRequired
+	}
+
+	err = contexts.Storage.DeleteMultipleObjects(objectKey)
+	if err != nil {
+		return err
+	}
+	log.Infof("Directory <%s> removed.", objectKey)
 	return
 }

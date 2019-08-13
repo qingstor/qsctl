@@ -216,6 +216,38 @@ func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 	return nil
 }
 
+// DeleteMultipleObjects delete all objects with prefix
+func (q *QingStorObjectStorage) DeleteMultipleObjects(prefix string) (err error) {
+	var marker *string
+	var limit = 100
+	for {
+		out, err := q.bucket.ListObjects(&service.ListObjectsInput{
+			Delimiter: convert.String(""),
+			Limit:     convert.Int(limit),
+			Marker:    marker,
+			Prefix:    convert.String(prefix),
+		})
+		if err != nil {
+			log.Errorf("List objects failed [%v]", err)
+			return err
+		}
+
+		if _, err = q.bucket.DeleteMultipleObjects(&service.DeleteMultipleObjectsInput{
+			Objects: out.Keys,
+			Quiet:   convert.Bool(false),
+		}); err != nil {
+			log.Errorf("Delete objects failed [%v]", err)
+			return err
+		}
+
+		if !*out.HasMore {
+			break
+		}
+		marker = out.Marker
+	}
+	return
+}
+
 // ListBuckets will list all buckets of the user.
 func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
 	res, err := q.service.ListBuckets(&service.ListBucketsInput{Location: convert.String(zone)})

@@ -24,12 +24,15 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
 	rmHandler := &action.DeleteHandler{}
 	return rmHandler.
+		WithRecursive(recursive).
 		WithRemote(args[0]).
 		WithZone(zone).
 		Delete()
 }
 
 func initRmFlag() {
+	RmCommand.Flags().BoolVarP(&recursive, constants.RecursiveFlag, "r",
+		false, "recursively delete objects, required while deleting a directory")
 	RmCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z",
 		"", "in which zone to remove object")
 }

@@ -47,6 +47,7 @@ type ObjectStorage interface {
 	HeadObject(objectKey string) (om *ObjectMeta, err error)
 	GetObject(objectKey string) (r io.Reader, err error)
 	ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error)
+	DeleteMultipleObjects(prefix string) (err error)
 
 	InitiateMultipartUpload(objectKey string) (uploadID string, err error)
 	UploadMultipart(objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader) (err error)

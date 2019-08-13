@@ -14,6 +14,8 @@ var (
 	ErrorByteSizeInvalid = errors.New("byte size is invalid")
 	// ErrorZoneRequired returned while zone is required but not given.
 	ErrorZoneRequired = errors.New("zone is required")
+	// ErrorRecursiveRequired returned while recursive is required but not given.
+	ErrorRecursiveRequired = errors.New("recursive is required")
 	// ErrorBucketAlreadyExists returned while make new bucket which already exists.
 	ErrorBucketAlreadyExists = errors.New("bucket already exists")
 
