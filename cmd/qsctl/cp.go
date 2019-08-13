@@ -4,8 +4,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/utils"
+)
+
+var (
+	cpExpectSize int64
+	cpMaxMemory  int64
 )
 
 // CpCommand will handle copy command.
@@ -25,7 +29,15 @@ var CpCommand = &cobra.Command{
 }
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
-	return action.Copy(args[0], args[1])
+	// Package handler
+	cpHandler := &action.CopyHandler{}
+	return cpHandler.
+		WithBench(bench).
+		WithDest(args[1]).
+		WithExpectSize(cpExpectSize).
+		WithMaximumMemory(cpMaxMemory).
+		WithSrc(args[0]).
+		Copy()
 }
 
 func initCpFlag() {
@@ -46,18 +58,17 @@ func initCpFlag() {
 
 func validateCpFlag(_ *cobra.Command, _ []string) (err error) {
 	if expectSize != "" {
-		contexts.ExpectSize, err = utils.ParseByteSize(expectSize)
+		cpExpectSize, err = utils.ParseByteSize(expectSize)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
 	if maximumMemoryContent != "" {
-		contexts.MaximumMemoryContent, err = utils.ParseByteSize(maximumMemoryContent)
+		cpMaxMemory, err = utils.ParseByteSize(maximumMemoryContent)
 		if err != nil {
-			return
+			return err
 		}
 	}
-
 	return nil
 }

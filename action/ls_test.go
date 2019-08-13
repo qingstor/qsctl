@@ -21,7 +21,6 @@ type LsTestSuite struct {
 }
 
 func (suite LsTestSuite) SetupTest() {
-	contexts.Bench = true
 	contexts.Storage = storage.NewMockObjectStorage()
 }
 
@@ -67,22 +66,24 @@ func (suite LsTestSuite) TestListObjects() {
 			objNum + 2, 4*objNum + 1, nil},
 	}
 
+	delimiter := "/"
 	for k, c := range cases {
-		contexts.HumanReadable = c.humanReadable
-		contexts.LongFormat = c.longFormat
-		contexts.Recursive = c.recursive
-		contexts.Reverse = c.reverse
-		delimiter := "/"
+		// Package handler
+		input := &ListHandler{}
+		input = input.WithHumanReadable(c.humanReadable).WithLongFormat(c.longFormat).WithRecursive(c.recursive).
+			WithReverse(c.reverse).WithRemote(c.remote).WithPrefix(c.key).WithDelimiter(delimiter)
+		// Reset mock objects after each call
 		s := contexts.Storage.(*storage.MockObjectStorage)
 		s.ResetMockObjects(objPrefix, objNum)
-		assert.Equal(suite.T(), c.err, ListObjects(c.remote), k)
+		assert.Equal(suite.T(), c.err, input.ListObjects(), k)
+
 		s.ResetMockObjects(objPrefix, objNum)
 		oms, err := contexts.Storage.ListObjects(c.key, delimiter, nil)
 		assert.Equal(suite.T(), c.err, err, k)
 		assert.Equal(suite.T(), c.omsCount, len(oms), k)
 
 		s.ResetMockObjects(objPrefix, objNum)
-		root, _ := listObjects(c.key, delimiter)
+		root, _ := input.listObjects()
 		count := root.ChildrenCount()
 		assert.Equal(suite.T(), c.childrenCount, count, k)
 	}

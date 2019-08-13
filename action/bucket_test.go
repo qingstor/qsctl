@@ -17,7 +17,6 @@ type BucketTestSuite struct {
 
 func (suite BucketTestSuite) SetupTest() {
 	contexts.Storage = storage.NewMockObjectStorage()
-	contexts.Bench = true
 }
 
 func (suite BucketTestSuite) TestMakeBucket() {
@@ -32,8 +31,9 @@ func (suite BucketTestSuite) TestMakeBucket() {
 		{storage.MockZoneBeta, "qs://", constants.ErrorQsPathInvalid},
 	}
 	for _, c := range cases {
-		contexts.Zone = c.zone
-		assert.Equal(suite.T(), c.expected, MakeBucket(c.name))
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected, input.WithZone(c.zone).WithRemote(c.name).MakeBucket())
 	}
 }
 
@@ -48,7 +48,9 @@ func (suite BucketTestSuite) TestListBuckets() {
 		{"", nil, 2},
 	}
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, ListBuckets(c.zone), c.zone)
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected1, input.WithZone(c.zone).ListBuckets(), c.zone)
 		buckets, _ := contexts.Storage.ListBuckets(c.zone)
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.zone)
 	}
@@ -64,9 +66,10 @@ func (suite BucketTestSuite) TestRemoveBucket() {
 		{storage.MockZoneBeta, nil, 0},
 		{"qs://", constants.ErrorQsPathInvalid, 0},
 	}
-	contexts.Zone = ""
 	for _, c := range cases {
-		assert.Equal(suite.T(), c.expected1, RemoveBucket(c.name), c.name)
+		// Package handler
+		input := BucketHandler{}
+		assert.Equal(suite.T(), c.expected1, input.WithRemote(c.name).RemoveBucket(), c.name)
 		buckets, _ := contexts.Storage.ListBuckets("")
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.name)
 	}

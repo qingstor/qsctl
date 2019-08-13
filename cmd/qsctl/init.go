@@ -10,11 +10,21 @@ import (
 )
 
 var (
+	// register available flag vars here
+	bench                bool
+	expectSize           string
+	format               string
+	humanReadable        bool
+	longFormat           bool
+	maximumMemoryContent string
+	recursive            bool
+	reverse              bool
+	zone                 string
+)
+
+var (
 	// configPath will be set if config flag was set
 	configPath string
-	// register to-be-parsed flag vars here
-	expectSize           string
-	maximumMemoryContent string
 )
 
 // rootCmd is the main command of qsctl
@@ -36,11 +46,7 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		if err := initConfig(); err != nil {
-			return err
-		}
-
-		return nil
+		return initConfig()
 	}
 
 	// add sub-command to rootCmd
@@ -114,7 +120,7 @@ func initGlobalFlag() {
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
 		"", "assign config path manually")
 	// Add config flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().BoolVar(&contexts.Bench, "bench",
+	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")

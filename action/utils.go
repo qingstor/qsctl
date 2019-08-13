@@ -10,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // ParseDirection will parse the data direction
@@ -86,13 +85,13 @@ func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
 }
 
 // CalculateConcurrentWorkers will calculate the current workers via limit and part size.
-func CalculateConcurrentWorkers(partSize int64) (n int) {
+func CalculateConcurrentWorkers(partSize, maximumMemory int64) (n int) {
 	// If the part size is over the limit, we will only use one worker.
-	if contexts.MaximumMemoryContent <= partSize {
+	if maximumMemory <= partSize {
 		return 1
 	}
 
-	return int(contexts.MaximumMemoryContent / partSize)
+	return int(maximumMemory / partSize)
 }
 
 // CalculatePartSize will calculate the object's part size.

@@ -20,12 +20,10 @@ type CopyTestSuite struct {
 
 func (suite CopyTestSuite) SetupTest() {
 	contexts.Storage = storage.NewMockObjectStorage()
-	contexts.Bench = true
 }
 
 func (suite CopyTestSuite) TestCopy() {
-	contexts.ExpectSize = int64(1024 * 1024)
-
+	expectSize := int64(1024 * 1024)
 	cases := []struct {
 		msg       string
 		inputSrc  string
@@ -37,30 +35,30 @@ func (suite CopyTestSuite) TestCopy() {
 	}
 
 	for _, v := range cases {
-		err := Copy(v.inputSrc, v.inputDest)
+		input := CopyHandler{}
+		err := input.WithExpectSize(expectSize).WithSrc(v.inputSrc).WithDest(v.inputDest).Copy()
 		assert.Equal(suite.T(), v.err, err, v.msg)
 	}
 }
 
 func (suite CopyTestSuite) TestCopyNotSeekableFileToRemote() {
 	size := int64(1024 * 1024 * 1024) // 1G
-
-	contexts.ExpectSize = size
-
 	r := io.LimitReader(utils.NewRand(), size)
 	objectKey := uuid.New().String()
 
-	total, err := CopyNotSeekableFileToRemote(r, objectKey)
+	input := CopyHandler{}
+	total, err := input.WithBench(true).WithExpectSize(size).WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }
 
 func (suite CopyTestSuite) TestCopyObjectToNotSeekableFile() {
 	size := int64(1024 * 1024 * 1024) // 1G
-
 	w := ioutil.Discard
 
-	total, err := CopyObjectToNotSeekableFile(w, storage.MockGBObject)
+	// Package input params
+	input := CopyHandler{}
+	total, err := input.WithObjectKey(storage.MockGBObject).WithWriter(w).CopyObjectToNotSeekableFile()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), size, total)
 }

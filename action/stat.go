@@ -13,32 +13,67 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
+// StatHandler is all params for Stat func
+type StatHandler struct {
+	// Format is the user-specified output format
+	Format string `json:"format"`
+	// ObjectKey is the remote object key
+	ObjectKey string `json:"object_key"`
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Zone specifies the zone for stat action
+	Zone string `json:"zone"`
+}
+
+// WithFormat sets the Format field with given format string
+func (sh *StatHandler) WithFormat(f string) *StatHandler {
+	sh.Format = f
+	return sh
+}
+
+// WithObjectKey sets the ObjectKey field with given key
+func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
+	sh.ObjectKey = key
+	return sh
+}
+
+// WithRemote sets the Remote field with given remote path
+func (sh *StatHandler) WithRemote(path string) *StatHandler {
+	sh.Remote = path
+	return sh
+}
+
+// WithZone sets the Zone field with given zone
+func (sh *StatHandler) WithZone(z string) *StatHandler {
+	sh.Zone = z
+	return sh
+}
+
 // Stat will handle all stat actions.
-func Stat(remote string) (err error) {
-	bucketName, objectKey, err := ParseQsPath(remote)
+func (sh *StatHandler) Stat() (err error) {
+	bucketName, objectKey, err := ParseQsPath(sh.Remote)
 	if err != nil {
 		return err
 	}
 	if objectKey == "" {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
-	err = contexts.Storage.SetupBucket(bucketName, "")
+	err = contexts.Storage.SetupBucket(bucketName, sh.Zone)
 	if err != nil {
 		return
 	}
-
-	return StatRemoteObject(objectKey)
+	return sh.WithObjectKey(objectKey).StatRemoteObject()
 }
 
 // StatRemoteObject will stat a remote object.
-func StatRemoteObject(objectKey string) (err error) {
-	om, err := contexts.Storage.HeadObject(objectKey)
+func (sh *StatHandler) StatRemoteObject() (err error) {
+	om, err := contexts.Storage.HeadObject(sh.ObjectKey)
 	if err != nil {
 		return
 	}
 
-	if contexts.Format != "" {
-		fmt.Println(statFormat(contexts.Format, om))
+	if sh.Format != "" {
+		fmt.Println(statFormat(sh.Format, om))
 		return
 	}
 

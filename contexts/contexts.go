@@ -1,33 +1,14 @@
 package contexts
 
 import (
+	"context"
+
 	"github.com/yunify/qsctl/v2/storage"
 )
 
 var (
 	// Storage is the remote storage service.
 	Storage storage.ObjectStorage
-)
-
-// Available flags.
-var (
-	// Global flags.
-	Bench bool
-	// Copy commands flags.
-	ExpectSize           int64
-	MaximumMemoryContent int64
-	// Bucket operation flags.
-	Zone string
-	// Format for stat.
-	Format string
-	// Recursive for ls and rm.
-	Recursive bool
-	// Reverse for ls.
-	Reverse bool
-	// HumanReadable for ls
-	HumanReadable bool
-	// LongFormat for ls
-	LongFormat bool
 )
 
 // SetupServices will setup services.
@@ -38,4 +19,19 @@ func SetupServices() (err error) {
 	}
 
 	return
+}
+
+// SetContext set k-v into specific ctx
+func SetContext(ctx context.Context, k, v interface{}) context.Context {
+	return context.WithValue(ctx, k, v)
+}
+
+// FromContext get value from context with the specific k
+func FromContext(ctx context.Context, k interface{}) interface{} {
+	return ctx.Value(k)
+}
+
+// NewCmdCtx returns a new CmdCtx with empty background
+func NewCmdCtx() context.Context {
+	return context.Background()
 }

@@ -8,15 +8,35 @@ import (
 	"github.com/yunify/qsctl/v2/contexts"
 )
 
+// BucketHandler is all params for Bucket func
+type BucketHandler struct {
+	// Remote is the remote qs path
+	Remote string `json:"remote"`
+	// Zone specifies the zone for bucket action
+	Zone string `json:"zone"`
+}
+
+// WithRemote sets the Remote field with given remote path
+func (bh *BucketHandler) WithRemote(path string) *BucketHandler {
+	bh.Remote = path
+	return bh
+}
+
+// WithZone sets the Zone field with given zone
+func (bh *BucketHandler) WithZone(z string) *BucketHandler {
+	bh.Zone = z
+	return bh
+}
+
 // MakeBucket will make a bucket with specific name.
-func MakeBucket(remote string) (err error) {
+func (bh *BucketHandler) MakeBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(remote)
+	bucketName, _, err := ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
@@ -28,14 +48,14 @@ func MakeBucket(remote string) (err error) {
 }
 
 // RemoveBucket remove a bucket with specific remote qs path.
-func RemoveBucket(remote string) (err error) {
+func (bh *BucketHandler) RemoveBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(remote)
+	bucketName, _, err := ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, contexts.Zone)
+	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
@@ -47,8 +67,8 @@ func RemoveBucket(remote string) (err error) {
 }
 
 // ListBuckets list all buckets.
-func ListBuckets(zone string) (err error) {
-	buckets, err := contexts.Storage.ListBuckets(zone)
+func (bh *BucketHandler) ListBuckets() (err error) {
+	buckets, err := contexts.Storage.ListBuckets(bh.Zone)
 	if err != nil {
 		return
 	}
