@@ -7,11 +7,10 @@ import (
 	"io"
 	"os"
 	"runtime/pprof"
-	"sync"
 	"time"
 
+	"github.com/Xuanwo/navvy"
 	"github.com/c2h5oh/datasize"
-	"github.com/panjf2000/ants"
 	"github.com/pengsrc/go-shared/buffer"
 	log "github.com/sirupsen/logrus"
 
@@ -209,8 +208,7 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	pool, err := ants.NewPool(CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
+	pool, err := navvy.NewPool(CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
 	if err != nil {
 		panic(err)
 	}
@@ -237,10 +235,7 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 		}
 
 		localPartNumber := partNumber
-		wg.Add(1)
-		err = pool.Submit(func() {
-			defer wg.Done()
-
+		err = pool.Submit(navvy.TaskWrapper(func() {
 			// We should free the bytes after upload.
 			defer b.Free()
 
@@ -251,7 +246,7 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 				log.Errorf("Object <%s> part <%d> upload failed [%s]", ch.ObjectKey, localPartNumber, err)
 			}
 			log.Debugf("Object <%s> part <%d> uploaded", ch.ObjectKey, localPartNumber)
-		})
+		}))
 		if err != nil {
 			panic(err)
 		}
@@ -259,7 +254,7 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 		partNumber++
 	}
 
-	wg.Wait()
+	pool.Wait()
 
 	err = contexts.Storage.CompleteMultipartUpload(ch.ObjectKey, uploadID, partNumber)
 	if err != nil {
