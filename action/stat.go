@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/yunify/qsctl/v2/task"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
@@ -51,7 +52,7 @@ func (sh *StatHandler) WithZone(z string) *StatHandler {
 
 // Stat will handle all stat actions.
 func (sh *StatHandler) Stat() (err error) {
-	bucketName, objectKey, err := ParseQsPath(sh.Remote)
+	bucketName, objectKey, err := task.ParseQsPath(sh.Remote)
 	if err != nil {
 		return err
 	}

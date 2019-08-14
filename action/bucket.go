@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task"
 
 	"github.com/yunify/qsctl/v2/contexts"
 )
@@ -31,7 +32,7 @@ func (bh *BucketHandler) WithZone(z string) *BucketHandler {
 // MakeBucket will make a bucket with specific name.
 func (bh *BucketHandler) MakeBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(bh.Remote)
+	bucketName, _, err := task.ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
@@ -50,7 +51,7 @@ func (bh *BucketHandler) MakeBucket() (err error) {
 // RemoveBucket remove a bucket with specific remote qs path.
 func (bh *BucketHandler) RemoveBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := ParseQsPath(bh.Remote)
+	bucketName, _, err := task.ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
