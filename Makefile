@@ -85,6 +85,7 @@ test:
 
 coverage:
 	@echo "run test with coverage"
+	@mkdir -p coverage
 	@go test -v -cover -coverprofile="coverage/profile.out" ./...
 	@go tool cover -html="coverage/profile.out" -o "coverage/profile.html"
 	@echo "ok"
