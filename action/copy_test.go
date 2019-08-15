@@ -32,6 +32,7 @@ func (suite CopyTestSuite) TestCopyLargeFile() {
 	if err != nil {
 		panic(err)
 	}
+	defer os.Remove(f.Name())
 	_, err = f.Seek(int64(datasize.GB), io.SeekStart)
 	if err != nil {
 		panic(err)
@@ -40,7 +41,6 @@ func (suite CopyTestSuite) TestCopyLargeFile() {
 	if err != nil {
 		panic(err)
 	}
-	defer os.Remove(f.Name())
 
 	input := CopyHandler{
 		FilePath: f.Name(),

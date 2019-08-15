@@ -133,7 +133,7 @@ func CalculateSeekableFileSize(r io.Seeker) (size int64, err error) {
 }
 
 // SubmitNextTask will fetch next todo and submit to pool.
-func SubmitNextTask(t interface{ Todoist }) {
+func SubmitNextTask(t Todoist) {
 	fn := t.NextTODO()
 	if fn == nil {
 		return

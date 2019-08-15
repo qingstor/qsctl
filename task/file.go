@@ -1,12 +1,6 @@
 package task
 
 // CopyLargeFileTask will execute CopyPartialFile Task
-//
-// CopyObject
-// CopySingleFile
-// CopyLargeFile
-//   -> CopyPartialFile
-// CopyNotSeekableFile
 type CopyLargeFileTask struct {
 	Todo
 
@@ -36,6 +30,11 @@ type CopyPartialFileTask struct {
 	WaitGroup
 }
 
+// Run implement navvy.Task
+func (t *CopyPartialFileTask) Run() {
+	SubmitNextTask(t)
+}
+
 // NewCopyPartialFileTask will create a new Task.
 func NewCopyPartialFileTask(
 	objectKey, filePath, uploadID string,
@@ -55,9 +54,4 @@ func NewCopyPartialFileTask(
 		NewMultipartObjectUploadTask,
 	)
 	return t
-}
-
-// Run implement navvy.Task
-func (t *CopyPartialFileTask) Run() {
-	SubmitNextTask(t)
 }

@@ -21,6 +21,7 @@ func (o *Todo) NextTODO() func(Todoist) navvy.Task {
 		return nil
 	}
 	fn := o.v[0]
+	o.v[0] = nil
 	o.v = o.v[1:]
 	return fn
 }
