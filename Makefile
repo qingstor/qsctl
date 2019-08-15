@@ -1,12 +1,9 @@
 SHELL := /bin/bash
 CMD_PKG := github.com/yunify/qsctl/v2/cmd/qsctl
 
-.PHONY: all check format　vet lint build install uninstall release clean test coverage
+.PHONY: all check format　vet lint build install uninstall release clean test coverage generate
 
 VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
-DIRS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
-PKGS_TO_CHECK=$(shell go list ./... | grep -vE "/vendor/|/tests/")
-INGR_TEST=$(shell go list ./... | grep "/tests/" | grep -v "/utils")
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -22,21 +19,24 @@ help:
 check: format vet lint
 
 format:
-	@echo "go fmt, skipping vendor packages"
-	@for pkg in ${PKGS_TO_CHECK}; do go fmt $${pkg}; done;
+	@echo "go fmt"
+	@go fmt ./...
 	@echo "ok"
 
 vet:
-	@echo "go vet, skipping vendor packages"
-	@go vet -all ${DIRS_TO_CHECK}
+	@echo "go vet"
+	@go vet ./...
 	@echo "ok"
 
 lint:
-	@echo "golint, skipping vendor packages"
-	@lint=$$(for pkg in ${PKGS_TO_CHECK}; do golint $${pkg}; done); \
-	 lint=$$(echo "$${lint}"); \
-	 if [[ -n $${lint} ]]; then echo "$${lint}"; exit 1; fi
+	@echo "golint"
+	@golint ./...
 	@echo "ok"
+
+generate:
+	@echo "generate code..."
+	@go generate action/types_gen.go
+	@echo "Done"
 
 build: check
 	@echo "build qsctl"
@@ -80,17 +80,12 @@ clean:
 
 test:
 	@echo "run test"
-	@go test -v ${PKGS_TO_CHECK}
+	@go test -v ./...
 	@echo "ok"
 
 coverage:
 	@echo "run test with coverage"
-	@for pkg in ${PKGS_TO_CHECK}; do \
-		output="coverage$${pkg#github.com/yunify/qsctl}"; \
-		mkdir -p $${output}; \
-		go test -v -cover -coverprofile="$${output}/profile.out" $${pkg}; \
-		if [[ -e "$${output}/profile.out" ]]; then \
-			go tool cover -html="$${output}/profile.out" -o "$${output}/profile.html"; \
-		fi; \
-	done
+	@mkdir -p coverage
+	@go test -v -cover -coverprofile="coverage/profile.out" ./...
+	@go tool cover -html="coverage/profile.out" -o "coverage/profile.html"
 	@echo "ok"

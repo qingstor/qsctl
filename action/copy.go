@@ -13,10 +13,26 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/pengsrc/go-shared/buffer"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
 )
+
+// RunCopyLargeFileTask will start a large file task.
+func (ch *CopyHandler) RunCopyLargeFileTask() {
+	t := &task.CopyLargeFileTask{}
+	t.SetFilePath(ch.FilePath)
+	t.SetObjectKey(ch.ObjectKey)
+
+	t.AddTODOs(
+		task.NewMultipartObjectInitTask,
+		task.NewWaitTask,
+		task.NewMultipartObjectCompleteTask,
+	)
+
+	contexts.Pool.Submit(t)
+}
 
 // CopyHandler is all params for Copy func
 type CopyHandler struct {
@@ -30,6 +46,7 @@ type CopyHandler struct {
 	MaximumMemoryContent int64 `json:"maximum_memory_content"`
 	// ObjectKey is the remote object key
 	ObjectKey string `json:"object_key"`
+	FilePath  string
 	// Reader is the stream for upload
 	Reader io.Reader `json:"reader"`
 	// Src is the source path
@@ -96,7 +113,7 @@ func (ch *CopyHandler) WithZone(z string) *CopyHandler {
 
 // Copy will handle all copy actions.
 func (ch *CopyHandler) Copy() (err error) {
-	flow, err := ParseDirection(ch.Src, ch.Dest)
+	flow, err := task.ParseDirection(ch.Src, ch.Dest)
 	if err != nil {
 		return
 	}
@@ -122,12 +139,12 @@ func (ch *CopyHandler) Copy() (err error) {
 
 	switch flow {
 	case constants.DirectionLocalToRemote:
-		r, err := ParseFilePathForRead(ch.Src)
+		r, err := task.ParseFilePathForRead(ch.Src)
 		if err != nil {
 			return err
 		}
 
-		bucketName, objectKey, err := ParseQsPath(ch.Dest)
+		bucketName, objectKey, err := task.ParseQsPath(ch.Dest)
 		if err != nil {
 			return err
 		}
@@ -154,7 +171,7 @@ func (ch *CopyHandler) Copy() (err error) {
 		}
 
 	case constants.DirectionRemoteToLocal:
-		bucketName, objectKey, err := ParseQsPath(ch.Src)
+		bucketName, objectKey, err := task.ParseQsPath(ch.Src)
 		if err != nil {
 			return err
 		}
@@ -166,7 +183,7 @@ func (ch *CopyHandler) Copy() (err error) {
 			return err
 		}
 
-		w, err := ParseFilePathForWrite(ch.Dest)
+		w, err := task.ParseFilePathForWrite(ch.Dest)
 		if err != nil {
 			return err
 		}
@@ -203,12 +220,12 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 
 	log.Debugf("Object <%s> uploading via upload ID <%s>", ch.ObjectKey, uploadID)
 
-	partSize, err := CalculatePartSize(ch.ExpectSize)
+	partSize, err := task.CalculatePartSize(ch.ExpectSize)
 	if err != nil {
 		return
 	}
 
-	pool, err := navvy.NewPool(CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
+	pool, err := navvy.NewPool(task.CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
 	if err != nil {
 		panic(err)
 	}

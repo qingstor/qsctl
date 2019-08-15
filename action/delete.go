@@ -2,6 +2,7 @@ package action
 
 import (
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
@@ -29,7 +30,7 @@ func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
 
 // Delete will delete a remote object.
 func (dh *DeleteHandler) Delete() (err error) {
-	bucketName, objectKey, err := ParseQsPath(dh.Remote)
+	bucketName, objectKey, err := task.ParseQsPath(dh.Remote)
 	if err != nil {
 		return
 	}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/contexts"
@@ -106,7 +107,7 @@ func (lh *ListHandler) WithZone(z string) *ListHandler {
 
 // ListObjects will handle all ls actions.
 func (lh *ListHandler) ListObjects() (err error) {
-	bucketName, objectKey, err := ParseQsPath(lh.Remote)
+	bucketName, objectKey, err := task.ParseQsPath(lh.Remote)
 	if err != nil {
 		return err
 	}

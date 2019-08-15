@@ -1,4 +1,4 @@
-package action
+package task
 
 import (
 	"io"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/contexts"
 
 	"github.com/yunify/qsctl/v2/constants"
 )
@@ -114,4 +115,29 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 		break
 	}
 	return
+}
+
+// CalculateSeekableFileSize will calculate the seekable file's size.
+func CalculateSeekableFileSize(r io.Seeker) (size int64, err error) {
+	// Move the start to make sure size read correctly.
+	_, err = r.Seek(0, io.SeekStart)
+	if err != nil {
+		return
+	}
+
+	size, err = r.Seek(0, io.SeekEnd)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// SubmitNextTask will fetch next todo and submit to pool.
+func SubmitNextTask(t Todoist) {
+	fn := t.NextTODO()
+	if fn == nil {
+		return
+	}
+
+	contexts.Pool.Submit(fn(t))
 }
