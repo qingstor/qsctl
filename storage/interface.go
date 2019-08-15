@@ -42,11 +42,13 @@ type ObjectStorage interface {
 	PutBucket() error
 	DeleteBucket() error
 	GetBucketACL() (ar *ACLResp, err error)
+	GetBucketZone() (zone string)
 
 	DeleteObject(objectKey string) (err error)
 	HeadObject(objectKey string) (om *ObjectMeta, err error)
 	GetObject(objectKey string) (r io.Reader, err error)
 	ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error)
+	PresignObject(objectKey string, expire int) (url string, err error)
 
 	InitiateMultipartUpload(objectKey string) (uploadID string, err error)
 	UploadMultipart(objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader) (err error)
