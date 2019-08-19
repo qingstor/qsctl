@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/action"
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -42,14 +43,14 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 
 func initCpFlag() {
 	CpCommand.PersistentFlags().StringVar(&expectSize,
-		"expect-size",
+		constants.ExpectSizeFlag,
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)",
 	)
 	CpCommand.PersistentFlags().StringVar(&maximumMemoryContent,
-		"maximum-memory-content",
+		constants.MaximumMemoryContentFlag,
 		"",
 		"maximum content loaded in memory\n"+
 			"(only used for input from stdin)",
