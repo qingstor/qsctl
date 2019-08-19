@@ -36,4 +36,7 @@ var (
 
 	// ErrorReadableSizeFormat returned while transfer readable size format
 	ErrorReadableSizeFormat = errors.New("readable size format error")
+
+	// ErrorTestError returned while test the err case
+	ErrorTestError = errors.New("test error case")
 )

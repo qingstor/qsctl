@@ -21,4 +21,6 @@ const (
 	MaximumAutoMultipartSize = MaximumPartSize / 5
 	// DefaultPartSize is the default part size, 128MB.
 	DefaultPartSize = 128 * 1024 * 1024
+	// DefaultPresignExpire is the default expire seconds.
+	DefaultPresignExpire = 300
 )

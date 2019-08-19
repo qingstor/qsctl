@@ -101,6 +101,7 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, err error) {
 	resp, err := q.bucket.HeadObject(objectKey, nil)
 	if err != nil {
+		log.Errorf("Head object <%s> failed [%v]", objectKey, err)
 		if e, ok := err.(*errors.QingStorError); ok {
 			if e.StatusCode == http.StatusNotFound {
 				return nil, constants.ErrorQsPathNotFound
@@ -296,4 +297,27 @@ func (q *QingStorObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 		})
 	}
 	return
+}
+
+// GetBucketZone will get base info from current bucket.
+func (q *QingStorObjectStorage) GetBucketZone() (zone string) {
+	return *q.bucket.Properties.Zone
+}
+
+// PresignObject will get pre-sign url for given object key and expire second.
+func (q *QingStorObjectStorage) PresignObject(objectKey string, expire int) (url string, err error) {
+	r, _, err := q.bucket.GetObjectRequest(objectKey, nil)
+	if err != nil {
+		log.Errorf("Get object <%s> request failed [%v]", objectKey, err)
+		return "", err
+	}
+	if err = r.Build(); err != nil {
+		log.Errorf("Object <%s> request build failed [%v]", objectKey, err)
+		return
+	}
+	if err = r.SignQuery(expire); err != nil {
+		log.Errorf("Object <%s> request sign failed [%v]", objectKey, err)
+		return
+	}
+	return r.HTTPRequest.URL.String(), nil
 }

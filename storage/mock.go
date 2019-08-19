@@ -44,6 +44,7 @@ type bucketMeta struct {
 	Name     string
 	URL      string
 	OwnerID  string
+	ACL      string
 }
 
 // NewMockObjectStorage will create a new mock object storage.
@@ -82,28 +83,40 @@ func NewMockObjectStorage() *MockObjectStorage {
 		Created:  time.Unix(612889200, 0),
 		Location: MockZoneAlpha,
 		OwnerID:  MockZoneAlpha + "user",
+		URL:      fmt.Sprintf("%s.%s", MockZoneAlpha, MockZoneAlpha),
+		ACL:      constants.PublicBucketACL, // bucket MockZoneAlpha sets to public
 	}
 	s.buckets[MockZoneBeta] = &bucketMeta{
 		Name:     MockZoneBeta,
 		Created:  time.Unix(612889200, 0),
 		Location: MockZoneBeta,
 		OwnerID:  MockZoneBeta + "user",
+		URL:      fmt.Sprintf("%s.%s", MockZoneBeta, MockZoneBeta),
 	}
 	return s
 }
 
 // SetupBucket implements ObjectStorage.SetupBucket
 func (m *MockObjectStorage) SetupBucket(bucketName, zone string) error {
-	if zone != "" {
+	b, ok := m.buckets[bucketName]
+	// bucket does not exist in list
+	if !ok {
 		m.currentBucket = &bucketMeta{
 			Name:     bucketName,
 			Created:  time.Unix(612889200, 0),
 			Location: zone,
 			OwnerID:  zone + "user",
+			URL:      fmt.Sprintf("%s.%s", zone, zone),
 		}
 		return nil
 	}
-	m.currentBucket = m.buckets[bucketName]
+
+	m.currentBucket = b
+	if zone != "" {
+		m.currentBucket.Location = zone
+		m.currentBucket.OwnerID = zone + "user"
+		return nil
+	}
 	return nil
 }
 
@@ -298,5 +311,20 @@ func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
 func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	return &ACLResp{
 		OwnerID: m.currentBucket.OwnerID,
+		ACLs:    []*ACLMeta{{GranteeName: m.currentBucket.ACL}},
 	}, nil
+}
+
+// GetBucketZone implements ObjectStorage.GetBucketZone.
+func (m *MockObjectStorage) GetBucketZone() (zone string) {
+	return m.currentBucket.Location
+}
+
+// PresignObject implements ObjectStorage.PresignObject.
+func (m *MockObjectStorage) PresignObject(objectKey string, expire int) (url string, err error) {
+	if expire <= 0 {
+		return "", constants.ErrorTestError
+	}
+	url = fmt.Sprintf("%s/%s?expire=%d", m.currentBucket.URL, objectKey, expire)
+	return url, nil
 }
