@@ -11,10 +11,9 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task"
+	utils2 "github.com/yunify/qsctl/v2/task/utils"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -107,15 +106,15 @@ func (lh *ListHandler) WithZone(z string) *ListHandler {
 
 // ListObjects will handle all ls actions.
 func (lh *ListHandler) ListObjects() (err error) {
-	bucketName, objectKey, err := task.ParseQsPath(lh.Remote)
+	_, objectKey, err := utils2.ParseQsPath(lh.Remote)
 	if err != nil {
 		return err
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, lh.Zone)
-	if err != nil {
-		return
-	}
+	// err = stor.SetupBucket(bucketName, lh.Zone)
+	// if err != nil {
+	// 	return
+	// }
 
 	if lh.Bench {
 		f, err := os.Create("list_objects_profile")
@@ -167,7 +166,7 @@ func (lh *ListHandler) ListObjects() (err error) {
 // listObjects list objects with specific prefix and delimiter from a bucket,
 // return the root of object tree.
 func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
-	oms, err := contexts.Storage.ListObjects(lh.Prefix, lh.Delimiter, nil)
+	oms, err := stor.ListObjects(lh.Prefix, lh.Delimiter, nil)
 	if err != nil {
 		return
 	}
@@ -216,7 +215,7 @@ func (lh *ListHandler) listObjects() (root *storage.ObjectMeta, err error) {
 // recursiveListObjects list objects recursively for each dir,
 // if once is true, only recurse once, for contentNum count.
 func recursiveListObjects(root *storage.ObjectMeta, once bool) error {
-	oms, err := contexts.Storage.ListObjects(root.Key, "/", nil)
+	oms, err := stor.ListObjects(root.Key, "/", nil)
 	if err != nil {
 		return err
 	}
@@ -244,7 +243,7 @@ func recursiveListObjects(root *storage.ObjectMeta, once bool) error {
 
 // getBucketOwner will assign the owner id of current bucket
 func (lh *ListHandler) getBucketOwner() error {
-	ar, err := contexts.Storage.GetBucketACL()
+	ar, err := stor.GetBucketACL()
 	if err != nil {
 		return err
 	}

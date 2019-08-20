@@ -48,6 +48,8 @@ func NewQingStorObjectStorage() (q *QingStorObjectStorage, err error) {
 		log.Errorf("Init service failed [%v]", err)
 		return
 	}
+
+	log.Debugf("Init service for access key <%s> succeed", cfg.AccessKeyID)
 	return
 }
 

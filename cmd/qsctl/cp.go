@@ -2,15 +2,30 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/task"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-var (
-	cpExpectSize int64
-	cpMaxMemory  int64
-)
+var cpInput struct {
+	ExpectSize           string
+	MaximumMemoryContent string
+}
+
+var cpOutput struct {
+	ExpectSize           int64
+	MaximumMemoryContent int64
+
+	Flow     constants.FlowType
+	Path     string
+	PathType constants.PathType
+	Key      string
+	KeyType  constants.KeyType
+
+	Storage storage.ObjectStorage
+}
 
 // CpCommand will handle copy command.
 var CpCommand = &cobra.Command{
@@ -23,32 +38,19 @@ var CpCommand = &cobra.Command{
 		"Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin",
 		"Write to stdout: qsctl cp qs://prefix/b - > /path/to/file",
 	),
-	Args:    cobra.ExactArgs(2),
-	RunE:    cpRun,
-	PreRunE: validateCpFlag,
-}
-
-func cpRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
-	cpHandler := &action.CopyHandler{}
-	return cpHandler.
-		WithBench(bench).
-		WithDest(args[1]).
-		WithExpectSize(cpExpectSize).
-		WithMaximumMemory(cpMaxMemory).
-		WithSrc(args[0]).
-		Copy()
+	Args: cobra.ExactArgs(2),
+	RunE: cpRun,
 }
 
 func initCpFlag() {
-	CpCommand.PersistentFlags().StringVar(&expectSize,
+	CpCommand.PersistentFlags().StringVar(&cpInput.ExpectSize,
 		"expect-size",
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)",
 	)
-	CpCommand.PersistentFlags().StringVar(&maximumMemoryContent,
+	CpCommand.PersistentFlags().StringVar(&cpInput.MaximumMemoryContent,
 		"maximum-memory-content",
 		"",
 		"maximum content loaded in memory\n"+
@@ -56,19 +58,113 @@ func initCpFlag() {
 	)
 }
 
-func validateCpFlag(_ *cobra.Command, _ []string) (err error) {
-	if expectSize != "" {
-		cpExpectSize, err = utils.ParseByteSize(expectSize)
+func cpParse(_ *cobra.Command, args []string) (err error) {
+	// Parse flags.
+	if cpInput.ExpectSize != "" {
+		cpOutput.ExpectSize, err = utils.ParseByteSize(expectSize)
 		if err != nil {
 			return err
 		}
 	}
 
-	if maximumMemoryContent != "" {
-		cpMaxMemory, err = utils.ParseByteSize(maximumMemoryContent)
+	if cpInput.MaximumMemoryContent != "" {
+		cpOutput.MaximumMemoryContent, err = utils.ParseByteSize(maximumMemoryContent)
 		if err != nil {
 			return err
 		}
 	}
+
+	// Setup storage.
+	cpOutput.Storage, err = storage.NewQingStorObjectStorage()
+	if err != nil {
+		return err
+	}
+
+	// Parse flow.
+	src, dst := args[0], args[1]
+	cpOutput.Flow = utils.ParseFlow(src, dst)
+
+	var bucketName, objectKey string
+
+	switch cpOutput.Flow {
+	case constants.FlowToRemote:
+		cpOutput.PathType, err = utils.ParsePath(src)
+		if err != nil {
+			return
+		}
+		cpOutput.Path = src
+
+		cpOutput.KeyType, bucketName, objectKey, err = utils.ParseKey(dst)
+		if err != nil {
+			return
+		}
+		cpOutput.Key = objectKey
+	case constants.FlowToLocal, constants.FlowAtRemote:
+		cpOutput.PathType, err = utils.ParsePath(dst)
+		if err != nil {
+			return
+		}
+		cpOutput.Path = dst
+
+		cpOutput.KeyType, bucketName, objectKey, err = utils.ParseKey(src)
+		if err != nil {
+			return
+		}
+		cpOutput.Key = objectKey
+	default:
+		panic("this case should never be switched")
+	}
+	err = cpOutput.Storage.SetupBucket(bucketName, "")
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
+func cpRun(cmd *cobra.Command, args []string) (err error) {
+	err = cpParse(cmd, args)
+	if err != nil {
+		return
+	}
+
+	switch cpOutput.Flow {
+	case constants.FlowToLocal:
+		return cpToLocal()
+	case constants.FlowToRemote:
+		return cpToRemote()
+	default:
+		panic("this case should never be switched")
+	}
+}
+
+func cpToLocal() (err error) {
+	// TODO: support -r
+
+	switch cpOutput.PathType {
+	case constants.PathTypeLocalDir:
+		return constants.ErrorActionNotImplemented
+	case constants.PathTypeStream:
+		// TODO: RUN xxxTask
+	case constants.PathTypeFile:
+		// TODO: Run XX task
+	}
+
+	return nil
+}
+
+func cpToRemote() (err error) {
+	switch cpOutput.PathType {
+	case constants.PathTypeLocalDir:
+		return constants.ErrorActionNotImplemented
+	case constants.PathTypeStream:
+		// TODO: RUN xxxTask
+	case constants.PathTypeFile:
+		t := task.NewCopyFileTask(cpOutput.Path, cpOutput.Key, cpOutput.Storage)
+		t.Run()
+
+		t.GetPool().Wait()
+	}
+
 	return nil
 }

@@ -135,6 +135,7 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yunify/qingstor-sdk-go/v3 v3.0.1 h1:DmeQt6Ra8gGXbmgmW0gmlntL2nDz1N58M7PzL6tB44w=
 github.com/yunify/qingstor-sdk-go/v3 v3.0.1/go.mod h1:KciFNuMu6F4WLk9nGwwK69sCGKLCdd9f97ac/wfumS4=
+github.com/yunify/qsctl v1.7.7 h1:V5TFzc+UCbh6ZgY2XOnxPFMHXtlyPtg1J1mq8wdjjPY=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=

@@ -1,4 +1,4 @@
-package task
+package utils
 
 import (
 	"io/ioutil"
@@ -9,26 +9,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 )
-
-func TestParseDirection(t *testing.T) {
-	cases := []struct {
-		input1   string
-		input2   string
-		expected string
-		err      error
-	}{
-		{"xxxx", "qs://xxxx", constants.DirectionLocalToRemote, nil},
-		{"qs://xxxx", "xxxx", constants.DirectionRemoteToLocal, nil},
-		{"xxxx", "xxxx", "", constants.ErrorFlowInvalid},
-		{"qs://xxxx", "qs://xxxx", "", constants.ErrorFlowInvalid},
-	}
-
-	for _, v := range cases {
-		x, err := ParseDirection(v.input1, v.input2)
-		assert.Equal(t, v.err, err)
-		assert.Equal(t, v.expected, x)
-	}
-}
 
 func TestParseFilePathForRead(t *testing.T) {
 	x, err := ParseFilePathForRead("-")

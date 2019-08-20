@@ -1,4 +1,4 @@
-package task
+package utils
 
 import (
 	"io"
@@ -8,24 +8,10 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/contexts"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/task/types"
 )
-
-// ParseDirection will parse the data direction
-func ParseDirection(src, dst string) (flow string, err error) {
-	// If src and dst both local file or both remote object, the path is invalid.
-	if strings.HasPrefix(src, "qs://") == strings.HasPrefix(dst, "qs://") {
-		log.Errorf("Action between <%s> and <%s> is invalid", src, dst)
-		return "", constants.ErrorFlowInvalid
-	}
-
-	if strings.HasPrefix(src, "qs://") {
-		return constants.DirectionRemoteToLocal, nil
-	}
-	return constants.DirectionLocalToRemote, nil
-}
 
 // ParseFilePathForRead will parse file path and open an io.Reader for read.
 func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
@@ -133,11 +119,14 @@ func CalculateSeekableFileSize(r io.Seeker) (size int64, err error) {
 }
 
 // SubmitNextTask will fetch next todo and submit to pool.
-func SubmitNextTask(t Todoist) {
+func SubmitNextTask(t interface {
+	types.Todoist
+	types.PoolGetter
+}) {
 	fn := t.NextTODO()
 	if fn == nil {
 		return
 	}
 
-	contexts.Pool.Submit(fn(t))
+	t.GetPool().Submit(fn(t))
 }

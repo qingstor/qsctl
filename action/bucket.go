@@ -4,10 +4,19 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task"
-
-	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/task/utils"
 )
+
+var stor storage.ObjectStorage
+
+func init() {
+	var err error
+	stor, err = storage.NewQingStorObjectStorage()
+	if err != nil {
+		panic(err)
+	}
+}
 
 // BucketHandler is all params for Bucket func
 type BucketHandler struct {
@@ -32,16 +41,16 @@ func (bh *BucketHandler) WithZone(z string) *BucketHandler {
 // MakeBucket will make a bucket with specific name.
 func (bh *BucketHandler) MakeBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := task.ParseQsPath(bh.Remote)
+	bucketName, _, err := utils.ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
+	err = stor.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
-	if err = contexts.Storage.PutBucket(); err != nil {
+	if err = stor.PutBucket(); err != nil {
 		return
 	}
 	log.Infof("Bucket <%s> created.", bucketName)
@@ -51,16 +60,16 @@ func (bh *BucketHandler) MakeBucket() (err error) {
 // RemoveBucket remove a bucket with specific remote qs path.
 func (bh *BucketHandler) RemoveBucket() (err error) {
 	// Get bucket name from path
-	bucketName, _, err := task.ParseQsPath(bh.Remote)
+	bucketName, _, err := utils.ParseQsPath(bh.Remote)
 	if err != nil {
 		return
 	}
 	// Init bucket
-	err = contexts.Storage.SetupBucket(bucketName, bh.Zone)
+	err = stor.SetupBucket(bucketName, bh.Zone)
 	if err != nil {
 		return err
 	}
-	if err = contexts.Storage.DeleteBucket(); err != nil {
+	if err = stor.DeleteBucket(); err != nil {
 		return
 	}
 	log.Infof("Bucket <%s> removed.", bucketName)
@@ -69,7 +78,7 @@ func (bh *BucketHandler) RemoveBucket() (err error) {
 
 // ListBuckets list all buckets.
 func (bh *BucketHandler) ListBuckets() (err error) {
-	buckets, err := contexts.Storage.ListBuckets(bh.Zone)
+	buckets, err := stor.ListBuckets(bh.Zone)
 	if err != nil {
 		return
 	}

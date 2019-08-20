@@ -1,4 +1,4 @@
-package task
+package common
 
 import (
 	"bufio"
@@ -8,17 +8,21 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task/utils"
+
+	"github.com/yunify/qsctl/v2/task/types"
 )
 
 // SeekableMD5SumTaskRequirement is the requirement for execute SeekableMD5SumTask.
 type SeekableMD5SumTaskRequirement interface {
 	navvy.Task
-	Todoist
+	types.Todoist
 
-	MD5SumSetter
-	FilePathGetter
-	OffsetGetter
-	ContentLengthGetter
+	types.MD5SumSetter
+	types.FilePathGetter
+	types.OffsetGetter
+	types.SizeGetter
+	types.PoolGetter
 }
 
 // SeekableMD5SumTask will execute SeekableMD5Sum Task.
@@ -27,7 +31,7 @@ type SeekableMD5SumTask struct {
 }
 
 // NewSeekableMD5SumTask will create a new Task.
-func NewSeekableMD5SumTask(task Todoist) navvy.Task {
+func NewSeekableMD5SumTask(task types.Todoist) navvy.Task {
 	o, ok := task.(SeekableMD5SumTaskRequirement)
 	if !ok {
 		panic("task is not fill SeekableMD5SumTaskRequirement")
@@ -46,7 +50,7 @@ func (t *SeekableMD5SumTask) Run() {
 	}
 	defer f.Close()
 
-	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetContentLength()))
+	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetSize()))
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
@@ -56,35 +60,5 @@ func (t *SeekableMD5SumTask) Run() {
 	t.SetMD5Sum(h.Sum(nil)[:])
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "SeekableMD5SumTask", t.GetFilePath(), t.GetOffset())
-	go SubmitNextTask(t.SeekableMD5SumTaskRequirement)
-}
-
-// WaitTaskRequirement is the requirement for execute WaitTask.
-type WaitTaskRequirement interface {
-	navvy.Task
-	Todoist
-
-	WaitGroupGetter
-}
-
-// WaitTask will execute Wait Task.
-type WaitTask struct {
-	WaitTaskRequirement
-}
-
-// NewWaitTask will create a new Task.
-func NewWaitTask(task Todoist) navvy.Task {
-	o, ok := task.(WaitTaskRequirement)
-	if !ok {
-		panic("task is not fill NewWaitTask")
-	}
-
-	return &WaitTask{o}
-}
-
-// Run implement navvy.Task.
-func (t *WaitTask) Run() {
-	t.GetWaitGroup().Wait()
-
-	go SubmitNextTask(t.WaitTaskRequirement)
+	go utils.SubmitNextTask(t.SeekableMD5SumTaskRequirement)
 }

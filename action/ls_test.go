@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 )
 
@@ -21,7 +20,7 @@ type LsTestSuite struct {
 }
 
 func (suite LsTestSuite) SetupTest() {
-	contexts.Storage = storage.NewMockObjectStorage()
+	stor = storage.NewMockObjectStorage()
 }
 
 func (suite LsTestSuite) TestListObjects() {
@@ -73,12 +72,12 @@ func (suite LsTestSuite) TestListObjects() {
 		input = input.WithHumanReadable(c.humanReadable).WithLongFormat(c.longFormat).WithRecursive(c.recursive).
 			WithReverse(c.reverse).WithRemote(c.remote).WithPrefix(c.key).WithDelimiter(delimiter)
 		// Reset mock objects after each call
-		s := contexts.Storage.(*storage.MockObjectStorage)
+		s := stor.(*storage.MockObjectStorage)
 		s.ResetMockObjects(objPrefix, objNum)
 		assert.Equal(suite.T(), c.err, input.ListObjects(), k)
 
 		s.ResetMockObjects(objPrefix, objNum)
-		oms, err := contexts.Storage.ListObjects(c.key, delimiter, nil)
+		oms, err := stor.ListObjects(c.key, delimiter, nil)
 		assert.Equal(suite.T(), c.err, err, k)
 		assert.Equal(suite.T(), c.omsCount, len(oms), k)
 

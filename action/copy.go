@@ -5,34 +5,13 @@ import (
 	"bytes"
 	"crypto/md5"
 	"io"
-	"os"
-	"runtime/pprof"
-	"time"
 
 	"github.com/Xuanwo/navvy"
-	"github.com/c2h5oh/datasize"
 	"github.com/pengsrc/go-shared/buffer"
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task"
-
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
+	"github.com/yunify/qsctl/v2/task/utils"
 )
-
-// RunCopyLargeFileTask will start a large file task.
-func (ch *CopyHandler) RunCopyLargeFileTask() {
-	t := &task.CopyLargeFileTask{}
-	t.SetFilePath(ch.FilePath)
-	t.SetObjectKey(ch.ObjectKey)
-
-	t.AddTODOs(
-		task.NewMultipartObjectInitTask,
-		task.NewWaitTask,
-		task.NewMultipartObjectCompleteTask,
-	)
-
-	contexts.Pool.Submit(t)
-}
 
 // CopyHandler is all params for Copy func
 type CopyHandler struct {
@@ -112,100 +91,100 @@ func (ch *CopyHandler) WithZone(z string) *CopyHandler {
 }
 
 // Copy will handle all copy actions.
-func (ch *CopyHandler) Copy() (err error) {
-	flow, err := task.ParseDirection(ch.Src, ch.Dest)
-	if err != nil {
-		return
-	}
-
-	var totalSize int64
-	if ch.Bench {
-		f, err := os.Create("copy_profile")
-		if err != nil {
-			panic(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-
-		cur := time.Now()
-		defer func() {
-			elapsed := time.Since(cur)
-			log.Debugf("Copied %s in %s, average %s/s\n",
-				datasize.ByteSize(totalSize).HumanReadable(),
-				elapsed,
-				datasize.ByteSize(float64(totalSize)/elapsed.Seconds()).HumanReadable())
-		}()
-	}
-
-	switch flow {
-	case constants.DirectionLocalToRemote:
-		r, err := task.ParseFilePathForRead(ch.Src)
-		if err != nil {
-			return err
-		}
-
-		bucketName, objectKey, err := task.ParseQsPath(ch.Dest)
-		if err != nil {
-			return err
-		}
-		if objectKey == "" {
-			return constants.ErrorQsPathObjectKeyRequired
-		}
-		err = contexts.Storage.SetupBucket(bucketName, ch.Zone)
-		if err != nil {
-			return err
-		}
-
-		switch x := r.(type) {
-		case *os.File:
-			if x == os.Stdin {
-				totalSize, err = ch.WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
-				if err != nil {
-					return err
-				}
-				return nil
-			}
-			return constants.ErrorActionNotImplemented
-		default:
-			return constants.ErrorActionNotImplemented
-		}
-
-	case constants.DirectionRemoteToLocal:
-		bucketName, objectKey, err := task.ParseQsPath(ch.Src)
-		if err != nil {
-			return err
-		}
-		if objectKey == "" {
-			return constants.ErrorQsPathObjectKeyRequired
-		}
-		err = contexts.Storage.SetupBucket(bucketName, ch.Zone)
-		if err != nil {
-			return err
-		}
-
-		w, err := task.ParseFilePathForWrite(ch.Dest)
-		if err != nil {
-			return err
-		}
-
-		switch x := w.(type) {
-		case *os.File:
-			if x == os.Stdout {
-				totalSize, err = ch.WithObjectKey(objectKey).WithWriter(w).CopyObjectToNotSeekableFile()
-				if err != nil {
-					return err
-				}
-				return nil
-			}
-			return constants.ErrorActionNotImplemented
-		default:
-			return constants.ErrorActionNotImplemented
-		}
-
-	default:
-		panic(constants.ErrorFlowInvalid)
-	}
-}
+// func (ch *CopyHandler) Copy() (err error) {
+// 	flow, err := task.ParseDirection(ch.Src, ch.Dest)
+// 	if err != nil {
+// 		return
+// 	}
+//
+// 	var totalSize int64
+// 	if ch.Bench {
+// 		f, err := os.Create("copy_profile")
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		pprof.StartCPUProfile(f)
+// 		defer pprof.StopCPUProfile()
+//
+// 		cur := time.Now()
+// 		defer func() {
+// 			elapsed := time.Since(cur)
+// 			log.Debugf("Copied %s in %s, average %s/s\n",
+// 				datasize.ByteSize(totalSize).HumanReadable(),
+// 				elapsed,
+// 				datasize.ByteSize(float64(totalSize) / elapsed.Seconds()).HumanReadable())
+// 		}()
+// 	}
+//
+// 	switch flow {
+// 	case constants.DirectionLocalToRemote:
+// 		r, err := task.ParseFilePathForRead(ch.Src)
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		bucketName, objectKey, err := task.ParseQsPath(ch.Dest)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if objectKey == "" {
+// 			return constants.ErrorQsPathObjectKeyRequired
+// 		}
+// 		err = stor.SetupBucket(bucketName, ch.Zone)
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		switch x := r.(type) {
+// 		case *os.File:
+// 			if x == os.Stdin {
+// 				totalSize, err = ch.WithObjectKey(objectKey).WithReader(r).CopyNotSeekableFileToRemote()
+// 				if err != nil {
+// 					return err
+// 				}
+// 				return nil
+// 			}
+// 			return constants.ErrorActionNotImplemented
+// 		default:
+// 			return constants.ErrorActionNotImplemented
+// 		}
+//
+// 	case constants.DirectionRemoteToLocal:
+// 		bucketName, objectKey, err := task.ParseQsPath(ch.Src)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if objectKey == "" {
+// 			return constants.ErrorQsPathObjectKeyRequired
+// 		}
+// 		err = stor.SetupBucket(bucketName, ch.Zone)
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		w, err := task.ParseFilePathForWrite(ch.Dest)
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		switch x := w.(type) {
+// 		case *os.File:
+// 			if x == os.Stdout {
+// 				totalSize, err = ch.WithObjectKey(objectKey).WithWriter(w).CopyObjectToNotSeekableFile()
+// 				if err != nil {
+// 					return err
+// 				}
+// 				return nil
+// 			}
+// 			return constants.ErrorActionNotImplemented
+// 		default:
+// 			return constants.ErrorActionNotImplemented
+// 		}
+//
+// 	default:
+// 		panic(constants.ErrorFlowInvalid)
+// 	}
+// }
 
 // CopyNotSeekableFileToRemote will copy a not seekable file to remote.
 func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
@@ -213,19 +192,19 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 		return 0, constants.ErrorExpectSizeRequired
 	}
 
-	uploadID, err := contexts.Storage.InitiateMultipartUpload(ch.ObjectKey)
+	uploadID, err := stor.InitiateMultipartUpload(ch.ObjectKey)
 	if err != nil {
 		return
 	}
 
 	log.Debugf("Object <%s> uploading via upload ID <%s>", ch.ObjectKey, uploadID)
 
-	partSize, err := task.CalculatePartSize(ch.ExpectSize)
+	partSize, err := utils.CalculatePartSize(ch.ExpectSize)
 	if err != nil {
 		return
 	}
 
-	pool, err := navvy.NewPool(task.CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
+	pool, err := navvy.NewPool(utils.CalculateConcurrentWorkers(partSize, ch.MaximumMemoryContent))
 	if err != nil {
 		panic(err)
 	}
@@ -252,28 +231,25 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 		}
 
 		localPartNumber := partNumber
-		err = pool.Submit(navvy.TaskWrapper(func() {
+		pool.Submit(navvy.TaskWrapper(func() {
 			// We should free the bytes after upload.
 			defer b.Free()
 
 			md5sum := md5.Sum(b.Bytes())
 
-			err = contexts.Storage.UploadMultipart(ch.ObjectKey, uploadID, int64(n), localPartNumber, md5sum[:], bytes.NewReader(b.Bytes()))
+			err = stor.UploadMultipart(ch.ObjectKey, uploadID, int64(n), localPartNumber, md5sum[:], bytes.NewReader(b.Bytes()))
 			if err != nil {
 				log.Errorf("Object <%s> part <%d> upload failed [%s]", ch.ObjectKey, localPartNumber, err)
 			}
 			log.Debugf("Object <%s> part <%d> uploaded", ch.ObjectKey, localPartNumber)
 		}))
-		if err != nil {
-			panic(err)
-		}
 
 		partNumber++
 	}
 
 	pool.Wait()
 
-	err = contexts.Storage.CompleteMultipartUpload(ch.ObjectKey, uploadID, partNumber)
+	err = stor.CompleteMultipartUpload(ch.ObjectKey, uploadID, partNumber)
 	if err != nil {
 		return
 	}
@@ -283,7 +259,7 @@ func (ch *CopyHandler) CopyNotSeekableFileToRemote() (total int64, err error) {
 
 // CopyObjectToNotSeekableFile will copy an object to not seekable file.
 func (ch *CopyHandler) CopyObjectToNotSeekableFile() (total int64, err error) {
-	r, err := contexts.Storage.GetObject(ch.ObjectKey)
+	r, err := stor.GetObject(ch.ObjectKey)
 	if err != nil {
 		return
 	}

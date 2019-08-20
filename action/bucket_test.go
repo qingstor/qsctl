@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 )
 
@@ -16,7 +15,7 @@ type BucketTestSuite struct {
 }
 
 func (suite BucketTestSuite) SetupTest() {
-	contexts.Storage = storage.NewMockObjectStorage()
+	stor = storage.NewMockObjectStorage()
 }
 
 func (suite BucketTestSuite) TestMakeBucket() {
@@ -51,7 +50,7 @@ func (suite BucketTestSuite) TestListBuckets() {
 		// Package handler
 		input := BucketHandler{}
 		assert.Equal(suite.T(), c.expected1, input.WithZone(c.zone).ListBuckets(), c.zone)
-		buckets, _ := contexts.Storage.ListBuckets(c.zone)
+		buckets, _ := stor.ListBuckets(c.zone)
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.zone)
 	}
 }
@@ -70,7 +69,7 @@ func (suite BucketTestSuite) TestRemoveBucket() {
 		// Package handler
 		input := BucketHandler{}
 		assert.Equal(suite.T(), c.expected1, input.WithRemote(c.name).RemoveBucket(), c.name)
-		buckets, _ := contexts.Storage.ListBuckets("")
+		buckets, _ := stor.ListBuckets("")
 		assert.Equal(suite.T(), c.expected2, len(buckets), c.name)
 	}
 }

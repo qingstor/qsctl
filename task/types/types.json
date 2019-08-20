@@ -1,0 +1,16 @@
+{
+  "FilePath": "string",
+  "ObjectKey": "string",
+  "Size": "int64",
+  "MD5Sum": "[]byte",
+  "UploadID": "string",
+  "PartNumber": "int",
+  "TotalParts": "int",
+  "Offset": "int64",
+  "WaitGroup": "*sync.WaitGroup",
+  "Storage": "storage.ObjectStorage",
+  "Pool": "*navvy.Pool",
+  "EnableBenchmark": "bool",
+  "ExpectSize": "int64",
+  "Flow": "string"
+}

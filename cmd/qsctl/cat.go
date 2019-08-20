@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -21,10 +20,5 @@ var CatCommand = &cobra.Command{
 
 func catRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
-	catHandler := &action.CopyHandler{}
-	return catHandler.
-		WithBench(bench).
-		WithDest("-").
-		WithSrc(args[0]).
-		Copy()
+	return nil
 }

@@ -8,19 +8,23 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/contexts"
+
+	"github.com/yunify/qsctl/v2/task/types"
+	"github.com/yunify/qsctl/v2/task/utils"
 )
 
 // MultipartObjectInitTaskRequirement is the requirement for execute MultipartObjectInitTask.
 type MultipartObjectInitTaskRequirement interface {
-	Todoist
+	types.Todoist
 
-	ObjectKeyGetter
-	FilePathGetter
+	types.ObjectKeyGetter
+	types.FilePathGetter
 
-	UploadIDSetter
-	TotalPartsSetter
-	WaitGroupSetter
+	types.UploadIDSetter
+	types.TotalPartsSetter
+	types.WaitGroupSetter
+	types.PoolGetter
+	types.StorageGetter
 }
 
 // MultipartObjectInitTask will execute MultipartObjectInit Task.
@@ -29,7 +33,7 @@ type MultipartObjectInitTask struct {
 }
 
 // NewMultipartObjectInitTask will create a new Task.
-func NewMultipartObjectInitTask(task Todoist) navvy.Task {
+func NewMultipartObjectInitTask(task types.Todoist) navvy.Task {
 	o, ok := task.(MultipartObjectInitTaskRequirement)
 	if !ok {
 		panic("task is not fill MultipartObjectInitTaskRequirement")
@@ -49,18 +53,18 @@ func (t *MultipartObjectInitTask) Run() {
 	}
 	defer f.Close()
 
-	uploadID, err := contexts.Storage.InitiateMultipartUpload(t.GetObjectKey())
+	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetObjectKey())
 	if err != nil {
 		panic(err)
 	}
 	t.SetUploadID(uploadID)
 
-	size, err := CalculateSeekableFileSize(f)
+	size, err := utils.CalculateSeekableFileSize(f)
 	if err != nil {
 		panic(err)
 	}
 
-	partSize, err := CalculatePartSize(size)
+	partSize, err := utils.CalculatePartSize(size)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +93,7 @@ func (t *MultipartObjectInitTask) Run() {
 
 		log.Debugf("Submit task <%s> for Object <%s> with UploadID <%s> in PartNumber <%d>", "CopyPartialFileTask",
 			task.GetObjectKey(), task.GetUploadID(), task.GetPartNumber())
-		go contexts.Pool.Submit(task)
+		go t.GetPool().Submit(task)
 
 		partNumber++
 		cur += curPartSize
@@ -101,22 +105,24 @@ func (t *MultipartObjectInitTask) Run() {
 	t.SetTotalParts(partNumber)
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartObjectInitTask", t.GetObjectKey())
-	go SubmitNextTask(t.MultipartObjectInitTaskRequirement)
+	go utils.SubmitNextTask(t.MultipartObjectInitTaskRequirement)
 }
 
 // MultipartObjectUploadTaskRequirement is the requirement for execute MultipartObjectUploadTask.
 type MultipartObjectUploadTaskRequirement interface {
 	navvy.Task
-	Todoist
+	types.Todoist
 
-	MD5SumGetter
-	FilePathGetter
-	ObjectKeyGetter
-	OffsetGetter
-	UploadIDGetter
-	PartNumberGetter
-	ContentLengthGetter
-	WaitGroupGetter
+	types.MD5SumGetter
+	types.FilePathGetter
+	types.ObjectKeyGetter
+	types.OffsetGetter
+	types.UploadIDGetter
+	types.PartNumberGetter
+	types.SizeGetter
+	types.WaitGroupGetter
+	types.PoolGetter
+	types.StorageGetter
 }
 
 // MultipartObjectUploadTask will execute MultipartObjectUpload Task.
@@ -125,7 +131,7 @@ type MultipartObjectUploadTask struct {
 }
 
 // NewMultipartObjectUploadTask will create a new Task.
-func NewMultipartObjectUploadTask(task Todoist) navvy.Task {
+func NewMultipartObjectUploadTask(task types.Todoist) navvy.Task {
 	o, ok := task.(MultipartObjectUploadTaskRequirement)
 	if !ok {
 		panic("task is not fill MultipartObjectUploadTaskRequirement")
@@ -144,9 +150,9 @@ func (t *MultipartObjectUploadTask) Run() {
 	}
 	defer f.Close()
 
-	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetContentLength()))
+	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetSize()))
 
-	err = contexts.Storage.UploadMultipart(t.GetObjectKey(), t.GetUploadID(), t.GetContentLength(), t.GetPartNumber(), t.GetMD5Sum(), r)
+	err = t.GetStorage().UploadMultipart(t.GetObjectKey(), t.GetUploadID(), t.GetSize(), t.GetPartNumber(), t.GetMD5Sum(), r)
 	if err != nil {
 		panic(err)
 	}
@@ -154,17 +160,19 @@ func (t *MultipartObjectUploadTask) Run() {
 	t.GetWaitGroup().Done()
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartObjectUploadTask", t.GetFilePath(), t.GetOffset())
-	go SubmitNextTask(t.MultipartObjectUploadTaskRequirement)
+	go utils.SubmitNextTask(t.MultipartObjectUploadTaskRequirement)
 }
 
 // MultipartObjectCompleteTaskRequirement will execute MultipartObjectCompleteT Task.
 type MultipartObjectCompleteTaskRequirement interface {
 	navvy.Task
-	Todoist
+	types.Todoist
 
-	ObjectKeyGetter
-	UploadIDGetter
-	TotalPartsGetter
+	types.ObjectKeyGetter
+	types.UploadIDGetter
+	types.TotalPartsGetter
+	types.PoolGetter
+	types.StorageGetter
 }
 
 // MultipartObjectCompleteTask will execute MultipartObjectComplete Task.
@@ -173,7 +181,7 @@ type MultipartObjectCompleteTask struct {
 }
 
 // NewMultipartObjectCompleteTask will create a new Task.
-func NewMultipartObjectCompleteTask(task Todoist) navvy.Task {
+func NewMultipartObjectCompleteTask(task types.Todoist) navvy.Task {
 	o, ok := task.(MultipartObjectCompleteTaskRequirement)
 	if !ok {
 		panic("task is not fill NewMultipartObjectCompleteTask")
@@ -186,11 +194,11 @@ func NewMultipartObjectCompleteTask(task Todoist) navvy.Task {
 func (t *MultipartObjectCompleteTask) Run() {
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartObjectCompleteTask", t.GetObjectKey(), t.GetUploadID())
 
-	err := contexts.Storage.CompleteMultipartUpload(t.GetObjectKey(), t.GetUploadID(), t.GetTotalParts())
+	err := t.GetStorage().CompleteMultipartUpload(t.GetObjectKey(), t.GetUploadID(), t.GetTotalParts())
 	if err != nil {
 		panic(err)
 	}
 
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartObjectCompleteTask", t.GetObjectKey(), t.GetUploadID())
-	go SubmitNextTask(t.MultipartObjectCompleteTaskRequirement)
+	go utils.SubmitNextTask(t.MultipartObjectCompleteTaskRequirement)
 }

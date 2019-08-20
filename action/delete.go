@@ -2,10 +2,9 @@ package action
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task"
+	"github.com/yunify/qsctl/v2/task/utils"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 )
 
 // DeleteHandler is all params for Delete func
@@ -30,7 +29,7 @@ func (dh *DeleteHandler) WithZone(z string) *DeleteHandler {
 
 // Delete will delete a remote object.
 func (dh *DeleteHandler) Delete() (err error) {
-	bucketName, objectKey, err := task.ParseQsPath(dh.Remote)
+	bucketName, objectKey, err := utils.ParseQsPath(dh.Remote)
 	if err != nil {
 		return
 	}
@@ -39,12 +38,12 @@ func (dh *DeleteHandler) Delete() (err error) {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
 
-	err = contexts.Storage.SetupBucket(bucketName, dh.Zone)
+	err = stor.SetupBucket(bucketName, dh.Zone)
 	if err != nil {
 		return
 	}
 	// Head to check whether object not found or forbidden
-	if _, err = contexts.Storage.HeadObject(objectKey); err != nil {
+	if _, err = stor.HeadObject(objectKey); err != nil {
 		switch err {
 		case constants.ErrorQsPathNotFound:
 			log.Errorf("object key <%s> not found", objectKey)
@@ -53,7 +52,7 @@ func (dh *DeleteHandler) Delete() (err error) {
 		}
 		return
 	}
-	if err = contexts.Storage.DeleteObject(objectKey); err != nil {
+	if err = stor.DeleteObject(objectKey); err != nil {
 		return
 	}
 	log.Infof("Object <%s> removed.", objectKey)

@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 )
 
@@ -18,7 +17,7 @@ type StatTestSuite struct {
 }
 
 func (suite StatTestSuite) SetupTest() {
-	contexts.Storage = storage.NewMockObjectStorage()
+	stor = storage.NewMockObjectStorage()
 }
 
 func (suite StatTestSuite) TestStat() {

@@ -6,10 +6,9 @@ import (
 	"strings"
 
 	"github.com/c2h5oh/datasize"
-	"github.com/yunify/qsctl/v2/task"
+	utils2 "github.com/yunify/qsctl/v2/task/utils"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -52,14 +51,14 @@ func (sh *StatHandler) WithZone(z string) *StatHandler {
 
 // Stat will handle all stat actions.
 func (sh *StatHandler) Stat() (err error) {
-	bucketName, objectKey, err := task.ParseQsPath(sh.Remote)
+	bucketName, objectKey, err := utils2.ParseQsPath(sh.Remote)
 	if err != nil {
 		return err
 	}
 	if objectKey == "" {
 		return constants.ErrorQsPathObjectKeyRequired
 	}
-	err = contexts.Storage.SetupBucket(bucketName, sh.Zone)
+	err = stor.SetupBucket(bucketName, sh.Zone)
 	if err != nil {
 		return
 	}
@@ -68,7 +67,7 @@ func (sh *StatHandler) Stat() (err error) {
 
 // StatRemoteObject will stat a remote object.
 func (sh *StatHandler) StatRemoteObject() (err error) {
-	om, err := contexts.Storage.HeadObject(sh.ObjectKey)
+	om, err := stor.HeadObject(sh.ObjectKey)
 	if err != nil {
 		return
 	}

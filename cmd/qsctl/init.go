@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 )
 
 var (
@@ -105,11 +104,6 @@ func initConfig() (err error) {
 			return err
 		}
 		log.SetLevel(lvl)
-	}
-	// Setup global qs service
-	if err := contexts.SetupServices(); err != nil {
-		log.Errorf("Setup up service failed [%v]", err)
-		return err
 	}
 
 	return nil
