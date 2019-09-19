@@ -5,6 +5,7 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
+	"github.com/yunify/qsctl/v2/task/types"
 
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -128,14 +129,23 @@ func cpRun(cmd *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	var t types.Tasker
+
 	switch cpOutput.Flow {
 	case constants.FlowToLocal:
 		return cpToLocal()
 	case constants.FlowToRemote:
-		return cpToRemote()
+		t, err = cpToRemote()
 	default:
 		panic("this case should never be switched")
 	}
+	if err != nil {
+		return err
+	}
+
+	t.Run()
+	t.GetPool().Wait()
+	return
 }
 
 func cpToLocal() (err error) {
@@ -153,18 +163,17 @@ func cpToLocal() (err error) {
 	return nil
 }
 
-func cpToRemote() (err error) {
+func cpToRemote() (t types.Tasker, err error) {
 	switch cpOutput.PathType {
 	case constants.PathTypeLocalDir:
-		return constants.ErrorActionNotImplemented
+		return nil, constants.ErrorActionNotImplemented
 	case constants.PathTypeStream:
-		// TODO: RUN xxxTask
+		return nil, constants.ErrorActionNotImplemented
 	case constants.PathTypeFile:
-		t := task.NewCopyFileTask(cpOutput.Path, cpOutput.Key, cpOutput.Storage)
-		t.Run()
-
-		t.GetPool().Wait()
+		t = task.NewCopyFileTask(cpOutput.Path, cpOutput.Key, cpOutput.Storage)
+	default:
+		panic("invalid path type")
 	}
 
-	return nil
+	return t, nil
 }

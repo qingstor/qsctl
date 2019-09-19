@@ -60,5 +60,5 @@ func (t *SeekableMD5SumTask) Run() {
 	t.SetMD5Sum(h.Sum(nil)[:])
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "SeekableMD5SumTask", t.GetFilePath(), t.GetOffset())
-	go utils.SubmitNextTask(t.SeekableMD5SumTaskRequirement)
+	utils.SubmitNextTask(t.SeekableMD5SumTaskRequirement)
 }

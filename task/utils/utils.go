@@ -118,15 +118,17 @@ func CalculateSeekableFileSize(r io.Seeker) (size int64, err error) {
 	return
 }
 
-// SubmitNextTask will fetch next todo and submit to pool.
-func SubmitNextTask(t interface {
-	types.Todoist
-	types.PoolGetter
-}) {
+// SubmitNextTask will fetch next todo and submit to pool async.
+func SubmitNextTask(t types.Tasker) {
 	fn := t.NextTODO()
 	if fn == nil {
 		return
 	}
 
-	t.GetPool().Submit(fn(t))
+	pool := t.GetPool()
+	if pool.Free() > 0 {
+		pool.Submit(fn(t))
+		return
+	}
+	go pool.Submit(fn(t))
 }

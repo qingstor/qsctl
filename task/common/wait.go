@@ -35,5 +35,5 @@ func NewWaitTask(t types.Todoist) navvy.Task {
 func (t *WaitTask) Run() {
 	t.GetWaitGroup().Wait()
 
-	go utils.SubmitNextTask(t.WaitTaskRequirement)
+	utils.SubmitNextTask(t.WaitTaskRequirement)
 }

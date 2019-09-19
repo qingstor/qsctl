@@ -299,3 +299,15 @@ func (q *QingStorObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	}
 	return
 }
+
+func (q *QingStorObjectStorage) PutObject(objectKey string, md5sum []byte, r io.Reader) (err error) {
+	_, err = q.bucket.PutObject(objectKey, &service.PutObjectInput{
+		ContentMD5: convert.String(hex.EncodeToString(md5sum[:])),
+		Body:       r,
+	})
+	if err != nil {
+		log.Errorf("Put object <%s> failed [%v]", objectKey, err)
+		return
+	}
+	return nil
+}

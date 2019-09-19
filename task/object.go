@@ -13,8 +13,55 @@ import (
 	"github.com/yunify/qsctl/v2/task/utils"
 )
 
+type PutObjectTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+
+	types.ObjectKeyGetter
+	types.FilePathGetter
+	types.MD5SumGetter
+
+	types.StorageGetter
+	types.PoolGetter
+}
+
+type PutObjectTask struct {
+	PutObjectTaskRequirement
+}
+
+// NewPutObjectTask will create a new Task.
+func NewPutObjectTask(task types.Todoist) navvy.Task {
+	o, ok := task.(PutObjectTaskRequirement)
+	if !ok {
+		panic("task is not fill PutObjectTaskRequirement")
+	}
+
+	return &PutObjectTask{o}
+}
+
+// Run implement navvy.Task.
+func (t *PutObjectTask) Run() {
+	log.Debugf("Task <%s> for Object <%s> started.", "PutObjectTask", t.GetObjectKey())
+
+	f, err := os.Open(t.GetFilePath())
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	err = t.GetStorage().PutObject(t.GetObjectKey(), t.GetMD5Sum(), f)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Debugf("Task <%s> for Object <%s> finished.", "PutObjectTask", t.GetObjectKey())
+	utils.SubmitNextTask(t.PutObjectTaskRequirement)
+}
+
 // MultipartObjectInitTaskRequirement is the requirement for execute MultipartObjectInitTask.
 type MultipartObjectInitTaskRequirement interface {
+	navvy.Task
+
 	types.Todoist
 
 	types.ObjectKeyGetter
@@ -46,7 +93,6 @@ func NewMultipartObjectInitTask(task types.Todoist) navvy.Task {
 func (t *MultipartObjectInitTask) Run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "MultipartObjectInitTask", t.GetObjectKey())
 
-	// TODO: check file size.
 	f, err := os.Open(t.GetFilePath())
 	if err != nil {
 		panic(err)
@@ -105,7 +151,7 @@ func (t *MultipartObjectInitTask) Run() {
 	t.SetTotalParts(partNumber)
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartObjectInitTask", t.GetObjectKey())
-	go utils.SubmitNextTask(t.MultipartObjectInitTaskRequirement)
+	utils.SubmitNextTask(t.MultipartObjectInitTaskRequirement)
 }
 
 // MultipartObjectUploadTaskRequirement is the requirement for execute MultipartObjectUploadTask.
@@ -160,7 +206,7 @@ func (t *MultipartObjectUploadTask) Run() {
 	t.GetWaitGroup().Done()
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartObjectUploadTask", t.GetFilePath(), t.GetOffset())
-	go utils.SubmitNextTask(t.MultipartObjectUploadTaskRequirement)
+	utils.SubmitNextTask(t.MultipartObjectUploadTaskRequirement)
 }
 
 // MultipartObjectCompleteTaskRequirement will execute MultipartObjectCompleteT Task.
@@ -200,5 +246,5 @@ func (t *MultipartObjectCompleteTask) Run() {
 	}
 
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartObjectCompleteTask", t.GetObjectKey(), t.GetUploadID())
-	go utils.SubmitNextTask(t.MultipartObjectCompleteTaskRequirement)
+	utils.SubmitNextTask(t.MultipartObjectCompleteTaskRequirement)
 }

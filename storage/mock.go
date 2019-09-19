@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/yunify/qsctl/v2/constants"
 )
 
@@ -299,4 +298,23 @@ func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	return &ACLResp{
 		OwnerID: m.currentBucket.OwnerID,
 	}, nil
+}
+
+func (m *MockObjectStorage) PutObject(objectKey string, md5sum []byte, r io.Reader) (err error) {
+	h := md5.New()
+
+	n, err := io.Copy(h, r)
+	if err != nil {
+		panic(err)
+	}
+	realMD5 := h.Sum(nil)
+	if bytes.Compare(realMD5, md5sum) != 0 {
+		return fmt.Errorf("content md5 is not match, expected %s, actual %s", md5sum, realMD5)
+	}
+
+	m.meta[objectKey] = &ObjectMeta{
+		Key:           objectKey,
+		ContentLength: n,
+	}
+	return nil
 }

@@ -7,7 +7,7 @@ import (
 // TodoFunc will be used be TODO to add new todo
 type TodoFunc func(Todoist) navvy.Task
 
-// Todo is the struct which inplements Todoist.
+// Todo is the struct which implements Todoist.
 type Todo struct {
 	v []TodoFunc
 }
@@ -16,6 +16,13 @@ type Todo struct {
 type Todoist interface {
 	AddTODOs(...TodoFunc)
 	NextTODO() TodoFunc
+}
+
+type Tasker interface {
+	navvy.Task
+
+	Todoist
+	PoolGetter
 }
 
 // NextTODO will return next task to do.
