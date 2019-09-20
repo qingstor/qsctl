@@ -16,11 +16,10 @@ import (
 // MultipartInitTaskRequirement is the requirement for execute MultipartInitTask.
 type MultipartInitTaskRequirement interface {
 	navvy.Task
-
 	types.Todoist
 
 	types.ObjectKeyGetter
-	types.FilePathGetter
+	types.PathGetter
 
 	types.UploadIDSetter
 	types.WaitGroupSetter
@@ -82,7 +81,7 @@ type MultipartFileUploadTaskRequirement interface {
 	types.Todoist
 
 	types.MD5SumGetter
-	types.FilePathGetter
+	types.PathGetter
 	types.ObjectKeyGetter
 	types.OffsetGetter
 	types.UploadIDGetter
@@ -110,9 +109,9 @@ func NewMultipartFileUploadTask(task types.Todoist) navvy.Task {
 
 // Run implement navvy.Task.
 func (t *MultipartFileUploadTask) Run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetFilePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
 
-	f, err := os.Open(t.GetFilePath())
+	f, err := os.Open(t.GetPath())
 	if err != nil {
 		panic(err)
 	}
@@ -127,7 +126,7 @@ func (t *MultipartFileUploadTask) Run() {
 
 	t.GetWaitGroup().Done()
 
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetFilePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
 	utils.SubmitNextTask(t.MultipartFileUploadTaskRequirement)
 }
 
@@ -137,7 +136,7 @@ type MultipartStreamUploadTaskRequirement interface {
 	types.Todoist
 
 	types.MD5SumGetter
-	types.FilePathGetter
+	types.PathGetter
 	types.ObjectKeyGetter
 	types.UploadIDGetter
 	types.PartNumberGetter
@@ -165,7 +164,7 @@ func NewMultipartStreamUploadTask(task types.Todoist) navvy.Task {
 
 // Run implement navvy.Task.
 func (t *MultipartStreamUploadTask) Run() {
-	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetFilePath(), t.GetPartNumber())
+	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPath(), t.GetPartNumber())
 
 	err := t.GetStorage().UploadMultipart(
 		t.GetObjectKey(), t.GetUploadID(), t.GetSize(),
@@ -176,7 +175,7 @@ func (t *MultipartStreamUploadTask) Run() {
 
 	t.GetWaitGroup().Done()
 
-	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetFilePath(), t.GetPartNumber())
+	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetPath(), t.GetPartNumber())
 	utils.SubmitNextTask(t.MultipartStreamUploadTaskRequirement)
 }
 

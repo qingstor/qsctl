@@ -19,7 +19,7 @@ type FileMD5SumTaskRequirement interface {
 	types.Todoist
 
 	types.MD5SumSetter
-	types.FilePathGetter
+	types.PathGetter
 	types.OffsetGetter
 	types.SizeGetter
 	types.PoolGetter
@@ -42,9 +42,9 @@ func NewFileMD5SumTask(task types.Todoist) navvy.Task {
 
 // Run implement navvy.Task.
 func (t *FileMD5SumTask) Run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetFilePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
 
-	f, err := os.Open(t.GetFilePath())
+	f, err := os.Open(t.GetPath())
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func (t *FileMD5SumTask) Run() {
 
 	t.SetMD5Sum(h.Sum(nil)[:])
 
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetFilePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
 	utils.SubmitNextTask(t.FileMD5SumTaskRequirement)
 }
 
@@ -69,7 +69,7 @@ type StreamMD5SumTaskRequirement interface {
 	types.Todoist
 
 	types.MD5SumSetter
-	types.FilePathGetter
+	types.PathGetter
 	types.ContentGetter
 	types.PoolGetter
 }
@@ -91,11 +91,11 @@ func NewStreamMD5SumTask(task types.Todoist) navvy.Task {
 
 // Run implement navvy.Task.
 func (t *StreamMD5SumTask) Run() {
-	log.Debugf("Task <%s> for Stream <%s> started.", "StreamMD5SumTask", t.GetFilePath())
+	log.Debugf("Task <%s> for Stream <%s> started.", "StreamMD5SumTask", t.GetPath())
 
 	md5Sum := md5.Sum(t.GetContent().Bytes())
 	t.SetMD5Sum(md5Sum[:])
 
-	log.Debugf("Task <%s> for Stream <%s> finished.", "StreamMD5SumTask", t.GetFilePath())
+	log.Debugf("Task <%s> for Stream <%s> finished.", "StreamMD5SumTask", t.GetPath())
 	utils.SubmitNextTask(t.StreamMD5SumTaskRequirement)
 }

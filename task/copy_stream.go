@@ -19,7 +19,7 @@ import (
 // CopyStreamTask will copy a stream to remote.
 type CopyStreamTask struct {
 	// Input value
-	types.FilePath
+	types.Path
 	types.ObjectKey
 	types.Storage
 
@@ -64,8 +64,8 @@ func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStr
 	var err error
 
 	f := os.Stdin
-	if t.GetFilePath() != "-" {
-		f, err = os.Open(t.GetFilePath())
+	if t.GetPath() != "-" {
+		f, err = os.Open(t.GetPath())
 		if err != nil {
 			panic(err)
 		}

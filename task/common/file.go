@@ -15,7 +15,7 @@ type FileUploadTaskRequirement interface {
 	types.Todoist
 
 	types.ObjectKeyGetter
-	types.FilePathGetter
+	types.PathGetter
 	types.MD5SumGetter
 
 	types.StorageGetter
@@ -40,7 +40,7 @@ func NewFileUploadTask(task types.Todoist) navvy.Task {
 func (t *FileUploadTask) Run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetObjectKey())
 
-	f, err := os.Open(t.GetFilePath())
+	f, err := os.Open(t.GetPath())
 	if err != nil {
 		panic(err)
 	}

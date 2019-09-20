@@ -161,31 +161,6 @@ func (o *ExpectSize) SetExpectSize(v int64) {
 	o.valid = true
 }
 
-type FilePathGetter interface {
-	GetFilePath() string
-}
-
-type FilePathSetter interface {
-	SetFilePath(string)
-}
-
-type FilePath struct {
-	valid bool
-	v     string
-}
-
-func (o *FilePath) GetFilePath() string {
-	if !o.valid {
-		panic("value is not valid")
-	}
-	return o.v
-}
-
-func (o *FilePath) SetFilePath(v string) {
-	o.v = v
-	o.valid = true
-}
-
 type FlowGetter interface {
 	GetFlow() string
 }
@@ -332,6 +307,31 @@ func (o *PartSize) GetPartSize() int64 {
 }
 
 func (o *PartSize) SetPartSize(v int64) {
+	o.v = v
+	o.valid = true
+}
+
+type PathGetter interface {
+	GetPath() string
+}
+
+type PathSetter interface {
+	SetPath(string)
+}
+
+type Path struct {
+	valid bool
+	v     string
+}
+
+func (o *Path) GetPath() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *Path) SetPath(v string) {
 	o.v = v
 	o.valid = true
 }

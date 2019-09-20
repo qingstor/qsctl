@@ -17,7 +17,7 @@ import (
 // CopyFileTask will handle all copy file task
 type CopyFileTask struct {
 	// Input value
-	types.FilePath
+	types.Path
 	types.ObjectKey
 	types.Storage
 
@@ -30,7 +30,7 @@ type CopyFileTask struct {
 // NewCopyFileTask will create a new copy file task.
 func NewCopyFileTask(filePath, objectKey string, storage storage.ObjectStorage) *CopyFileTask {
 	t := &CopyFileTask{}
-	t.SetFilePath(filePath)
+	t.SetPath(filePath)
 	t.SetObjectKey(objectKey)
 	t.SetStorage(storage)
 
@@ -44,7 +44,7 @@ func NewCopyFileTask(filePath, objectKey string, storage storage.ObjectStorage) 
 
 // Run implement navvy.Task
 func (t *CopyFileTask) Run() {
-	f, err := os.Open(t.GetFilePath())
+	f, err := os.Open(t.GetPath())
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,7 @@ func (t *CopyFileTask) Run() {
 
 type CopySmallFileTask struct {
 	// Input value
-	types.FilePath
+	types.Path
 	types.ObjectKey
 	types.Pool
 	types.Storage
@@ -93,7 +93,7 @@ func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 
 	x := &CopySmallFileTask{}
 	x.SetObjectKey(o.GetObjectKey())
-	x.SetFilePath(o.GetFilePath())
+	x.SetPath(o.GetPath())
 	x.SetPool(o.GetPool())
 	x.SetStorage(o.GetStorage())
 	x.SetSize(o.GetSize())
@@ -109,7 +109,7 @@ func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 type CopyLargeFileTask struct {
 	// Inherited value
 	types.Size
-	types.FilePath
+	types.Path
 	types.ObjectKey
 	types.Pool
 	types.Storage
@@ -136,7 +136,7 @@ func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
 	t := &CopyLargeFileTask{}
 	// TODO: we could use reflect to fetch those value.
 	t.SetObjectKey(o.GetObjectKey())
-	t.SetFilePath(o.GetFilePath())
+	t.SetPath(o.GetPath())
 	t.SetPool(o.GetPool())
 	t.SetStorage(o.GetStorage())
 	t.SetSize(o.GetSize())
@@ -171,7 +171,7 @@ func (t *CopyLargeFileTask) Run() {
 
 // CopyPartialFileTask will execute CopyPartialFile Task
 type CopyPartialFileTask struct {
-	types.FilePath
+	types.Path
 	types.ObjectKey
 	types.UploadID
 	types.PartNumber
@@ -202,7 +202,7 @@ func NewCopyPartialFileTask(task types.Todoist) navvy.Task {
 	t := &CopyPartialFileTask{}
 	t.SetUploadID(o.GetUploadID())
 	t.SetWaitGroup(o.GetWaitGroup())
-	t.SetFilePath(o.GetFilePath())
+	t.SetPath(o.GetPath())
 	t.SetObjectKey(o.GetObjectKey())
 
 	// Set part number and update current part number.

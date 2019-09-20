@@ -1,5 +1,5 @@
 {
-  "FilePath": "string",
+  "Path": "string",
   "ObjectKey": "string",
   "Size": "int64",
   "PartSize": "int64",
