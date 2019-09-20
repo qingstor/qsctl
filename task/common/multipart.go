@@ -1,4 +1,4 @@
-package task
+package common
 
 import (
 	"bufio"
@@ -12,51 +12,6 @@ import (
 	"github.com/yunify/qsctl/v2/task/types"
 	"github.com/yunify/qsctl/v2/task/utils"
 )
-
-type PutObjectTaskRequirement interface {
-	navvy.Task
-	types.Todoist
-
-	types.ObjectKeyGetter
-	types.FilePathGetter
-	types.MD5SumGetter
-
-	types.StorageGetter
-	types.PoolGetter
-}
-
-type PutObjectTask struct {
-	PutObjectTaskRequirement
-}
-
-// NewPutObjectTask will create a new Task.
-func NewPutObjectTask(task types.Todoist) navvy.Task {
-	o, ok := task.(PutObjectTaskRequirement)
-	if !ok {
-		panic("task is not fill PutObjectTaskRequirement")
-	}
-
-	return &PutObjectTask{o}
-}
-
-// Run implement navvy.Task.
-func (t *PutObjectTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "PutObjectTask", t.GetObjectKey())
-
-	f, err := os.Open(t.GetFilePath())
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	err = t.GetStorage().PutObject(t.GetObjectKey(), t.GetMD5Sum(), f)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "PutObjectTask", t.GetObjectKey())
-	utils.SubmitNextTask(t.PutObjectTaskRequirement)
-}
 
 // MultipartInitTaskRequirement is the requirement for execute MultipartInitTask.
 type MultipartInitTaskRequirement interface {

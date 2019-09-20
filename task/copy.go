@@ -132,9 +132,9 @@ func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStr
 	t.SetCurrentOffset(&currentOffset)
 
 	t.AddTODOs(
-		NewMultipartInitTask,
+		common.NewMultipartInitTask,
 		common.NewWaitTask,
-		NewMultipartCompleteTask,
+		common.NewMultipartCompleteTask,
 	)
 	return t
 }
@@ -175,7 +175,7 @@ func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 
 	x.AddTODOs(
 		common.NewFileMD5SumTask,
-		NewPutObjectTask,
+		common.NewFileUploadTask,
 	)
 	return x
 }
@@ -232,9 +232,9 @@ func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
 	t.SetCurrentOffset(&currentOffset)
 
 	t.AddTODOs(
-		NewMultipartInitTask,
+		common.NewMultipartInitTask,
 		common.NewWaitTask,
-		NewMultipartCompleteTask,
+		common.NewMultipartCompleteTask,
 	)
 	return t
 }
@@ -297,7 +297,7 @@ func NewCopyPartialFileTask(task types.Todoist) navvy.Task {
 
 	t.AddTODOs(
 		common.NewFileMD5SumTask,
-		NewMultipartFileUploadTask,
+		common.NewMultipartFileUploadTask,
 	)
 	return t
 }
@@ -354,7 +354,7 @@ func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
 
 	t.AddTODOs(
 		common.NewStreamMD5SumTask,
-		NewMultipartStreamUploadTask,
+		common.NewMultipartStreamUploadTask,
 	)
 	return t
 }
