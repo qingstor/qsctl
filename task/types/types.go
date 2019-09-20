@@ -9,6 +9,56 @@ import (
 	"github.com/yunify/qsctl/v2/storage"
 )
 
+type BytesBufferPoolGetter interface {
+	GetBytesBufferPool() *sync.Pool
+}
+
+type BytesBufferPoolSetter interface {
+	SetBytesBufferPool(*sync.Pool)
+}
+
+type BytesBufferPool struct {
+	valid bool
+	v *sync.Pool
+}
+
+func (o *BytesBufferPool) GetBytesBufferPool() *sync.Pool {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *BytesBufferPool) SetBytesBufferPool(v *sync.Pool) {
+	o.v = v
+	o.valid = true
+}
+
+type ContentGetter interface {
+	GetContent() *bytes.Buffer
+}
+
+type ContentSetter interface {
+	SetContent(*bytes.Buffer)
+}
+
+type Content struct {
+	valid bool
+	v *bytes.Buffer
+}
+
+func (o *Content) GetContent() *bytes.Buffer {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *Content) SetContent(v *bytes.Buffer) {
+	o.v = v
+	o.valid = true
+}
+
 type EnableBenchmarkGetter interface {
 	GetEnableBenchmark() bool
 }
@@ -18,15 +68,20 @@ type EnableBenchmarkSetter interface {
 }
 
 type EnableBenchmark struct {
+	valid bool
 	v bool
 }
 
 func (o *EnableBenchmark) GetEnableBenchmark() bool {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *EnableBenchmark) SetEnableBenchmark(v bool) {
 	o.v = v
+	o.valid = true
 }
 
 type ExpectSizeGetter interface {
@@ -38,15 +93,20 @@ type ExpectSizeSetter interface {
 }
 
 type ExpectSize struct {
+	valid bool
 	v int64
 }
 
 func (o *ExpectSize) GetExpectSize() int64 {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *ExpectSize) SetExpectSize(v int64) {
 	o.v = v
+	o.valid = true
 }
 
 type FilePathGetter interface {
@@ -58,15 +118,20 @@ type FilePathSetter interface {
 }
 
 type FilePath struct {
+	valid bool
 	v string
 }
 
 func (o *FilePath) GetFilePath() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *FilePath) SetFilePath(v string) {
 	o.v = v
+	o.valid = true
 }
 
 type FlowGetter interface {
@@ -78,15 +143,20 @@ type FlowSetter interface {
 }
 
 type Flow struct {
+	valid bool
 	v string
 }
 
 func (o *Flow) GetFlow() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *Flow) SetFlow(v string) {
 	o.v = v
+	o.valid = true
 }
 
 type MD5SumGetter interface {
@@ -98,15 +168,20 @@ type MD5SumSetter interface {
 }
 
 type MD5Sum struct {
+	valid bool
 	v []byte
 }
 
 func (o *MD5Sum) GetMD5Sum() []byte {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *MD5Sum) SetMD5Sum(v []byte) {
 	o.v = v
+	o.valid = true
 }
 
 type ObjectKeyGetter interface {
@@ -118,15 +193,20 @@ type ObjectKeySetter interface {
 }
 
 type ObjectKey struct {
+	valid bool
 	v string
 }
 
 func (o *ObjectKey) GetObjectKey() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *ObjectKey) SetObjectKey(v string) {
 	o.v = v
+	o.valid = true
 }
 
 type OffsetGetter interface {
@@ -138,15 +218,20 @@ type OffsetSetter interface {
 }
 
 type Offset struct {
+	valid bool
 	v int64
 }
 
 func (o *Offset) GetOffset() int64 {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *Offset) SetOffset(v int64) {
 	o.v = v
+	o.valid = true
 }
 
 type PartNumberGetter interface {
@@ -158,15 +243,20 @@ type PartNumberSetter interface {
 }
 
 type PartNumber struct {
+	valid bool
 	v int
 }
 
 func (o *PartNumber) GetPartNumber() int {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *PartNumber) SetPartNumber(v int) {
 	o.v = v
+	o.valid = true
 }
 
 type PoolGetter interface {
@@ -178,15 +268,20 @@ type PoolSetter interface {
 }
 
 type Pool struct {
+	valid bool
 	v *navvy.Pool
 }
 
 func (o *Pool) GetPool() *navvy.Pool {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *Pool) SetPool(v *navvy.Pool) {
 	o.v = v
+	o.valid = true
 }
 
 type SizeGetter interface {
@@ -198,15 +293,20 @@ type SizeSetter interface {
 }
 
 type Size struct {
+	valid bool
 	v int64
 }
 
 func (o *Size) GetSize() int64 {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *Size) SetSize(v int64) {
 	o.v = v
+	o.valid = true
 }
 
 type StorageGetter interface {
@@ -218,15 +318,20 @@ type StorageSetter interface {
 }
 
 type Storage struct {
+	valid bool
 	v storage.ObjectStorage
 }
 
 func (o *Storage) GetStorage() storage.ObjectStorage {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *Storage) SetStorage(v storage.ObjectStorage) {
 	o.v = v
+	o.valid = true
 }
 
 type TotalPartsGetter interface {
@@ -238,15 +343,20 @@ type TotalPartsSetter interface {
 }
 
 type TotalParts struct {
+	valid bool
 	v int
 }
 
 func (o *TotalParts) GetTotalParts() int {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *TotalParts) SetTotalParts(v int) {
 	o.v = v
+	o.valid = true
 }
 
 type UploadIDGetter interface {
@@ -258,15 +368,20 @@ type UploadIDSetter interface {
 }
 
 type UploadID struct {
+	valid bool
 	v string
 }
 
 func (o *UploadID) GetUploadID() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *UploadID) SetUploadID(v string) {
 	o.v = v
+	o.valid = true
 }
 
 type WaitGroupGetter interface {
@@ -278,13 +393,19 @@ type WaitGroupSetter interface {
 }
 
 type WaitGroup struct {
+	valid bool
 	v *sync.WaitGroup
 }
 
 func (o *WaitGroup) GetWaitGroup() *sync.WaitGroup {
+	if !o.valid {
+		panic("value is not valid")
+	}
 	return o.v
 }
 
 func (o *WaitGroup) SetWaitGroup(v *sync.WaitGroup) {
 	o.v = v
+	o.valid = true
 }
+

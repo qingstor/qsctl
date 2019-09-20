@@ -3,6 +3,8 @@
   "ObjectKey": "string",
   "Size": "int64",
   "MD5Sum": "[]byte",
+  "Content": "*bytes.Buffer",
+  "BytesBufferPool": "*sync.Pool",
   "UploadID": "string",
   "PartNumber": "int",
   "TotalParts": "int",

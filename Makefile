@@ -35,7 +35,7 @@ lint:
 
 generate:
 	@echo "generate code..."
-	@go generate action/types/types_gen.go
+	@go generate task/types/types_gen.go
 	@echo "Done"
 
 build: check
