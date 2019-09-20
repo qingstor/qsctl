@@ -5,27 +5,12 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
-	"github.com/yunify/qsctl/v2/task/types"
-
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 var cpInput struct {
 	ExpectSize           string
 	MaximumMemoryContent string
-}
-
-var cpOutput struct {
-	ExpectSize           int64
-	MaximumMemoryContent int64
-
-	Flow     constants.FlowType
-	Path     string
-	PathType constants.PathType
-	Key      string
-	KeyType  constants.KeyType
-
-	Storage storage.ObjectStorage
 }
 
 // CpCommand will handle copy command.
@@ -59,63 +44,54 @@ func initCpFlag() {
 	)
 }
 
-func cpParse(_ *cobra.Command, args []string) (err error) {
-	// Parse flags.
-	if cpInput.ExpectSize != "" {
-		cpOutput.ExpectSize, err = utils.ParseByteSize(expectSize)
-		if err != nil {
-			return err
-		}
-	}
-
-	if cpInput.MaximumMemoryContent != "" {
-		cpOutput.MaximumMemoryContent, err = utils.ParseByteSize(maximumMemoryContent)
-		if err != nil {
-			return err
-		}
-	}
-
+func cpParse(t *task.CopyTask, args []string) (err error) {
 	// Setup storage.
-	cpOutput.Storage, err = storage.NewQingStorObjectStorage()
+	stor, err := storage.NewQingStorObjectStorage()
 	if err != nil {
 		return err
 	}
+	t.SetStorage(stor)
 
 	// Parse flow.
 	src, dst := args[0], args[1]
-	cpOutput.Flow = utils.ParseFlow(src, dst)
+	flow := utils.ParseFlow(src, dst)
+	t.SetFlowType(flow)
 
-	var bucketName, objectKey string
-
-	switch cpOutput.Flow {
+	switch flow {
 	case constants.FlowToRemote:
-		cpOutput.PathType, err = utils.ParsePath(src)
+		pathType, err := utils.ParsePath(src)
 		if err != nil {
-			return
+			return err
 		}
-		cpOutput.Path = src
+		t.SetPathType(pathType)
+		t.SetPath(src)
 
-		cpOutput.KeyType, bucketName, objectKey, err = utils.ParseKey(dst)
+		keyType, bucketName, objectKey, err := utils.ParseKey(dst)
 		if err != nil {
-			return
+			return err
 		}
-		cpOutput.Key = objectKey
+		t.SetKeyType(keyType)
+		t.SetObjectKey(objectKey)
+		t.SetBucketName(bucketName)
 	case constants.FlowToLocal, constants.FlowAtRemote:
-		cpOutput.PathType, err = utils.ParsePath(dst)
+		pathType, err := utils.ParsePath(dst)
 		if err != nil {
-			return
+			return err
 		}
-		cpOutput.Path = dst
+		t.SetPathType(pathType)
+		t.SetPath(dst)
 
-		cpOutput.KeyType, bucketName, objectKey, err = utils.ParseKey(src)
+		keyType, bucketName, objectKey, err := utils.ParseKey(src)
 		if err != nil {
-			return
+			return err
 		}
-		cpOutput.Key = objectKey
+		t.SetKeyType(keyType)
+		t.SetObjectKey(objectKey)
+		t.SetBucketName(bucketName)
 	default:
 		panic("this case should never be switched")
 	}
-	err = cpOutput.Storage.SetupBucket(bucketName, "")
+	err = stor.SetupBucket(t.GetBucketName(), "")
 	if err != nil {
 		return
 	}
@@ -124,55 +100,14 @@ func cpParse(_ *cobra.Command, args []string) (err error) {
 }
 
 func cpRun(cmd *cobra.Command, args []string) (err error) {
-	err = cpParse(cmd, args)
-	if err != nil {
-		return
-	}
-
-	var t types.Tasker
-
-	switch cpOutput.Flow {
-	case constants.FlowToLocal:
-		t, err = cpToLocal()
-	case constants.FlowToRemote:
-		t, err = cpToRemote()
-	default:
-		panic("this case should never be switched")
-	}
-	if err != nil {
-		return err
-	}
+	t := task.NewCopyTask(func(t *task.CopyTask) {
+		err = cpParse(t, args)
+		if err != nil {
+			return
+		}
+	})
 
 	t.Run()
-	t.GetPool().Wait()
+	t.Wait()
 	return
-}
-
-func cpToLocal() (t types.Tasker, err error) {
-	// TODO: support -r
-
-	switch cpOutput.PathType {
-	case constants.PathTypeLocalDir:
-		return nil, constants.ErrorActionNotImplemented
-	case constants.PathTypeStream:
-		// TODO: RUN xxxTask
-	case constants.PathTypeFile:
-		// TODO: Run XX task
-	}
-
-	return nil, nil
-}
-
-func cpToRemote() (t types.Tasker, err error) {
-	switch cpOutput.PathType {
-	case constants.PathTypeLocalDir:
-		return nil, constants.ErrorActionNotImplemented
-	case constants.PathTypeStream:
-		t = task.NewCopyStreamTask(cpOutput.Key, cpOutput.Storage)
-	case constants.PathTypeFile:
-		t = task.NewCopyFileTask(cpOutput.Path, cpOutput.Key, cpOutput.Storage)
-	default:
-		panic("invalid path type")
-	}
-	return t, nil
 }

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"sync"
 
 	log "github.com/sirupsen/logrus"
 
@@ -21,8 +20,7 @@ func (t *MultipartInitTask) Run() {
 	}
 	t.SetUploadID(uploadID)
 
-	wg := &sync.WaitGroup{}
-	t.SetWaitGroup(wg)
+	wg := t.GetWaitGroup()
 
 	for {
 		if *t.GetCurrentOffset() == t.GetSize() {

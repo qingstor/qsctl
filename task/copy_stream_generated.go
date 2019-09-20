@@ -49,3 +49,44 @@ func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o 
 	t.SetWaitGroup(o.GetWaitGroup())
 	return
 }
+
+// CopyStreamTask will copy a stream to storage.
+type CopyStreamTask struct {
+	// Inherited value
+	types.Pool
+	types.Storage
+	types.Path
+	types.ObjectKey
+
+	// Runtime value
+	types.Todo
+	types.Size
+	types.Stream
+	types.TaskConstructor
+	types.CurrentPartNumber
+	types.CurrentOffset
+	types.BytesPool
+	types.PartSize
+	types.UploadID
+	types.WaitGroup
+}
+
+// Run implement navvy.Task
+func (t *CopyStreamTask) Run() {
+	utils.SubmitNextTask(t)
+}
+
+// initCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.
+func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
+	o, ok := task.(*CopyTask)
+	if !ok {
+		panic("parent task is not a CopyTask")
+	}
+
+	t = &CopyStreamTask{}
+	t.SetPool(o.GetPool())
+	t.SetStorage(o.GetStorage())
+	t.SetPath(o.GetPath())
+	t.SetObjectKey(o.GetObjectKey())
+	return
+}

@@ -8,8 +8,34 @@ import (
 
 	"github.com/Xuanwo/navvy"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 )
+
+type BucketNameGetter interface {
+	GetBucketName() string
+}
+
+type BucketNameSetter interface {
+	SetBucketName(string)
+}
+
+type BucketName struct {
+	valid bool
+	v     string
+}
+
+func (o *BucketName) GetBucketName() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *BucketName) SetBucketName(v string) {
+	o.v = v
+	o.valid = true
+}
 
 type BytesPoolGetter interface {
 	GetBytesPool() *sync.Pool
@@ -161,27 +187,52 @@ func (o *ExpectSize) SetExpectSize(v int64) {
 	o.valid = true
 }
 
-type FlowGetter interface {
-	GetFlow() string
+type FlowTypeGetter interface {
+	GetFlowType() constants.FlowType
 }
 
-type FlowSetter interface {
-	SetFlow(string)
+type FlowTypeSetter interface {
+	SetFlowType(constants.FlowType)
 }
 
-type Flow struct {
+type FlowType struct {
 	valid bool
-	v     string
+	v     constants.FlowType
 }
 
-func (o *Flow) GetFlow() string {
+func (o *FlowType) GetFlowType() constants.FlowType {
 	if !o.valid {
 		panic("value is not valid")
 	}
 	return o.v
 }
 
-func (o *Flow) SetFlow(v string) {
+func (o *FlowType) SetFlowType(v constants.FlowType) {
+	o.v = v
+	o.valid = true
+}
+
+type KeyTypeGetter interface {
+	GetKeyType() constants.KeyType
+}
+
+type KeyTypeSetter interface {
+	SetKeyType(constants.KeyType)
+}
+
+type KeyType struct {
+	valid bool
+	v     constants.KeyType
+}
+
+func (o *KeyType) GetKeyType() constants.KeyType {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *KeyType) SetKeyType(v constants.KeyType) {
 	o.v = v
 	o.valid = true
 }
@@ -332,6 +383,31 @@ func (o *Path) GetPath() string {
 }
 
 func (o *Path) SetPath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type PathTypeGetter interface {
+	GetPathType() constants.PathType
+}
+
+type PathTypeSetter interface {
+	SetPathType(constants.PathType)
+}
+
+type PathType struct {
+	valid bool
+	v     constants.PathType
+}
+
+func (o *PathType) GetPathType() constants.PathType {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *PathType) SetPathType(v constants.PathType) {
 	o.v = v
 	o.valid = true
 }

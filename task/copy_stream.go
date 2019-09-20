@@ -9,50 +9,13 @@ import (
 	"sync/atomic"
 
 	"github.com/Xuanwo/navvy"
-	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task/common"
 	"github.com/yunify/qsctl/v2/task/types"
-	"github.com/yunify/qsctl/v2/task/utils"
 )
 
-// CopyStreamTask will copy a stream to remote.
-type CopyStreamTask struct {
-	// Input value
-	types.Path
-	types.ObjectKey
-	types.Storage
-
-	// Runtime value
-	types.Todo
-	types.Pool
-	types.Size
-	types.UploadID
-	types.WaitGroup
-	types.CurrentPartNumber
-	types.CurrentOffset
-	types.PartSize
-	types.Stream
-	types.BytesPool
-	types.TaskConstructor
-}
-
-type CopyStreamTaskOptions struct {
-}
-
-// Run implement navvy.Task
-func (t *CopyStreamTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "CopyStreamTask", t.GetObjectKey())
-
-	utils.SubmitNextTask(t)
-}
-
-func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStreamTask {
-	t := &CopyStreamTask{}
-	t.SetObjectKey(objectKey)
-	t.SetStorage(storage)
-
-	// TODO: decide part size
+// NewCopyStreamTask will create a copy stream task.
+func NewCopyStreamTask(task types.Todoist) navvy.Task {
+	t, _ := initCopyStreamTask(task)
 
 	bytesPool := &sync.Pool{
 		New: func() interface{} {
@@ -60,6 +23,8 @@ func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStr
 		},
 	}
 	t.SetBytesPool(bytesPool)
+
+	t.SetWaitGroup(&sync.WaitGroup{})
 
 	var err error
 

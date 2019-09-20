@@ -146,7 +146,9 @@ var dependentTaskTmpl = template.Must(template.New("").Parse(`
 // {{ .Name }}Task will {{ .Description }}.
 type {{ .Name }}Task struct {
 	// Inherited value
+{{- if .Depend }}
 	types.Pool
+{{- end }}
 {{- range $k, $v := .InheritedValue }}
 	types.{{$v}}
 {{- end }}
@@ -163,6 +165,7 @@ func (t *{{ .Name }}Task) Run() {
 	utils.SubmitNextTask(t)
 }
 
+{{- if .Depend }}
 // init{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
 func init{{ .Name }}Task(task types.Todoist) (t *{{ .Name }}Task, o *{{ .Depend }}Task) {
 	o, ok := task.(*{{ .Depend }}Task)
@@ -177,4 +180,10 @@ func init{{ .Name }}Task(task types.Todoist) (t *{{ .Name }}Task, o *{{ .Depend 
 {{- end }}
 	return
 }
+{{- else }}
+// Wait will wait until {{ .Name }}Task has been finished
+func (t *{{ .Name }}Task) Wait() {
+	t.GetPool().Wait()
+}
+{{- end }}
 `))

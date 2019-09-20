@@ -12,6 +12,39 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
+// CopyFileTask will copy a file to storage.
+type CopyFileTask struct {
+	// Inherited value
+	types.Pool
+	types.Storage
+	types.Path
+	types.ObjectKey
+
+	// Runtime value
+	types.Todo
+	types.Size
+}
+
+// Run implement navvy.Task
+func (t *CopyFileTask) Run() {
+	utils.SubmitNextTask(t)
+}
+
+// initCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
+func initCopyFileTask(task types.Todoist) (t *CopyFileTask, o *CopyTask) {
+	o, ok := task.(*CopyTask)
+	if !ok {
+		panic("parent task is not a CopyTask")
+	}
+
+	t = &CopyFileTask{}
+	t.SetPool(o.GetPool())
+	t.SetStorage(o.GetStorage())
+	t.SetPath(o.GetPath())
+	t.SetObjectKey(o.GetObjectKey())
+	return
+}
+
 // CopyLargeFileTask will copy a large file to storage.
 type CopyLargeFileTask struct {
 	// Inherited value

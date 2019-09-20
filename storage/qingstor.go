@@ -300,6 +300,7 @@ func (q *QingStorObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	return
 }
 
+// PutObject will put a object.
 func (q *QingStorObjectStorage) PutObject(objectKey string, md5sum []byte, r io.Reader) (err error) {
 	_, err = q.bucket.PutObject(objectKey, &service.PutObjectInput{
 		ContentMD5: convert.String(hex.EncodeToString(md5sum[:])),

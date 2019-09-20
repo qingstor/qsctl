@@ -34,12 +34,12 @@
   "MultipartInit": {
     "type": "required",
     "path": "common/multipart",
-    "description": "init a mulitpart upload",
+    "description": "init a multipart upload",
     "runtime_value": [
       "ObjectKeyGetter",
       "PathGetter",
       "UploadIDSetter",
-      "WaitGroupSetter",
+      "WaitGroupGetter",
       "StorageGetter",
       "TaskConstructorGetter",
       "CurrentPartNumberGetter",
@@ -99,6 +99,35 @@
       "WaitGroupGetter"
     ]
   },
+  "Copy": {
+    "type": "dependent",
+    "path": "copy",
+    "description": "the root copy task",
+    "runtime_value": [
+      "Pool",
+      "Storage",
+      "Path",
+      "BucketName",
+      "ObjectKey",
+      "FlowType",
+      "PathType",
+      "KeyType"
+    ]
+  },
+  "CopyFile": {
+    "type": "dependent",
+    "path": "copy_file",
+    "depend": "Copy",
+    "description": "copy a file to storage",
+    "inherited_value": [
+      "Storage",
+      "Path",
+      "ObjectKey"
+    ],
+    "runtime_value": [
+      "Size"
+    ]
+  },
   "CopySmallFile": {
     "type": "dependent",
     "path": "copy_file",
@@ -152,6 +181,28 @@
       "Size",
       "Offset",
       "PartNumber"
+    ]
+  },
+  "CopyStream": {
+    "type": "dependent",
+    "path": "copy_stream",
+    "depend": "Copy",
+    "description": "copy a stream to storage",
+    "inherited_value": [
+      "Storage",
+      "Path",
+      "ObjectKey"
+    ],
+    "runtime_value": [
+      "Size",
+      "Stream",
+      "TaskConstructor",
+      "CurrentPartNumber",
+      "CurrentOffset",
+      "BytesPool",
+      "PartSize",
+      "UploadID",
+      "WaitGroup"
     ]
   },
   "CopyPartialStream": {

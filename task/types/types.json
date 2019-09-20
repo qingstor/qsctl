@@ -16,7 +16,10 @@
   "Pool": "*navvy.Pool",
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
-  "Flow": "string",
+  "FlowType": "constants.FlowType",
+  "PathType": "constants.PathType",
+  "KeyType": "constants.KeyType",
   "TaskConstructor": "TodoFunc",
-  "Stream": "io.Reader"
+  "Stream": "io.Reader",
+  "BucketName": "string"
 }

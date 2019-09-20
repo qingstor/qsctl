@@ -300,6 +300,7 @@ func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
 	}, nil
 }
 
+// PutObject will put a object.
 func (m *MockObjectStorage) PutObject(objectKey string, md5sum []byte, r io.Reader) (err error) {
 	h := md5.New()
 

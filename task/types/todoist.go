@@ -18,6 +18,7 @@ type Todoist interface {
 	NextTODO() TodoFunc
 }
 
+// Tasker is a task who can run and submit task.
 type Tasker interface {
 	navvy.Task
 

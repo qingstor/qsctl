@@ -7,42 +7,15 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/yunify/qsctl/v2/constants"
 
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task/common"
 	"github.com/yunify/qsctl/v2/task/types"
 	"github.com/yunify/qsctl/v2/task/utils"
 )
 
-// CopyFileTask will handle all copy file task
-type CopyFileTask struct {
-	// Input value
-	types.Path
-	types.ObjectKey
-	types.Storage
-
-	// Runtime value
-	types.Todo
-	types.Pool
-	types.Size
-}
-
 // NewCopyFileTask will create a new copy file task.
-func NewCopyFileTask(filePath, objectKey string, storage storage.ObjectStorage) *CopyFileTask {
-	t := &CopyFileTask{}
-	t.SetPath(filePath)
-	t.SetObjectKey(objectKey)
-	t.SetStorage(storage)
+func NewCopyFileTask(task types.Todoist) navvy.Task {
+	t, _ := initCopyFileTask(task)
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		panic(err)
-	}
-	t.SetPool(pool)
-	return t
-}
-
-// Run implement navvy.Task
-func (t *CopyFileTask) Run() {
 	f, err := os.Open(t.GetPath())
 	if err != nil {
 		panic(err)
@@ -56,13 +29,14 @@ func (t *CopyFileTask) Run() {
 	t.SetSize(size)
 
 	if size >= constants.MaximumAutoMultipartSize {
-		t.GetPool().Submit(NewCopyLargeFileTask(t))
+		t.AddTODOs(NewCopyLargeFileTask)
 	} else {
-		t.GetPool().Submit(NewCopySmallFileTask(t))
+		t.AddTODOs(NewCopySmallFileTask)
 	}
-	return
+	return t
 }
 
+// NewCopySmallFileTask will create a new small file task.
 func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 	t, _ := initCopySmallFileTask(task)
 	t.AddTODOs(

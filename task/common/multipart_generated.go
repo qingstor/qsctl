@@ -77,7 +77,7 @@ type MultipartInitTaskRequirement interface {
 	types.ObjectKeyGetter
 	types.PathGetter
 	types.UploadIDSetter
-	types.WaitGroupSetter
+	types.WaitGroupGetter
 	types.StorageGetter
 	types.TaskConstructorGetter
 	types.CurrentPartNumberGetter
@@ -86,7 +86,7 @@ type MultipartInitTaskRequirement interface {
 	types.SizeGetter
 }
 
-// MultipartInitTask will init a mulitpart upload.
+// MultipartInitTask will init a multipart upload.
 type MultipartInitTask struct {
 	MultipartInitTaskRequirement
 }
