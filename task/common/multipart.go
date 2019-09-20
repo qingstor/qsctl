@@ -12,9 +12,9 @@ import (
 
 // Run implement navvy.Task.
 func (t *MultipartInitTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetObjectKey())
+	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetKey())
 
-	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetObjectKey())
+	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetKey())
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +33,7 @@ func (t *MultipartInitTask) Run() {
 		go t.GetPool().Submit(task)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetObjectKey())
+	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetKey())
 	utils.SubmitNextTask(t.MultipartInitTaskRequirement)
 }
 
@@ -49,7 +49,7 @@ func (t *MultipartFileUploadTask) Run() {
 
 	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetSize()))
 
-	err = t.GetStorage().UploadMultipart(t.GetObjectKey(), t.GetUploadID(), t.GetSize(), t.GetPartNumber(), t.GetMD5Sum(), r)
+	err = t.GetStorage().UploadMultipart(t.GetKey(), t.GetUploadID(), t.GetSize(), t.GetPartNumber(), t.GetMD5Sum(), r)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +65,7 @@ func (t *MultipartStreamUploadTask) Run() {
 	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPath(), t.GetPartNumber())
 
 	err := t.GetStorage().UploadMultipart(
-		t.GetObjectKey(), t.GetUploadID(), t.GetSize(),
+		t.GetKey(), t.GetUploadID(), t.GetSize(),
 		t.GetPartNumber(), t.GetMD5Sum(), t.GetContent())
 	if err != nil {
 		panic(err)
@@ -79,13 +79,13 @@ func (t *MultipartStreamUploadTask) Run() {
 
 // Run implement navvy.Task.
 func (t *MultipartCompleteTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartCompleteTask", t.GetObjectKey(), t.GetUploadID())
+	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartCompleteTask", t.GetKey(), t.GetUploadID())
 
-	err := t.GetStorage().CompleteMultipartUpload(t.GetObjectKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()-1))
+	err := t.GetStorage().CompleteMultipartUpload(t.GetKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()-1))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartCompleteTask", t.GetObjectKey(), t.GetUploadID())
+	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartCompleteTask", t.GetKey(), t.GetUploadID())
 	utils.SubmitNextTask(t.MultipartCompleteTaskRequirement)
 }

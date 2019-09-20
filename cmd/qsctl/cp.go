@@ -2,8 +2,6 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -45,63 +43,23 @@ func initCpFlag() {
 }
 
 func cpParse(t *task.CopyTask, args []string) (err error) {
-	// Setup storage.
-	stor, err := storage.NewQingStorObjectStorage()
-	if err != nil {
-		return err
-	}
-	t.SetStorage(stor)
-
-	// Parse flow.
-	src, dst := args[0], args[1]
-	flow := utils.ParseFlow(src, dst)
-	t.SetFlowType(flow)
-
-	switch flow {
-	case constants.FlowToRemote:
-		pathType, err := utils.ParsePath(src)
-		if err != nil {
-			return err
-		}
-		t.SetPathType(pathType)
-		t.SetPath(src)
-
-		keyType, bucketName, objectKey, err := utils.ParseKey(dst)
-		if err != nil {
-			return err
-		}
-		t.SetKeyType(keyType)
-		t.SetObjectKey(objectKey)
-		t.SetBucketName(bucketName)
-	case constants.FlowToLocal, constants.FlowAtRemote:
-		pathType, err := utils.ParsePath(dst)
-		if err != nil {
-			return err
-		}
-		t.SetPathType(pathType)
-		t.SetPath(dst)
-
-		keyType, bucketName, objectKey, err := utils.ParseKey(src)
-		if err != nil {
-			return err
-		}
-		t.SetKeyType(keyType)
-		t.SetObjectKey(objectKey)
-		t.SetBucketName(bucketName)
-	default:
-		panic("this case should never be switched")
-	}
-	err = stor.SetupBucket(t.GetBucketName(), "")
-	if err != nil {
-		return
-	}
-
+	// Parse flags.
 	return nil
 }
 
-func cpRun(cmd *cobra.Command, args []string) (err error) {
+func cpRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewCopyTask(func(t *task.CopyTask) {
 		err = cpParse(t, args)
+		if err != nil {
+			panic(err)
+		}
+
+		err = utils.ParseTowArgs(t, args)
+		if err != nil {
+			panic(err)
+		}
+
+		err = utils.SetupStorage(t)
 		if err != nil {
 			return
 		}

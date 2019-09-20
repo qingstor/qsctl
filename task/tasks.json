@@ -4,7 +4,7 @@
     "path": "common/file",
     "description": "upload file as an object",
     "runtime_value": [
-      "ObjectKeyGetter",
+      "KeyGetter",
       "PathGetter",
       "MD5SumGetter",
       "StorageGetter"
@@ -36,7 +36,7 @@
     "path": "common/multipart",
     "description": "init a multipart upload",
     "runtime_value": [
-      "ObjectKeyGetter",
+      "KeyGetter",
       "PathGetter",
       "UploadIDSetter",
       "WaitGroupGetter",
@@ -55,7 +55,7 @@
     "runtime_value": [
       "MD5SumGetter",
       "PathGetter",
-      "ObjectKeyGetter",
+      "KeyGetter",
       "OffsetGetter",
       "UploadIDGetter",
       "PartNumberGetter",
@@ -71,7 +71,7 @@
     "runtime_value": [
       "MD5SumGetter",
       "PathGetter",
-      "ObjectKeyGetter",
+      "KeyGetter",
       "UploadIDGetter",
       "PartNumberGetter",
       "SizeGetter",
@@ -85,7 +85,7 @@
     "path": "common/multipart",
     "description": "upload a multipart via stream",
     "runtime_value": [
-      "ObjectKeyGetter",
+      "KeyGetter",
       "UploadIDGetter",
       "CurrentPartNumberGetter",
       "StorageGetter"
@@ -108,7 +108,7 @@
       "Storage",
       "Path",
       "BucketName",
-      "ObjectKey",
+      "Key",
       "FlowType",
       "PathType",
       "KeyType"
@@ -122,7 +122,7 @@
     "inherited_value": [
       "Storage",
       "Path",
-      "ObjectKey"
+      "Key"
     ],
     "runtime_value": [
       "Size"
@@ -135,7 +135,7 @@
     "description": "copy a small file to storage",
     "inherited_value": [
       "Path",
-      "ObjectKey",
+      "Key",
       "Storage",
       "Size"
     ],
@@ -152,7 +152,7 @@
     "inherited_value": [
       "Size",
       "Path",
-      "ObjectKey",
+      "Key",
       "Storage"
     ],
     "runtime_value": [
@@ -171,7 +171,7 @@
     "description": "copy a partial file to storage, is the sub task for CopyLargeFile",
     "inherited_value": [
       "Path",
-      "ObjectKey",
+      "Key",
       "Storage",
       "UploadID",
       "WaitGroup"
@@ -191,7 +191,7 @@
     "inherited_value": [
       "Storage",
       "Path",
-      "ObjectKey"
+      "Key"
     ],
     "runtime_value": [
       "Size",
@@ -211,7 +211,7 @@
     "depend": "CopyStream",
     "description": "copy a partial stream to storage",
     "inherited_value": [
-      "ObjectKey",
+      "Key",
       "Storage",
       "UploadID",
       "WaitGroup"

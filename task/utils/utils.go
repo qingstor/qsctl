@@ -32,16 +32,6 @@ func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
 	return bucketName, objectKey, nil
 }
 
-// CalculateConcurrentWorkers will calculate the current workers via limit and part size.
-func CalculateConcurrentWorkers(partSize, maximumMemory int64) (n int) {
-	// If the part size is over the limit, we will only use one worker.
-	if maximumMemory <= partSize {
-		return 1
-	}
-
-	return int(maximumMemory / partSize)
-}
-
 // CalculatePartSize will calculate the object's part size.
 func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize

@@ -16,7 +16,7 @@ var _ = utils.SubmitNextTask
 type CopyPartialStreamTask struct {
 	// Inherited value
 	types.Pool
-	types.ObjectKey
+	types.Key
 	types.Storage
 	types.UploadID
 	types.WaitGroup
@@ -43,7 +43,7 @@ func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o 
 
 	t = &CopyPartialStreamTask{}
 	t.SetPool(o.GetPool())
-	t.SetObjectKey(o.GetObjectKey())
+	t.SetKey(o.GetKey())
 	t.SetStorage(o.GetStorage())
 	t.SetUploadID(o.GetUploadID())
 	t.SetWaitGroup(o.GetWaitGroup())
@@ -56,7 +56,7 @@ type CopyStreamTask struct {
 	types.Pool
 	types.Storage
 	types.Path
-	types.ObjectKey
+	types.Key
 
 	// Runtime value
 	types.Todo
@@ -87,6 +87,6 @@ func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
 	t.SetPool(o.GetPool())
 	t.SetStorage(o.GetStorage())
 	t.SetPath(o.GetPath())
-	t.SetObjectKey(o.GetObjectKey())
+	t.SetKey(o.GetKey())
 	return
 }

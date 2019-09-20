@@ -17,7 +17,7 @@ type CopyHandler struct {
 	ExpectSize int64 `json:"expect_size"`
 	// MaximumMemoryContent is the maximum content loaded in memory
 	MaximumMemoryContent int64 `json:"maximum_memory_content"`
-	// ObjectKey is the remote object key
+	// Key is the remote object key
 	ObjectKey string `json:"object_key"`
 	FilePath  string
 	// Reader is the stream for upload
@@ -54,7 +54,7 @@ func (ch *CopyHandler) WithMaximumMemory(size int64) *CopyHandler {
 	return ch
 }
 
-// WithObjectKey sets the ObjectKey field with given key
+// WithObjectKey sets the Key field with given key
 func (ch *CopyHandler) WithObjectKey(key string) *CopyHandler {
 	ch.ObjectKey = key
 	return ch

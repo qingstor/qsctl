@@ -17,7 +17,7 @@ type FileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.ObjectKeyGetter
+	types.KeyGetter
 	types.PathGetter
 	types.MD5SumGetter
 	types.StorageGetter

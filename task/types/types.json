@@ -1,6 +1,6 @@
 {
   "Path": "string",
-  "ObjectKey": "string",
+  "Key": "string",
   "Size": "int64",
   "PartSize": "int64",
   "MD5Sum": "[]byte",

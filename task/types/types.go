@@ -212,6 +212,31 @@ func (o *FlowType) SetFlowType(v constants.FlowType) {
 	o.valid = true
 }
 
+type KeyGetter interface {
+	GetKey() string
+}
+
+type KeySetter interface {
+	SetKey(string)
+}
+
+type Key struct {
+	valid bool
+	v     string
+}
+
+func (o *Key) GetKey() string {
+	if !o.valid {
+		panic("value is not valid")
+	}
+	return o.v
+}
+
+func (o *Key) SetKey(v string) {
+	o.v = v
+	o.valid = true
+}
+
 type KeyTypeGetter interface {
 	GetKeyType() constants.KeyType
 }
@@ -258,31 +283,6 @@ func (o *MD5Sum) GetMD5Sum() []byte {
 }
 
 func (o *MD5Sum) SetMD5Sum(v []byte) {
-	o.v = v
-	o.valid = true
-}
-
-type ObjectKeyGetter interface {
-	GetObjectKey() string
-}
-
-type ObjectKeySetter interface {
-	SetObjectKey(string)
-}
-
-type ObjectKey struct {
-	valid bool
-	v     string
-}
-
-func (o *ObjectKey) GetObjectKey() string {
-	if !o.valid {
-		panic("value is not valid")
-	}
-	return o.v
-}
-
-func (o *ObjectKey) SetObjectKey(v string) {
 	o.v = v
 	o.valid = true
 }

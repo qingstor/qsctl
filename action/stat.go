@@ -17,7 +17,7 @@ import (
 type StatHandler struct {
 	// Format is the user-specified output format
 	Format string `json:"format"`
-	// ObjectKey is the remote object key
+	// Key is the remote object key
 	ObjectKey string `json:"object_key"`
 	// Remote is the remote qs path
 	Remote string `json:"remote"`
@@ -31,7 +31,7 @@ func (sh *StatHandler) WithFormat(f string) *StatHandler {
 	return sh
 }
 
-// WithObjectKey sets the ObjectKey field with given key
+// WithObjectKey sets the Key field with given key
 func (sh *StatHandler) WithObjectKey(key string) *StatHandler {
 	sh.ObjectKey = key
 	return sh

@@ -22,7 +22,7 @@ type CopyTask struct {
 	types.Storage
 	types.Path
 	types.BucketName
-	types.ObjectKey
+	types.Key
 	types.FlowType
 	types.PathType
 	types.KeyType

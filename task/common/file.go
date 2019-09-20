@@ -10,7 +10,7 @@ import (
 
 // Run implement navvy.Task.
 func (t *FileUploadTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetObjectKey())
+	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetKey())
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
@@ -18,11 +18,11 @@ func (t *FileUploadTask) Run() {
 	}
 	defer f.Close()
 
-	err = t.GetStorage().PutObject(t.GetObjectKey(), t.GetMD5Sum(), f)
+	err = t.GetStorage().PutObject(t.GetKey(), t.GetMD5Sum(), f)
 	if err != nil {
 		panic(err)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetObjectKey())
+	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetKey())
 	utils.SubmitNextTask(t.FileUploadTaskRequirement)
 }

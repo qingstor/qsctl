@@ -17,7 +17,7 @@ type MultipartCompleteTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.ObjectKeyGetter
+	types.KeyGetter
 	types.UploadIDGetter
 	types.CurrentPartNumberGetter
 	types.StorageGetter
@@ -45,7 +45,7 @@ type MultipartFileUploadTaskRequirement interface {
 	types.PoolGetter
 	types.MD5SumGetter
 	types.PathGetter
-	types.ObjectKeyGetter
+	types.KeyGetter
 	types.OffsetGetter
 	types.UploadIDGetter
 	types.PartNumberGetter
@@ -74,7 +74,7 @@ type MultipartInitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.ObjectKeyGetter
+	types.KeyGetter
 	types.PathGetter
 	types.UploadIDSetter
 	types.WaitGroupGetter
@@ -108,7 +108,7 @@ type MultipartStreamUploadTaskRequirement interface {
 	types.PoolGetter
 	types.MD5SumGetter
 	types.PathGetter
-	types.ObjectKeyGetter
+	types.KeyGetter
 	types.UploadIDGetter
 	types.PartNumberGetter
 	types.SizeGetter
