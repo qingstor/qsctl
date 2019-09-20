@@ -58,8 +58,8 @@ func (t *PutObjectTask) Run() {
 	utils.SubmitNextTask(t.PutObjectTaskRequirement)
 }
 
-// MultipartObjectInitTaskRequirement is the requirement for execute MultipartObjectInitTask.
-type MultipartObjectInitTaskRequirement interface {
+// MultipartInitTaskRequirement is the requirement for execute MultipartInitTask.
+type MultipartInitTaskRequirement interface {
 	navvy.Task
 
 	types.Todoist
@@ -68,36 +68,34 @@ type MultipartObjectInitTaskRequirement interface {
 	types.FilePathGetter
 
 	types.UploadIDSetter
-	types.TotalPartsSetter
 	types.WaitGroupSetter
 	types.PoolGetter
 	types.StorageGetter
+	types.TaskConstructorGetter
+	types.CurrentPartNumberGetter
+	types.CurrentOffsetGetter
+	types.PartSizeGetter
+	types.SizeGetter
 }
 
-// MultipartObjectInitTask will execute MultipartObjectInit Task.
-type MultipartObjectInitTask struct {
-	MultipartObjectInitTaskRequirement
+// MultipartInitTask will execute MultipartObjectInit Task.
+type MultipartInitTask struct {
+	MultipartInitTaskRequirement
 }
 
-// NewMultipartObjectInitTask will create a new Task.
-func NewMultipartObjectInitTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartObjectInitTaskRequirement)
+// NewMultipartInitTask will create a new Task.
+func NewMultipartInitTask(task types.Todoist) navvy.Task {
+	o, ok := task.(MultipartInitTaskRequirement)
 	if !ok {
-		panic("task is not fill MultipartObjectInitTaskRequirement")
+		panic("task is not fill MultipartInitTaskRequirement")
 	}
 
-	return &MultipartObjectInitTask{o}
+	return &MultipartInitTask{o}
 }
 
 // Run implement navvy.Task.
-func (t *MultipartObjectInitTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "MultipartObjectInitTask", t.GetObjectKey())
-
-	f, err := os.Open(t.GetFilePath())
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
+func (t *MultipartInitTask) Run() {
+	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetObjectKey())
 
 	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetObjectKey())
 	if err != nil {
@@ -105,57 +103,26 @@ func (t *MultipartObjectInitTask) Run() {
 	}
 	t.SetUploadID(uploadID)
 
-	size, err := utils.CalculateSeekableFileSize(f)
-	if err != nil {
-		panic(err)
-	}
-
-	partSize, err := utils.CalculatePartSize(size)
-	if err != nil {
-		panic(err)
-	}
-
 	wg := &sync.WaitGroup{}
 	t.SetWaitGroup(wg)
 
-	partNumber := 0
-	cur := int64(0)
 	for {
-		curPartSize := partSize
-		if cur+partSize > size {
-			curPartSize = size - cur
-		}
-
-		task := NewCopyPartialFileTask(
-			t.GetObjectKey(),
-			t.GetFilePath(),
-			uploadID,
-			partNumber,
-			cur,
-			curPartSize,
-		)
-		wg.Add(1)
-		task.SetWaitGroup(wg)
-
-		log.Debugf("Submit task <%s> for Object <%s> with UploadID <%s> in PartNumber <%d>", "CopyPartialFileTask",
-			task.GetObjectKey(), task.GetUploadID(), task.GetPartNumber())
-		go t.GetPool().Submit(task)
-
-		partNumber++
-		cur += curPartSize
-		if cur >= size {
+		if *t.GetCurrentOffset() == t.GetSize() {
 			break
 		}
+
+		task := t.GetTaskConstructor()(t)
+		wg.Add(1)
+
+		go t.GetPool().Submit(task)
 	}
 
-	t.SetTotalParts(partNumber)
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartObjectInitTask", t.GetObjectKey())
-	utils.SubmitNextTask(t.MultipartObjectInitTaskRequirement)
+	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetObjectKey())
+	utils.SubmitNextTask(t.MultipartInitTaskRequirement)
 }
 
-// MultipartObjectUploadTaskRequirement is the requirement for execute MultipartObjectUploadTask.
-type MultipartObjectUploadTaskRequirement interface {
+// MultipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
+type MultipartFileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 
@@ -171,24 +138,24 @@ type MultipartObjectUploadTaskRequirement interface {
 	types.StorageGetter
 }
 
-// MultipartObjectUploadTask will execute MultipartObjectUpload Task.
-type MultipartObjectUploadTask struct {
-	MultipartObjectUploadTaskRequirement
+// MultipartFileUploadTask will execute MultipartObjectUpload Task.
+type MultipartFileUploadTask struct {
+	MultipartFileUploadTaskRequirement
 }
 
-// NewMultipartObjectUploadTask will create a new Task.
-func NewMultipartObjectUploadTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartObjectUploadTaskRequirement)
+// NewMultipartFileUploadTask will create a new Task.
+func NewMultipartFileUploadTask(task types.Todoist) navvy.Task {
+	o, ok := task.(MultipartFileUploadTaskRequirement)
 	if !ok {
-		panic("task is not fill MultipartObjectUploadTaskRequirement")
+		panic("task is not fill MultipartFileUploadTaskRequirement")
 	}
 
-	return &MultipartObjectUploadTask{o}
+	return &MultipartFileUploadTask{o}
 }
 
 // Run implement navvy.Task.
-func (t *MultipartObjectUploadTask) Run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartObjectUploadTask", t.GetFilePath(), t.GetOffset())
+func (t *MultipartFileUploadTask) Run() {
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetFilePath(), t.GetOffset())
 
 	f, err := os.Open(t.GetFilePath())
 	if err != nil {
@@ -205,46 +172,95 @@ func (t *MultipartObjectUploadTask) Run() {
 
 	t.GetWaitGroup().Done()
 
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartObjectUploadTask", t.GetFilePath(), t.GetOffset())
-	utils.SubmitNextTask(t.MultipartObjectUploadTaskRequirement)
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetFilePath(), t.GetOffset())
+	utils.SubmitNextTask(t.MultipartFileUploadTaskRequirement)
 }
 
-// MultipartObjectCompleteTaskRequirement will execute MultipartObjectCompleteT Task.
-type MultipartObjectCompleteTaskRequirement interface {
+// MultipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
+type MultipartStreamUploadTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+
+	types.MD5SumGetter
+	types.FilePathGetter
+	types.ObjectKeyGetter
+	types.UploadIDGetter
+	types.PartNumberGetter
+	types.SizeGetter
+	types.WaitGroupGetter
+	types.PoolGetter
+	types.StorageGetter
+	types.ContentGetter
+}
+
+// MultipartStreamUploadTask will execute MultipartObjectUpload Task.
+type MultipartStreamUploadTask struct {
+	MultipartStreamUploadTaskRequirement
+}
+
+// NewMultipartStreamUploadTask will create a new Task.
+func NewMultipartStreamUploadTask(task types.Todoist) navvy.Task {
+	o, ok := task.(MultipartStreamUploadTaskRequirement)
+	if !ok {
+		panic("task is not fill MultipartStreamUploadTaskRequirement")
+	}
+
+	return &MultipartStreamUploadTask{o}
+}
+
+// Run implement navvy.Task.
+func (t *MultipartStreamUploadTask) Run() {
+	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetFilePath(), t.GetPartNumber())
+
+	err := t.GetStorage().UploadMultipart(
+		t.GetObjectKey(), t.GetUploadID(), t.GetSize(),
+		t.GetPartNumber(), t.GetMD5Sum(), t.GetContent())
+	if err != nil {
+		panic(err)
+	}
+
+	t.GetWaitGroup().Done()
+
+	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetFilePath(), t.GetPartNumber())
+	utils.SubmitNextTask(t.MultipartStreamUploadTaskRequirement)
+}
+
+// MultipartCompleteTaskRequirement will execute MultipartObjectCompleteT Task.
+type MultipartCompleteTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 
 	types.ObjectKeyGetter
 	types.UploadIDGetter
-	types.TotalPartsGetter
+	types.CurrentPartNumberGetter
 	types.PoolGetter
 	types.StorageGetter
 }
 
-// MultipartObjectCompleteTask will execute MultipartObjectComplete Task.
-type MultipartObjectCompleteTask struct {
-	MultipartObjectCompleteTaskRequirement
+// MultipartCompleteTask will execute MultipartObjectComplete Task.
+type MultipartCompleteTask struct {
+	MultipartCompleteTaskRequirement
 }
 
-// NewMultipartObjectCompleteTask will create a new Task.
-func NewMultipartObjectCompleteTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartObjectCompleteTaskRequirement)
+// NewMultipartCompleteTask will create a new Task.
+func NewMultipartCompleteTask(task types.Todoist) navvy.Task {
+	o, ok := task.(MultipartCompleteTaskRequirement)
 	if !ok {
-		panic("task is not fill NewMultipartObjectCompleteTask")
+		panic("task is not fill NewMultipartCompleteTask")
 	}
 
-	return &MultipartObjectCompleteTask{o}
+	return &MultipartCompleteTask{o}
 }
 
 // Run implement navvy.Task.
-func (t *MultipartObjectCompleteTask) Run() {
-	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartObjectCompleteTask", t.GetObjectKey(), t.GetUploadID())
+func (t *MultipartCompleteTask) Run() {
+	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartCompleteTask", t.GetObjectKey(), t.GetUploadID())
 
-	err := t.GetStorage().CompleteMultipartUpload(t.GetObjectKey(), t.GetUploadID(), t.GetTotalParts())
+	err := t.GetStorage().CompleteMultipartUpload(t.GetObjectKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()-1))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartObjectCompleteTask", t.GetObjectKey(), t.GetUploadID())
-	utils.SubmitNextTask(t.MultipartObjectCompleteTaskRequirement)
+	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartCompleteTask", t.GetObjectKey(), t.GetUploadID())
+	utils.SubmitNextTask(t.MultipartCompleteTaskRequirement)
 }

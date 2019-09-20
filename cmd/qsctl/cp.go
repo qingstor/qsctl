@@ -133,7 +133,7 @@ func cpRun(cmd *cobra.Command, args []string) (err error) {
 
 	switch cpOutput.Flow {
 	case constants.FlowToLocal:
-		return cpToLocal()
+		t, err = cpToLocal()
 	case constants.FlowToRemote:
 		t, err = cpToRemote()
 	default:
@@ -148,19 +148,19 @@ func cpRun(cmd *cobra.Command, args []string) (err error) {
 	return
 }
 
-func cpToLocal() (err error) {
+func cpToLocal() (t types.Tasker, err error) {
 	// TODO: support -r
 
 	switch cpOutput.PathType {
 	case constants.PathTypeLocalDir:
-		return constants.ErrorActionNotImplemented
+		return nil, constants.ErrorActionNotImplemented
 	case constants.PathTypeStream:
 		// TODO: RUN xxxTask
 	case constants.PathTypeFile:
 		// TODO: Run XX task
 	}
 
-	return nil
+	return nil, nil
 }
 
 func cpToRemote() (t types.Tasker, err error) {
@@ -168,12 +168,11 @@ func cpToRemote() (t types.Tasker, err error) {
 	case constants.PathTypeLocalDir:
 		return nil, constants.ErrorActionNotImplemented
 	case constants.PathTypeStream:
-		return nil, constants.ErrorActionNotImplemented
+		t = task.NewCopyStreamTask(cpOutput.Key, cpOutput.Storage)
 	case constants.PathTypeFile:
 		t = task.NewCopyFileTask(cpOutput.Path, cpOutput.Key, cpOutput.Storage)
 	default:
 		panic("invalid path type")
 	}
-
 	return t, nil
 }

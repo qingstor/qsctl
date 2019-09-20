@@ -8,13 +8,13 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task/utils"
 
 	"github.com/yunify/qsctl/v2/task/types"
+	"github.com/yunify/qsctl/v2/task/utils"
 )
 
-// SeekableMD5SumTaskRequirement is the requirement for execute SeekableMD5SumTask.
-type SeekableMD5SumTaskRequirement interface {
+// FileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
+type FileMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 
@@ -25,24 +25,24 @@ type SeekableMD5SumTaskRequirement interface {
 	types.PoolGetter
 }
 
-// SeekableMD5SumTask will execute SeekableMD5Sum Task.
-type SeekableMD5SumTask struct {
-	SeekableMD5SumTaskRequirement
+// FileMD5SumTask will execute SeekableMD5Sum Task.
+type FileMD5SumTask struct {
+	FileMD5SumTaskRequirement
 }
 
-// NewSeekableMD5SumTask will create a new Task.
-func NewSeekableMD5SumTask(task types.Todoist) navvy.Task {
-	o, ok := task.(SeekableMD5SumTaskRequirement)
+// NewFileMD5SumTask will create a new Task.
+func NewFileMD5SumTask(task types.Todoist) navvy.Task {
+	o, ok := task.(FileMD5SumTaskRequirement)
 	if !ok {
-		panic("task is not fill SeekableMD5SumTaskRequirement")
+		panic("task is not fill FileMD5SumTaskRequirement")
 	}
 
-	return &SeekableMD5SumTask{o}
+	return &FileMD5SumTask{o}
 }
 
 // Run implement navvy.Task.
-func (t *SeekableMD5SumTask) Run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "SeekableMD5SumTask", t.GetFilePath(), t.GetOffset())
+func (t *FileMD5SumTask) Run() {
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetFilePath(), t.GetOffset())
 
 	f, err := os.Open(t.GetFilePath())
 	if err != nil {
@@ -54,11 +54,48 @@ func (t *SeekableMD5SumTask) Run() {
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
-		log.Errorf("Task <%s> failed for [%v]", "SeekableMD5SumTask", err)
+		log.Errorf("Task <%s> failed for [%v]", "FileMD5SumTask", err)
 	}
 
 	t.SetMD5Sum(h.Sum(nil)[:])
 
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "SeekableMD5SumTask", t.GetFilePath(), t.GetOffset())
-	utils.SubmitNextTask(t.SeekableMD5SumTaskRequirement)
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetFilePath(), t.GetOffset())
+	utils.SubmitNextTask(t.FileMD5SumTaskRequirement)
+}
+
+// StreamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
+type StreamMD5SumTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+
+	types.MD5SumSetter
+	types.FilePathGetter
+	types.ContentGetter
+	types.PoolGetter
+}
+
+// StreamMD5SumTask will execute SeekableMD5Sum Task.
+type StreamMD5SumTask struct {
+	StreamMD5SumTaskRequirement
+}
+
+// NewStreamMD5SumTask will create a new Task.
+func NewStreamMD5SumTask(task types.Todoist) navvy.Task {
+	o, ok := task.(StreamMD5SumTaskRequirement)
+	if !ok {
+		panic("task is not fill StreamMD5SumTaskRequirement")
+	}
+
+	return &StreamMD5SumTask{o}
+}
+
+// Run implement navvy.Task.
+func (t *StreamMD5SumTask) Run() {
+	log.Debugf("Task <%s> for Stream <%s> started.", "StreamMD5SumTask", t.GetFilePath())
+
+	md5Sum := md5.Sum(t.GetContent().Bytes())
+	t.SetMD5Sum(md5Sum[:])
+
+	log.Debugf("Task <%s> for Stream <%s> finished.", "StreamMD5SumTask", t.GetFilePath())
+	utils.SubmitNextTask(t.StreamMD5SumTaskRequirement)
 }

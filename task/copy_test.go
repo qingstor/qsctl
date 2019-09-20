@@ -20,6 +20,5 @@ func TestCopyFile(t *testing.T) {
 
 	task := NewCopyFileTask(f.Name(), storage.MockGBObject, s)
 	task.Run()
-
 	task.GetPool().Wait()
 }
