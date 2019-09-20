@@ -1,50 +1,12 @@
 package utils
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/constants"
 )
-
-func TestParseFilePathForRead(t *testing.T) {
-	x, err := ParseFilePathForRead("-")
-	assert.NoError(t, err)
-	assert.Equal(t, os.Stdin, x)
-
-	x, err = ParseFilePathForRead("/xxxxxxxxxxxx")
-	assert.Equal(t, constants.ErrorFileNotExist, err)
-	assert.Nil(t, x)
-
-	file, err := ioutil.TempFile(os.TempDir(), "example")
-	if err != nil {
-		t.Error(err)
-	}
-	defer os.Remove(file.Name())
-
-	x, err = ParseFilePathForRead(file.Name())
-	assert.NoError(t, err)
-	assert.NotNil(t, x)
-}
-
-func TestParseFilePathForWrite(t *testing.T) {
-	x, err := ParseFilePathForWrite("-")
-	assert.NoError(t, err)
-	assert.Equal(t, os.Stdout, x)
-
-	file, err := ioutil.TempFile(os.TempDir(), "example")
-	if err != nil {
-		t.Error(err)
-	}
-	defer os.Remove(file.Name())
-
-	x, err = ParseFilePathForWrite(file.Name())
-	assert.NoError(t, err)
-	assert.NotNil(t, x)
-}
 
 func TestParseQsPath(t *testing.T) {
 	cases := []struct {

@@ -2,8 +2,6 @@ package utils
 
 import (
 	"io"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -12,43 +10,6 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task/types"
 )
-
-// ParseFilePathForRead will parse file path and open an io.Reader for read.
-func ParseFilePathForRead(filePath string) (r io.Reader, err error) {
-	// Use - means we will read from stdin.
-	if filePath == "-" {
-		return os.Stdin, nil
-	}
-
-	_, err = os.Stat(filePath)
-	if os.IsNotExist(err) {
-		log.Infof("File <%s> is not exist, please check your input", filePath)
-		return nil, constants.ErrorFileNotExist
-	}
-	if err != nil {
-		log.Errorf("Stat file failed [%s]", err)
-		return
-	}
-
-	return os.Open(filePath)
-}
-
-// ParseFilePathForWrite will parse a file path and open an io.Write for write.
-func ParseFilePathForWrite(filePath string) (w io.Writer, err error) {
-	// Use - means we will read from stdin.
-	if filePath == "-" {
-		return os.Stdout, nil
-	}
-
-	// Create dir automatically.
-	err = os.MkdirAll(filepath.Dir(filePath), os.ModeDir|0664)
-	if err != nil {
-		log.Errorf("Mkdir <%s> failed [%v]", filePath, err)
-		return nil, err
-	}
-
-	return os.Create(filePath)
-}
 
 // ParseQsPath will parse a qs path.
 func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
@@ -103,8 +64,8 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	return
 }
 
-// CalculateSeekableFileSize will calculate the seekable file's size.
-func CalculateSeekableFileSize(r io.Seeker) (size int64, err error) {
+// CalculateFileSize will calculate the seekable file's size.
+func CalculateFileSize(r io.Seeker) (size int64, err error) {
 	// Move the start to make sure size read correctly.
 	_, err = r.Seek(0, io.SeekStart)
 	if err != nil {
