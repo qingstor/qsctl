@@ -102,22 +102,24 @@
   "CopySmallFile": {
     "type": "dependent",
     "path": "copy_file",
-    "description": "",
+    "depend": "CopyFile",
+    "description": "copy a small file to storage",
     "inherited_value": [
       "Path",
       "ObjectKey",
-      "Storage"
+      "Storage",
+      "Size"
     ],
     "runtime_value": [
       "MD5Sum",
-      "Size",
       "Offset"
     ]
   },
   "CopyLargeFile": {
     "type": "dependent",
     "path": "copy_file",
-    "description": "",
+    "depend": "CopyFile",
+    "description": "copy a large file to storage",
     "inherited_value": [
       "Size",
       "Path",
@@ -136,38 +138,38 @@
   "CopyPartialFile": {
     "type": "dependent",
     "path": "copy_file",
-    "description": "",
+    "depend": "CopyLargeFile",
+    "description": "copy a partial file to storage, is the sub task for CopyLargeFile",
     "inherited_value": [
-      "Size",
       "Path",
       "ObjectKey",
       "Storage",
       "UploadID",
-      "PartNumber",
-      "Offset",
       "WaitGroup"
     ],
     "runtime_value": [
-      "MD5Sum"
+      "MD5Sum",
+      "Size",
+      "Offset",
+      "PartNumber"
     ]
   },
   "CopyPartialStream": {
     "type": "dependent",
     "path": "copy_stream",
-    "description": "",
+    "depend": "CopyStream",
+    "description": "copy a partial stream to storage",
     "inherited_value": [
-      "Size",
-      "Path",
       "ObjectKey",
       "Storage",
       "UploadID",
-      "PartNumber",
-      "Offset",
       "WaitGroup"
     ],
     "runtime_value": [
       "MD5Sum",
-      "Content"
+      "Content",
+      "Size",
+      "PartNumber"
     ]
   }
 }

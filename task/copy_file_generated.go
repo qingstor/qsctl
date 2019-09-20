@@ -12,7 +12,7 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// CopyLargeFileTask will .
+// CopyLargeFileTask will copy a large file to storage.
 type CopyLargeFileTask struct {
 	// Inherited value
 	types.Pool
@@ -36,22 +36,38 @@ func (t *CopyLargeFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-// CopyPartialFileTask will .
+// initCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
+func initCopyLargeFileTask(task types.Todoist) (t *CopyLargeFileTask, o *CopyFileTask) {
+	o, ok := task.(*CopyFileTask)
+	if !ok {
+		panic("parent task is not a CopyFileTask")
+	}
+
+	t = &CopyLargeFileTask{}
+	t.SetPool(o.GetPool())
+	t.SetSize(o.GetSize())
+	t.SetPath(o.GetPath())
+	t.SetObjectKey(o.GetObjectKey())
+	t.SetStorage(o.GetStorage())
+	return
+}
+
+// CopyPartialFileTask will copy a partial file to storage, is the sub task for CopyLargeFile.
 type CopyPartialFileTask struct {
 	// Inherited value
 	types.Pool
-	types.Size
 	types.Path
 	types.ObjectKey
 	types.Storage
 	types.UploadID
-	types.PartNumber
-	types.Offset
 	types.WaitGroup
 
 	// Runtime value
 	types.Todo
 	types.MD5Sum
+	types.Size
+	types.Offset
+	types.PartNumber
 }
 
 // Run implement navvy.Task
@@ -59,22 +75,55 @@ func (t *CopyPartialFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-// CopySmallFileTask will .
+// initCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
+func initCopyPartialFileTask(task types.Todoist) (t *CopyPartialFileTask, o *CopyLargeFileTask) {
+	o, ok := task.(*CopyLargeFileTask)
+	if !ok {
+		panic("parent task is not a CopyLargeFileTask")
+	}
+
+	t = &CopyPartialFileTask{}
+	t.SetPool(o.GetPool())
+	t.SetPath(o.GetPath())
+	t.SetObjectKey(o.GetObjectKey())
+	t.SetStorage(o.GetStorage())
+	t.SetUploadID(o.GetUploadID())
+	t.SetWaitGroup(o.GetWaitGroup())
+	return
+}
+
+// CopySmallFileTask will copy a small file to storage.
 type CopySmallFileTask struct {
 	// Inherited value
 	types.Pool
 	types.Path
 	types.ObjectKey
 	types.Storage
+	types.Size
 
 	// Runtime value
 	types.Todo
 	types.MD5Sum
-	types.Size
 	types.Offset
 }
 
 // Run implement navvy.Task
 func (t *CopySmallFileTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+// initCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.
+func initCopySmallFileTask(task types.Todoist) (t *CopySmallFileTask, o *CopyFileTask) {
+	o, ok := task.(*CopyFileTask)
+	if !ok {
+		panic("parent task is not a CopyFileTask")
+	}
+
+	t = &CopySmallFileTask{}
+	t.SetPool(o.GetPool())
+	t.SetPath(o.GetPath())
+	t.SetObjectKey(o.GetObjectKey())
+	t.SetStorage(o.GetStorage())
+	t.SetSize(o.GetSize())
+	return
 }

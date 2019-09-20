@@ -12,26 +12,40 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// CopyPartialStreamTask will .
+// CopyPartialStreamTask will copy a partial stream to storage.
 type CopyPartialStreamTask struct {
 	// Inherited value
 	types.Pool
-	types.Size
-	types.Path
 	types.ObjectKey
 	types.Storage
 	types.UploadID
-	types.PartNumber
-	types.Offset
 	types.WaitGroup
 
 	// Runtime value
 	types.Todo
 	types.MD5Sum
 	types.Content
+	types.Size
+	types.PartNumber
 }
 
 // Run implement navvy.Task
 func (t *CopyPartialStreamTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+// initCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
+func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o *CopyStreamTask) {
+	o, ok := task.(*CopyStreamTask)
+	if !ok {
+		panic("parent task is not a CopyStreamTask")
+	}
+
+	t = &CopyPartialStreamTask{}
+	t.SetPool(o.GetPool())
+	t.SetObjectKey(o.GetObjectKey())
+	t.SetStorage(o.GetStorage())
+	t.SetUploadID(o.GetUploadID())
+	t.SetWaitGroup(o.GetWaitGroup())
+	return
 }

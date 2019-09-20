@@ -89,15 +89,7 @@ func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStr
 
 // NewCopyPartialStreamTask will create a new Task.
 func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
-	o, ok := task.(*CopyStreamTask)
-	if !ok {
-		panic("parent task is not a CopyStreamTask")
-	}
-
-	t := &CopyPartialStreamTask{}
-	t.SetUploadID(o.GetUploadID())
-	t.SetWaitGroup(o.GetWaitGroup())
-	t.SetObjectKey(o.GetObjectKey())
+	t, o := initCopyPartialStreamTask(task)
 
 	// Set part number and update current part number.
 	currentPartNumber := o.GetCurrentPartNumber()

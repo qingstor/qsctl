@@ -21,6 +21,7 @@ type task struct {
 	Name           string
 	Type           string   `json:"type"`
 	Path           string   `json:"path"`
+	Depend         string   `json:"depend"`
 	Description    string   `json:"description"`
 	InheritedValue []string `json:"inherited_value"`
 	RuntimeValue   []string `json:"runtime_value"`
@@ -160,5 +161,20 @@ type {{ .Name }}Task struct {
 // Run implement navvy.Task
 func (t *{{ .Name }}Task) Run() {
 	utils.SubmitNextTask(t)
+}
+
+// init{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
+func init{{ .Name }}Task(task types.Todoist) (t *{{ .Name }}Task, o *{{ .Depend }}Task) {
+	o, ok := task.(*{{ .Depend }}Task)
+	if !ok {
+		panic("parent task is not a {{ .Depend }}Task")
+	}
+
+	t = &{{ .Name }}Task{}
+	t.SetPool(o.GetPool())
+{{- range $k, $v := .InheritedValue }}
+	t.Set{{$v}}(o.Get{{$v}}())
+{{- end }}
+	return
 }
 `))
