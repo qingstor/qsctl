@@ -64,25 +64,6 @@ func (t *CopyFileTask) Run() {
 	return
 }
 
-type CopySmallFileTask struct {
-	// Input value
-	types.Path
-	types.ObjectKey
-	types.Pool
-	types.Storage
-
-	// Runtime value
-	types.Todo
-	types.MD5Sum
-	types.Size
-	types.Offset
-}
-
-// Run implement navvy.Task
-func (t *CopySmallFileTask) Run() {
-	utils.SubmitNextTask(t)
-}
-
 func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 	o, ok := task.(*CopyFileTask)
 	if !ok {
@@ -103,25 +84,6 @@ func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 		common.NewFileUploadTask,
 	)
 	return x
-}
-
-// CopyLargeFileTask will execute CopyLargeFile Task
-type CopyLargeFileTask struct {
-	// Inherited value
-	types.Size
-	types.Path
-	types.ObjectKey
-	types.Pool
-	types.Storage
-
-	// Runtime value
-	types.Todo
-	types.UploadID
-	types.CurrentPartNumber
-	types.CurrentOffset
-	types.WaitGroup
-	types.PartSize
-	types.TaskConstructor
 }
 
 // NewCopyLargeFileTask will create a new Task.
@@ -162,32 +124,6 @@ func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
 		common.NewMultipartCompleteTask,
 	)
 	return t
-}
-
-// Run implement navvy.Task
-func (t *CopyLargeFileTask) Run() {
-	utils.SubmitNextTask(t)
-}
-
-// CopyPartialFileTask will execute CopyPartialFile Task
-type CopyPartialFileTask struct {
-	types.Path
-	types.ObjectKey
-	types.UploadID
-	types.PartNumber
-	types.Size
-	types.Offset
-	types.Storage
-
-	types.Todo
-	types.MD5Sum
-	types.WaitGroup
-	types.Pool
-}
-
-// Run implement navvy.Task
-func (t *CopyPartialFileTask) Run() {
-	utils.SubmitNextTask(t)
 }
 
 // NewCopyPartialFileTask will create a new Task.

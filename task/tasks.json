@@ -1,0 +1,173 @@
+{
+  "FileUpload": {
+    "type": "required",
+    "path": "common/file",
+    "description": "upload file as an object",
+    "runtime_value": [
+      "ObjectKeyGetter",
+      "PathGetter",
+      "MD5SumGetter",
+      "StorageGetter"
+    ]
+  },
+  "FileMD5Sum": {
+    "type": "required",
+    "path": "common/md5sum",
+    "description": "get file's md5 sum",
+    "runtime_value": [
+      "MD5SumSetter",
+      "PathGetter",
+      "OffsetGetter",
+      "SizeGetter"
+    ]
+  },
+  "StreamMD5Sum": {
+    "type": "required",
+    "path": "common/md5sum",
+    "description": "get stream's md5 sum",
+    "runtime_value": [
+      "MD5SumSetter",
+      "PathGetter",
+      "ContentGetter"
+    ]
+  },
+  "MultipartInit": {
+    "type": "required",
+    "path": "common/multipart",
+    "description": "init a mulitpart upload",
+    "runtime_value": [
+      "ObjectKeyGetter",
+      "PathGetter",
+      "UploadIDSetter",
+      "WaitGroupSetter",
+      "StorageGetter",
+      "TaskConstructorGetter",
+      "CurrentPartNumberGetter",
+      "CurrentOffsetGetter",
+      "PartSizeGetter",
+      "SizeGetter"
+    ]
+  },
+  "MultipartFileUpload": {
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via file",
+    "runtime_value": [
+      "MD5SumGetter",
+      "PathGetter",
+      "ObjectKeyGetter",
+      "OffsetGetter",
+      "UploadIDGetter",
+      "PartNumberGetter",
+      "SizeGetter",
+      "WaitGroupGetter",
+      "StorageGetter"
+    ]
+  },
+  "MultipartStreamUpload": {
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via stream",
+    "runtime_value": [
+      "MD5SumGetter",
+      "PathGetter",
+      "ObjectKeyGetter",
+      "UploadIDGetter",
+      "PartNumberGetter",
+      "SizeGetter",
+      "WaitGroupGetter",
+      "StorageGetter",
+      "ContentGetter"
+    ]
+  },
+  "MultipartComplete": {
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via stream",
+    "runtime_value": [
+      "ObjectKeyGetter",
+      "UploadIDGetter",
+      "CurrentPartNumberGetter",
+      "StorageGetter"
+    ]
+  },
+  "Wait": {
+    "type": "required",
+    "path": "common/wait",
+    "description": "wait until parent task finished",
+    "runtime_value": [
+      "WaitGroupGetter"
+    ]
+  },
+  "CopySmallFile": {
+    "type": "dependent",
+    "path": "copy_file",
+    "description": "",
+    "inherited_value": [
+      "Path",
+      "ObjectKey",
+      "Storage"
+    ],
+    "runtime_value": [
+      "MD5Sum",
+      "Size",
+      "Offset"
+    ]
+  },
+  "CopyLargeFile": {
+    "type": "dependent",
+    "path": "copy_file",
+    "description": "",
+    "inherited_value": [
+      "Size",
+      "Path",
+      "ObjectKey",
+      "Storage"
+    ],
+    "runtime_value": [
+      "UploadID",
+      "CurrentPartNumber",
+      "CurrentOffset",
+      "WaitGroup",
+      "PartSize",
+      "TaskConstructor"
+    ]
+  },
+  "CopyPartialFile": {
+    "type": "dependent",
+    "path": "copy_file",
+    "description": "",
+    "inherited_value": [
+      "Size",
+      "Path",
+      "ObjectKey",
+      "Storage",
+      "UploadID",
+      "PartNumber",
+      "Offset",
+      "WaitGroup"
+    ],
+    "runtime_value": [
+      "MD5Sum"
+    ]
+  },
+  "CopyPartialStream": {
+    "type": "dependent",
+    "path": "copy_stream",
+    "description": "",
+    "inherited_value": [
+      "Size",
+      "Path",
+      "ObjectKey",
+      "Storage",
+      "UploadID",
+      "PartNumber",
+      "Offset",
+      "WaitGroup"
+    ],
+    "runtime_value": [
+      "MD5Sum",
+      "Content"
+    ]
+  }
+}

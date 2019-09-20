@@ -87,27 +87,6 @@ func NewCopyStreamTask(objectKey string, storage storage.ObjectStorage) *CopyStr
 	return t
 }
 
-// CopyPartialStreamTask will execute CopyPartialStream Task
-type CopyPartialStreamTask struct {
-	types.ObjectKey
-	types.UploadID
-	types.PartNumber
-	types.Size
-	types.Offset
-	types.Storage
-
-	types.Todo
-	types.Content
-	types.MD5Sum
-	types.WaitGroup
-	types.Pool
-}
-
-// Run implement navvy.Task
-func (t *CopyPartialStreamTask) Run() {
-	utils.SubmitNextTask(t)
-}
-
 // NewCopyPartialStreamTask will create a new Task.
 func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
 	o, ok := task.(*CopyStreamTask)

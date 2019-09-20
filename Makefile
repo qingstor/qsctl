@@ -36,9 +36,10 @@ lint:
 generate:
 	@echo "generate code..."
 	@go generate task/types/types_gen.go
+	@go generate task/tasks_gen.go
 	@echo "Done"
 
-build: check
+build: tidy generate check
 	@echo "build qsctl"
 	@mkdir -p ./bin
 	@go build -tags netgo -o ./bin/qsctl ${CMD_PKG}
@@ -89,3 +90,9 @@ coverage:
 	@go test -v -cover -coverprofile="coverage/profile.out" ./...
 	@go tool cover -html="coverage/profile.out" -o "coverage/profile.html"
 	@echo "ok"
+
+tidy:
+	@echo "Tidy and check the go mod files"
+	@go mod tidy
+	@go mod verify
+	@echo "Done"
