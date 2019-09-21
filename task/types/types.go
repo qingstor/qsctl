@@ -27,7 +27,7 @@ type BucketName struct {
 
 func (o *BucketName) GetBucketName() string {
 	if !o.valid {
-		panic("value is not valid")
+		panic("BucketName value is not valid")
 	}
 	return o.v
 }
@@ -52,7 +52,7 @@ type BytesPool struct {
 
 func (o *BytesPool) GetBytesPool() *sync.Pool {
 	if !o.valid {
-		panic("value is not valid")
+		panic("BytesPool value is not valid")
 	}
 	return o.v
 }
@@ -77,7 +77,7 @@ type Content struct {
 
 func (o *Content) GetContent() *bytes.Buffer {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Content value is not valid")
 	}
 	return o.v
 }
@@ -102,7 +102,7 @@ type CurrentOffset struct {
 
 func (o *CurrentOffset) GetCurrentOffset() *int64 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("CurrentOffset value is not valid")
 	}
 	return o.v
 }
@@ -127,7 +127,7 @@ type CurrentPartNumber struct {
 
 func (o *CurrentPartNumber) GetCurrentPartNumber() *int32 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("CurrentPartNumber value is not valid")
 	}
 	return o.v
 }
@@ -152,7 +152,7 @@ type EnableBenchmark struct {
 
 func (o *EnableBenchmark) GetEnableBenchmark() bool {
 	if !o.valid {
-		panic("value is not valid")
+		panic("EnableBenchmark value is not valid")
 	}
 	return o.v
 }
@@ -177,7 +177,7 @@ type ExpectSize struct {
 
 func (o *ExpectSize) GetExpectSize() int64 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("ExpectSize value is not valid")
 	}
 	return o.v
 }
@@ -202,7 +202,7 @@ type FlowType struct {
 
 func (o *FlowType) GetFlowType() constants.FlowType {
 	if !o.valid {
-		panic("value is not valid")
+		panic("FlowType value is not valid")
 	}
 	return o.v
 }
@@ -227,7 +227,7 @@ type Key struct {
 
 func (o *Key) GetKey() string {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Key value is not valid")
 	}
 	return o.v
 }
@@ -252,7 +252,7 @@ type KeyType struct {
 
 func (o *KeyType) GetKeyType() constants.KeyType {
 	if !o.valid {
-		panic("value is not valid")
+		panic("KeyType value is not valid")
 	}
 	return o.v
 }
@@ -277,7 +277,7 @@ type MD5Sum struct {
 
 func (o *MD5Sum) GetMD5Sum() []byte {
 	if !o.valid {
-		panic("value is not valid")
+		panic("MD5Sum value is not valid")
 	}
 	return o.v
 }
@@ -302,7 +302,7 @@ type Offset struct {
 
 func (o *Offset) GetOffset() int64 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Offset value is not valid")
 	}
 	return o.v
 }
@@ -327,7 +327,7 @@ type PartNumber struct {
 
 func (o *PartNumber) GetPartNumber() int {
 	if !o.valid {
-		panic("value is not valid")
+		panic("PartNumber value is not valid")
 	}
 	return o.v
 }
@@ -352,7 +352,7 @@ type PartSize struct {
 
 func (o *PartSize) GetPartSize() int64 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("PartSize value is not valid")
 	}
 	return o.v
 }
@@ -377,7 +377,7 @@ type Path struct {
 
 func (o *Path) GetPath() string {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Path value is not valid")
 	}
 	return o.v
 }
@@ -402,7 +402,7 @@ type PathType struct {
 
 func (o *PathType) GetPathType() constants.PathType {
 	if !o.valid {
-		panic("value is not valid")
+		panic("PathType value is not valid")
 	}
 	return o.v
 }
@@ -427,7 +427,7 @@ type Pool struct {
 
 func (o *Pool) GetPool() *navvy.Pool {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Pool value is not valid")
 	}
 	return o.v
 }
@@ -452,7 +452,7 @@ type Size struct {
 
 func (o *Size) GetSize() int64 {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Size value is not valid")
 	}
 	return o.v
 }
@@ -477,7 +477,7 @@ type Storage struct {
 
 func (o *Storage) GetStorage() storage.ObjectStorage {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Storage value is not valid")
 	}
 	return o.v
 }
@@ -502,7 +502,7 @@ type Stream struct {
 
 func (o *Stream) GetStream() io.Reader {
 	if !o.valid {
-		panic("value is not valid")
+		panic("Stream value is not valid")
 	}
 	return o.v
 }
@@ -527,7 +527,7 @@ type TaskConstructor struct {
 
 func (o *TaskConstructor) GetTaskConstructor() TodoFunc {
 	if !o.valid {
-		panic("value is not valid")
+		panic("TaskConstructor value is not valid")
 	}
 	return o.v
 }
@@ -552,7 +552,7 @@ type UploadID struct {
 
 func (o *UploadID) GetUploadID() string {
 	if !o.valid {
-		panic("value is not valid")
+		panic("UploadID value is not valid")
 	}
 	return o.v
 }
@@ -577,7 +577,7 @@ type WaitGroup struct {
 
 func (o *WaitGroup) GetWaitGroup() *sync.WaitGroup {
 	if !o.valid {
-		panic("value is not valid")
+		panic("WaitGroup value is not valid")
 	}
 	return o.v
 }

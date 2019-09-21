@@ -75,7 +75,7 @@ type {{$k}} struct {
 
 func (o *{{$k}}) Get{{$k}}() {{$v}} {
 	if !o.valid {
-		panic("value is not valid")
+		panic("{{$k}} value is not valid")
 	}
 	return o.v
 }
