@@ -62,7 +62,7 @@ func (t *MultipartFileUploadTask) Run() {
 
 // Run implement navvy.Task.
 func (t *MultipartStreamUploadTask) Run() {
-	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPath(), t.GetPartNumber())
+	log.Debugf("Task <%s> for Stream at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPartNumber())
 
 	err := t.GetStorage().UploadMultipart(
 		t.GetKey(), t.GetUploadID(), t.GetSize(),
@@ -73,7 +73,7 @@ func (t *MultipartStreamUploadTask) Run() {
 
 	t.GetWaitGroup().Done()
 
-	log.Debugf("Task <%s> for Stream <%s> at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetPath(), t.GetPartNumber())
+	log.Debugf("Task <%s> for Stream at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetPartNumber())
 	utils.SubmitNextTask(t.MultipartStreamUploadTaskRequirement)
 }
 
@@ -81,7 +81,7 @@ func (t *MultipartStreamUploadTask) Run() {
 func (t *MultipartCompleteTask) Run() {
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartCompleteTask", t.GetKey(), t.GetUploadID())
 
-	err := t.GetStorage().CompleteMultipartUpload(t.GetKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()-1))
+	err := t.GetStorage().CompleteMultipartUpload(t.GetKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()))
 	if err != nil {
 		panic(err)
 	}

@@ -37,14 +37,11 @@
     "description": "init a multipart upload",
     "runtime_value": [
       "KeyGetter",
-      "PathGetter",
       "UploadIDSetter",
       "WaitGroupGetter",
       "StorageGetter",
       "TaskConstructorGetter",
-      "CurrentPartNumberGetter",
       "CurrentOffsetGetter",
-      "PartSizeGetter",
       "SizeGetter"
     ]
   },
@@ -70,7 +67,6 @@
     "description": "upload a multipart via stream",
     "runtime_value": [
       "MD5SumGetter",
-      "PathGetter",
       "KeyGetter",
       "UploadIDGetter",
       "PartNumberGetter",

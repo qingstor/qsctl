@@ -98,14 +98,11 @@ type MultipartInitTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.KeyGetter
-	types.PathGetter
 	types.UploadIDSetter
 	types.WaitGroupGetter
 	types.StorageGetter
 	types.TaskConstructorGetter
-	types.CurrentPartNumberGetter
 	types.CurrentOffsetGetter
-	types.PartSizeGetter
 	types.SizeGetter
 }
 
@@ -119,14 +116,11 @@ type mockMultipartInitTask struct {
 	types.Todo
 	types.Pool
 	types.Key
-	types.Path
 	types.UploadID
 	types.WaitGroup
 	types.Storage
 	types.TaskConstructor
-	types.CurrentPartNumber
 	types.CurrentOffset
-	types.PartSize
 	types.Size
 }
 
@@ -145,7 +139,6 @@ type MultipartStreamUploadTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.MD5SumGetter
-	types.PathGetter
 	types.KeyGetter
 	types.UploadIDGetter
 	types.PartNumberGetter
@@ -165,7 +158,6 @@ type mockMultipartStreamUploadTask struct {
 	types.Todo
 	types.Pool
 	types.MD5Sum
-	types.Path
 	types.Key
 	types.UploadID
 	types.PartNumber
