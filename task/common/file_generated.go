@@ -28,12 +28,21 @@ type FileUploadTask struct {
 	FileUploadTaskRequirement
 }
 
+// mockFileUploadTask is the mock task for FileUploadTask.
+type mockFileUploadTask struct {
+	types.Todo
+	types.Pool
+	types.Key
+	types.Path
+	types.MD5Sum
+	types.Storage
+}
+
+func (t *mockFileUploadTask) Run() {
+	panic("mockFileUploadTask should not be run.")
+}
+
 // NewFileUploadTask will create a new FileUploadTask.
 func NewFileUploadTask(task types.Todoist) navvy.Task {
-	o, ok := task.(FileUploadTaskRequirement)
-	if !ok {
-		panic("task is not fill FileUploadRequirement")
-	}
-
-	return &FileUploadTask{o}
+	return &FileUploadTask{task.(FileUploadTaskRequirement)}
 }

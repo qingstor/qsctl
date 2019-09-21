@@ -25,12 +25,18 @@ type WaitTask struct {
 	WaitTaskRequirement
 }
 
+// mockWaitTask is the mock task for WaitTask.
+type mockWaitTask struct {
+	types.Todo
+	types.Pool
+	types.WaitGroup
+}
+
+func (t *mockWaitTask) Run() {
+	panic("mockWaitTask should not be run.")
+}
+
 // NewWaitTask will create a new WaitTask.
 func NewWaitTask(task types.Todoist) navvy.Task {
-	o, ok := task.(WaitTaskRequirement)
-	if !ok {
-		panic("task is not fill WaitRequirement")
-	}
-
-	return &WaitTask{o}
+	return &WaitTask{task.(WaitTaskRequirement)}
 }

@@ -36,10 +36,7 @@ func (t *CopyPartialStreamTask) Run() {
 
 // initCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
 func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o *CopyStreamTask) {
-	o, ok := task.(*CopyStreamTask)
-	if !ok {
-		panic("parent task is not a CopyStreamTask")
-	}
+	o = task.(*CopyStreamTask)
 
 	t = &CopyPartialStreamTask{}
 	t.SetPool(o.GetPool())
@@ -78,10 +75,7 @@ func (t *CopyStreamTask) Run() {
 
 // initCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.
 func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
-	o, ok := task.(*CopyTask)
-	if !ok {
-		panic("parent task is not a CopyTask")
-	}
+	o = task.(*CopyTask)
 
 	t = &CopyStreamTask{}
 	t.SetPool(o.GetPool())

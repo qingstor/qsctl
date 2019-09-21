@@ -28,14 +28,23 @@ type MultipartCompleteTask struct {
 	MultipartCompleteTaskRequirement
 }
 
+// mockMultipartCompleteTask is the mock task for MultipartCompleteTask.
+type mockMultipartCompleteTask struct {
+	types.Todo
+	types.Pool
+	types.Key
+	types.UploadID
+	types.CurrentPartNumber
+	types.Storage
+}
+
+func (t *mockMultipartCompleteTask) Run() {
+	panic("mockMultipartCompleteTask should not be run.")
+}
+
 // NewMultipartCompleteTask will create a new MultipartCompleteTask.
 func NewMultipartCompleteTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartCompleteTaskRequirement)
-	if !ok {
-		panic("task is not fill MultipartCompleteRequirement")
-	}
-
-	return &MultipartCompleteTask{o}
+	return &MultipartCompleteTask{task.(MultipartCompleteTaskRequirement)}
 }
 
 // MultipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
@@ -59,14 +68,28 @@ type MultipartFileUploadTask struct {
 	MultipartFileUploadTaskRequirement
 }
 
+// mockMultipartFileUploadTask is the mock task for MultipartFileUploadTask.
+type mockMultipartFileUploadTask struct {
+	types.Todo
+	types.Pool
+	types.MD5Sum
+	types.Path
+	types.Key
+	types.Offset
+	types.UploadID
+	types.PartNumber
+	types.Size
+	types.WaitGroup
+	types.Storage
+}
+
+func (t *mockMultipartFileUploadTask) Run() {
+	panic("mockMultipartFileUploadTask should not be run.")
+}
+
 // NewMultipartFileUploadTask will create a new MultipartFileUploadTask.
 func NewMultipartFileUploadTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartFileUploadTaskRequirement)
-	if !ok {
-		panic("task is not fill MultipartFileUploadRequirement")
-	}
-
-	return &MultipartFileUploadTask{o}
+	return &MultipartFileUploadTask{task.(MultipartFileUploadTaskRequirement)}
 }
 
 // MultipartInitTaskRequirement is the requirement for execute MultipartInitTask.
@@ -91,14 +114,29 @@ type MultipartInitTask struct {
 	MultipartInitTaskRequirement
 }
 
+// mockMultipartInitTask is the mock task for MultipartInitTask.
+type mockMultipartInitTask struct {
+	types.Todo
+	types.Pool
+	types.Key
+	types.Path
+	types.UploadID
+	types.WaitGroup
+	types.Storage
+	types.TaskConstructor
+	types.CurrentPartNumber
+	types.CurrentOffset
+	types.PartSize
+	types.Size
+}
+
+func (t *mockMultipartInitTask) Run() {
+	panic("mockMultipartInitTask should not be run.")
+}
+
 // NewMultipartInitTask will create a new MultipartInitTask.
 func NewMultipartInitTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartInitTaskRequirement)
-	if !ok {
-		panic("task is not fill MultipartInitRequirement")
-	}
-
-	return &MultipartInitTask{o}
+	return &MultipartInitTask{task.(MultipartInitTaskRequirement)}
 }
 
 // MultipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
@@ -122,12 +160,26 @@ type MultipartStreamUploadTask struct {
 	MultipartStreamUploadTaskRequirement
 }
 
+// mockMultipartStreamUploadTask is the mock task for MultipartStreamUploadTask.
+type mockMultipartStreamUploadTask struct {
+	types.Todo
+	types.Pool
+	types.MD5Sum
+	types.Path
+	types.Key
+	types.UploadID
+	types.PartNumber
+	types.Size
+	types.WaitGroup
+	types.Storage
+	types.Content
+}
+
+func (t *mockMultipartStreamUploadTask) Run() {
+	panic("mockMultipartStreamUploadTask should not be run.")
+}
+
 // NewMultipartStreamUploadTask will create a new MultipartStreamUploadTask.
 func NewMultipartStreamUploadTask(task types.Todoist) navvy.Task {
-	o, ok := task.(MultipartStreamUploadTaskRequirement)
-	if !ok {
-		panic("task is not fill MultipartStreamUploadRequirement")
-	}
-
-	return &MultipartStreamUploadTask{o}
+	return &MultipartStreamUploadTask{task.(MultipartStreamUploadTaskRequirement)}
 }

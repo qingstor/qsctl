@@ -32,10 +32,7 @@ func (t *CopyFileTask) Run() {
 
 // initCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
 func initCopyFileTask(task types.Todoist) (t *CopyFileTask, o *CopyTask) {
-	o, ok := task.(*CopyTask)
-	if !ok {
-		panic("parent task is not a CopyTask")
-	}
+	o = task.(*CopyTask)
 
 	t = &CopyFileTask{}
 	t.SetPool(o.GetPool())
@@ -71,10 +68,7 @@ func (t *CopyLargeFileTask) Run() {
 
 // initCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
 func initCopyLargeFileTask(task types.Todoist) (t *CopyLargeFileTask, o *CopyFileTask) {
-	o, ok := task.(*CopyFileTask)
-	if !ok {
-		panic("parent task is not a CopyFileTask")
-	}
+	o = task.(*CopyFileTask)
 
 	t = &CopyLargeFileTask{}
 	t.SetPool(o.GetPool())
@@ -110,10 +104,7 @@ func (t *CopyPartialFileTask) Run() {
 
 // initCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
 func initCopyPartialFileTask(task types.Todoist) (t *CopyPartialFileTask, o *CopyLargeFileTask) {
-	o, ok := task.(*CopyLargeFileTask)
-	if !ok {
-		panic("parent task is not a CopyLargeFileTask")
-	}
+	o = task.(*CopyLargeFileTask)
 
 	t = &CopyPartialFileTask{}
 	t.SetPool(o.GetPool())
@@ -147,10 +138,7 @@ func (t *CopySmallFileTask) Run() {
 
 // initCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.
 func initCopySmallFileTask(task types.Todoist) (t *CopySmallFileTask, o *CopyFileTask) {
-	o, ok := task.(*CopyFileTask)
-	if !ok {
-		panic("parent task is not a CopyFileTask")
-	}
+	o = task.(*CopyFileTask)
 
 	t = &CopySmallFileTask{}
 	t.SetPool(o.GetPool())

@@ -28,14 +28,23 @@ type FileMD5SumTask struct {
 	FileMD5SumTaskRequirement
 }
 
+// mockFileMD5SumTask is the mock task for FileMD5SumTask.
+type mockFileMD5SumTask struct {
+	types.Todo
+	types.Pool
+	types.MD5Sum
+	types.Path
+	types.Offset
+	types.Size
+}
+
+func (t *mockFileMD5SumTask) Run() {
+	panic("mockFileMD5SumTask should not be run.")
+}
+
 // NewFileMD5SumTask will create a new FileMD5SumTask.
 func NewFileMD5SumTask(task types.Todoist) navvy.Task {
-	o, ok := task.(FileMD5SumTaskRequirement)
-	if !ok {
-		panic("task is not fill FileMD5SumRequirement")
-	}
-
-	return &FileMD5SumTask{o}
+	return &FileMD5SumTask{task.(FileMD5SumTaskRequirement)}
 }
 
 // StreamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
@@ -53,12 +62,20 @@ type StreamMD5SumTask struct {
 	StreamMD5SumTaskRequirement
 }
 
+// mockStreamMD5SumTask is the mock task for StreamMD5SumTask.
+type mockStreamMD5SumTask struct {
+	types.Todo
+	types.Pool
+	types.MD5Sum
+	types.Path
+	types.Content
+}
+
+func (t *mockStreamMD5SumTask) Run() {
+	panic("mockStreamMD5SumTask should not be run.")
+}
+
 // NewStreamMD5SumTask will create a new StreamMD5SumTask.
 func NewStreamMD5SumTask(task types.Todoist) navvy.Task {
-	o, ok := task.(StreamMD5SumTaskRequirement)
-	if !ok {
-		panic("task is not fill StreamMD5SumRequirement")
-	}
-
-	return &StreamMD5SumTask{o}
+	return &StreamMD5SumTask{task.(StreamMD5SumTaskRequirement)}
 }

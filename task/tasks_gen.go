@@ -27,6 +27,15 @@ type task struct {
 	RuntimeValue   []string `json:"runtime_value"`
 }
 
+var funcs = template.FuncMap{
+	"getTypeName": func(s string) string {
+		if strings.HasSuffix(s, "etter") {
+			return s[:len(s)-6]
+		}
+		return s
+	},
+}
+
 //go:generate go run tasks_gen.go
 func main() {
 	data, err := ioutil.ReadFile("tasks.json")
@@ -109,7 +118,7 @@ var _ types.Pool
 var _ = utils.SubmitNextTask
 `))
 
-var requiredTaskTmpl = template.Must(template.New("").Parse(`
+var requiredTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 // {{ .Name }}TaskRequirement is the requirement for execute {{ .Name }}Task.
 type {{ .Name }}TaskRequirement interface {
 	navvy.Task
@@ -126,14 +135,22 @@ type {{ .Name }}Task struct {
 	{{ .Name }}TaskRequirement
 }
 
+// mock{{ .Name }}Task is the mock task for {{ .Name }}Task.
+type mock{{ .Name }}Task struct {
+	types.Todo
+	types.Pool
+{{- range $k, $v := .RuntimeValue }}
+	types.{{getTypeName $v}}
+{{- end }}
+}
+
+func (t *mock{{ .Name }}Task) Run() {
+	panic("mock{{ .Name }}Task should not be run.")
+}
+
 // New{{ .Name }}Task will create a new {{ .Name }}Task.
 func New{{ .Name }}Task(task types.Todoist) navvy.Task {
-	o, ok := task.({{ .Name }}TaskRequirement)
-	if !ok {
-		panic("task is not fill {{ .Name }}Requirement")
-	}
-
-	return &{{ .Name }}Task{o}
+	return &{{ .Name }}Task{task.({{ .Name }}TaskRequirement)}
 }
 `))
 
@@ -168,10 +185,7 @@ func (t *{{ .Name }}Task) Run() {
 {{- if .Depend }}
 // init{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
 func init{{ .Name }}Task(task types.Todoist) (t *{{ .Name }}Task, o *{{ .Depend }}Task) {
-	o, ok := task.(*{{ .Depend }}Task)
-	if !ok {
-		panic("parent task is not a {{ .Depend }}Task")
-	}
+	o = task.(*{{ .Depend }}Task)
 
 	t = &{{ .Name }}Task{}
 	t.SetPool(o.GetPool())
