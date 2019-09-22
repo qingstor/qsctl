@@ -28,7 +28,6 @@ func TestStreamMD5SumTask_Run(t *testing.T) {
 
 	buf, _, md5sum := utils.GenerateTestStream()
 
-	x.SetPath("")
 	x.SetContent(buf)
 
 	task := NewStreamMD5SumTask(x)

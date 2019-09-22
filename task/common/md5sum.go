@@ -36,11 +36,11 @@ func (t *FileMD5SumTask) Run() {
 
 // Run implement navvy.Task.
 func (t *StreamMD5SumTask) Run() {
-	log.Debugf("Task <%s> for Stream <%s> started.", "StreamMD5SumTask", t.GetPath())
+	log.Debugf("Task <%s> for Stream started.", "StreamMD5SumTask")
 
 	md5Sum := md5.Sum(t.GetContent().Bytes())
 	t.SetMD5Sum(md5Sum[:])
 
-	log.Debugf("Task <%s> for Stream <%s> finished.", "StreamMD5SumTask", t.GetPath())
+	log.Debugf("Task <%s> for Stream finished.", "StreamMD5SumTask")
 	utils.SubmitNextTask(t.StreamMD5SumTaskRequirement)
 }

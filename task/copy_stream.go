@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"os"
 	"sync"
 	"sync/atomic"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task/common"
 	"github.com/yunify/qsctl/v2/task/types"
 )
@@ -24,18 +24,11 @@ func NewCopyStreamTask(task types.Todoist) navvy.Task {
 	}
 	t.SetBytesPool(bytesPool)
 
+	// TODO: we will use expect size to calculate part size later.
+	t.SetPartSize(constants.DefaultPartSize)
+
 	t.SetWaitGroup(&sync.WaitGroup{})
 
-	var err error
-
-	f := os.Stdin
-	if t.GetPath() != "-" {
-		f, err = os.Open(t.GetPath())
-		if err != nil {
-			panic(err)
-		}
-	}
-	t.SetStream(f)
 	t.SetTaskConstructor(NewCopyPartialStreamTask)
 
 	currentPartNumber := int32(0)
@@ -43,6 +36,10 @@ func NewCopyStreamTask(task types.Todoist) navvy.Task {
 
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
+
+	// We don't know how many data in stream, set it to -1 as an indicate.
+	// We will set current offset to -1 when got an EOF from stream.
+	t.SetSize(-1)
 
 	t.AddTODOs(
 		common.NewMultipartInitTask,
@@ -69,9 +66,15 @@ func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
 	if err != nil {
 		panic(err)
 	}
+
 	t.SetSize(n)
 	t.SetContent(b)
-	atomic.AddInt64(o.GetCurrentOffset(), t.GetSize())
+	if n < partSize {
+		// Set current offset to -1 to mark the stream has been drain out.
+		atomic.StoreInt64(o.GetCurrentOffset(), -1)
+	} else {
+		atomic.AddInt64(o.GetCurrentOffset(), t.GetSize())
+	}
 
 	t.AddTODOs(
 		common.NewStreamMD5SumTask,

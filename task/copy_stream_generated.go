@@ -52,13 +52,12 @@ type CopyStreamTask struct {
 	// Inherited value
 	types.Pool
 	types.Storage
-	types.Path
+	types.Stream
 	types.Key
 
 	// Runtime value
 	types.Todo
 	types.Size
-	types.Stream
 	types.TaskConstructor
 	types.CurrentPartNumber
 	types.CurrentOffset
@@ -80,7 +79,7 @@ func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
 	t = &CopyStreamTask{}
 	t.SetPool(o.GetPool())
 	t.SetStorage(o.GetStorage())
-	t.SetPath(o.GetPath())
+	t.SetStream(o.GetStream())
 	t.SetKey(o.GetKey())
 	return
 }

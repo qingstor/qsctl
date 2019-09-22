@@ -53,7 +53,6 @@ type StreamMD5SumTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.MD5SumSetter
-	types.PathGetter
 	types.ContentGetter
 }
 
@@ -67,7 +66,6 @@ type mockStreamMD5SumTask struct {
 	types.Todo
 	types.Pool
 	types.MD5Sum
-	types.Path
 	types.Content
 }
 

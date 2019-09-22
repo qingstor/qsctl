@@ -21,6 +21,7 @@ type CopyTask struct {
 	types.Pool
 	types.Storage
 	types.Path
+	types.Stream
 	types.BucketName
 	types.Key
 	types.FlowType

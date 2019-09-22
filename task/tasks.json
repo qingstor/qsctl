@@ -27,7 +27,6 @@
     "description": "get stream's md5 sum",
     "runtime_value": [
       "MD5SumSetter",
-      "PathGetter",
       "ContentGetter"
     ]
   },
@@ -103,6 +102,7 @@
       "Pool",
       "Storage",
       "Path",
+      "Stream",
       "BucketName",
       "Key",
       "FlowType",
@@ -186,12 +186,11 @@
     "description": "copy a stream to storage",
     "inherited_value": [
       "Storage",
-      "Path",
+      "Stream",
       "Key"
     ],
     "runtime_value": [
       "Size",
-      "Stream",
       "TaskConstructor",
       "CurrentPartNumber",
       "CurrentOffset",
