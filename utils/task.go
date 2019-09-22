@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"os"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task/types"
@@ -25,6 +27,7 @@ func SetupStorage(t interface {
 func ParseTowArgs(t interface {
 	types.FlowTypeSetter
 	types.PathSetter
+	types.StreamSetter
 	types.PathTypeSetter
 	types.KeySetter
 	types.KeyTypeSetter
@@ -34,14 +37,16 @@ func ParseTowArgs(t interface {
 	flow := utils.ParseFlow(src, dst)
 	t.SetFlowType(flow)
 
+	var path string
+	var pathType constants.PathType
 	switch flow {
 	case constants.FlowToRemote:
-		pathType, err := utils.ParsePath(src)
+		pathType, err = utils.ParsePath(src)
 		if err != nil {
 			return err
 		}
 		t.SetPathType(pathType)
-		t.SetPath(src)
+		path = src
 
 		keyType, bucketName, objectKey, err := utils.ParseKey(dst)
 		if err != nil {
@@ -51,12 +56,12 @@ func ParseTowArgs(t interface {
 		t.SetKey(objectKey)
 		t.SetBucketName(bucketName)
 	case constants.FlowToLocal, constants.FlowAtRemote:
-		pathType, err := utils.ParsePath(dst)
+		pathType, err = utils.ParsePath(dst)
 		if err != nil {
 			return err
 		}
 		t.SetPathType(pathType)
-		t.SetPath(dst)
+		path = dst
 
 		keyType, bucketName, objectKey, err := utils.ParseKey(src)
 		if err != nil {
@@ -67,6 +72,19 @@ func ParseTowArgs(t interface {
 		t.SetBucketName(bucketName)
 	default:
 		panic("this case should never be switched")
+	}
+
+	t.SetPath(path)
+
+	switch pathType {
+	case constants.PathTypeFile:
+		t.SetPath(path)
+	case constants.PathTypeStream:
+		// TODO: we could support other stream type, for example, read from a socket.
+		t.SetStream(os.Stdin)
+	case constants.PathTypeLocalDir:
+	default:
+		panic("invalid path type")
 	}
 
 	return
