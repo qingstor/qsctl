@@ -27,7 +27,7 @@ func (t *MultipartInitTask) Run() {
 			break
 		}
 
-		task := t.GetTaskConstructor()(t)
+		task := t.GetTaskConstructor()(t.MultipartInitTaskRequirement)
 		wg.Add(1)
 
 		go t.GetPool().Submit(task)

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"os"
-	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -57,23 +56,29 @@ func ParsePath(p string) (pathType constants.PathType, err error) {
 func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string, err error) {
 	// qs-path includes three part: "qs://" prefix, bucket name and object key.
 	// "qs://" prefix could be emit.
-	pattern := "^(?:qs://)?([a-z\\d][a-z-\\d]{4,61}[a-z\\d])?(.*)?$"
+	if strings.HasPrefix(p, "qs://") {
+		p = p[5:]
+	}
+	s := strings.SplitN(p, "/", 2)
 
-	x := regexp.MustCompile(pattern).FindStringSubmatch(p)
-	if len(x) != 3 || x[1] == "" {
+	if !IsValidBucketName(s[0]) {
 		return constants.KeyTypeInvalid, "", "", constants.ErrorQsPathInvalid
 	}
 
-	bucketName, objectKey = x[1], x[2]
-
-	// TODO: add bucket name and object key check here.
-
-	if objectKey == "" || objectKey == "/" {
-		return constants.KeyTypeBucket, bucketName, objectKey, nil
+	// Only have bucket name or object key is "/"
+	// For example: "qs://testbucket/"
+	if len(s) == 1 || s[1] == "/" {
+		return constants.KeyTypeBucket, s[0], "", nil
 	}
 
 	if strings.HasSuffix(p, "/") {
-		return constants.KeyTypePseudoDir, bucketName, objectKey, nil
+		return constants.KeyTypePseudoDir, s[0], s[1], nil
 	}
-	return constants.KeyTypeObject, bucketName, objectKey, nil
+	return constants.KeyTypeObject, s[0], s[1], nil
+}
+
+// IsValidBucketName will check whether given string is a valid bucket name.
+// TODO: we should implement this as bucket name validate.
+func IsValidBucketName(s string) bool {
+	return true
 }

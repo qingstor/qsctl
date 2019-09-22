@@ -26,3 +26,22 @@ func TestParseFlow(t *testing.T) {
 		assert.Equal(t, v.expected, x)
 	}
 }
+
+func TestParseKey(t *testing.T) {
+	cases := []struct {
+		input              string
+		expectedKeyType    constants.KeyType
+		expectedBucketName string
+		expectedKey        string
+	}{
+		{"qs://xxxx/abc", constants.KeyTypeObject, "xxxx", "abc"},
+	}
+
+	for _, v := range cases {
+		actualKeyType, actualBucketName, actualKey, err := ParseKey(v.input)
+		assert.Equal(t, v.expectedKeyType, actualKeyType)
+		assert.Equal(t, v.expectedBucketName, actualBucketName)
+		assert.Equal(t, v.expectedKey, actualKey)
+		assert.NoError(t, err)
+	}
+}

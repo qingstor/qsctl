@@ -1,6 +1,7 @@
 package common
 
 import (
+	"os"
 	"sync"
 	"testing"
 
@@ -68,6 +69,7 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	x.SetUploadID(uploadID)
 
 	name, size, md5sum := utils.GenerateTestFile()
+	defer os.Remove(name)
 
 	x.SetPath(name)
 	x.SetOffset(0)

@@ -124,7 +124,7 @@ func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, er
 	return
 }
 
-// InitiateMultipartUpload will initiate a multipart upload.
+// InitiateMultipartUpload will initiate a Multipart upload.
 func (q *QingStorObjectStorage) InitiateMultipartUpload(objectKey string) (uploadID string, err error) {
 	resp, err := q.bucket.InitiateMultipartUpload(objectKey, nil)
 	if err != nil {
@@ -136,7 +136,7 @@ func (q *QingStorObjectStorage) InitiateMultipartUpload(objectKey string) (uploa
 	return
 }
 
-// UploadMultipart will upload a multipart.
+// UploadMultipart will upload a Multipart.
 func (q *QingStorObjectStorage) UploadMultipart(
 	objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader,
 ) (err error) {
@@ -154,7 +154,7 @@ func (q *QingStorObjectStorage) UploadMultipart(
 	return
 }
 
-// CompleteMultipartUpload will complete a multipart upload.
+// CompleteMultipartUpload will complete a Multipart upload.
 func (q *QingStorObjectStorage) CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err error) {
 	parts := make([]*service.ObjectPartType, totalNumber)
 	for i := 0; i < totalNumber; i++ {
@@ -218,14 +218,14 @@ func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 	return nil
 }
 
-// ListBuckets will list all buckets of the user.
+// ListBuckets will list all Buckets of the user.
 func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
 	res, err := q.service.ListBuckets(&service.ListBucketsInput{Location: convert.String(zone)})
 	if err != nil {
 		log.Errorf("List bucket failed [%v]", err)
 		return nil, err
 	}
-	log.Debugf("<%d> buckets found.\n", *res.Count)
+	log.Debugf("<%d> Buckets found.\n", *res.Count)
 	for _, b := range res.Buckets {
 		log.Debugf("Bucket <%s>, url <%s>, created <%s>, location <%s>\n",
 			*b.Name, *b.URL, *b.Created, *b.Location)

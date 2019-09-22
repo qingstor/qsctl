@@ -2,6 +2,7 @@ package task
 
 import (
 	"os"
+	"sync"
 	"sync/atomic"
 
 	"github.com/Xuanwo/navvy"
@@ -39,6 +40,8 @@ func NewCopyFileTask(task types.Todoist) navvy.Task {
 // NewCopySmallFileTask will create a new small file task.
 func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 	t, _ := initCopySmallFileTask(task)
+
+	t.SetOffset(0)
 	t.AddTODOs(
 		common.NewFileMD5SumTask,
 		common.NewFileUploadTask,
@@ -65,6 +68,9 @@ func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
 
+	wg := &sync.WaitGroup{}
+	t.SetWaitGroup(wg)
+
 	t.AddTODOs(
 		common.NewMultipartInitTask,
 		common.NewWaitTask,
@@ -87,7 +93,7 @@ func NewCopyPartialFileTask(task types.Todoist) navvy.Task {
 	// Set size and update offset.
 	offset := o.GetPartSize() * int64(t.GetPartNumber())
 	t.SetOffset(offset)
-	if totalSize < offset {
+	if totalSize < offset+o.GetPartSize() {
 		t.SetSize(totalSize - offset)
 	} else {
 		t.SetSize(o.GetPartSize())

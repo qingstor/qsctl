@@ -1,6 +1,7 @@
 package common
 
 import (
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -20,6 +21,8 @@ func TestFileUploadTask_Run(t *testing.T) {
 	x.SetKey(key)
 
 	name, size, md5sum := utils.GenerateTestFile()
+	defer os.Remove(name)
+
 	x.SetPath(name)
 	x.SetMD5Sum(md5sum)
 
