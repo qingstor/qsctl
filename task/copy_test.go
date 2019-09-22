@@ -8,12 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/task/types"
-	utils2 "github.com/yunify/qsctl/v2/task/utils"
-	"github.com/yunify/qsctl/v2/utils"
+	"github.com/yunify/qsctl/v2/task/utils"
 )
 
 func TestNewCopyTask(t *testing.T) {
-	name, _, _ := utils2.GenerateTestFile()
+	name, _, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
 	cases := []struct {
@@ -27,7 +26,7 @@ func TestNewCopyTask(t *testing.T) {
 
 	for _, v := range cases {
 		pt := NewCopyTask(func(task *CopyTask) {
-			err := utils.ParseTowArgs(task, []string{v.input1, v.input2})
+			err := utils.ParseInput(task, v.input1, v.input2)
 			if err != nil {
 				t.Fatal(err)
 			}

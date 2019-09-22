@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/task/types"
 
 	"github.com/yunify/qsctl/v2/constants"
 )
@@ -81,4 +82,70 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 // TODO: we should implement this as bucket name validate.
 func IsValidBucketName(s string) bool {
 	return true
+}
+
+// ParseInput will parse two args into flow, path and key.
+func ParseInput(t interface {
+	types.FlowTypeSetter
+	types.PathSetter
+	types.StreamSetter
+	types.PathTypeSetter
+	types.KeySetter
+	types.KeyTypeSetter
+	types.BucketNameSetter
+}, src, dst string) (err error) {
+	flow := ParseFlow(src, dst)
+	t.SetFlowType(flow)
+
+	var path string
+	var pathType constants.PathType
+	switch flow {
+	case constants.FlowToRemote:
+		pathType, err = ParsePath(src)
+		if err != nil {
+			return err
+		}
+		t.SetPathType(pathType)
+		path = src
+
+		keyType, bucketName, objectKey, err := ParseKey(dst)
+		if err != nil {
+			return err
+		}
+		t.SetKeyType(keyType)
+		t.SetKey(objectKey)
+		t.SetBucketName(bucketName)
+	case constants.FlowToLocal, constants.FlowAtRemote:
+		pathType, err = ParsePath(dst)
+		if err != nil {
+			return err
+		}
+		t.SetPathType(pathType)
+		path = dst
+
+		keyType, bucketName, objectKey, err := ParseKey(src)
+		if err != nil {
+			return err
+		}
+		t.SetKeyType(keyType)
+		t.SetKey(objectKey)
+		t.SetBucketName(bucketName)
+	default:
+		panic("this case should never be switched")
+	}
+
+	t.SetPath(path)
+
+	switch pathType {
+	case constants.PathTypeFile:
+		t.SetPath(path)
+	case constants.PathTypeStream:
+		// TODO: we could support other stream type, for example, read from a socket.
+		t.SetStream(os.Stdin)
+	case constants.PathTypeLocalDir:
+	default:
+		panic("invalid path type")
+	}
+
+	return
 }
