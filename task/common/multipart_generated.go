@@ -117,9 +117,9 @@ type MultipartInitTaskRequirement interface {
 	// Inherited value
 	types.CurrentOffsetGetter
 	types.KeyGetter
-	types.SizeGetter
 	types.StorageGetter
 	types.TaskConstructorGetter
+	types.TotalSizeGetter
 	types.WaitGroupGetter
 
 	// Runtime value
@@ -139,9 +139,9 @@ type mockMultipartInitTask struct {
 	// Inherited value
 	types.CurrentOffset
 	types.Key
-	types.Size
 	types.Storage
 	types.TaskConstructor
+	types.TotalSize
 	types.WaitGroup
 
 	// Runtime value

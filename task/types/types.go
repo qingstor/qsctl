@@ -537,6 +537,31 @@ func (o *TaskConstructor) SetTaskConstructor(v TodoFunc) {
 	o.valid = true
 }
 
+type TotalSizeGetter interface {
+	GetTotalSize() int64
+}
+
+type TotalSizeSetter interface {
+	SetTotalSize(int64)
+}
+
+type TotalSize struct {
+	valid bool
+	v     int64
+}
+
+func (o *TotalSize) GetTotalSize() int64 {
+	if !o.valid {
+		panic("TotalSize value is not valid")
+	}
+	return o.v
+}
+
+func (o *TotalSize) SetTotalSize(v int64) {
+	o.v = v
+	o.valid = true
+}
+
 type UploadIDGetter interface {
 	GetUploadID() string
 }

@@ -34,7 +34,7 @@ func TestMultipartInitTask_Run(t *testing.T) {
 
 	offset := int64(0)
 	x.SetCurrentOffset(&offset)
-	x.SetSize(1024)
+	x.SetTotalSize(1024)
 
 	fn := func(task types.Todoist) navvy.Task {
 		s := int64(1024)

@@ -23,7 +23,7 @@ func (t *MultipartInitTask) Run() {
 	wg := t.GetWaitGroup()
 
 	for {
-		if *t.GetCurrentOffset() == t.GetSize() {
+		if *t.GetCurrentOffset() == t.GetTotalSize() {
 			break
 		}
 

@@ -71,12 +71,11 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	x := &CopyStreamTask{}
+	x := &mockCopyPartialStreamTask{}
 	x.SetPool(pool)
 	x.SetStream(buf)
 	x.SetKey(key)
 	x.SetStorage(store)
-	x.SetSize(size)
 	x.SetUploadID(uploadID)
 	x.SetPartSize(64 * 1024 * 1024)
 	x.SetBytesPool(&sync.Pool{

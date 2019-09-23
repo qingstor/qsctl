@@ -28,6 +28,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Format input tasks.json
+	data, err = json.MarshalIndent(types, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = ioutil.WriteFile("types.json", data, 0664)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	f, err := os.Create(filePath)
 	if err != nil {
 		log.Fatal(err)

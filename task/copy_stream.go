@@ -7,16 +7,12 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/Xuanwo/navvy"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task/common"
-	"github.com/yunify/qsctl/v2/task/types"
 )
 
 // NewCopyStreamTask will create a copy stream task.
-func NewCopyStreamTask(task types.Todoist) navvy.Task {
-	t, _ := initCopyStreamTask(task)
-
+func (t *CopyStreamTask) new() {
 	bytesPool := &sync.Pool{
 		New: func() interface{} {
 			return bytes.NewBuffer(make([]byte, 0, t.GetPartSize()))
@@ -39,29 +35,27 @@ func NewCopyStreamTask(task types.Todoist) navvy.Task {
 
 	// We don't know how many data in stream, set it to -1 as an indicate.
 	// We will set current offset to -1 when got an EOF from stream.
-	t.SetSize(-1)
+	t.SetTotalSize(-1)
 
 	t.AddTODOs(
 		common.NewMultipartInitTask,
 		common.NewWaitTask,
 		common.NewMultipartCompleteTask,
 	)
-	return t
+	return
 }
 
 // NewCopyPartialStreamTask will create a new Task.
-func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
-	t, o := initCopyPartialStreamTask(task)
-
+func (t *CopyPartialStreamTask) new() {
 	// Set part number and update current part number.
-	currentPartNumber := o.GetCurrentPartNumber()
+	currentPartNumber := t.GetCurrentPartNumber()
 	t.SetPartNumber(int(*currentPartNumber))
 	atomic.AddInt32(currentPartNumber, 1)
 
 	// Set size and update offset.
-	partSize := o.GetPartSize()
-	r := bufio.NewReader(io.LimitReader(o.GetStream(), partSize))
-	b := o.GetBytesPool().Get().(*bytes.Buffer)
+	partSize := t.GetPartSize()
+	r := bufio.NewReader(io.LimitReader(t.GetStream(), partSize))
+	b := t.GetBytesPool().Get().(*bytes.Buffer)
 	n, err := io.Copy(b, r)
 	if err != nil {
 		panic(err)
@@ -71,14 +65,14 @@ func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
 	t.SetContent(b)
 	if n < partSize {
 		// Set current offset to -1 to mark the stream has been drain out.
-		atomic.StoreInt64(o.GetCurrentOffset(), -1)
+		atomic.StoreInt64(t.GetCurrentOffset(), -1)
 	} else {
-		atomic.AddInt64(o.GetCurrentOffset(), t.GetSize())
+		atomic.AddInt64(t.GetCurrentOffset(), t.GetSize())
 	}
 
 	t.AddTODOs(
 		common.NewStreamMD5SumTask,
 		common.NewMultipartStreamUploadTask,
 	)
-	return t
+	return
 }

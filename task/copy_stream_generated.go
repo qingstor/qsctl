@@ -12,14 +12,26 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
+// copyPartialStreamTaskRequirement is the requirement for execute CopyPartialStreamTask.
+type copyPartialStreamTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.BytesPoolGetter
+	types.CurrentOffsetGetter
+	types.CurrentPartNumberGetter
+	types.KeyGetter
+	types.PartSizeGetter
+	types.StorageGetter
+	types.StreamGetter
+	types.UploadIDGetter
+	types.WaitGroupGetter
+}
+
 // CopyPartialStreamTask will copy a partial stream to storage.
 type CopyPartialStreamTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Storage
-	types.UploadID
-	types.WaitGroup
+	copyPartialStreamTaskRequirement
 
 	// Runtime value
 	types.Todo
@@ -29,31 +41,55 @@ type CopyPartialStreamTask struct {
 	types.Size
 }
 
+// mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
+type mockCopyPartialStreamTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.BytesPool
+	types.CurrentOffset
+	types.CurrentPartNumber
+	types.Key
+	types.PartSize
+	types.Storage
+	types.Stream
+	types.UploadID
+	types.WaitGroup
+}
+
+func (t *mockCopyPartialStreamTask) Run() {
+	panic("mockCopyPartialStreamTask should not be run.")
+}
+
 // Run implement navvy.Task
 func (t *CopyPartialStreamTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
 // initCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
-func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o *CopyStreamTask) {
-	o = task.(*CopyStreamTask)
+func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
+	t := &CopyPartialStreamTask{
+		copyPartialStreamTaskRequirement: task.(copyPartialStreamTaskRequirement),
+	}
+	t.new()
+	return t
+}
 
-	t = &CopyPartialStreamTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetStorage(o.GetStorage())
-	t.SetUploadID(o.GetUploadID())
-	t.SetWaitGroup(o.GetWaitGroup())
-	return
+// copyStreamTaskRequirement is the requirement for execute CopyStreamTask.
+type copyStreamTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.KeyGetter
+	types.StorageGetter
+	types.StreamGetter
 }
 
 // CopyStreamTask will copy a stream to storage.
 type CopyStreamTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Storage
-	types.Stream
+	copyStreamTaskRequirement
 
 	// Runtime value
 	types.Todo
@@ -61,10 +97,25 @@ type CopyStreamTask struct {
 	types.CurrentOffset
 	types.CurrentPartNumber
 	types.PartSize
-	types.Size
 	types.TaskConstructor
+	types.TotalSize
 	types.UploadID
 	types.WaitGroup
+}
+
+// mockCopyStreamTask is the mock task for CopyStreamTask.
+type mockCopyStreamTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.Key
+	types.Storage
+	types.Stream
+}
+
+func (t *mockCopyStreamTask) Run() {
+	panic("mockCopyStreamTask should not be run.")
 }
 
 // Run implement navvy.Task
@@ -73,13 +124,10 @@ func (t *CopyStreamTask) Run() {
 }
 
 // initCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.
-func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
-	o = task.(*CopyTask)
-
-	t = &CopyStreamTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetStorage(o.GetStorage())
-	t.SetStream(o.GetStream())
-	return
+func NewCopyStreamTask(task types.Todoist) navvy.Task {
+	t := &CopyStreamTask{
+		copyStreamTaskRequirement: task.(copyStreamTaskRequirement),
+	}
+	t.new()
+	return t
 }

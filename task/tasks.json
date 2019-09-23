@@ -28,7 +28,7 @@
       "Storage"
     ],
     "runtime_value": [
-      "Size"
+      "TotalSize"
     ]
   },
   "CopyLargeFile": {
@@ -40,8 +40,8 @@
     "inherited_value": [
       "Key",
       "Path",
-      "Size",
-      "Storage"
+      "Storage",
+      "TotalSize"
     ],
     "runtime_value": [
       "CurrentOffset",
@@ -59,9 +59,13 @@
     "depend": "CopyLargeFile",
     "description": "copy a partial file to storage, is the sub task for CopyLargeFile",
     "inherited_value": [
+      "CurrentOffset",
+      "CurrentPartNumber",
       "Key",
+      "PartSize",
       "Path",
       "Storage",
+      "TotalSize",
       "UploadID",
       "WaitGroup"
     ],
@@ -79,8 +83,13 @@
     "depend": "CopyStream",
     "description": "copy a partial stream to storage",
     "inherited_value": [
+      "BytesPool",
+      "CurrentOffset",
+      "CurrentPartNumber",
       "Key",
+      "PartSize",
       "Storage",
+      "Stream",
       "UploadID",
       "WaitGroup"
     ],
@@ -100,12 +109,13 @@
     "inherited_value": [
       "Key",
       "Path",
-      "Size",
-      "Storage"
+      "Storage",
+      "TotalSize"
     ],
     "runtime_value": [
       "MD5Sum",
-      "Offset"
+      "Offset",
+      "Size"
     ]
   },
   "CopyStream": {
@@ -124,8 +134,8 @@
       "CurrentOffset",
       "CurrentPartNumber",
       "PartSize",
-      "Size",
       "TaskConstructor",
+      "TotalSize",
       "UploadID",
       "WaitGroup"
     ]
@@ -193,9 +203,9 @@
     "inherited_value": [
       "CurrentOffset",
       "Key",
-      "Size",
       "Storage",
       "TaskConstructor",
+      "TotalSize",
       "WaitGroup"
     ],
     "runtime_value": [

@@ -30,12 +30,12 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	x := &CopyFileTask{}
+	x := &mockCopyLargeFileTask{}
 	x.SetPool(pool)
 	x.SetPath(name)
 	x.SetKey(key)
 	x.SetStorage(store)
-	x.SetSize(size)
+	x.SetTotalSize(size)
 
 	task := NewCopyLargeFileTask(x)
 	task.Run()
@@ -68,14 +68,14 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	x := &CopyLargeFileTask{}
+	x := &mockCopyPartialFileTask{}
 	x.SetPool(pool)
 	x.SetPath(name)
 	x.SetKey(key)
 	x.SetStorage(store)
-	x.SetSize(size)
 	x.SetUploadID(uploadID)
 	x.SetPartSize(64 * 1024 * 1024)
+	x.SetTotalSize(size)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -114,12 +114,12 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	x := &CopyFileTask{}
+	x := &mockCopySmallFileTask{}
 	x.SetPool(pool)
 	x.SetPath(name)
 	x.SetKey(key)
 	x.SetStorage(store)
-	x.SetSize(size)
+	x.SetTotalSize(size)
 
 	task := NewCopySmallFileTask(x)
 	task.Run()

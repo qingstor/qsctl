@@ -12,9 +12,16 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
+// copyTaskRequirement is the requirement for execute CopyTask.
+type copyTaskRequirement interface {
+	navvy.Task
+
+	// Inherited value
+}
+
 // CopyTask will the root copy task.
 type CopyTask struct {
-	// Inherited value
+	copyTaskRequirement
 
 	// Runtime value
 	types.Todo
@@ -27,6 +34,18 @@ type CopyTask struct {
 	types.Pool
 	types.Storage
 	types.Stream
+}
+
+// mockCopyTask is the mock task for CopyTask.
+type mockCopyTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+}
+
+func (t *mockCopyTask) Run() {
+	panic("mockCopyTask should not be run.")
 }
 
 // Run implement navvy.Task

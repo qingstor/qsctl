@@ -12,17 +12,39 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
+// copyFileTaskRequirement is the requirement for execute CopyFileTask.
+type copyFileTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.KeyGetter
+	types.PathGetter
+	types.StorageGetter
+}
+
 // CopyFileTask will copy a file to storage.
 type CopyFileTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Path
-	types.Storage
+	copyFileTaskRequirement
 
 	// Runtime value
 	types.Todo
-	types.Size
+	types.TotalSize
+}
+
+// mockCopyFileTask is the mock task for CopyFileTask.
+type mockCopyFileTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.Key
+	types.Path
+	types.Storage
+}
+
+func (t *mockCopyFileTask) Run() {
+	panic("mockCopyFileTask should not be run.")
 }
 
 // Run implement navvy.Task
@@ -31,25 +53,29 @@ func (t *CopyFileTask) Run() {
 }
 
 // initCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
-func initCopyFileTask(task types.Todoist) (t *CopyFileTask, o *CopyTask) {
-	o = task.(*CopyTask)
+func NewCopyFileTask(task types.Todoist) navvy.Task {
+	t := &CopyFileTask{
+		copyFileTaskRequirement: task.(copyFileTaskRequirement),
+	}
+	t.new()
+	return t
+}
 
-	t = &CopyFileTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetPath(o.GetPath())
-	t.SetStorage(o.GetStorage())
-	return
+// copyLargeFileTaskRequirement is the requirement for execute CopyLargeFileTask.
+type copyLargeFileTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.KeyGetter
+	types.PathGetter
+	types.StorageGetter
+	types.TotalSizeGetter
 }
 
 // CopyLargeFileTask will copy a large file to storage.
 type CopyLargeFileTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Path
-	types.Size
-	types.Storage
+	copyLargeFileTaskRequirement
 
 	// Runtime value
 	types.Todo
@@ -61,33 +87,56 @@ type CopyLargeFileTask struct {
 	types.WaitGroup
 }
 
+// mockCopyLargeFileTask is the mock task for CopyLargeFileTask.
+type mockCopyLargeFileTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.Key
+	types.Path
+	types.Storage
+	types.TotalSize
+}
+
+func (t *mockCopyLargeFileTask) Run() {
+	panic("mockCopyLargeFileTask should not be run.")
+}
+
 // Run implement navvy.Task
 func (t *CopyLargeFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
 // initCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
-func initCopyLargeFileTask(task types.Todoist) (t *CopyLargeFileTask, o *CopyFileTask) {
-	o = task.(*CopyFileTask)
+func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
+	t := &CopyLargeFileTask{
+		copyLargeFileTaskRequirement: task.(copyLargeFileTaskRequirement),
+	}
+	t.new()
+	return t
+}
 
-	t = &CopyLargeFileTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetPath(o.GetPath())
-	t.SetSize(o.GetSize())
-	t.SetStorage(o.GetStorage())
-	return
+// copyPartialFileTaskRequirement is the requirement for execute CopyPartialFileTask.
+type copyPartialFileTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.CurrentOffsetGetter
+	types.CurrentPartNumberGetter
+	types.KeyGetter
+	types.PartSizeGetter
+	types.PathGetter
+	types.StorageGetter
+	types.TotalSizeGetter
+	types.UploadIDGetter
+	types.WaitGroupGetter
 }
 
 // CopyPartialFileTask will copy a partial file to storage, is the sub task for CopyLargeFile.
 type CopyPartialFileTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Path
-	types.Storage
-	types.UploadID
-	types.WaitGroup
+	copyPartialFileTaskRequirement
 
 	// Runtime value
 	types.Todo
@@ -97,38 +146,78 @@ type CopyPartialFileTask struct {
 	types.Size
 }
 
+// mockCopyPartialFileTask is the mock task for CopyPartialFileTask.
+type mockCopyPartialFileTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.CurrentOffset
+	types.CurrentPartNumber
+	types.Key
+	types.PartSize
+	types.Path
+	types.Storage
+	types.TotalSize
+	types.UploadID
+	types.WaitGroup
+}
+
+func (t *mockCopyPartialFileTask) Run() {
+	panic("mockCopyPartialFileTask should not be run.")
+}
+
 // Run implement navvy.Task
 func (t *CopyPartialFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
 // initCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
-func initCopyPartialFileTask(task types.Todoist) (t *CopyPartialFileTask, o *CopyLargeFileTask) {
-	o = task.(*CopyLargeFileTask)
+func NewCopyPartialFileTask(task types.Todoist) navvy.Task {
+	t := &CopyPartialFileTask{
+		copyPartialFileTaskRequirement: task.(copyPartialFileTaskRequirement),
+	}
+	t.new()
+	return t
+}
 
-	t = &CopyPartialFileTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetPath(o.GetPath())
-	t.SetStorage(o.GetStorage())
-	t.SetUploadID(o.GetUploadID())
-	t.SetWaitGroup(o.GetWaitGroup())
-	return
+// copySmallFileTaskRequirement is the requirement for execute CopySmallFileTask.
+type copySmallFileTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.KeyGetter
+	types.PathGetter
+	types.StorageGetter
+	types.TotalSizeGetter
 }
 
 // CopySmallFileTask will copy a small file to storage.
 type CopySmallFileTask struct {
-	// Inherited value
-	types.Pool
-	types.Key
-	types.Path
-	types.Size
-	types.Storage
+	copySmallFileTaskRequirement
 
 	// Runtime value
 	types.Todo
 	types.MD5Sum
 	types.Offset
+	types.Size
+}
+
+// mockCopySmallFileTask is the mock task for CopySmallFileTask.
+type mockCopySmallFileTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.Key
+	types.Path
+	types.Storage
+	types.TotalSize
+}
+
+func (t *mockCopySmallFileTask) Run() {
+	panic("mockCopySmallFileTask should not be run.")
 }
 
 // Run implement navvy.Task
@@ -137,14 +226,10 @@ func (t *CopySmallFileTask) Run() {
 }
 
 // initCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.
-func initCopySmallFileTask(task types.Todoist) (t *CopySmallFileTask, o *CopyFileTask) {
-	o = task.(*CopyFileTask)
-
-	t = &CopySmallFileTask{}
-	t.SetPool(o.GetPool())
-	t.SetKey(o.GetKey())
-	t.SetPath(o.GetPath())
-	t.SetSize(o.GetSize())
-	t.SetStorage(o.GetStorage())
-	return
+func NewCopySmallFileTask(task types.Todoist) navvy.Task {
+	t := &CopySmallFileTask{
+		copySmallFileTaskRequirement: task.(copySmallFileTaskRequirement),
+	}
+	t.new()
+	return t
 }
