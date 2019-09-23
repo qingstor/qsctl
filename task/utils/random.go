@@ -28,7 +28,7 @@ func (r *randbo) Read(p []byte) (n int, err error) {
 	todo := len(p)
 	offset := 0
 	for {
-		val := int64(r.Int63())
+		val := r.Int63()
 		for i := 0; i < 7; i++ {
 			p[offset] = byte(val)
 			todo--

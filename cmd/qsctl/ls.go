@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -26,20 +25,7 @@ var LsCommand = &cobra.Command{
 func lsRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
 	// if no args, handle cmd as list buckets, otherwise list objects.
-	if len(args) == 0 {
-		lsHandler := &action.BucketHandler{}
-		return lsHandler.WithZone(zone).ListBuckets()
-	}
-	lsHandler := &action.ListHandler{}
-	return lsHandler.
-		WithBench(bench).
-		WithHumanReadable(humanReadable).
-		WithLongFormat(longFormat).
-		WithRecursive(recursive).
-		WithRemote(args[0]).
-		WithReverse(reverse).
-		WithZone(zone).
-		ListObjects()
+	return nil
 }
 
 func initLsFlag() {

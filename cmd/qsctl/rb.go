@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -21,8 +20,5 @@ var RbCommand = &cobra.Command{
 
 func rbRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
-	rbHandler := &action.BucketHandler{}
-	return rbHandler.
-		WithRemote(args[0]).
-		RemoveBucket()
+	return nil
 }
