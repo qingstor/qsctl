@@ -17,10 +17,14 @@ type FileMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.MD5SumSetter
-	types.PathGetter
+
+	// Inherited value
 	types.OffsetGetter
+	types.PathGetter
 	types.SizeGetter
+
+	// Runtime value
+	types.MD5SumSetter
 }
 
 // FileMD5SumTask will get file's md5 sum.
@@ -32,10 +36,14 @@ type FileMD5SumTask struct {
 type mockFileMD5SumTask struct {
 	types.Todo
 	types.Pool
-	types.MD5Sum
-	types.Path
+
+	// Inherited value
 	types.Offset
+	types.Path
 	types.Size
+
+	// Runtime value
+	types.MD5Sum
 }
 
 func (t *mockFileMD5SumTask) Run() {
@@ -52,8 +60,12 @@ type StreamMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.MD5SumSetter
+
+	// Inherited value
 	types.ContentGetter
+
+	// Runtime value
+	types.MD5SumSetter
 }
 
 // StreamMD5SumTask will get stream's md5 sum.
@@ -65,8 +77,12 @@ type StreamMD5SumTask struct {
 type mockStreamMD5SumTask struct {
 	types.Todo
 	types.Pool
-	types.MD5Sum
+
+	// Inherited value
 	types.Content
+
+	// Runtime value
+	types.MD5Sum
 }
 
 func (t *mockStreamMD5SumTask) Run() {

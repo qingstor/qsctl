@@ -23,10 +23,10 @@ type CopyPartialStreamTask struct {
 
 	// Runtime value
 	types.Todo
-	types.MD5Sum
 	types.Content
-	types.Size
+	types.MD5Sum
 	types.PartNumber
+	types.Size
 }
 
 // Run implement navvy.Task
@@ -51,18 +51,18 @@ func initCopyPartialStreamTask(task types.Todoist) (t *CopyPartialStreamTask, o 
 type CopyStreamTask struct {
 	// Inherited value
 	types.Pool
+	types.Key
 	types.Storage
 	types.Stream
-	types.Key
 
 	// Runtime value
 	types.Todo
+	types.BytesPool
+	types.CurrentOffset
+	types.CurrentPartNumber
+	types.PartSize
 	types.Size
 	types.TaskConstructor
-	types.CurrentPartNumber
-	types.CurrentOffset
-	types.BytesPool
-	types.PartSize
 	types.UploadID
 	types.WaitGroup
 }
@@ -78,8 +78,8 @@ func initCopyStreamTask(task types.Todoist) (t *CopyStreamTask, o *CopyTask) {
 
 	t = &CopyStreamTask{}
 	t.SetPool(o.GetPool())
+	t.SetKey(o.GetKey())
 	t.SetStorage(o.GetStorage())
 	t.SetStream(o.GetStream())
-	t.SetKey(o.GetKey())
 	return
 }

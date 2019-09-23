@@ -17,10 +17,14 @@ type FileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+
+	// Inherited value
 	types.KeyGetter
-	types.PathGetter
 	types.MD5SumGetter
+	types.PathGetter
 	types.StorageGetter
+
+	// Runtime value
 }
 
 // FileUploadTask will upload file as an object.
@@ -32,10 +36,14 @@ type FileUploadTask struct {
 type mockFileUploadTask struct {
 	types.Todo
 	types.Pool
+
+	// Inherited value
 	types.Key
-	types.Path
 	types.MD5Sum
+	types.Path
 	types.Storage
+
+	// Runtime value
 }
 
 func (t *mockFileUploadTask) Run() {

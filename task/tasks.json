@@ -1,206 +1,79 @@
 {
-  "FileUpload": {
-    "type": "required",
-    "path": "common/file",
-    "description": "upload file as an object",
-    "runtime_value": [
-      "KeyGetter",
-      "PathGetter",
-      "MD5SumGetter",
-      "StorageGetter"
-    ]
-  },
-  "FileMD5Sum": {
-    "type": "required",
-    "path": "common/md5sum",
-    "description": "get file's md5 sum",
-    "runtime_value": [
-      "MD5SumSetter",
-      "PathGetter",
-      "OffsetGetter",
-      "SizeGetter"
-    ]
-  },
-  "StreamMD5Sum": {
-    "type": "required",
-    "path": "common/md5sum",
-    "description": "get stream's md5 sum",
-    "runtime_value": [
-      "MD5SumSetter",
-      "ContentGetter"
-    ]
-  },
-  "MultipartInit": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "init a multipart upload",
-    "runtime_value": [
-      "KeyGetter",
-      "UploadIDSetter",
-      "WaitGroupGetter",
-      "StorageGetter",
-      "TaskConstructorGetter",
-      "CurrentOffsetGetter",
-      "SizeGetter"
-    ]
-  },
-  "MultipartFileUpload": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via file",
-    "runtime_value": [
-      "MD5SumGetter",
-      "PathGetter",
-      "KeyGetter",
-      "OffsetGetter",
-      "UploadIDGetter",
-      "PartNumberGetter",
-      "SizeGetter",
-      "WaitGroupGetter",
-      "StorageGetter"
-    ]
-  },
-  "MultipartStreamUpload": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via stream",
-    "runtime_value": [
-      "MD5SumGetter",
-      "KeyGetter",
-      "UploadIDGetter",
-      "PartNumberGetter",
-      "SizeGetter",
-      "WaitGroupGetter",
-      "StorageGetter",
-      "ContentGetter"
-    ]
-  },
-  "MultipartComplete": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via stream",
-    "runtime_value": [
-      "KeyGetter",
-      "UploadIDGetter",
-      "CurrentPartNumberGetter",
-      "StorageGetter"
-    ]
-  },
-  "Wait": {
-    "type": "required",
-    "path": "common/wait",
-    "description": "wait until parent task finished",
-    "runtime_value": [
-      "WaitGroupGetter"
-    ]
-  },
   "Copy": {
+    "Name": "Copy",
     "type": "dependent",
     "path": "copy",
     "description": "the root copy task",
     "runtime_value": [
+      "BucketName",
+      "FlowType",
+      "Key",
+      "KeyType",
+      "Path",
+      "PathType",
       "Pool",
       "Storage",
-      "Path",
-      "Stream",
-      "BucketName",
-      "Key",
-      "FlowType",
-      "PathType",
-      "KeyType"
+      "Stream"
     ]
   },
   "CopyFile": {
+    "Name": "CopyFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "Copy",
     "description": "copy a file to storage",
     "inherited_value": [
-      "Storage",
-      "Path",
-      "Key"
-    ],
-    "runtime_value": [
-      "Size"
-    ]
-  },
-  "CopySmallFile": {
-    "type": "dependent",
-    "path": "copy_file",
-    "depend": "CopyFile",
-    "description": "copy a small file to storage",
-    "inherited_value": [
-      "Path",
       "Key",
-      "Storage",
-      "Size"
+      "Path",
+      "Storage"
     ],
     "runtime_value": [
-      "MD5Sum",
-      "Offset"
+      "Size"
     ]
   },
   "CopyLargeFile": {
+    "Name": "CopyLargeFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
     "description": "copy a large file to storage",
     "inherited_value": [
-      "Size",
-      "Path",
       "Key",
+      "Path",
+      "Size",
       "Storage"
     ],
     "runtime_value": [
-      "UploadID",
-      "CurrentPartNumber",
       "CurrentOffset",
-      "WaitGroup",
+      "CurrentPartNumber",
       "PartSize",
-      "TaskConstructor"
+      "TaskConstructor",
+      "UploadID",
+      "WaitGroup"
     ]
   },
   "CopyPartialFile": {
+    "Name": "CopyPartialFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyLargeFile",
     "description": "copy a partial file to storage, is the sub task for CopyLargeFile",
     "inherited_value": [
-      "Path",
       "Key",
+      "Path",
       "Storage",
       "UploadID",
       "WaitGroup"
     ],
     "runtime_value": [
       "MD5Sum",
-      "Size",
       "Offset",
-      "PartNumber"
-    ]
-  },
-  "CopyStream": {
-    "type": "dependent",
-    "path": "copy_stream",
-    "depend": "Copy",
-    "description": "copy a stream to storage",
-    "inherited_value": [
-      "Storage",
-      "Stream",
-      "Key"
-    ],
-    "runtime_value": [
-      "Size",
-      "TaskConstructor",
-      "CurrentPartNumber",
-      "CurrentOffset",
-      "BytesPool",
-      "PartSize",
-      "UploadID",
-      "WaitGroup"
+      "PartNumber",
+      "Size"
     ]
   },
   "CopyPartialStream": {
+    "Name": "CopyPartialStream",
     "type": "dependent",
     "path": "copy_stream",
     "depend": "CopyStream",
@@ -212,10 +85,158 @@
       "WaitGroup"
     ],
     "runtime_value": [
-      "MD5Sum",
       "Content",
+      "MD5Sum",
+      "PartNumber",
+      "Size"
+    ]
+  },
+  "CopySmallFile": {
+    "Name": "CopySmallFile",
+    "type": "dependent",
+    "path": "copy_file",
+    "depend": "CopyFile",
+    "description": "copy a small file to storage",
+    "inherited_value": [
+      "Key",
+      "Path",
       "Size",
-      "PartNumber"
+      "Storage"
+    ],
+    "runtime_value": [
+      "MD5Sum",
+      "Offset"
+    ]
+  },
+  "CopyStream": {
+    "Name": "CopyStream",
+    "type": "dependent",
+    "path": "copy_stream",
+    "depend": "Copy",
+    "description": "copy a stream to storage",
+    "inherited_value": [
+      "Key",
+      "Storage",
+      "Stream"
+    ],
+    "runtime_value": [
+      "BytesPool",
+      "CurrentOffset",
+      "CurrentPartNumber",
+      "PartSize",
+      "Size",
+      "TaskConstructor",
+      "UploadID",
+      "WaitGroup"
+    ]
+  },
+  "FileMD5Sum": {
+    "Name": "FileMD5Sum",
+    "type": "required",
+    "path": "common/md5sum",
+    "description": "get file's md5 sum",
+    "inherited_value": [
+      "Offset",
+      "Path",
+      "Size"
+    ],
+    "runtime_value": [
+      "MD5Sum"
+    ]
+  },
+  "FileUpload": {
+    "Name": "FileUpload",
+    "type": "required",
+    "path": "common/file",
+    "description": "upload file as an object",
+    "inherited_value": [
+      "Key",
+      "MD5Sum",
+      "Path",
+      "Storage"
+    ]
+  },
+  "MultipartComplete": {
+    "Name": "MultipartComplete",
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via stream",
+    "inherited_value": [
+      "CurrentPartNumber",
+      "Key",
+      "Storage",
+      "UploadID"
+    ]
+  },
+  "MultipartFileUpload": {
+    "Name": "MultipartFileUpload",
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via file",
+    "inherited_value": [
+      "Key",
+      "MD5Sum",
+      "Offset",
+      "PartNumber",
+      "Path",
+      "Size",
+      "Storage",
+      "UploadID",
+      "WaitGroup"
+    ]
+  },
+  "MultipartInit": {
+    "Name": "MultipartInit",
+    "type": "required",
+    "path": "common/multipart",
+    "description": "init a multipart upload",
+    "inherited_value": [
+      "CurrentOffset",
+      "Key",
+      "Size",
+      "Storage",
+      "TaskConstructor",
+      "WaitGroup"
+    ],
+    "runtime_value": [
+      "UploadID"
+    ]
+  },
+  "MultipartStreamUpload": {
+    "Name": "MultipartStreamUpload",
+    "type": "required",
+    "path": "common/multipart",
+    "description": "upload a multipart via stream",
+    "inherited_value": [
+      "Content",
+      "Key",
+      "MD5Sum",
+      "PartNumber",
+      "Size",
+      "Storage",
+      "UploadID",
+      "WaitGroup"
+    ]
+  },
+  "StreamMD5Sum": {
+    "Name": "StreamMD5Sum",
+    "type": "required",
+    "path": "common/md5sum",
+    "description": "get stream's md5 sum",
+    "inherited_value": [
+      "Content"
+    ],
+    "runtime_value": [
+      "MD5Sum"
+    ]
+  },
+  "Wait": {
+    "Name": "Wait",
+    "type": "required",
+    "path": "common/wait",
+    "description": "wait until parent task finished",
+    "inherited_value": [
+      "WaitGroup"
     ]
   }
 }

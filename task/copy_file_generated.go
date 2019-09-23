@@ -16,9 +16,9 @@ var _ = utils.SubmitNextTask
 type CopyFileTask struct {
 	// Inherited value
 	types.Pool
-	types.Storage
-	types.Path
 	types.Key
+	types.Path
+	types.Storage
 
 	// Runtime value
 	types.Todo
@@ -36,9 +36,9 @@ func initCopyFileTask(task types.Todoist) (t *CopyFileTask, o *CopyTask) {
 
 	t = &CopyFileTask{}
 	t.SetPool(o.GetPool())
-	t.SetStorage(o.GetStorage())
-	t.SetPath(o.GetPath())
 	t.SetKey(o.GetKey())
+	t.SetPath(o.GetPath())
+	t.SetStorage(o.GetStorage())
 	return
 }
 
@@ -46,19 +46,19 @@ func initCopyFileTask(task types.Todoist) (t *CopyFileTask, o *CopyTask) {
 type CopyLargeFileTask struct {
 	// Inherited value
 	types.Pool
-	types.Size
-	types.Path
 	types.Key
+	types.Path
+	types.Size
 	types.Storage
 
 	// Runtime value
 	types.Todo
-	types.UploadID
-	types.CurrentPartNumber
 	types.CurrentOffset
-	types.WaitGroup
+	types.CurrentPartNumber
 	types.PartSize
 	types.TaskConstructor
+	types.UploadID
+	types.WaitGroup
 }
 
 // Run implement navvy.Task
@@ -72,9 +72,9 @@ func initCopyLargeFileTask(task types.Todoist) (t *CopyLargeFileTask, o *CopyFil
 
 	t = &CopyLargeFileTask{}
 	t.SetPool(o.GetPool())
-	t.SetSize(o.GetSize())
-	t.SetPath(o.GetPath())
 	t.SetKey(o.GetKey())
+	t.SetPath(o.GetPath())
+	t.SetSize(o.GetSize())
 	t.SetStorage(o.GetStorage())
 	return
 }
@@ -83,8 +83,8 @@ func initCopyLargeFileTask(task types.Todoist) (t *CopyLargeFileTask, o *CopyFil
 type CopyPartialFileTask struct {
 	// Inherited value
 	types.Pool
-	types.Path
 	types.Key
+	types.Path
 	types.Storage
 	types.UploadID
 	types.WaitGroup
@@ -92,9 +92,9 @@ type CopyPartialFileTask struct {
 	// Runtime value
 	types.Todo
 	types.MD5Sum
-	types.Size
 	types.Offset
 	types.PartNumber
+	types.Size
 }
 
 // Run implement navvy.Task
@@ -108,8 +108,8 @@ func initCopyPartialFileTask(task types.Todoist) (t *CopyPartialFileTask, o *Cop
 
 	t = &CopyPartialFileTask{}
 	t.SetPool(o.GetPool())
-	t.SetPath(o.GetPath())
 	t.SetKey(o.GetKey())
+	t.SetPath(o.GetPath())
 	t.SetStorage(o.GetStorage())
 	t.SetUploadID(o.GetUploadID())
 	t.SetWaitGroup(o.GetWaitGroup())
@@ -120,10 +120,10 @@ func initCopyPartialFileTask(task types.Todoist) (t *CopyPartialFileTask, o *Cop
 type CopySmallFileTask struct {
 	// Inherited value
 	types.Pool
-	types.Path
 	types.Key
-	types.Storage
+	types.Path
 	types.Size
+	types.Storage
 
 	// Runtime value
 	types.Todo
@@ -142,9 +142,9 @@ func initCopySmallFileTask(task types.Todoist) (t *CopySmallFileTask, o *CopyFil
 
 	t = &CopySmallFileTask{}
 	t.SetPool(o.GetPool())
-	t.SetPath(o.GetPath())
 	t.SetKey(o.GetKey())
-	t.SetStorage(o.GetStorage())
+	t.SetPath(o.GetPath())
 	t.SetSize(o.GetSize())
+	t.SetStorage(o.GetStorage())
 	return
 }

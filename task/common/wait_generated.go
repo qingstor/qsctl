@@ -17,7 +17,11 @@ type WaitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+
+	// Inherited value
 	types.WaitGroupGetter
+
+	// Runtime value
 }
 
 // WaitTask will wait until parent task finished.
@@ -29,7 +33,11 @@ type WaitTask struct {
 type mockWaitTask struct {
 	types.Todo
 	types.Pool
+
+	// Inherited value
 	types.WaitGroup
+
+	// Runtime value
 }
 
 func (t *mockWaitTask) Run() {

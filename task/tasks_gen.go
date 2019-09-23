@@ -1,6 +1,6 @@
 // The following directive is necessary to make the package coherent:
 
-// +build ignore
+// +build
 
 // This program generates types, It can be invoked by running
 // go generate
@@ -21,10 +21,10 @@ type task struct {
 	Name           string
 	Type           string   `json:"type"`
 	Path           string   `json:"path"`
-	Depend         string   `json:"depend"`
+	Depend         string   `json:"depend,omitempty"`
 	Description    string   `json:"description"`
-	InheritedValue []string `json:"inherited_value"`
-	RuntimeValue   []string `json:"runtime_value"`
+	InheritedValue []string `json:"inherited_value,omitempty"`
+	RuntimeValue   []string `json:"runtime_value,omitempty"`
 }
 
 var funcs = template.FuncMap{
@@ -52,6 +52,9 @@ func main() {
 	// Do sort to all tasks via name.
 	taskNames := make([]string, 0)
 	for k := range tasks {
+		sort.Strings(tasks[k].InheritedValue)
+		sort.Strings(tasks[k].RuntimeValue)
+
 		taskNames = append(taskNames, k)
 	}
 	sort.Strings(taskNames)
@@ -61,6 +64,16 @@ func main() {
 	for _, v := range taskNames {
 		tasks[v].Name = v
 		pages[tasks[v].Path] = append(pages[tasks[v].Path], tasks[v])
+	}
+
+	// Format input tasks.json
+	data, err = json.MarshalIndent(tasks, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = ioutil.WriteFile("tasks.json", data, 0664)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	for pathName, page := range pages {
@@ -125,8 +138,14 @@ type {{ .Name }}TaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 
+	// Inherited value
+{{- range $k, $v := .InheritedValue }}
+	types.{{$v}}Getter
+{{- end }}
+
+	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
-	types.{{$v}}
+	types.{{$v}}Setter
 {{- end }}
 }
 
@@ -139,8 +158,15 @@ type {{ .Name }}Task struct {
 type mock{{ .Name }}Task struct {
 	types.Todo
 	types.Pool
+
+	// Inherited value
+{{- range $k, $v := .InheritedValue }}
+	types.{{$v}}
+{{- end }}
+
+	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
-	types.{{getTypeName $v}}
+	types.{{$v}}
 {{- end }}
 }
 

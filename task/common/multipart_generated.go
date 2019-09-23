@@ -17,10 +17,14 @@ type MultipartCompleteTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.KeyGetter
-	types.UploadIDGetter
+
+	// Inherited value
 	types.CurrentPartNumberGetter
+	types.KeyGetter
 	types.StorageGetter
+	types.UploadIDGetter
+
+	// Runtime value
 }
 
 // MultipartCompleteTask will upload a multipart via stream.
@@ -32,10 +36,14 @@ type MultipartCompleteTask struct {
 type mockMultipartCompleteTask struct {
 	types.Todo
 	types.Pool
-	types.Key
-	types.UploadID
+
+	// Inherited value
 	types.CurrentPartNumber
+	types.Key
 	types.Storage
+	types.UploadID
+
+	// Runtime value
 }
 
 func (t *mockMultipartCompleteTask) Run() {
@@ -52,15 +60,19 @@ type MultipartFileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.MD5SumGetter
-	types.PathGetter
+
+	// Inherited value
 	types.KeyGetter
+	types.MD5SumGetter
 	types.OffsetGetter
-	types.UploadIDGetter
 	types.PartNumberGetter
+	types.PathGetter
 	types.SizeGetter
-	types.WaitGroupGetter
 	types.StorageGetter
+	types.UploadIDGetter
+	types.WaitGroupGetter
+
+	// Runtime value
 }
 
 // MultipartFileUploadTask will upload a multipart via file.
@@ -72,15 +84,19 @@ type MultipartFileUploadTask struct {
 type mockMultipartFileUploadTask struct {
 	types.Todo
 	types.Pool
-	types.MD5Sum
-	types.Path
+
+	// Inherited value
 	types.Key
+	types.MD5Sum
 	types.Offset
-	types.UploadID
 	types.PartNumber
+	types.Path
 	types.Size
-	types.WaitGroup
 	types.Storage
+	types.UploadID
+	types.WaitGroup
+
+	// Runtime value
 }
 
 func (t *mockMultipartFileUploadTask) Run() {
@@ -97,13 +113,17 @@ type MultipartInitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+
+	// Inherited value
+	types.CurrentOffsetGetter
 	types.KeyGetter
-	types.UploadIDSetter
-	types.WaitGroupGetter
+	types.SizeGetter
 	types.StorageGetter
 	types.TaskConstructorGetter
-	types.CurrentOffsetGetter
-	types.SizeGetter
+	types.WaitGroupGetter
+
+	// Runtime value
+	types.UploadIDSetter
 }
 
 // MultipartInitTask will init a multipart upload.
@@ -115,13 +135,17 @@ type MultipartInitTask struct {
 type mockMultipartInitTask struct {
 	types.Todo
 	types.Pool
+
+	// Inherited value
+	types.CurrentOffset
 	types.Key
-	types.UploadID
-	types.WaitGroup
+	types.Size
 	types.Storage
 	types.TaskConstructor
-	types.CurrentOffset
-	types.Size
+	types.WaitGroup
+
+	// Runtime value
+	types.UploadID
 }
 
 func (t *mockMultipartInitTask) Run() {
@@ -138,14 +162,18 @@ type MultipartStreamUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
-	types.MD5SumGetter
+
+	// Inherited value
+	types.ContentGetter
 	types.KeyGetter
-	types.UploadIDGetter
+	types.MD5SumGetter
 	types.PartNumberGetter
 	types.SizeGetter
-	types.WaitGroupGetter
 	types.StorageGetter
-	types.ContentGetter
+	types.UploadIDGetter
+	types.WaitGroupGetter
+
+	// Runtime value
 }
 
 // MultipartStreamUploadTask will upload a multipart via stream.
@@ -157,14 +185,18 @@ type MultipartStreamUploadTask struct {
 type mockMultipartStreamUploadTask struct {
 	types.Todo
 	types.Pool
-	types.MD5Sum
+
+	// Inherited value
+	types.Content
 	types.Key
-	types.UploadID
+	types.MD5Sum
 	types.PartNumber
 	types.Size
-	types.WaitGroup
 	types.Storage
-	types.Content
+	types.UploadID
+	types.WaitGroup
+
+	// Runtime value
 }
 
 func (t *mockMultipartStreamUploadTask) Run() {
