@@ -81,14 +81,8 @@ clean:
 
 test:
 	@echo "run test"
-	@go test -v ./...
-	@echo "ok"
-
-coverage:
-	@echo "run test with coverage"
-	@mkdir -p coverage
-	@go test -v -cover -coverprofile="coverage/profile.out" ./...
-	@go tool cover -html="coverage/profile.out" -o "coverage/profile.html"
+	@go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+	@go tool cover -html="coverage.txt" -o "coverage.html"
 	@echo "ok"
 
 tidy:
