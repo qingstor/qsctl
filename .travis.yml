@@ -5,12 +5,14 @@ go:
 
 install:
   - go get -u golang.org/x/lint/golint
+  - go get -u github.com/mattn/goveralls
 
 script:
   - make check
   - make build
   - make test
   - make coverage
+  - $GOPATH/bin/goveralls -service=travis-ci
 
 after_success:
   - make release
