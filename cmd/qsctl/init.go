@@ -12,6 +12,7 @@ var (
 	// register available flag vars here
 	bench                bool
 	expectSize           string
+	expire               int
 	format               string
 	humanReadable        bool
 	longFormat           bool
@@ -39,6 +40,7 @@ func init() {
 	initCpFlag()
 	initLsFlag()
 	initMbFlag()
+	initPresignFlag()
 	initRmFlag()
 	initStatFlag()
 	initTeeFlag()
@@ -53,6 +55,7 @@ func init() {
 	rootCmd.AddCommand(CpCommand)
 	rootCmd.AddCommand(LsCommand)
 	rootCmd.AddCommand(MbCommand)
+	rootCmd.AddCommand(PresignCommand)
 	rootCmd.AddCommand(RbCommand)
 	rootCmd.AddCommand(RmCommand)
 	rootCmd.AddCommand(StatCommand)

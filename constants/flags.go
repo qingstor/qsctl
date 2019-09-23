@@ -6,6 +6,8 @@ const (
 	BenchFlag = "bench"
 	// ExpectSizeFlag represents the flag expect-size
 	ExpectSizeFlag = "expect-size"
+	// ExpireFlag represents the flag expire
+	ExpireFlag = "expire"
 	// FormatFlag represents the flag format
 	FormatFlag = "format"
 	// HumanReadableFlag represents the flag human-readable

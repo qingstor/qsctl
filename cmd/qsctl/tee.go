@@ -33,14 +33,14 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 
 func initTeeFlag() {
 	TeeCommand.PersistentFlags().StringVar(&expectSize,
-		"expect-size",
+		constants.ExpectSizeFlag,
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)",
 	)
 	TeeCommand.PersistentFlags().StringVar(&maximumMemoryContent,
-		"maximum-memory-content",
+		constants.MaximumMemoryContentFlag,
 		"",
 		"maximum content loaded in memory\n"+
 			"(only used for input from stdin)",
