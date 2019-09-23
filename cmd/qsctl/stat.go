@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -22,11 +21,7 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
-	statHandler := &action.StatHandler{}
-	return statHandler.
-		WithFormat(format).
-		WithRemote(args[0]).
-		Stat()
+	return nil
 }
 
 func initStatFlag() {

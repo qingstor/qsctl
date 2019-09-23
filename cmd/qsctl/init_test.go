@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/contexts"
 )
 
 type initConfigTestSuite struct {
@@ -65,7 +64,6 @@ secret_access_key: YYY
 
 	err = initConfig()
 	suite.Nil(err)
-	suite.NotNil(contexts.Storage)
 	suite.Equal(configPath, viper.ConfigFileUsed())
 	suite.Equal("XXX", viper.GetString(constants.ConfigAccessKeyID))
 	suite.Equal("YYY", viper.GetString(constants.ConfigSecretAccessKey))
@@ -84,7 +82,6 @@ func (suite initConfigTestSuite) TestInitConfigFromEnv() {
 
 	err = initConfig()
 	suite.Nil(err)
-	suite.NotNil(contexts.Storage)
 	suite.Equal("", viper.ConfigFileUsed())
 	suite.Equal("XXX", viper.GetString(constants.ConfigAccessKeyID))
 	suite.Equal("YYY", viper.GetString(constants.ConfigSecretAccessKey))
@@ -115,7 +112,6 @@ secret_access_key: YYY
 
 	err = initConfig()
 	suite.Nil(err)
-	suite.NotNil(contexts.Storage)
 	suite.Equal(filePath, viper.ConfigFileUsed())
 	suite.Equal("XXX", viper.GetString(constants.ConfigAccessKeyID))
 	suite.Equal("YYY", viper.GetString(constants.ConfigSecretAccessKey))
@@ -145,7 +141,6 @@ secret_access_key: YYY
 
 	err = initConfig()
 	suite.Nil(err)
-	suite.NotNil(contexts.Storage)
 	suite.Equal(filePath, viper.ConfigFileUsed())
 	suite.Equal("XXX", viper.GetString(constants.ConfigAccessKeyID))
 	suite.Equal("YYY", viper.GetString(constants.ConfigSecretAccessKey))

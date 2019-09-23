@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -22,11 +21,7 @@ var RmCommand = &cobra.Command{
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
-	rmHandler := &action.DeleteHandler{}
-	return rmHandler.
-		WithRemote(args[0]).
-		WithZone(zone).
-		Delete()
+	return nil
 }
 
 func initRmFlag() {

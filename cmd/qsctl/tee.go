@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
+
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -30,20 +29,12 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 }
 
 func teeRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
-	teeHandler := &action.CopyHandler{}
-	return teeHandler.
-		WithBench(bench).
-		WithDest(args[1]).
-		WithExpectSize(teeExpectSize).
-		WithMaximumMemory(teeMaxMemory).
-		WithSrc(args[0]).
-		Copy()
+	return nil
 }
 
 func initTeeFlag() {
 	TeeCommand.PersistentFlags().StringVar(&expectSize,
-		constants.ExpectSizeFlag,
+		"expect-size",
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
