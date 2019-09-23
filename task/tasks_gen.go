@@ -18,7 +18,7 @@ import (
 )
 
 type task struct {
-	Name           string
+	Name           string   `json:"-"`
 	Type           string   `json:"type"`
 	Path           string   `json:"path"`
 	Depend         string   `json:"depend,omitempty"`

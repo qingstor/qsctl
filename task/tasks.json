@@ -1,6 +1,5 @@
 {
   "Copy": {
-    "Name": "Copy",
     "type": "dependent",
     "path": "copy",
     "description": "the root copy task",
@@ -17,7 +16,6 @@
     ]
   },
   "CopyFile": {
-    "Name": "CopyFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "Copy",
@@ -32,7 +30,6 @@
     ]
   },
   "CopyLargeFile": {
-    "Name": "CopyLargeFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
@@ -53,7 +50,6 @@
     ]
   },
   "CopyPartialFile": {
-    "Name": "CopyPartialFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyLargeFile",
@@ -77,7 +73,6 @@
     ]
   },
   "CopyPartialStream": {
-    "Name": "CopyPartialStream",
     "type": "dependent",
     "path": "copy_stream",
     "depend": "CopyStream",
@@ -101,7 +96,6 @@
     ]
   },
   "CopySmallFile": {
-    "Name": "CopySmallFile",
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
@@ -119,7 +113,6 @@
     ]
   },
   "CopyStream": {
-    "Name": "CopyStream",
     "type": "dependent",
     "path": "copy_stream",
     "depend": "Copy",
@@ -141,7 +134,6 @@
     ]
   },
   "FileMD5Sum": {
-    "Name": "FileMD5Sum",
     "type": "required",
     "path": "common/md5sum",
     "description": "get file's md5 sum",
@@ -155,7 +147,6 @@
     ]
   },
   "FileUpload": {
-    "Name": "FileUpload",
     "type": "required",
     "path": "common/file",
     "description": "upload file as an object",
@@ -167,7 +158,6 @@
     ]
   },
   "MultipartComplete": {
-    "Name": "MultipartComplete",
     "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via stream",
@@ -179,7 +169,6 @@
     ]
   },
   "MultipartFileUpload": {
-    "Name": "MultipartFileUpload",
     "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via file",
@@ -196,7 +185,6 @@
     ]
   },
   "MultipartInit": {
-    "Name": "MultipartInit",
     "type": "required",
     "path": "common/multipart",
     "description": "init a multipart upload",
@@ -213,7 +201,6 @@
     ]
   },
   "MultipartStreamUpload": {
-    "Name": "MultipartStreamUpload",
     "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via stream",
@@ -229,7 +216,6 @@
     ]
   },
   "StreamMD5Sum": {
-    "Name": "StreamMD5Sum",
     "type": "required",
     "path": "common/md5sum",
     "description": "get stream's md5 sum",
@@ -241,7 +227,6 @@
     ]
   },
   "Wait": {
-    "Name": "Wait",
     "type": "required",
     "path": "common/wait",
     "description": "wait until parent task finished",
