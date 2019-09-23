@@ -19,6 +19,18 @@ type copyTaskRequirement interface {
 	// Inherited value
 }
 
+// mockCopyTask is the mock task for CopyTask.
+type mockCopyTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+}
+
+func (t *mockCopyTask) Run() {
+	panic("mockCopyTask should not be run.")
+}
+
 // CopyTask will the root copy task.
 type CopyTask struct {
 	copyTaskRequirement
@@ -34,18 +46,6 @@ type CopyTask struct {
 	types.Pool
 	types.Storage
 	types.Stream
-}
-
-// mockCopyTask is the mock task for CopyTask.
-type mockCopyTask struct {
-	types.Todo
-	types.Pool
-
-	// Inherited value
-}
-
-func (t *mockCopyTask) Run() {
-	panic("mockCopyTask should not be run.")
 }
 
 // Run implement navvy.Task

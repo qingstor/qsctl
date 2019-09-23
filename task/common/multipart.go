@@ -6,12 +6,9 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/task/utils"
 )
 
-// Run implement navvy.Task.
-func (t *MultipartInitTask) Run() {
+func (t *MultipartInitTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetKey())
 
 	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetKey())
@@ -27,18 +24,16 @@ func (t *MultipartInitTask) Run() {
 			break
 		}
 
-		task := t.GetTaskConstructor()(t.MultipartInitTaskRequirement)
+		task := t.GetTaskConstructor()(t.multipartInitTaskRequirement)
 		wg.Add(1)
 
 		go t.GetPool().Submit(task)
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetKey())
-	utils.SubmitNextTask(t.MultipartInitTaskRequirement)
 }
 
-// Run implement navvy.Task.
-func (t *MultipartFileUploadTask) Run() {
+func (t *MultipartFileUploadTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
 
 	f, err := os.Open(t.GetPath())
@@ -57,11 +52,9 @@ func (t *MultipartFileUploadTask) Run() {
 	t.GetWaitGroup().Done()
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
-	utils.SubmitNextTask(t.MultipartFileUploadTaskRequirement)
 }
 
-// Run implement navvy.Task.
-func (t *MultipartStreamUploadTask) Run() {
+func (t *MultipartStreamUploadTask) run() {
 	log.Debugf("Task <%s> for Stream at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPartNumber())
 
 	err := t.GetStorage().UploadMultipart(
@@ -74,11 +67,9 @@ func (t *MultipartStreamUploadTask) Run() {
 	t.GetWaitGroup().Done()
 
 	log.Debugf("Task <%s> for Stream at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetPartNumber())
-	utils.SubmitNextTask(t.MultipartStreamUploadTaskRequirement)
 }
 
-// Run implement navvy.Task.
-func (t *MultipartCompleteTask) Run() {
+func (t *MultipartCompleteTask) run() {
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> started.", "MultipartCompleteTask", t.GetKey(), t.GetUploadID())
 
 	err := t.GetStorage().CompleteMultipartUpload(t.GetKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()))
@@ -87,5 +78,4 @@ func (t *MultipartCompleteTask) Run() {
 	}
 
 	log.Debugf("Task <%s> for Object <%s> UploadID <%s> finished.", "MultipartCompleteTask", t.GetKey(), t.GetUploadID())
-	utils.SubmitNextTask(t.MultipartCompleteTaskRequirement)
 }

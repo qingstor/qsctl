@@ -12,8 +12,8 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// FileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
-type FileMD5SumTaskRequirement interface {
+// fileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
+type fileMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -22,14 +22,8 @@ type FileMD5SumTaskRequirement interface {
 	types.OffsetGetter
 	types.PathGetter
 	types.SizeGetter
-
 	// Runtime value
 	types.MD5SumSetter
-}
-
-// FileMD5SumTask will get file's md5 sum.
-type FileMD5SumTask struct {
-	FileMD5SumTaskRequirement
 }
 
 // mockFileMD5SumTask is the mock task for FileMD5SumTask.
@@ -41,7 +35,6 @@ type mockFileMD5SumTask struct {
 	types.Offset
 	types.Path
 	types.Size
-
 	// Runtime value
 	types.MD5Sum
 }
@@ -50,27 +43,32 @@ func (t *mockFileMD5SumTask) Run() {
 	panic("mockFileMD5SumTask should not be run.")
 }
 
-// NewFileMD5SumTask will create a new FileMD5SumTask.
-func NewFileMD5SumTask(task types.Todoist) navvy.Task {
-	return &FileMD5SumTask{task.(FileMD5SumTaskRequirement)}
+// FileMD5SumTask will get file's md5 sum.
+type FileMD5SumTask struct {
+	fileMD5SumTaskRequirement
 }
 
-// StreamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
-type StreamMD5SumTaskRequirement interface {
+// Run implement navvy.Task.
+func (t *FileMD5SumTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.fileMD5SumTaskRequirement)
+}
+
+// NewFileMD5SumTask will create a new FileMD5SumTask.
+func NewFileMD5SumTask(task types.Todoist) navvy.Task {
+	return &FileMD5SumTask{task.(fileMD5SumTaskRequirement)}
+}
+
+// streamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
+type streamMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
 
 	// Inherited value
 	types.ContentGetter
-
 	// Runtime value
 	types.MD5SumSetter
-}
-
-// StreamMD5SumTask will get stream's md5 sum.
-type StreamMD5SumTask struct {
-	StreamMD5SumTaskRequirement
 }
 
 // mockStreamMD5SumTask is the mock task for StreamMD5SumTask.
@@ -80,7 +78,6 @@ type mockStreamMD5SumTask struct {
 
 	// Inherited value
 	types.Content
-
 	// Runtime value
 	types.MD5Sum
 }
@@ -89,7 +86,18 @@ func (t *mockStreamMD5SumTask) Run() {
 	panic("mockStreamMD5SumTask should not be run.")
 }
 
+// StreamMD5SumTask will get stream's md5 sum.
+type StreamMD5SumTask struct {
+	streamMD5SumTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *StreamMD5SumTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.streamMD5SumTaskRequirement)
+}
+
 // NewStreamMD5SumTask will create a new StreamMD5SumTask.
 func NewStreamMD5SumTask(task types.Todoist) navvy.Task {
-	return &StreamMD5SumTask{task.(StreamMD5SumTaskRequirement)}
+	return &StreamMD5SumTask{task.(streamMD5SumTaskRequirement)}
 }

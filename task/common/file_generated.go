@@ -12,8 +12,8 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// FileUploadTaskRequirement is the requirement for execute FileUploadTask.
-type FileUploadTaskRequirement interface {
+// fileUploadTaskRequirement is the requirement for execute FileUploadTask.
+type fileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -23,13 +23,7 @@ type FileUploadTaskRequirement interface {
 	types.MD5SumGetter
 	types.PathGetter
 	types.StorageGetter
-
 	// Runtime value
-}
-
-// FileUploadTask will upload file as an object.
-type FileUploadTask struct {
-	FileUploadTaskRequirement
 }
 
 // mockFileUploadTask is the mock task for FileUploadTask.
@@ -42,7 +36,6 @@ type mockFileUploadTask struct {
 	types.MD5Sum
 	types.Path
 	types.Storage
-
 	// Runtime value
 }
 
@@ -50,7 +43,18 @@ func (t *mockFileUploadTask) Run() {
 	panic("mockFileUploadTask should not be run.")
 }
 
+// FileUploadTask will upload file as an object.
+type FileUploadTask struct {
+	fileUploadTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *FileUploadTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.fileUploadTaskRequirement)
+}
+
 // NewFileUploadTask will create a new FileUploadTask.
 func NewFileUploadTask(task types.Todoist) navvy.Task {
-	return &FileUploadTask{task.(FileUploadTaskRequirement)}
+	return &FileUploadTask{task.(fileUploadTaskRequirement)}
 }

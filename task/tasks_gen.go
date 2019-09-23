@@ -106,6 +106,14 @@ func main() {
 
 		// Write task.
 		for _, task := range page {
+			err = requirementTmpl.Execute(f, task)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = mockTmpl.Execute(f, task)
+			if err != nil {
+				log.Fatal(err)
+			}
 			err = taskTmpl[task.Type].Execute(f, task)
 			if err != nil {
 				log.Fatal(err)
@@ -139,29 +147,34 @@ var _ types.Pool
 var _ = utils.SubmitNextTask
 `))
 
-var requiredTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
-// {{ .Name }}TaskRequirement is the requirement for execute {{ .Name }}Task.
-type {{ .Name }}TaskRequirement interface {
+var requirementTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
+// {{ .Name | lowerFirst }}TaskRequirement is the requirement for execute {{ .Name }}Task.
+type {{ .Name | lowerFirst }}TaskRequirement interface {
 	navvy.Task
+{{- if eq .Type "required" }}
 	types.Todoist
 	types.PoolGetter
+{{ else }}
+{{- if .Depend }}
+	types.PoolGetter
+{{- end }}
+{{- end }}
 
 	// Inherited value
 {{- range $k, $v := .InheritedValue }}
 	types.{{$v}}Getter
 {{- end }}
 
+{{- if eq .Type "required" }}
 	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
 	types.{{$v}}Setter
 {{- end }}
+{{- end }}
 }
+`))
 
-// {{ .Name }}Task will {{ .Description }}.
-type {{ .Name }}Task struct {
-	{{ .Name }}TaskRequirement
-}
-
+var mockTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 // mock{{ .Name }}Task is the mock task for {{ .Name }}Task.
 type mock{{ .Name }}Task struct {
 	types.Todo
@@ -172,36 +185,38 @@ type mock{{ .Name }}Task struct {
 	types.{{$v}}
 {{- end }}
 
+{{- if eq .Type "required" }}
 	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
 	types.{{$v}}
+{{- end }}
 {{- end }}
 }
 
 func (t *mock{{ .Name }}Task) Run() {
 	panic("mock{{ .Name }}Task should not be run.")
 }
+`))
+
+var requiredTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
+// {{ .Name }}Task will {{ .Description }}.
+type {{ .Name }}Task struct {
+	{{ .Name | lowerFirst }}TaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *{{ .Name }}Task) Run() {
+	t.run()
+	utils.SubmitNextTask(t.{{ .Name | lowerFirst }}TaskRequirement)
+}
 
 // New{{ .Name }}Task will create a new {{ .Name }}Task.
 func New{{ .Name }}Task(task types.Todoist) navvy.Task {
-	return &{{ .Name }}Task{task.({{ .Name }}TaskRequirement)}
+	return &{{ .Name }}Task{task.({{ .Name | lowerFirst }}TaskRequirement)}
 }
 `))
 
 var dependentTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
-// {{ .Name | lowerFirst }}TaskRequirement is the requirement for execute {{ .Name }}Task.
-type {{ .Name | lowerFirst }}TaskRequirement interface {
-	navvy.Task
-{{- if .Depend }}
-	types.PoolGetter
-{{- end }}
-
-	// Inherited value
-{{- range $k, $v := .InheritedValue }}
-	types.{{$v}}Getter
-{{- end }}
-}
-
 // {{ .Name }}Task will {{ .Description }}.
 type {{ .Name }}Task struct {
 	{{ .Name | lowerFirst }}TaskRequirement
@@ -211,21 +226,6 @@ type {{ .Name }}Task struct {
 {{- range $k, $v := .RuntimeValue }}
 	types.{{$v}}
 {{- end }}
-}
-
-// mock{{ .Name }}Task is the mock task for {{ .Name }}Task.
-type mock{{ .Name }}Task struct {
-	types.Todo
-	types.Pool
-
-	// Inherited value
-{{- range $k, $v := .InheritedValue }}
-	types.{{$v}}
-{{- end }}
-}
-
-func (t *mock{{ .Name }}Task) Run() {
-	panic("mock{{ .Name }}Task should not be run.")
 }
 
 // Run implement navvy.Task

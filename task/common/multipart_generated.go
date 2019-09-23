@@ -12,8 +12,8 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// MultipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
-type MultipartCompleteTaskRequirement interface {
+// multipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
+type multipartCompleteTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -23,13 +23,7 @@ type MultipartCompleteTaskRequirement interface {
 	types.KeyGetter
 	types.StorageGetter
 	types.UploadIDGetter
-
 	// Runtime value
-}
-
-// MultipartCompleteTask will upload a multipart via stream.
-type MultipartCompleteTask struct {
-	MultipartCompleteTaskRequirement
 }
 
 // mockMultipartCompleteTask is the mock task for MultipartCompleteTask.
@@ -42,7 +36,6 @@ type mockMultipartCompleteTask struct {
 	types.Key
 	types.Storage
 	types.UploadID
-
 	// Runtime value
 }
 
@@ -50,13 +43,24 @@ func (t *mockMultipartCompleteTask) Run() {
 	panic("mockMultipartCompleteTask should not be run.")
 }
 
-// NewMultipartCompleteTask will create a new MultipartCompleteTask.
-func NewMultipartCompleteTask(task types.Todoist) navvy.Task {
-	return &MultipartCompleteTask{task.(MultipartCompleteTaskRequirement)}
+// MultipartCompleteTask will upload a multipart via stream.
+type MultipartCompleteTask struct {
+	multipartCompleteTaskRequirement
 }
 
-// MultipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
-type MultipartFileUploadTaskRequirement interface {
+// Run implement navvy.Task.
+func (t *MultipartCompleteTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.multipartCompleteTaskRequirement)
+}
+
+// NewMultipartCompleteTask will create a new MultipartCompleteTask.
+func NewMultipartCompleteTask(task types.Todoist) navvy.Task {
+	return &MultipartCompleteTask{task.(multipartCompleteTaskRequirement)}
+}
+
+// multipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
+type multipartFileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -71,13 +75,7 @@ type MultipartFileUploadTaskRequirement interface {
 	types.StorageGetter
 	types.UploadIDGetter
 	types.WaitGroupGetter
-
 	// Runtime value
-}
-
-// MultipartFileUploadTask will upload a multipart via file.
-type MultipartFileUploadTask struct {
-	MultipartFileUploadTaskRequirement
 }
 
 // mockMultipartFileUploadTask is the mock task for MultipartFileUploadTask.
@@ -95,7 +93,6 @@ type mockMultipartFileUploadTask struct {
 	types.Storage
 	types.UploadID
 	types.WaitGroup
-
 	// Runtime value
 }
 
@@ -103,13 +100,24 @@ func (t *mockMultipartFileUploadTask) Run() {
 	panic("mockMultipartFileUploadTask should not be run.")
 }
 
-// NewMultipartFileUploadTask will create a new MultipartFileUploadTask.
-func NewMultipartFileUploadTask(task types.Todoist) navvy.Task {
-	return &MultipartFileUploadTask{task.(MultipartFileUploadTaskRequirement)}
+// MultipartFileUploadTask will upload a multipart via file.
+type MultipartFileUploadTask struct {
+	multipartFileUploadTaskRequirement
 }
 
-// MultipartInitTaskRequirement is the requirement for execute MultipartInitTask.
-type MultipartInitTaskRequirement interface {
+// Run implement navvy.Task.
+func (t *MultipartFileUploadTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.multipartFileUploadTaskRequirement)
+}
+
+// NewMultipartFileUploadTask will create a new MultipartFileUploadTask.
+func NewMultipartFileUploadTask(task types.Todoist) navvy.Task {
+	return &MultipartFileUploadTask{task.(multipartFileUploadTaskRequirement)}
+}
+
+// multipartInitTaskRequirement is the requirement for execute MultipartInitTask.
+type multipartInitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -121,14 +129,8 @@ type MultipartInitTaskRequirement interface {
 	types.TaskConstructorGetter
 	types.TotalSizeGetter
 	types.WaitGroupGetter
-
 	// Runtime value
 	types.UploadIDSetter
-}
-
-// MultipartInitTask will init a multipart upload.
-type MultipartInitTask struct {
-	MultipartInitTaskRequirement
 }
 
 // mockMultipartInitTask is the mock task for MultipartInitTask.
@@ -143,7 +145,6 @@ type mockMultipartInitTask struct {
 	types.TaskConstructor
 	types.TotalSize
 	types.WaitGroup
-
 	// Runtime value
 	types.UploadID
 }
@@ -152,13 +153,24 @@ func (t *mockMultipartInitTask) Run() {
 	panic("mockMultipartInitTask should not be run.")
 }
 
-// NewMultipartInitTask will create a new MultipartInitTask.
-func NewMultipartInitTask(task types.Todoist) navvy.Task {
-	return &MultipartInitTask{task.(MultipartInitTaskRequirement)}
+// MultipartInitTask will init a multipart upload.
+type MultipartInitTask struct {
+	multipartInitTaskRequirement
 }
 
-// MultipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
-type MultipartStreamUploadTaskRequirement interface {
+// Run implement navvy.Task.
+func (t *MultipartInitTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.multipartInitTaskRequirement)
+}
+
+// NewMultipartInitTask will create a new MultipartInitTask.
+func NewMultipartInitTask(task types.Todoist) navvy.Task {
+	return &MultipartInitTask{task.(multipartInitTaskRequirement)}
+}
+
+// multipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
+type multipartStreamUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
@@ -172,13 +184,7 @@ type MultipartStreamUploadTaskRequirement interface {
 	types.StorageGetter
 	types.UploadIDGetter
 	types.WaitGroupGetter
-
 	// Runtime value
-}
-
-// MultipartStreamUploadTask will upload a multipart via stream.
-type MultipartStreamUploadTask struct {
-	MultipartStreamUploadTaskRequirement
 }
 
 // mockMultipartStreamUploadTask is the mock task for MultipartStreamUploadTask.
@@ -195,7 +201,6 @@ type mockMultipartStreamUploadTask struct {
 	types.Storage
 	types.UploadID
 	types.WaitGroup
-
 	// Runtime value
 }
 
@@ -203,7 +208,18 @@ func (t *mockMultipartStreamUploadTask) Run() {
 	panic("mockMultipartStreamUploadTask should not be run.")
 }
 
+// MultipartStreamUploadTask will upload a multipart via stream.
+type MultipartStreamUploadTask struct {
+	multipartStreamUploadTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *MultipartStreamUploadTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.multipartStreamUploadTaskRequirement)
+}
+
 // NewMultipartStreamUploadTask will create a new MultipartStreamUploadTask.
 func NewMultipartStreamUploadTask(task types.Todoist) navvy.Task {
-	return &MultipartStreamUploadTask{task.(MultipartStreamUploadTaskRequirement)}
+	return &MultipartStreamUploadTask{task.(multipartStreamUploadTaskRequirement)}
 }

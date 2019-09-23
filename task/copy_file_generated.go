@@ -23,15 +23,6 @@ type copyFileTaskRequirement interface {
 	types.StorageGetter
 }
 
-// CopyFileTask will copy a file to storage.
-type CopyFileTask struct {
-	copyFileTaskRequirement
-
-	// Runtime value
-	types.Todo
-	types.TotalSize
-}
-
 // mockCopyFileTask is the mock task for CopyFileTask.
 type mockCopyFileTask struct {
 	types.Todo
@@ -45,6 +36,15 @@ type mockCopyFileTask struct {
 
 func (t *mockCopyFileTask) Run() {
 	panic("mockCopyFileTask should not be run.")
+}
+
+// CopyFileTask will copy a file to storage.
+type CopyFileTask struct {
+	copyFileTaskRequirement
+
+	// Runtime value
+	types.Todo
+	types.TotalSize
 }
 
 // Run implement navvy.Task
@@ -73,20 +73,6 @@ type copyLargeFileTaskRequirement interface {
 	types.TotalSizeGetter
 }
 
-// CopyLargeFileTask will copy a large file to storage.
-type CopyLargeFileTask struct {
-	copyLargeFileTaskRequirement
-
-	// Runtime value
-	types.Todo
-	types.CurrentOffset
-	types.CurrentPartNumber
-	types.PartSize
-	types.TaskConstructor
-	types.UploadID
-	types.WaitGroup
-}
-
 // mockCopyLargeFileTask is the mock task for CopyLargeFileTask.
 type mockCopyLargeFileTask struct {
 	types.Todo
@@ -101,6 +87,20 @@ type mockCopyLargeFileTask struct {
 
 func (t *mockCopyLargeFileTask) Run() {
 	panic("mockCopyLargeFileTask should not be run.")
+}
+
+// CopyLargeFileTask will copy a large file to storage.
+type CopyLargeFileTask struct {
+	copyLargeFileTaskRequirement
+
+	// Runtime value
+	types.Todo
+	types.CurrentOffset
+	types.CurrentPartNumber
+	types.PartSize
+	types.TaskConstructor
+	types.UploadID
+	types.WaitGroup
 }
 
 // Run implement navvy.Task
@@ -134,18 +134,6 @@ type copyPartialFileTaskRequirement interface {
 	types.WaitGroupGetter
 }
 
-// CopyPartialFileTask will copy a partial file to storage, is the sub task for CopyLargeFile.
-type CopyPartialFileTask struct {
-	copyPartialFileTaskRequirement
-
-	// Runtime value
-	types.Todo
-	types.MD5Sum
-	types.Offset
-	types.PartNumber
-	types.Size
-}
-
 // mockCopyPartialFileTask is the mock task for CopyPartialFileTask.
 type mockCopyPartialFileTask struct {
 	types.Todo
@@ -165,6 +153,18 @@ type mockCopyPartialFileTask struct {
 
 func (t *mockCopyPartialFileTask) Run() {
 	panic("mockCopyPartialFileTask should not be run.")
+}
+
+// CopyPartialFileTask will copy a partial file to storage, is the sub task for CopyLargeFile.
+type CopyPartialFileTask struct {
+	copyPartialFileTaskRequirement
+
+	// Runtime value
+	types.Todo
+	types.MD5Sum
+	types.Offset
+	types.PartNumber
+	types.Size
 }
 
 // Run implement navvy.Task
@@ -193,17 +193,6 @@ type copySmallFileTaskRequirement interface {
 	types.TotalSizeGetter
 }
 
-// CopySmallFileTask will copy a small file to storage.
-type CopySmallFileTask struct {
-	copySmallFileTaskRequirement
-
-	// Runtime value
-	types.Todo
-	types.MD5Sum
-	types.Offset
-	types.Size
-}
-
 // mockCopySmallFileTask is the mock task for CopySmallFileTask.
 type mockCopySmallFileTask struct {
 	types.Todo
@@ -218,6 +207,17 @@ type mockCopySmallFileTask struct {
 
 func (t *mockCopySmallFileTask) Run() {
 	panic("mockCopySmallFileTask should not be run.")
+}
+
+// CopySmallFileTask will copy a small file to storage.
+type CopySmallFileTask struct {
+	copySmallFileTaskRequirement
+
+	// Runtime value
+	types.Todo
+	types.MD5Sum
+	types.Offset
+	types.Size
 }
 
 // Run implement navvy.Task

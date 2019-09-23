@@ -4,12 +4,9 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/task/utils"
 )
 
-// Run implement navvy.Task.
-func (t *FileUploadTask) Run() {
+func (t *FileUploadTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetKey())
 
 	f, err := os.Open(t.GetPath())
@@ -24,5 +21,4 @@ func (t *FileUploadTask) Run() {
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetKey())
-	utils.SubmitNextTask(t.FileUploadTaskRequirement)
 }

@@ -29,18 +29,6 @@ type copyPartialStreamTaskRequirement interface {
 	types.WaitGroupGetter
 }
 
-// CopyPartialStreamTask will copy a partial stream to storage.
-type CopyPartialStreamTask struct {
-	copyPartialStreamTaskRequirement
-
-	// Runtime value
-	types.Todo
-	types.Content
-	types.MD5Sum
-	types.PartNumber
-	types.Size
-}
-
 // mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
 type mockCopyPartialStreamTask struct {
 	types.Todo
@@ -60,6 +48,18 @@ type mockCopyPartialStreamTask struct {
 
 func (t *mockCopyPartialStreamTask) Run() {
 	panic("mockCopyPartialStreamTask should not be run.")
+}
+
+// CopyPartialStreamTask will copy a partial stream to storage.
+type CopyPartialStreamTask struct {
+	copyPartialStreamTaskRequirement
+
+	// Runtime value
+	types.Todo
+	types.Content
+	types.MD5Sum
+	types.PartNumber
+	types.Size
 }
 
 // Run implement navvy.Task
@@ -87,6 +87,21 @@ type copyStreamTaskRequirement interface {
 	types.StreamGetter
 }
 
+// mockCopyStreamTask is the mock task for CopyStreamTask.
+type mockCopyStreamTask struct {
+	types.Todo
+	types.Pool
+
+	// Inherited value
+	types.Key
+	types.Storage
+	types.Stream
+}
+
+func (t *mockCopyStreamTask) Run() {
+	panic("mockCopyStreamTask should not be run.")
+}
+
 // CopyStreamTask will copy a stream to storage.
 type CopyStreamTask struct {
 	copyStreamTaskRequirement
@@ -101,21 +116,6 @@ type CopyStreamTask struct {
 	types.TotalSize
 	types.UploadID
 	types.WaitGroup
-}
-
-// mockCopyStreamTask is the mock task for CopyStreamTask.
-type mockCopyStreamTask struct {
-	types.Todo
-	types.Pool
-
-	// Inherited value
-	types.Key
-	types.Storage
-	types.Stream
-}
-
-func (t *mockCopyStreamTask) Run() {
-	panic("mockCopyStreamTask should not be run.")
 }
 
 // Run implement navvy.Task

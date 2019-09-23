@@ -12,21 +12,15 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-// WaitTaskRequirement is the requirement for execute WaitTask.
-type WaitTaskRequirement interface {
+// waitTaskRequirement is the requirement for execute WaitTask.
+type waitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
 
 	// Inherited value
 	types.WaitGroupGetter
-
 	// Runtime value
-}
-
-// WaitTask will wait until parent task finished.
-type WaitTask struct {
-	WaitTaskRequirement
 }
 
 // mockWaitTask is the mock task for WaitTask.
@@ -36,7 +30,6 @@ type mockWaitTask struct {
 
 	// Inherited value
 	types.WaitGroup
-
 	// Runtime value
 }
 
@@ -44,7 +37,18 @@ func (t *mockWaitTask) Run() {
 	panic("mockWaitTask should not be run.")
 }
 
+// WaitTask will wait until parent task finished.
+type WaitTask struct {
+	waitTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *WaitTask) Run() {
+	t.run()
+	utils.SubmitNextTask(t.waitTaskRequirement)
+}
+
 // NewWaitTask will create a new WaitTask.
 func NewWaitTask(task types.Todoist) navvy.Task {
-	return &WaitTask{task.(WaitTaskRequirement)}
+	return &WaitTask{task.(waitTaskRequirement)}
 }
