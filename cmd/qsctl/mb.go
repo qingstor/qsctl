@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -30,11 +29,7 @@ bucket name should follow DNS name rule with:
 
 func mbRun(_ *cobra.Command, args []string) (err error) {
 	// Package handler
-	mbHandler := &action.BucketHandler{}
-	return mbHandler.
-		WithRemote(args[0]).
-		WithZone(zone).
-		MakeBucket()
+	return nil
 }
 
 func initMbFlag() {

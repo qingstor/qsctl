@@ -83,7 +83,6 @@ func NewMockObjectStorage() *MockObjectStorage {
 		Location: MockZoneAlpha,
 		OwnerID:  MockZoneAlpha + "user",
 		URL:      fmt.Sprintf("%s.%s", MockZoneAlpha, MockZoneAlpha),
-		ACL:      constants.PublicBucketACL, // bucket MockZoneAlpha sets to public
 	}
 	s.Buckets[MockZoneBeta] = &bucketMeta{
 		Name:     MockZoneBeta,
@@ -97,7 +96,7 @@ func NewMockObjectStorage() *MockObjectStorage {
 
 // SetupBucket implements ObjectStorage.SetupBucket
 func (m *MockObjectStorage) SetupBucket(bucketName, zone string) error {
-	b, ok := m.buckets[bucketName]
+	_, ok := m.Buckets[bucketName]
 	// bucket does not exist in list
 	if !ok {
 		m.currentBucket = &bucketMeta{

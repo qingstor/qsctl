@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qsctl/v2/action"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -26,12 +25,7 @@ this URL can always retrieve the object with an HTTP GET request.`,
 }
 
 func presignRun(_ *cobra.Command, args []string) error {
-	presignHandler := &action.PresignHandler{}
-	return presignHandler.
-		WithExpire(expire).
-		WithRemote(args[0]).
-		WithZone(zone).
-		Presign()
+	return nil
 }
 
 func initPresignFlag() {
