@@ -2,13 +2,20 @@ package utils
 
 import (
 	"os"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/yunify/qsctl/v2/task/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/task/types"
 )
+
+// bucketNameRegexp is the bucket name regexp, which indicates:
+// 1. length: 6-63;
+// 2. contains lowercase letters, digits and strikethrough;
+// 3. starts and ends with letter or digit.
+var bucketNameRegexp = regexp.MustCompile(`^[a-z\d][a-z-\d]{4,61}[a-z\d]$`)
 
 // ParseFlow will parse the data flow
 func ParseFlow(src, dst string) (flow constants.FlowType) {
@@ -79,9 +86,8 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 }
 
 // IsValidBucketName will check whether given string is a valid bucket name.
-// TODO: we should implement this as bucket name validate.
 func IsValidBucketName(s string) bool {
-	return true
+	return bucketNameRegexp.MatchString(s)
 }
 
 // ParseInput will parse two args into flow, path and key.
