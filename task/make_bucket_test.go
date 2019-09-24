@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/common"
-	"github.com/yunify/qsctl/v2/task/types"
 	"github.com/yunify/qsctl/v2/task/utils"
 )
 

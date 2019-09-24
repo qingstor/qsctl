@@ -4,7 +4,7 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 
-	"github.com/yunify/qsctl/v2/task/types"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/utils"
 )
 

@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/task/types"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // bucketNameRegexp is the bucket name regexp, which indicates:
