@@ -75,7 +75,8 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 
 	// Only have bucket name or object key is "/"
 	// For example: "qs://testbucket/"
-	if len(s) == 1 || s[1] == "/" {
+
+	if len(s) == 1 || s[1] == "" {
 		return constants.KeyTypeBucket, s[0], "", nil
 	}
 

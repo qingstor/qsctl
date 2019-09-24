@@ -2,35 +2,12 @@ package utils
 
 import (
 	"io"
-	"regexp"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
-
-// ParseQsPath will parse a qs path.
-func ParseQsPath(remotePath string) (bucketName, objectKey string, err error) {
-	// qs-path includes three part: "qs://" prefix, bucket name and object key.
-	// "qs://" prefix could be emit.
-	pattern := "^(?:qs://)?([a-z\\d][a-z-\\d]{4,61}[a-z\\d])?(.*)?$"
-
-	x := regexp.MustCompile(pattern).FindStringSubmatch(remotePath)
-	if len(x) != 3 || x[1] == "" {
-		return "", "", constants.ErrorQsPathInvalid
-	}
-
-	bucketName, objectKey = x[1], x[2]
-
-	// TODO: add bucket name and object key check here.
-
-	// Trim all left "/"
-	objectKey = strings.TrimLeft(objectKey, "/")
-
-	return bucketName, objectKey, nil
-}
 
 // CalculatePartSize will calculate the object's part size.
 func CalculatePartSize(size int64) (partSize int64, err error) {

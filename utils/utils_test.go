@@ -8,37 +8,6 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 )
 
-func TestParseQsPath(t *testing.T) {
-	cases := []struct {
-		msg       string
-		input     string
-		expected1 string
-		expected2 string
-		err       error
-	}{
-		{"case1", "qs://abcdef/def", "abcdef", "def", nil},
-		{"case2", "qs://abcdef", "abcdef", "", nil},
-		{"case3", "qs://abcdef/", "abcdef", "", nil},
-		{"case4", "qs://", "", "", constants.ErrorQsPathInvalid},
-		{"case5", "qs://abcdef/def/ghi", "abcdef", "def/ghi", nil},
-		{"case6", "abcdef", "abcdef", "", nil},
-		{"case7", "abcdef/def/ghi", "abcdef", "def/ghi", nil},
-		{"case8", "xx://abcdef", "", "", constants.ErrorQsPathInvalid},
-		{"case9", "qs://a-bcdef", "a-bcdef", "", nil},
-		{"case10", "abcdef/👾 🙇 💁 🙅 🙆 🙋 🙎 🙍 ", "abcdef", "👾 🙇 💁 🙅 🙆 🙋 🙎 🙍 ", nil},
-		{"case11", "ABCDEF", "", "", constants.ErrorQsPathInvalid},
-		{"case12", "-abced", "", "", constants.ErrorQsPathInvalid},
-		{"case13", "qs://abcdef/def/", "abcdef", "def/", nil},
-	}
-
-	for _, v := range cases {
-		x1, x2, err := ParseQsPath(v.input)
-		assert.Equal(t, v.err, err, v.msg)
-		assert.Equal(t, v.expected1, x1, v.msg)
-		assert.Equal(t, v.expected2, x2, v.msg)
-	}
-}
-
 func TestCalculatePartSize(t *testing.T) {
 	cases := []struct {
 		msg      string
