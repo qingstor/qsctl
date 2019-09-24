@@ -47,27 +47,22 @@ func TestParseKey(t *testing.T) {
 }
 
 func TestIsValidBucketName(t *testing.T) {
-	type args struct {
-		s string
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
+	cases := []struct {
+		name          string
+		input         string
+		expectedValid bool
 	}{
-		{"start with letter", args{"a-bucket-test"}, true},
-		{"start with digit", args{"0-bucket-test"}, true},
-		{"start with strike", args{"-bucket-test"}, false},
-		{"end with strike", args{"bucket-test-"}, false},
-		{"too short", args{"abcd"}, false},
-		{"too long (64)", args{"abcdefghijklmnopqrstuvwxyz123456abcdefghijklmnopqrstuvwxyz123456"}, false},
-		{"contains illegal char", args{"abcdefg_1234"}, false},
+		{"start with letter", "a-bucket-test", true},
+		{"start with digit", "0-bucket-test", true},
+		{"start with strike", "-bucket-test", false},
+		{"end with strike", "bucket-test-", false},
+		{"too short", "abcd", false},
+		{"too long (64)", "abcdefghijklmnopqrstuvwxyz123456abcdefghijklmnopqrstuvwxyz123456", false},
+		{"contains illegal char", "abcdefg_1234", false},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := IsValidBucketName(tt.args.s); got != tt.want {
-				t.Errorf("IsValidBucketName() = %v, want %v", got, tt.want)
-			}
-		})
+
+	for _, v := range cases {
+		valid := IsValidBucketName(v.input)
+		assert.Equal(t, valid, v.expectedValid)
 	}
 }
