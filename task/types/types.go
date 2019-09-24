@@ -611,3 +611,28 @@ func (o *WaitGroup) SetWaitGroup(v *sync.WaitGroup) {
 	o.v = v
 	o.valid = true
 }
+
+type ZoneGetter interface {
+	GetZone() string
+}
+
+type ZoneSetter interface {
+	SetZone(string)
+}
+
+type Zone struct {
+	valid bool
+	v     string
+}
+
+func (o *Zone) GetZone() string {
+	if !o.valid {
+		panic("Zone value is not valid")
+	}
+	return o.v
+}
+
+func (o *Zone) SetZone(v string) {
+	o.v = v
+	o.valid = true
+}

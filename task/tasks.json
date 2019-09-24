@@ -157,6 +157,17 @@
       "Storage"
     ]
   },
+  "MakeBucket": {
+    "type": "dependent",
+    "path": "bucket_make_bucket",
+    "description": "make new bucket with given key",
+    "runtime_value": [
+      "BucketName",
+      "Pool",
+      "Storage",
+      "Zone"
+    ]
+  },
   "MultipartComplete": {
     "type": "required",
     "path": "common/multipart",
@@ -213,6 +224,15 @@
       "Storage",
       "UploadID",
       "WaitGroup"
+    ]
+  },
+  "PutBucket": {
+    "type": "required",
+    "path": "bucket_put_bucket",
+    "description": "send put request to create a bucket",
+    "inherited_value": [
+      "BucketName",
+      "Storage"
     ]
   },
   "StreamMD5Sum": {

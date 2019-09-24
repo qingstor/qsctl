@@ -37,6 +37,7 @@ generate:
 	@echo "generate code..."
 	@go generate task/types/types_gen.go
 	@go generate task/tasks_gen.go
+	@go fmt ./...
 	@echo "Done"
 
 build: tidy generate check
