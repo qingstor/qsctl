@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestFileMD5SumTask_Run(t *testing.T) {

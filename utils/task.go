@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/task/types"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // bucketNameRegexp is the bucket name regexp, which indicates:
@@ -75,7 +75,8 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 
 	// Only have bucket name or object key is "/"
 	// For example: "qs://testbucket/"
-	if len(s) == 1 || s[1] == "/" {
+
+	if len(s) == 1 || s[1] == "" {
 		return constants.KeyTypeBucket, s[0], "", nil
 	}
 

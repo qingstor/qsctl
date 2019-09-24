@@ -35,14 +35,22 @@ func TestParseKey(t *testing.T) {
 		expectedKey        string
 	}{
 		{"qs://xxxx-bucket/abc", constants.KeyTypeObject, "xxxx-bucket", "abc"},
+		{"qs://abcdef", constants.KeyTypeBucket, "abcdef", ""},
+		{"qs://abcdef/", constants.KeyTypeBucket, "abcdef", ""},
+		{"qs://abcdef/def/ghi", constants.KeyTypeObject, "abcdef", "def/ghi"},
+		{"qs://abcdef/def/ghi/", constants.KeyTypePseudoDir, "abcdef", "def/ghi/"},
+		{"abcdef", constants.KeyTypeBucket, "abcdef", ""},
+		{"abcdef/", constants.KeyTypeBucket, "abcdef", ""},
+		{"abcdef/def/ghi", constants.KeyTypeObject, "abcdef", "def/ghi"},
+		{"abcdef/👾 🙇 💁 🙅 🙆 🙋 🙎 🙍", constants.KeyTypeObject, "abcdef", "👾 🙇 💁 🙅 🙆 🙋 🙎 🙍"},
 	}
 
-	for _, v := range cases {
+	for k, v := range cases {
 		actualKeyType, actualBucketName, actualKey, err := ParseKey(v.input)
-		assert.Equal(t, v.expectedKeyType, actualKeyType)
-		assert.Equal(t, v.expectedBucketName, actualBucketName)
-		assert.Equal(t, v.expectedKey, actualKey)
-		assert.NoError(t, err)
+		assert.Equal(t, v.expectedKeyType, actualKeyType, k)
+		assert.Equal(t, v.expectedBucketName, actualBucketName, k)
+		assert.Equal(t, v.expectedKey, actualKey, k)
+		assert.NoError(t, err, k)
 	}
 }
 

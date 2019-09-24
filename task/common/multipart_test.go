@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/storage"
-	"github.com/yunify/qsctl/v2/task/types"
-	"github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestMultipartInitTask_Run(t *testing.T) {
