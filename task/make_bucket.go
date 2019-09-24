@@ -1,6 +1,10 @@
 package task
 
-import "github.com/Xuanwo/navvy"
+import (
+	"github.com/Xuanwo/navvy"
+
+	"github.com/yunify/qsctl/v2/task/common"
+)
 
 // NewMakeBucketTask will create a make bucket task.
 func NewMakeBucketTask(fn func(t *MakeBucketTask)) *MakeBucketTask {
@@ -13,6 +17,6 @@ func NewMakeBucketTask(fn func(t *MakeBucketTask)) *MakeBucketTask {
 	t.SetPool(pool)
 
 	fn(t)
-	t.AddTODOs(NewPutBucketTask)
+	t.AddTODOs(common.NewBucketCreateTask)
 	return t
 }

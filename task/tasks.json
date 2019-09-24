@@ -1,4 +1,13 @@
 {
+  "BucketCreate": {
+    "type": "required",
+    "path": "common/bucket",
+    "description": "send put request to create a bucket",
+    "inherited_value": [
+      "BucketName",
+      "Storage"
+    ]
+  },
   "Copy": {
     "type": "dependent",
     "path": "copy",
@@ -159,7 +168,7 @@
   },
   "MakeBucket": {
     "type": "dependent",
-    "path": "bucket_make_bucket",
+    "path": "make_bucket",
     "description": "make new bucket with given key",
     "runtime_value": [
       "BucketName",
@@ -224,15 +233,6 @@
       "Storage",
       "UploadID",
       "WaitGroup"
-    ]
-  },
-  "PutBucket": {
-    "type": "required",
-    "path": "bucket_put_bucket",
-    "description": "send put request to create a bucket",
-    "inherited_value": [
-      "BucketName",
-      "Storage"
     ]
   },
   "StreamMD5Sum": {

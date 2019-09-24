@@ -1,4 +1,4 @@
-package task
+package common
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 	"github.com/yunify/qsctl/v2/storage"
 )
 
-func TestPutBucketTask_Run(t *testing.T) {
+func TestBucketCreateTask_Run(t *testing.T) {
 	bucketName, zone := uuid.New().String(), "t1"
 	store := storage.NewMockObjectStorage()
 	err := store.SetupBucket(bucketName, zone)
@@ -23,12 +23,12 @@ func TestPutBucketTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	x := &mockPutBucketTask{}
+	x := &mockBucketCreateTask{}
 	x.SetBucketName(bucketName)
 	x.SetPool(pool)
 	x.SetStorage(store)
 
-	task := NewPutBucketTask(x)
+	task := NewBucketCreateTask(x)
 	task.Run()
 	pool.Wait()
 

@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/task/common"
 	"github.com/yunify/qsctl/v2/task/types"
 	"github.com/yunify/qsctl/v2/task/utils"
 )
@@ -17,8 +18,8 @@ func TestNewMakeBucketTask(t *testing.T) {
 		expectedTodoFunc types.TodoFunc
 		expectErr        error
 	}{
-		{"qs://test-bucket", NewPutBucketTask, nil},
-		{"test-bucket", NewPutBucketTask, nil},
+		{"qs://test-bucket", common.NewBucketCreateTask, nil},
+		{"test-bucket", common.NewBucketCreateTask, nil},
 	}
 
 	for _, v := range cases {
