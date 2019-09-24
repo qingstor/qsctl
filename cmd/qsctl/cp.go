@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
-	taskUtils "github.com/yunify/qsctl/v2/task/utils"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -57,7 +56,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 			panic(err)
 		}
 
-		err = taskUtils.ParseInput(t, args[0], args[1])
+		err = utils.ParseInput(t, args[0], args[1])
 		if err != nil {
 			panic(err)
 		}

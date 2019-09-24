@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/storage"
-	"github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestFileUploadTask_Run(t *testing.T) {

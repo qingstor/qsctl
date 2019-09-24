@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/storage"
-	taskUtil "github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestCopyLargeFileTask_Run(t *testing.T) {
@@ -22,7 +22,7 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 	}
 	key := uuid.New().String()
 
-	name, size, _ := taskUtil.GenerateTestFile()
+	name, size, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
 	pool, err := navvy.NewPool(10)
@@ -60,7 +60,7 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	name, size, _ := taskUtil.GenerateTestFile()
+	name, size, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
 	pool, err := navvy.NewPool(10)
@@ -106,7 +106,7 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 	}
 	key := uuid.New().String()
 
-	name, size, _ := taskUtil.GenerateTestFile()
+	name, size, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
 	pool, err := navvy.NewPool(10)

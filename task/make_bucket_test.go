@@ -9,7 +9,7 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/common"
-	"github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestNewMakeBucketTask(t *testing.T) {

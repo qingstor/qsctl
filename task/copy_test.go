@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/utils"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/task/utils"
 )
 
 func TestNewCopyTask(t *testing.T) {

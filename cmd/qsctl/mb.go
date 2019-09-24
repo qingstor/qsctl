@@ -6,7 +6,6 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
-	taskUtils "github.com/yunify/qsctl/v2/task/utils"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
@@ -45,7 +44,7 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 		if err = mbParse(t, args); err != nil {
 			return
 		}
-		keyType, bucketName, _, e := taskUtils.ParseKey(args[0])
+		keyType, bucketName, _, e := utils.ParseKey(args[0])
 		if e != nil {
 			err = e
 			return
