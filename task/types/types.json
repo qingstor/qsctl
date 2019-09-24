@@ -22,5 +22,6 @@
   "TaskConstructor": "TodoFunc",
   "TotalSize": "int64",
   "UploadID": "string",
-  "WaitGroup": "*sync.WaitGroup"
+  "WaitGroup": "*sync.WaitGroup",
+  "Zone": "string"
 }

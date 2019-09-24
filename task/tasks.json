@@ -1,4 +1,13 @@
 {
+  "BucketCreate": {
+    "type": "required",
+    "path": "common/bucket",
+    "description": "send put request to create a bucket",
+    "inherited_value": [
+      "BucketName",
+      "Storage"
+    ]
+  },
   "Copy": {
     "type": "dependent",
     "path": "copy",
@@ -155,6 +164,17 @@
       "MD5Sum",
       "Path",
       "Storage"
+    ]
+  },
+  "MakeBucket": {
+    "type": "dependent",
+    "path": "make_bucket",
+    "description": "make new bucket with given key",
+    "runtime_value": [
+      "BucketName",
+      "Pool",
+      "Storage",
+      "Zone"
     ]
   },
   "MultipartComplete": {
