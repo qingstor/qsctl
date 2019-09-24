@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
+	utils2 "github.com/yunify/qsctl/v2/utils"
 
 	"github.com/yunify/qsctl/v2/task/common"
-	"github.com/yunify/qsctl/v2/task/utils"
 )
 
 // newCopyFileTask will create a new copy file task.
@@ -19,7 +19,7 @@ func (t *CopyFileTask) new() {
 	}
 	defer f.Close()
 
-	size, err := utils.CalculateFileSize(f)
+	size, err := utils2.CalculateFileSize(f)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +47,7 @@ func (t *CopySmallFileTask) new() {
 // newCopyLargeFileTask will create a new Task.
 func (t *CopyLargeFileTask) new() {
 	// Init part size.
-	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
+	partSize, err := utils2.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
 		panic(err)
 	}

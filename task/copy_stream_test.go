@@ -11,7 +11,7 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
-	taskUtil "github.com/yunify/qsctl/v2/task/utils"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestCopyStreamTask_Run(t *testing.T) {
@@ -23,7 +23,7 @@ func TestCopyStreamTask_Run(t *testing.T) {
 	}
 	key := uuid.New().String()
 
-	buf, size, _ := taskUtil.GenerateTestStream()
+	buf, size, _ := utils.GenerateTestStream()
 
 	pool, err := navvy.NewPool(10)
 	if err != nil {
@@ -64,7 +64,7 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	buf, size, _ := taskUtil.GenerateTestStream()
+	buf, size, _ := utils.GenerateTestStream()
 
 	pool, err := navvy.NewPool(10)
 	if err != nil {
