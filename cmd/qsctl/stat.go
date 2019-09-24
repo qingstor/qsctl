@@ -1,11 +1,22 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
+
+var statInput struct {
+	format string
+}
 
 // StatCommand will handle stat command.
 var StatCommand = &cobra.Command{
@@ -19,13 +30,68 @@ var StatCommand = &cobra.Command{
 	RunE: statRun,
 }
 
-func statRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
+func statParse(t *task.StatTask, args []string) (err error) {
+	// Parse flags.
+	t.SetFormat(statInput.format)
 	return nil
 }
 
+func statRun(_ *cobra.Command, args []string) (err error) {
+	t := task.NewStatTask(func(t *task.StatTask) {
+		if err = statParse(t, args); err != nil {
+			return
+		}
+		_, bucketName, objectKey, e := utils.ParseKey(args[0])
+		if e != nil {
+			err = e
+			return
+		}
+		if objectKey == "" {
+			err = constants.ErrorQsPathInvalid
+			return
+		}
+		t.SetKey(objectKey)
+
+		stor, e := storage.NewQingStorObjectStorage()
+		if e != nil {
+			err = e
+			return
+		}
+		t.SetStorage(stor)
+
+		if err = stor.SetupBucket(bucketName, ""); err != nil {
+			return
+		}
+	})
+
+	t.Run()
+	t.Wait()
+
+	// if format string was set, print result as format string
+	if t.GetFormat() != "" {
+		fmt.Println(statFormat(t.GetFormat(), t.GetObjectMeta()))
+		return
+	}
+
+	om := t.GetObjectMeta()
+	content := []string{
+		"Key: " + om.Key,
+		"Size: " + datasize.ByteSize(om.ContentLength).String(),
+		"Type: " + om.ContentType,
+		"Modify: " + om.LastModified.String(),
+		"StorageClass: " + om.StorageClass,
+	}
+
+	if om.ETag != "" {
+		content = append(content, "MD5: "+om.ETag)
+	}
+
+	fmt.Println(utils.AlignPrintWithColon(content...))
+	return
+}
+
 func initStatFlag() {
-	StatCommand.Flags().StringVar(&format, constants.FormatFlag, "",
+	StatCommand.Flags().StringVar(&statInput.format, constants.FormatFlag, "",
 		`use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 
@@ -39,4 +105,15 @@ The valid format sequences for files:
   %Y   time of last data modification, seconds since Epoch
 	`,
 	)
+}
+
+func statFormat(input string, om *storage.ObjectMeta) string {
+	input = strings.ReplaceAll(input, "%F", om.ContentType)
+	input = strings.ReplaceAll(input, "%h", om.ETag)
+	input = strings.ReplaceAll(input, "%n", om.Key)
+	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.ContentLength, 10))
+	input = strings.ReplaceAll(input, "%y", om.LastModified.String())
+	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
+
+	return input
 }

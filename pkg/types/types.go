@@ -212,6 +212,31 @@ func (o *FlowType) SetFlowType(v constants.FlowType) {
 	o.valid = true
 }
 
+type FormatGetter interface {
+	GetFormat() string
+}
+
+type FormatSetter interface {
+	SetFormat(string)
+}
+
+type Format struct {
+	valid bool
+	v     string
+}
+
+func (o *Format) GetFormat() string {
+	if !o.valid {
+		panic("Format value is not valid")
+	}
+	return o.v
+}
+
+func (o *Format) SetFormat(v string) {
+	o.v = v
+	o.valid = true
+}
+
 type KeyGetter interface {
 	GetKey() string
 }
@@ -283,6 +308,31 @@ func (o *MD5Sum) GetMD5Sum() []byte {
 }
 
 func (o *MD5Sum) SetMD5Sum(v []byte) {
+	o.v = v
+	o.valid = true
+}
+
+type ObjectMetaGetter interface {
+	GetObjectMeta() *storage.ObjectMeta
+}
+
+type ObjectMetaSetter interface {
+	SetObjectMeta(*storage.ObjectMeta)
+}
+
+type ObjectMeta struct {
+	valid bool
+	v     *storage.ObjectMeta
+}
+
+func (o *ObjectMeta) GetObjectMeta() *storage.ObjectMeta {
+	if !o.valid {
+		panic("ObjectMeta value is not valid")
+	}
+	return o.v
+}
+
+func (o *ObjectMeta) SetObjectMeta(v *storage.ObjectMeta) {
 	o.v = v
 	o.valid = true
 }
