@@ -20,8 +20,8 @@ func TestNewCopyTask(t *testing.T) {
 		input2           string
 		expectedTodoFunc types.TodoFunc
 	}{
-		{name, "qs://test/yyyyy", NewCopyFileTask},
-		{"-", "qs://test/yyyyy", NewCopyStreamTask},
+		{name, "qs://test-bucket/yyyyy", NewCopyFileTask},
+		{"-", "qs://test-bucket/yyyyy", NewCopyStreamTask},
 	}
 
 	for _, v := range cases {
