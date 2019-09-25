@@ -235,6 +235,29 @@
       "WaitGroup"
     ]
   },
+  "ObjectStat": {
+    "type": "required",
+    "path": "object_stat",
+    "description": "stat a remote object by request headObject",
+    "inherited_value": [
+      "Key",
+      "Storage"
+    ],
+    "runtime_value": [
+      "ObjectMeta"
+    ]
+  },
+  "Stat": {
+    "type": "dependent",
+    "path": "stat",
+    "description": "will stat a remote object",
+    "runtime_value": [
+      "Key",
+      "ObjectMeta",
+      "Pool",
+      "Storage"
+    ]
+  },
   "StreamMD5Sum": {
     "type": "required",
     "path": "common/md5sum",

@@ -10,6 +10,7 @@
   "Key": "string",
   "KeyType": "constants.KeyType",
   "MD5Sum": "[]byte",
+  "ObjectMeta": "*storage.ObjectMeta",
   "Offset": "int64",
   "PartNumber": "int",
   "PartSize": "int64",
