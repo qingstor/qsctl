@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
+	storageType "github.com/yunify/qsctl/v2/pkg/types/storage"
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
@@ -53,7 +54,7 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 		// init a blank om
-		t.SetObjectMeta(&storage.ObjectMeta{})
+		t.SetObjectMeta(&storageType.ObjectMeta{})
 	})
 
 	t.Run()
@@ -99,7 +100,7 @@ The valid format sequences for files:
 	)
 }
 
-func statFormat(input string, om *storage.ObjectMeta) string {
+func statFormat(input string, om *storageType.ObjectMeta) string {
 	input = strings.ReplaceAll(input, "%F", om.ContentType)
 	input = strings.ReplaceAll(input, "%h", om.ETag)
 	input = strings.ReplaceAll(input, "%n", om.Key)

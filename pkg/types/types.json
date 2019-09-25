@@ -18,7 +18,7 @@
   "PathType": "constants.PathType",
   "Pool": "*navvy.Pool",
   "Size": "int64",
-  "Storage": "ObjectStorage",
+  "Storage": "storage.ObjectStorage",
   "Stream": "io.Reader",
   "TaskConstructor": "TodoFunc",
   "TotalSize": "int64",

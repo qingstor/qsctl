@@ -15,10 +15,10 @@ import (
 	"github.com/yunify/qingstor-sdk-go/v3/config"
 	sdkerrors "github.com/yunify/qingstor-sdk-go/v3/request/errors"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
-	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types/storage"
 )
 
 // QingStorObjectStorage will implement ObjectStorage interface.
@@ -103,7 +103,7 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 }
 
 // HeadObject will head object.
-func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *types.ObjectMeta, err error) {
+func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *storage.ObjectMeta, err error) {
 	resp, err := q.bucket.HeadObject(objectKey, nil)
 	if err != nil {
 		var e sdkerrors.QingStorError
@@ -116,7 +116,7 @@ func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *types.ObjectMe
 		return nil, fault.NewUnhandled(err)
 	}
 
-	om = &types.ObjectMeta{
+	om = &storage.ObjectMeta{
 		Key:           objectKey,
 		ContentLength: convert.Int64Value(resp.ContentLength),
 		ContentType:   convert.StringValue(resp.ContentType),
@@ -238,7 +238,7 @@ func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err 
 }
 
 // ListObjects will list all objects with specific prefix and delimiter from a bucket.
-func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *string) (oms []*types.ObjectMeta, err error) {
+func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *string) (oms []*storage.ObjectMeta, err error) {
 	for {
 		res, err := q.bucket.ListObjects(&service.ListObjectsInput{
 			Delimiter: convert.String(delimiter),
@@ -252,14 +252,14 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 		}
 		// Add directories into oms (if exists)
 		for _, cpf := range res.CommonPrefixes {
-			oms = append(oms, &types.ObjectMeta{
+			oms = append(oms, &storage.ObjectMeta{
 				Key:         convert.StringValue(cpf),
 				ContentType: constants.DirectoryContentType,
 			})
 		}
 		// Add objects into oms
 		for _, obj := range res.Keys {
-			oms = append(oms, &types.ObjectMeta{
+			oms = append(oms, &storage.ObjectMeta{
 				Key:           convert.StringValue(obj.Key),
 				ContentLength: convert.Int64Value(obj.Size),
 				ContentType:   convert.StringValue(obj.MimeType),
@@ -281,19 +281,19 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 }
 
 // GetBucketACL will get acl from a bucket.
-func (q *QingStorObjectStorage) GetBucketACL() (ar *types.ACLResp, err error) {
+func (q *QingStorObjectStorage) GetBucketACL() (ar *storage.ACLResp, err error) {
 	res, err := q.bucket.GetACL()
 	if err != nil {
 		log.Errorf("Get bucket <%s> acl failed [%v]", *q.bucket.Properties.BucketName, err)
 		return nil, err
 	}
-	ar = &types.ACLResp{
+	ar = &storage.ACLResp{
 		OwnerID:   convert.StringValue(res.Owner.ID),
 		OwnerName: convert.StringValue(res.Owner.Name),
 	}
-	ar.ACLs = make([]*types.ACLMeta, 0)
+	ar.ACLs = make([]*storage.ACLMeta, 0)
 	for _, acl := range res.ACL {
-		ar.ACLs = append(ar.ACLs, &types.ACLMeta{
+		ar.ACLs = append(ar.ACLs, &storage.ACLMeta{
 			GranteeType: convert.StringValue(acl.Grantee.Type),
 			GranteeID:   convert.StringValue(acl.Grantee.ID),
 			GranteeName: convert.StringValue(acl.Grantee.Name),

@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/storage"
+
+	storageType "github.com/yunify/qsctl/v2/pkg/types/storage"
 )
 
 func TestObjectStatTask_Run(t *testing.T) {
@@ -27,7 +29,7 @@ func TestObjectStatTask_Run(t *testing.T) {
 	x.SetKey(objectKey)
 	x.SetPool(pool)
 	x.SetStorage(store)
-	x.SetObjectMeta(&storage.ObjectMeta{})
+	x.SetObjectMeta(&storageType.ObjectMeta{})
 
 	task := NewObjectStatTask(x)
 	task.Run()
