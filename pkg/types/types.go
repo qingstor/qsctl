@@ -212,31 +212,6 @@ func (o *FlowType) SetFlowType(v constants.FlowType) {
 	o.valid = true
 }
 
-type FormatGetter interface {
-	GetFormat() string
-}
-
-type FormatSetter interface {
-	SetFormat(string)
-}
-
-type Format struct {
-	valid bool
-	v     string
-}
-
-func (o *Format) GetFormat() string {
-	if !o.valid {
-		panic("Format value is not valid")
-	}
-	return o.v
-}
-
-func (o *Format) SetFormat(v string) {
-	o.v = v
-	o.valid = true
-}
-
 type KeyGetter interface {
 	GetKey() string
 }

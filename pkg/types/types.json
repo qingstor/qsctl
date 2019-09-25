@@ -7,7 +7,6 @@
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
   "FlowType": "constants.FlowType",
-  "Format": "string",
   "Key": "string",
   "KeyType": "constants.KeyType",
   "MD5Sum": "[]byte",

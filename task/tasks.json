@@ -240,10 +240,11 @@
     "path": "object_stat",
     "description": "stat a remote object by request headObject",
     "inherited_value": [
-      "Format",
       "Key",
-      "ObjectMeta",
       "Storage"
+    ],
+    "runtime_value": [
+      "ObjectMeta"
     ]
   },
   "Stat": {
@@ -251,7 +252,6 @@
     "path": "stat",
     "description": "will stat a remote object",
     "runtime_value": [
-      "Format",
       "Key",
       "ObjectMeta",
       "Pool",

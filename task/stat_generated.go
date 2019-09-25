@@ -37,7 +37,6 @@ type StatTask struct {
 
 	// Runtime value
 	types.Todo
-	types.Format
 	types.Key
 	types.ObjectMeta
 	types.Pool

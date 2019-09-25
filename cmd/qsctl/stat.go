@@ -30,17 +30,8 @@ var StatCommand = &cobra.Command{
 	RunE: statRun,
 }
 
-func statParse(t *task.StatTask, args []string) (err error) {
-	// Parse flags.
-	t.SetFormat(statInput.format)
-	return nil
-}
-
 func statRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewStatTask(func(t *task.StatTask) {
-		if err = statParse(t, args); err != nil {
-			return
-		}
 		_, bucketName, objectKey, e := utils.ParseKey(args[0])
 		if e != nil {
 			err = e
@@ -62,14 +53,16 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		if err = stor.SetupBucket(bucketName, ""); err != nil {
 			return
 		}
+		// init a blank om
+		t.SetObjectMeta(&storage.ObjectMeta{})
 	})
 
 	t.Run()
 	t.Wait()
 
 	// if format string was set, print result as format string
-	if t.GetFormat() != "" {
-		fmt.Println(statFormat(t.GetFormat(), t.GetObjectMeta()))
+	if statInput.format != "" {
+		fmt.Println(statFormat(statInput.format, t.GetObjectMeta()))
 		return
 	}
 

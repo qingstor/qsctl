@@ -9,8 +9,7 @@ func (t *ObjectStatTask) run() {
 	if err != nil {
 		panic(err)
 	}
-	oriOm := t.GetObjectMeta()
 	// replace the original om
-	*oriOm = *om
+	t.SetObjectMeta(om)
 	log.Debugf("Task <%s> for Key <%s> finished.", "StatObjectTask", t.GetKey())
 }

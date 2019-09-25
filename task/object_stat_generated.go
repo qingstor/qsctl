@@ -19,11 +19,10 @@ type objectStatTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
-	types.FormatGetter
 	types.KeyGetter
-	types.ObjectMetaGetter
 	types.StorageGetter
 	// Runtime value
+	types.ObjectMetaSetter
 }
 
 // mockObjectStatTask is the mock task for ObjectStatTask.
@@ -32,11 +31,10 @@ type mockObjectStatTask struct {
 	types.Pool
 
 	// Inherited value
-	types.Format
 	types.Key
-	types.ObjectMeta
 	types.Storage
 	// Runtime value
+	types.ObjectMeta
 }
 
 func (t *mockObjectStatTask) Run() {
