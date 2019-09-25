@@ -32,14 +32,13 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewStatTask(func(t *task.StatTask) {
-		_, bucketName, objectKey, e := utils.ParseKey(args[0])
+		keyType, bucketName, objectKey, e := utils.ParseKey(args[0])
 		if e != nil {
-			err = e
-			return
+			panic(e)
 		}
-		if objectKey == "" {
-			err = constants.ErrorQsPathInvalid
-			return
+		// for now, only support stat object
+		if keyType != constants.KeyTypeObject {
+			panic(constants.ErrorQsPathInvalid)
 		}
 		t.SetKey(objectKey)
 

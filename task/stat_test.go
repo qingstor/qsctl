@@ -17,7 +17,8 @@ func TestNewStatTask(t *testing.T) {
 		expectErr        error
 	}{
 		{"qs://test-bucket/obj", NewObjectStatTask, nil},
-		{"qs://test-bucket/obj/", NewObjectStatTask, nil},
+		// this test case is for PseudoDir, which will return error in the near future
+		// {"qs://test-bucket/obj/", NewObjectStatTask, nil},
 	}
 
 	for _, v := range cases {
