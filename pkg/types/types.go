@@ -287,6 +287,31 @@ func (o *MD5Sum) SetMD5Sum(v []byte) {
 	o.valid = true
 }
 
+type ObjectMetaGetter interface {
+	GetObjectMeta() *storage.ObjectMeta
+}
+
+type ObjectMetaSetter interface {
+	SetObjectMeta(*storage.ObjectMeta)
+}
+
+type ObjectMeta struct {
+	valid bool
+	v     *storage.ObjectMeta
+}
+
+func (o *ObjectMeta) GetObjectMeta() *storage.ObjectMeta {
+	if !o.valid {
+		panic("ObjectMeta value is not valid")
+	}
+	return o.v
+}
+
+func (o *ObjectMeta) SetObjectMeta(v *storage.ObjectMeta) {
+	o.v = v
+	o.valid = true
+}
+
 type OffsetGetter interface {
 	GetOffset() int64
 }

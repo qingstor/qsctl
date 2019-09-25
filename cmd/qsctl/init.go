@@ -13,7 +13,6 @@ var (
 	bench                bool
 	expectSize           string
 	expire               int
-	format               string
 	humanReadable        bool
 	longFormat           bool
 	maximumMemoryContent string
