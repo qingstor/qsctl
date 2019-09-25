@@ -1,0 +1,17 @@
+{
+  "StorageObjectNoPermission": {
+    "value": [
+      "Key"
+    ],
+    "message": "`Storage Object [%s] do not have enough permission: {%w}`, f.GetKey(), f.err"
+  },
+  "StorageObjectNotFound": {
+    "value": [
+      "Key"
+    ],
+    "message": "`Storage Object [%s] is not found: {%w}`, f.GetKey(), f.err"
+  },
+  "Unhandled": {
+    "message": "`Operation failed via unhandled error: %w`, f.err"
+  }
+}

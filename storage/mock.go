@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // Available preset object for mock storage.
@@ -26,7 +27,7 @@ const (
 
 // MockObjectStorage will implement ObjectStorage interface.
 type MockObjectStorage struct {
-	Meta          map[string]*ObjectMeta
+	Meta          map[string]*types.ObjectMeta
 	Multipart     map[string]*multipart
 	Buckets       map[string]*bucketMeta
 	currentBucket *bucketMeta
@@ -49,28 +50,28 @@ type bucketMeta struct {
 // NewMockObjectStorage will create a new mock object storage.
 func NewMockObjectStorage() *MockObjectStorage {
 	s := &MockObjectStorage{
-		Meta:      make(map[string]*ObjectMeta),
+		Meta:      make(map[string]*types.ObjectMeta),
 		Multipart: make(map[string]*multipart),
 		Buckets:   make(map[string]*bucketMeta),
 	}
 
 	// Adding persist keys.
-	s.Meta[Mock0BObject] = &ObjectMeta{
+	s.Meta[Mock0BObject] = &types.ObjectMeta{
 		Key:           Mock0BObject,
 		ContentLength: 0,
 		LastModified:  time.Unix(612889200, 0),
 	}
-	s.Meta[MockMBObject] = &ObjectMeta{
+	s.Meta[MockMBObject] = &types.ObjectMeta{
 		Key:           MockMBObject,
 		ContentLength: 1024 * 1024,
 		LastModified:  time.Unix(612889200, 0),
 	}
-	s.Meta[MockGBObject] = &ObjectMeta{
+	s.Meta[MockGBObject] = &types.ObjectMeta{
 		Key:           MockGBObject,
 		ContentLength: 1024 * 1024 * 1024,
 		LastModified:  time.Unix(612889200, 0),
 	}
-	s.Meta[MockTBObject] = &ObjectMeta{
+	s.Meta[MockTBObject] = &types.ObjectMeta{
 		Key:           MockTBObject,
 		ContentLength: 1024 * 1024 * 1024 * 1024,
 		LastModified:  time.Unix(612889200, 0),
@@ -128,7 +129,7 @@ func (m *MockObjectStorage) DeleteBucket() error {
 }
 
 // HeadObject implements ObjectStorage.HeadObject
-func (m *MockObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, err error) {
+func (m *MockObjectStorage) HeadObject(objectKey string) (om *types.ObjectMeta, err error) {
 	if om, ok := m.Meta[objectKey]; ok {
 		return om, nil
 	}
@@ -192,7 +193,7 @@ func (m *MockObjectStorage) CompleteMultipartUpload(objectKey, uploadID string, 
 		return fmt.Errorf("parts length is not match, expected %d, actual %d", totalNumber, len(mp.Parts))
 	}
 
-	m.Meta[objectKey] = &ObjectMeta{
+	m.Meta[objectKey] = &types.ObjectMeta{
 		Key:           objectKey,
 		ContentLength: mp.Length,
 		LastModified:  time.Now(),
@@ -224,8 +225,8 @@ func (m *MockObjectStorage) ListBuckets(zone string) (buckets []string, err erro
 }
 
 // ListObjects implements ObjectStorage.ListObjects
-func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*ObjectMeta, err error) {
-	om = make([]*ObjectMeta, 0)
+func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string) (om []*types.ObjectMeta, err error) {
+	om = make([]*types.ObjectMeta, 0)
 	// delimiter blank means no directory concept
 	if delimiter == "" {
 		for k, obj := range m.Meta {
@@ -254,45 +255,45 @@ func (m *MockObjectStorage) ListObjects(prefix, delimiter string, marker *string
 func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
 	dirKey := prefix + "/"
 	// obj/
-	m.Meta[dirKey] = &ObjectMeta{
+	m.Meta[dirKey] = &types.ObjectMeta{
 		Key:         dirKey,
 		ContentType: constants.DirectoryContentType,
 	}
 	// obj/obj/
-	m.Meta[dirKey+dirKey] = &ObjectMeta{
+	m.Meta[dirKey+dirKey] = &types.ObjectMeta{
 		Key:         dirKey + dirKey,
 		ContentType: constants.DirectoryContentType,
 	}
 	for i := 0; i < num; i++ {
 		key := fmt.Sprintf("%s_%d", prefix, i)
 		// obj_0 ... obj_19
-		m.Meta[key] = &ObjectMeta{
+		m.Meta[key] = &types.ObjectMeta{
 			Key:           key,
 			ContentLength: int64(i * 1024),
 		}
 		// obj/obj_0/ ... obj/obj_19
 		secondLvlDir := fmt.Sprintf("%s/%s_%d/", prefix, prefix, i)
-		m.Meta[secondLvlDir] = &ObjectMeta{
+		m.Meta[secondLvlDir] = &types.ObjectMeta{
 			Key:           secondLvlDir,
 			ContentLength: int64(0),
 			ContentType:   constants.DirectoryContentType,
 		}
 		// obj/obj_0/obj ... obj/obj_19/obj
 		secondLvlKey := fmt.Sprintf("%s%s", secondLvlDir, prefix)
-		m.Meta[secondLvlKey] = &ObjectMeta{
+		m.Meta[secondLvlKey] = &types.ObjectMeta{
 			Key:           secondLvlKey,
 			ContentLength: int64(i * 1024),
 		}
 		// obj/obj/obj_0/ ... obj/obj/obj_19/
 		thirdLvlDir := fmt.Sprintf("%s/%s/%s_%d/", prefix, prefix, prefix, i)
-		m.Meta[thirdLvlDir] = &ObjectMeta{
+		m.Meta[thirdLvlDir] = &types.ObjectMeta{
 			Key:           thirdLvlDir,
 			ContentLength: int64(0),
 			ContentType:   constants.DirectoryContentType,
 		}
 		// obj/obj/obj_0/obj ... obj/obj/obj_19/obj
 		thirdLvlKey := fmt.Sprintf("%s%s", thirdLvlDir, prefix)
-		m.Meta[thirdLvlKey] = &ObjectMeta{
+		m.Meta[thirdLvlKey] = &types.ObjectMeta{
 			Key:           thirdLvlKey,
 			ContentLength: int64(i * 1024),
 		}
@@ -300,10 +301,10 @@ func (m *MockObjectStorage) ResetMockObjects(prefix string, num int) {
 }
 
 // GetBucketACL implements ObjectStorage.GetBucketACL
-func (m *MockObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
-	return &ACLResp{
+func (m *MockObjectStorage) GetBucketACL() (ar *types.ACLResp, err error) {
+	return &types.ACLResp{
 		OwnerID: m.currentBucket.OwnerID,
-		ACLs:    []*ACLMeta{{GranteeName: m.currentBucket.ACL}},
+		ACLs:    []*types.ACLMeta{{GranteeName: m.currentBucket.ACL}},
 	}, nil
 }
 
@@ -320,7 +321,7 @@ func (m *MockObjectStorage) PutObject(objectKey string, md5sum []byte, r io.Read
 		return fmt.Errorf("content md5 is not match, expected %s, actual %s", md5sum, realMD5)
 	}
 
-	m.Meta[objectKey] = &ObjectMeta{
+	m.Meta[objectKey] = &types.ObjectMeta{
 		Key:           objectKey,
 		ContentLength: n,
 	}

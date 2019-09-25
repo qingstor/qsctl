@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,8 +13,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/yunify/qingstor-sdk-go/v3/config"
-	"github.com/yunify/qingstor-sdk-go/v3/request/errors"
+	sdkerrors "github.com/yunify/qingstor-sdk-go/v3/request/errors"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/constants"
 )
@@ -100,21 +103,20 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 }
 
 // HeadObject will head object.
-func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *ObjectMeta, err error) {
+func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *types.ObjectMeta, err error) {
 	resp, err := q.bucket.HeadObject(objectKey, nil)
 	if err != nil {
-		log.Errorf("Head object <%s> failed [%v]", objectKey, err)
-		if e, ok := err.(*errors.QingStorError); ok {
-			if e.StatusCode == http.StatusNotFound {
-				return nil, constants.ErrorQsPathNotFound
-			} else if e.StatusCode == http.StatusForbidden {
-				return nil, constants.ErrorQsPathAccessForbidden
-			}
+		var e sdkerrors.QingStorError
+		if errors.As(err, &e) {
+			return nil, fault.NewStorageObjectNotFound(err, objectKey)
 		}
-		return
+		if errors.As(err, &e) {
+			return nil, fault.NewStorageObjectNoPermission(err, objectKey)
+		}
+		return nil, fault.NewUnhandled(err)
 	}
 
-	om = &ObjectMeta{
+	om = &types.ObjectMeta{
 		Key:           objectKey,
 		ContentLength: convert.Int64Value(resp.ContentLength),
 		ContentType:   convert.StringValue(resp.ContentType),
@@ -236,7 +238,7 @@ func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err 
 }
 
 // ListObjects will list all objects with specific prefix and delimiter from a bucket.
-func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *string) (oms []*ObjectMeta, err error) {
+func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *string) (oms []*types.ObjectMeta, err error) {
 	for {
 		res, err := q.bucket.ListObjects(&service.ListObjectsInput{
 			Delimiter: convert.String(delimiter),
@@ -250,21 +252,21 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 		}
 		// Add directories into oms (if exists)
 		for _, cpf := range res.CommonPrefixes {
-			oms = append(oms, &ObjectMeta{
+			oms = append(oms, &types.ObjectMeta{
 				Key:         convert.StringValue(cpf),
 				ContentType: constants.DirectoryContentType,
 			})
 		}
 		// Add objects into oms
 		for _, obj := range res.Keys {
-			oms = append(oms, &ObjectMeta{
-				convert.StringValue(obj.Key),
-				convert.Int64Value(obj.Size),
-				convert.StringValue(obj.MimeType),
-				convert.StringValue(obj.Etag),
-				time.Unix(int64(convert.IntValue(obj.Modified)), 0),
-				convert.StringValue(obj.StorageClass),
-				nil,
+			oms = append(oms, &types.ObjectMeta{
+				Key:           convert.StringValue(obj.Key),
+				ContentLength: convert.Int64Value(obj.Size),
+				ContentType:   convert.StringValue(obj.MimeType),
+				ETag:          convert.StringValue(obj.Etag),
+				LastModified:  time.Unix(int64(convert.IntValue(obj.Modified)), 0),
+				StorageClass:  convert.StringValue(obj.StorageClass),
+				Children:      nil,
 			})
 		}
 
@@ -279,23 +281,23 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 }
 
 // GetBucketACL will get acl from a bucket.
-func (q *QingStorObjectStorage) GetBucketACL() (ar *ACLResp, err error) {
+func (q *QingStorObjectStorage) GetBucketACL() (ar *types.ACLResp, err error) {
 	res, err := q.bucket.GetACL()
 	if err != nil {
 		log.Errorf("Get bucket <%s> acl failed [%v]", *q.bucket.Properties.BucketName, err)
 		return nil, err
 	}
-	ar = &ACLResp{
+	ar = &types.ACLResp{
 		OwnerID:   convert.StringValue(res.Owner.ID),
 		OwnerName: convert.StringValue(res.Owner.Name),
 	}
-	ar.ACLs = make([]*ACLMeta, 0)
+	ar.ACLs = make([]*types.ACLMeta, 0)
 	for _, acl := range res.ACL {
-		ar.ACLs = append(ar.ACLs, &ACLMeta{
-			convert.StringValue(acl.Grantee.Type),
-			convert.StringValue(acl.Grantee.ID),
-			convert.StringValue(acl.Grantee.Name),
-			convert.StringValue(acl.Permission),
+		ar.ACLs = append(ar.ACLs, &types.ACLMeta{
+			GranteeType: convert.StringValue(acl.Grantee.Type),
+			GranteeID:   convert.StringValue(acl.Grantee.ID),
+			GranteeName: convert.StringValue(acl.Grantee.Name),
+			Permission:  convert.StringValue(acl.Permission),
 		})
 	}
 	return

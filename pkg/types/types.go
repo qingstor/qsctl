@@ -9,7 +9,6 @@ import (
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
 )
 
 type BucketNameGetter interface {
@@ -488,26 +487,26 @@ func (o *Size) SetSize(v int64) {
 }
 
 type StorageGetter interface {
-	GetStorage() storage.ObjectStorage
+	GetStorage() ObjectStorage
 }
 
 type StorageSetter interface {
-	SetStorage(storage.ObjectStorage)
+	SetStorage(ObjectStorage)
 }
 
 type Storage struct {
 	valid bool
-	v     storage.ObjectStorage
+	v     ObjectStorage
 }
 
-func (o *Storage) GetStorage() storage.ObjectStorage {
+func (o *Storage) GetStorage() ObjectStorage {
 	if !o.valid {
 		panic("Storage value is not valid")
 	}
 	return o.v
 }
 
-func (o *Storage) SetStorage(v storage.ObjectStorage) {
+func (o *Storage) SetStorage(v ObjectStorage) {
 	o.v = v
 	o.valid = true
 }
