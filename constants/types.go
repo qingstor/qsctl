@@ -10,6 +10,11 @@ const (
 	ACLObject = "-rwxr-xr-x"
 )
 
+// Available acl name.
+const (
+	PublicBucketACL = "QS_ALL_USERS"
+)
+
 const (
 	// MaximumMultipartNumber is the max multipart number.
 	MaximumMultipartNumber = 10000

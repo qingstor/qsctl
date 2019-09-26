@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
+
+var presignInput struct {
+	expire int
+}
 
 // PresignCommand will handle list command.
 var PresignCommand = &cobra.Command{
@@ -24,20 +32,59 @@ this URL can always retrieve the object with an HTTP GET request.`,
 	PreRun: validatePresignFlag,
 }
 
+func presignParse(t *task.PresignTask, args []string) (err error) {
+	// Parse flags.
+	t.SetExpire(presignInput.expire)
+	return nil
+}
+
 func presignRun(_ *cobra.Command, args []string) error {
+	t := task.NewPresignTask(func(t *task.PresignTask) {
+		if err := presignParse(t, args); err != nil {
+			panic(err)
+		}
+
+		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		if err != nil {
+			panic(err)
+		}
+		// only handle object key, if dir, it's meaningless
+		if keyType != constants.KeyTypeObject {
+			panic(constants.ErrorQsPathInvalid)
+		}
+		t.SetBucketName(bucketName)
+		t.SetKey(objectKey)
+
+		stor, err := storage.NewQingStorObjectStorage()
+		if err != nil {
+			return
+		}
+		t.SetStorage(stor)
+
+		err = stor.SetupBucket(bucketName, "")
+		if err != nil {
+			return
+		}
+
+		// init blank url
+		t.SetURL("")
+	})
+
+	t.Run()
+	t.Wait()
+
+	fmt.Println(t.GetURL())
 	return nil
 }
 
 func initPresignFlag() {
-	PresignCommand.Flags().IntVarP(&expire, constants.ExpireFlag, "e", 0,
+	PresignCommand.Flags().IntVarP(&presignInput.expire, constants.ExpireFlag, "e", 0,
 		"the number of seconds until the pre-signed URL expires. Default is 300 seconds")
-	PresignCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z",
-		"", "specify the zone of the bucket which contains the object")
 }
 
 func validatePresignFlag(_ *cobra.Command, _ []string) {
 	// set expire default to DefaultPresignExpire
-	if expire <= 0 {
-		expire = constants.DefaultPresignExpire
+	if presignInput.expire <= 0 {
+		presignInput.expire = constants.DefaultPresignExpire
 	}
 }

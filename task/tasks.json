@@ -235,6 +235,46 @@
       "WaitGroup"
     ]
   },
+  "ObjectPresign": {
+    "type": "required",
+    "path": "object_presign",
+    "description": "will presign a remote object and return the signed url",
+    "inherited_value": [
+      "BucketName",
+      "Expire",
+      "Key",
+      "Storage"
+    ],
+    "runtime_value": [
+      "URL"
+    ]
+  },
+  "ObjectPresignPrivate": {
+    "type": "required",
+    "path": "object_presign",
+    "description": "will presign a remote object at private bucket",
+    "inherited_value": [
+      "Expire",
+      "Key",
+      "Storage"
+    ],
+    "runtime_value": [
+      "URL"
+    ]
+  },
+  "ObjectPresignPublic": {
+    "type": "required",
+    "path": "object_presign",
+    "description": "will presign a remote object at public bucket",
+    "inherited_value": [
+      "BucketName",
+      "Key",
+      "Storage"
+    ],
+    "runtime_value": [
+      "URL"
+    ]
+  },
   "ObjectStat": {
     "type": "required",
     "path": "object_stat",
@@ -245,6 +285,19 @@
     ],
     "runtime_value": [
       "ObjectMeta"
+    ]
+  },
+  "Presign": {
+    "type": "dependent",
+    "path": "presign",
+    "description": "will handle presign tasks",
+    "runtime_value": [
+      "BucketName",
+      "Expire",
+      "Key",
+      "Pool",
+      "Storage",
+      "URL"
     ]
   },
   "Stat": {

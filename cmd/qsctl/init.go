@@ -12,7 +12,6 @@ var (
 	// register available flag vars here
 	bench                bool
 	expectSize           string
-	expire               int
 	humanReadable        bool
 	longFormat           bool
 	maximumMemoryContent string
