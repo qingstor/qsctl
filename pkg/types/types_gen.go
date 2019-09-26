@@ -69,18 +69,13 @@ import (
 )
 
 {{- range $k, $v := .Data }}
-
-type {{$k}}Getter interface {
-	Get{{$k}}() {{$v}}
-}
-
-type {{$k}}Setter interface {
-	Set{{$k}}({{$v}})
-}
-
 type {{$k}} struct {
 	valid bool
 	v {{$v}}
+}
+
+type {{$k}}Getter interface {
+	Get{{$k}}() {{$v}}
 }
 
 func (o *{{$k}}) Get{{$k}}() {{$v}} {
@@ -90,9 +85,21 @@ func (o *{{$k}}) Get{{$k}}() {{$v}} {
 	return o.v
 }
 
+type {{$k}}Setter interface {
+	Set{{$k}}({{$v}})
+}
+
 func (o *{{$k}}) Set{{$k}}(v {{$v}}) {
 	o.v = v
 	o.valid = true
+}
+
+type {{$k}}Validator interface {
+	Validate{{$k}}() bool
+}
+
+func (o *{{$k}}) Validate{{$k}}() bool {
+	return o.valid
 }
 {{- end }}
 

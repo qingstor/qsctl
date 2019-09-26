@@ -157,6 +157,7 @@ type {{ .Name | lowerFirst }}TaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 {{ else }}
 {{- if .Depend }}
 	types.PoolGetter

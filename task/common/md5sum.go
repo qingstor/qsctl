@@ -7,6 +7,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *FileMD5SumTask) run() {
@@ -14,7 +15,8 @@ func (t *FileMD5SumTask) run() {
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		panic(err)
+		t.TriggerError(fault.NewUnhandled(err))
+		return
 	}
 	defer f.Close()
 
@@ -22,7 +24,8 @@ func (t *FileMD5SumTask) run() {
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
-		log.Errorf("Task <%s> failed for [%v]", "FileMD5SumTask", err)
+		t.TriggerError(fault.NewUnhandled(err))
+		return
 	}
 
 	t.SetMD5Sum(h.Sum(nil)[:])

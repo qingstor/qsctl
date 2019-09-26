@@ -20,6 +20,7 @@ type multipartCompleteTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.CurrentPartNumberGetter
@@ -73,6 +74,7 @@ type multipartFileUploadTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.KeyGetter
@@ -136,6 +138,7 @@ type multipartInitTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.CurrentOffsetGetter
@@ -195,6 +198,7 @@ type multipartStreamUploadTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.ContentGetter

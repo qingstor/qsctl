@@ -20,6 +20,7 @@ type fileUploadTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.KeyGetter

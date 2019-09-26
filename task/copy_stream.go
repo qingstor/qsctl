@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/task/common"
 )
 
@@ -58,7 +59,8 @@ func (t *CopyPartialStreamTask) new() {
 	b := t.GetBytesPool().Get().(*bytes.Buffer)
 	n, err := io.Copy(b, r)
 	if err != nil {
-		panic(err)
+		t.TriggerError(fault.NewUnhandled(err))
+		return
 	}
 
 	t.SetSize(n)

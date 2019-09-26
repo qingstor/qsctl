@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Xuanwo/navvy"
 	"github.com/stretchr/testify/assert"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func TestCalculatePartSize(t *testing.T) {
@@ -29,4 +31,21 @@ func TestCalculatePartSize(t *testing.T) {
 		assert.Equal(t, v.err, err, v.msg)
 		assert.Equal(t, v.expected, x, v.msg)
 	}
+}
+
+func TestSubmitNextTask(t *testing.T) {
+	task := &EmptyTasker{
+		EmptyTask: EmptyTask{},
+		Todo:      types.Todo{},
+		Fault:     types.Fault{},
+	}
+	pool, err := navvy.NewPool(10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	task.SetPool(pool)
+
+	assert.NotPanics(t, func() {
+		SubmitNextTask(task)
+	})
 }

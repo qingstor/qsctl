@@ -10,6 +10,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 const maxTestSize = 64 * int64(datasize.MB)
@@ -20,6 +21,15 @@ type EmptyTask struct {
 
 // Run implement navvy.Task interface.
 func (t *EmptyTask) Run() {
+}
+
+// EmptyTasker is a valid Tasker for test.
+type EmptyTasker struct {
+	EmptyTask
+
+	types.Todo
+	types.Fault
+	types.Pool
 }
 
 // GenerateTestFile will generate a test file.

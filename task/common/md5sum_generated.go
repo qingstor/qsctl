@@ -20,6 +20,7 @@ type fileMD5SumTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.OffsetGetter
@@ -73,6 +74,7 @@ type streamMD5SumTaskRequirement interface {
 	types.Todoist
 	types.PoolGetter
 	types.FaultSetter
+	types.FaultValidator
 
 	// Inherited value
 	types.ContentGetter

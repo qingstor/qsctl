@@ -24,6 +24,7 @@ type Tasker interface {
 
 	Todoist
 	PoolGetter
+	FaultValidator
 }
 
 // NextTODO will return next task to do.

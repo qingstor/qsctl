@@ -47,6 +47,11 @@ func CalculateFileSize(r io.Seeker) (size int64, err error) {
 
 // SubmitNextTask will fetch next todo and submit to pool async.
 func SubmitNextTask(t types.Tasker) {
+	// We will update task's fault in run(), and check it every time we submit it to the pool.
+	if t.ValidateFault() {
+		return
+	}
+
 	fn := t.NextTODO()
 	if fn == nil {
 		return
