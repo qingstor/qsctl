@@ -39,7 +39,7 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		}
 		// for now, only support stat object
 		if keyType != constants.KeyTypeObject {
-			panic(constants.ErrorQsPathInvalid)
+			panic(fmt.Errorf("key type is not match"))
 		}
 		t.SetKey(objectKey)
 

@@ -7,48 +7,153 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
+type LocalFileNotExist struct {
+	types.Fault
+	types.Path
+}
+
+func (f *LocalFileNotExist) Error() string {
+	return fmt.Sprintf(`Local file [%s] is not exist: {%w}`, f.GetPath(), f.GetFault())
+}
+
+func NewLocalFileNotExist(err error, path string) error {
+	f := &LocalFileNotExist{}
+	f.SetFault(err)
+	f.SetPath(path)
+
+	return f
+}
+
+type LocalFileTooLarge struct {
+	types.Fault
+	types.Size
+}
+
+func (f *LocalFileTooLarge) Error() string {
+	return fmt.Sprintf(`Local file size [%d] is too large`, f.GetSize())
+}
+
+func NewLocalFileTooLarge(err error, size int64) error {
+	f := &LocalFileTooLarge{}
+	f.SetFault(err)
+	f.SetSize(size)
+
+	return f
+}
+
+type StorageBucketInitFailed struct {
+	types.Fault
+	types.BucketName
+	types.Zone
+}
+
+func (f *StorageBucketInitFailed) Error() string {
+	return fmt.Sprintf(`Storage bucket [%s] in zone [%s] initiate failed: {%w}`, f.GetBucketName(), f.GetZone(), f.GetFault())
+}
+
+func NewStorageBucketInitFailed(err error, bucketName string, zone string) error {
+	f := &StorageBucketInitFailed{}
+	f.SetFault(err)
+	f.SetBucketName(bucketName)
+	f.SetZone(zone)
+
+	return f
+}
+
 type StorageObjectNoPermission struct {
-	err error
+	types.Fault
 	types.Key
 }
 
 func (f *StorageObjectNoPermission) Error() string {
-	return fmt.Sprintf(`Storage Object [%s] do not have enough permission: {%w}`, f.GetKey(), f.err)
+	return fmt.Sprintf(`Storage Object [%s] do not have enough permission: {%w}`, f.GetKey(), f.GetFault())
 }
 
 func NewStorageObjectNoPermission(err error, key string) error {
-	f := &StorageObjectNoPermission{err: err}
+	f := &StorageObjectNoPermission{}
+	f.SetFault(err)
 	f.SetKey(key)
 
 	return f
 }
 
 type StorageObjectNotFound struct {
-	err error
+	types.Fault
 	types.Key
 }
 
 func (f *StorageObjectNotFound) Error() string {
-	return fmt.Sprintf(`Storage Object [%s] is not found: {%w}`, f.GetKey(), f.err)
+	return fmt.Sprintf(`Storage Object [%s] is not found: {%w}`, f.GetKey(), f.GetFault())
 }
 
 func NewStorageObjectNotFound(err error, key string) error {
-	f := &StorageObjectNotFound{err: err}
+	f := &StorageObjectNotFound{}
+	f.SetFault(err)
 	f.SetKey(key)
 
 	return f
 }
 
+type StorageServiceInitFailed struct {
+	types.Fault
+}
+
+func (f *StorageServiceInitFailed) Error() string {
+	return fmt.Sprintf(`Storage service initiate failed: {%w}`, f.GetFault())
+}
+
+func NewStorageServiceInitFailed(err error) error {
+	f := &StorageServiceInitFailed{}
+	f.SetFault(err)
+
+	return f
+}
+
 type Unhandled struct {
-	err error
+	types.Fault
 }
 
 func (f *Unhandled) Error() string {
-	return fmt.Sprintf(`Operation failed via unhandled error: %w`, f.err)
+	return fmt.Sprintf(`Operation failed via unhandled error: {%w}`, f.GetFault())
 }
 
 func NewUnhandled(err error) error {
-	f := &Unhandled{err: err}
+	f := &Unhandled{}
+	f.SetFault(err)
+
+	return f
+}
+
+type UserInputByteSizeInvalid struct {
+	types.Fault
+	types.ByteSize
+}
+
+func (f *UserInputByteSizeInvalid) Error() string {
+	return fmt.Sprintf(`User input byte size [%s] is invalid: {%w}`, f.GetByteSize(), f.GetFault())
+}
+
+func NewUserInputByteSizeInvalid(err error, byteSize string) error {
+	f := &UserInputByteSizeInvalid{}
+	f.SetFault(err)
+	f.SetByteSize(byteSize)
+
+	return f
+}
+
+type UserInputKeyInvalid struct {
+	types.Fault
+	types.Key
+}
+
+func (f *UserInputKeyInvalid) Error() string {
+	return fmt.Sprintf(`User input key [%s] is invalid`, f.GetKey())
+}
+
+func NewUserInputKeyInvalid(err error, key string) error {
+	f := &UserInputKeyInvalid{}
+	f.SetFault(err)
+	f.SetKey(key)
 
 	return f
 }

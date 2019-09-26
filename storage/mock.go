@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types/storage"
 )
 
@@ -116,7 +117,7 @@ func (m *MockObjectStorage) SetupBucket(bucketName, zone string) error {
 // PutBucket implements ObjectStorage.PutBucket
 func (m *MockObjectStorage) PutBucket() error {
 	if _, ok := m.Buckets[m.currentBucket.Name]; ok {
-		return constants.ErrorBucketAlreadyExists
+		panic(fmt.Errorf("bucket %s already exists", m.currentBucket.Name))
 	}
 	m.Buckets[m.currentBucket.Name] = m.currentBucket
 	return nil
@@ -133,14 +134,14 @@ func (m *MockObjectStorage) HeadObject(objectKey string) (om *storage.ObjectMeta
 	if om, ok := m.Meta[objectKey]; ok {
 		return om, nil
 	}
-	return nil, constants.ErrorQsPathNotFound
+	panic(fmt.Errorf("key [%s] is not exist", objectKey))
 }
 
 // GetObject implements ObjectStorage.GetObject
 func (m *MockObjectStorage) GetObject(objectKey string) (r io.Reader, err error) {
 	om, ok := m.Meta[objectKey]
 	if !ok {
-		return nil, constants.ErrorQsPathNotFound
+		panic(fmt.Errorf("key [%s] is not exist", objectKey))
 	}
 
 	r = io.LimitReader(rand.Reader, om.ContentLength)
@@ -160,7 +161,7 @@ func (m *MockObjectStorage) InitiateMultipartUpload(objectKey string) (uploadID 
 func (m *MockObjectStorage) UploadMultipart(objectKey, uploadID string, size int64, partNumber int, md5sum []byte, r io.Reader) (err error) {
 	_, ok := m.Multipart[objectKey]
 	if !ok {
-		return constants.ErrorQsPathNotFound
+		panic(fmt.Errorf("key [%s] is not exist", objectKey))
 	}
 
 	h := md5.New()
@@ -186,7 +187,7 @@ func (m *MockObjectStorage) UploadMultipart(objectKey, uploadID string, size int
 func (m *MockObjectStorage) CompleteMultipartUpload(objectKey, uploadID string, totalNumber int) (err error) {
 	mp, ok := m.Multipart[objectKey]
 	if !ok {
-		return constants.ErrorQsPathNotFound
+		panic(fmt.Errorf("key [%s] is not exist", objectKey))
 	}
 
 	if len(mp.Parts) != totalNumber {
@@ -206,7 +207,7 @@ func (m *MockObjectStorage) CompleteMultipartUpload(objectKey, uploadID string, 
 func (m *MockObjectStorage) DeleteObject(objectKey string) (err error) {
 	_, ok := m.Meta[objectKey]
 	if !ok {
-		return constants.ErrorQsPathNotFound
+		panic(fmt.Errorf("key [%s] is not exist", objectKey))
 	}
 
 	delete(m.Meta, objectKey)
@@ -336,7 +337,7 @@ func (m *MockObjectStorage) GetBucketZone() (zone string) {
 // PresignObject implements ObjectStorage.PresignObject.
 func (m *MockObjectStorage) PresignObject(objectKey string, expire int) (url string, err error) {
 	if expire <= 0 {
-		return "", constants.ErrorTestError
+		return "", fault.NewUnhandled(err)
 	}
 	url = fmt.Sprintf("%s/%s?expire=%d", m.currentBucket.URL, objectKey, expire)
 	return url, nil

@@ -37,6 +37,31 @@ func (o *BucketName) SetBucketName(v string) {
 	o.valid = true
 }
 
+type ByteSizeGetter interface {
+	GetByteSize() string
+}
+
+type ByteSizeSetter interface {
+	SetByteSize(string)
+}
+
+type ByteSize struct {
+	valid bool
+	v     string
+}
+
+func (o *ByteSize) GetByteSize() string {
+	if !o.valid {
+		panic("ByteSize value is not valid")
+	}
+	return o.v
+}
+
+func (o *ByteSize) SetByteSize(v string) {
+	o.v = v
+	o.valid = true
+}
+
 type BytesPoolGetter interface {
 	GetBytesPool() *sync.Pool
 }
@@ -183,6 +208,31 @@ func (o *ExpectSize) GetExpectSize() int64 {
 }
 
 func (o *ExpectSize) SetExpectSize(v int64) {
+	o.v = v
+	o.valid = true
+}
+
+type FaultGetter interface {
+	GetFault() error
+}
+
+type FaultSetter interface {
+	SetFault(error)
+}
+
+type Fault struct {
+	valid bool
+	v     error
+}
+
+func (o *Fault) GetFault() error {
+	if !o.valid {
+		panic("Fault value is not valid")
+	}
+	return o.v
+}
+
+func (o *Fault) SetFault(v error) {
 	o.v = v
 	o.valid = true
 }
@@ -458,6 +508,31 @@ func (o *Pool) GetPool() *navvy.Pool {
 }
 
 func (o *Pool) SetPool(v *navvy.Pool) {
+	o.v = v
+	o.valid = true
+}
+
+type ReadableSizeGetter interface {
+	GetReadableSize() string
+}
+
+type ReadableSizeSetter interface {
+	SetReadableSize(string)
+}
+
+type ReadableSize struct {
+	valid bool
+	v     string
+}
+
+func (o *ReadableSize) GetReadableSize() string {
+	if !o.valid {
+		panic("ReadableSize value is not valid")
+	}
+	return o.v
+}
+
+func (o *ReadableSize) SetReadableSize(v string) {
 	o.v = v
 	o.valid = true
 }

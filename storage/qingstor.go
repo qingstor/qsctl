@@ -34,8 +34,7 @@ func NewQingStorObjectStorage() (q *QingStorObjectStorage, err error) {
 		viper.GetString(constants.ConfigSecretAccessKey),
 	)
 	if err != nil {
-		log.Errorf("Init config failed [%v]", err)
-		return
+		return nil, fault.NewStorageServiceInitFailed(err)
 	}
 
 	cfg.Host = viper.GetString(constants.ConfigHost)
@@ -49,7 +48,7 @@ func NewQingStorObjectStorage() (q *QingStorObjectStorage, err error) {
 	q.service, err = service.Init(cfg)
 	if err != nil {
 		log.Errorf("Init service failed [%v]", err)
-		return
+		return nil, fault.NewStorageServiceInitFailed(err)
 	}
 
 	log.Debugf("Init service for access key <%s> succeed", cfg.AccessKeyID)
@@ -65,8 +64,7 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 	if zone != "" {
 		q.bucket, err = q.service.Bucket(name, zone)
 		if err != nil {
-			log.Errorf("Init bucket <%s> in zone <%s> failed [%v]", name, zone, err)
-			return constants.ErrorExternalServiceError
+			return fault.NewStorageBucketInitFailed(err, name, zone)
 		}
 		return
 	}
@@ -84,20 +82,18 @@ func (q *QingStorObjectStorage) SetupBucket(name, zone string) (err error) {
 
 	r, err := client.Head(url)
 	if err != nil {
-		log.Errorf("Head location failed [%v]", err)
-		return constants.ErrorExternalServiceError
+		return fault.NewStorageBucketInitFailed(err, name, "")
 	}
 	if r.StatusCode != http.StatusTemporaryRedirect {
-		log.Infof("Detect bucket location failed, please check your input")
-		return constants.ErrorQsPathNotFound
+		err = fmt.Errorf("head status is %d instead of %d", r.StatusCode, http.StatusTemporaryRedirect)
+		return fault.NewStorageBucketInitFailed(err, name, "")
 	}
 
 	// Example URL: https://bucket.zone.qingstor.com
 	zone = strings.Split(r.Header.Get("Location"), ".")[1]
 	q.bucket, err = q.service.Bucket(name, zone)
 	if err != nil {
-		log.Errorf("Init bucket <%s> in zone <%s> failed [%v]", name, zone, err)
-		return constants.ErrorExternalServiceError
+		return fault.NewStorageBucketInitFailed(err, name, zone)
 	}
 	return
 }
@@ -107,6 +103,7 @@ func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *storage.Object
 	resp, err := q.bucket.HeadObject(objectKey, nil)
 	if err != nil {
 		var e sdkerrors.QingStorError
+		// TODO: we should add a common status code check to return related errors.
 		if errors.As(err, &e) {
 			return nil, fault.NewStorageObjectNotFound(err, objectKey)
 		}
@@ -131,8 +128,7 @@ func (q *QingStorObjectStorage) HeadObject(objectKey string) (om *storage.Object
 func (q *QingStorObjectStorage) InitiateMultipartUpload(objectKey string) (uploadID string, err error) {
 	resp, err := q.bucket.InitiateMultipartUpload(objectKey, nil)
 	if err != nil {
-		log.Errorf("Object <%s> InitiateMultipartUpload failed [%v]", objectKey, err)
-		return
+		return "", fault.NewUnhandled(err)
 	}
 
 	uploadID = *resp.UploadID
@@ -151,8 +147,7 @@ func (q *QingStorObjectStorage) UploadMultipart(
 		ContentMD5:    convert.String(hex.EncodeToString(md5sum[:])),
 	})
 	if err != nil {
-		log.Errorf("Object <%s> part <%d> UploadMultipart failed [%v]", objectKey, partNumber, err)
-		return
+		return fault.NewUnhandled(err)
 	}
 	return
 }
@@ -172,8 +167,7 @@ func (q *QingStorObjectStorage) CompleteMultipartUpload(objectKey, uploadID stri
 			ObjectParts: parts,
 		})
 	if err != nil {
-		log.Errorf("Object <%s> CompleteMultipartUpload failed [%v]", objectKey, err)
-		return err
+		return fault.NewUnhandled(err)
 	}
 	return nil
 }
@@ -182,8 +176,7 @@ func (q *QingStorObjectStorage) CompleteMultipartUpload(objectKey, uploadID stri
 func (q *QingStorObjectStorage) GetObject(objectKey string) (r io.Reader, err error) {
 	resp, err := q.bucket.GetObject(objectKey, nil)
 	if err != nil {
-		log.Errorf("Object <%s> GetObject failed [%v]", objectKey, err)
-		return nil, err
+		return nil, fault.NewUnhandled(err)
 	}
 	return resp.Body, nil
 }
@@ -205,9 +198,7 @@ func (q *QingStorObjectStorage) DeleteBucket() error {
 	// Request and delete bucket
 	_, err := q.bucket.Delete()
 	if err != nil {
-		log.Errorf("Delete bucket <%s> failed [%v]",
-			*q.bucket.Properties.BucketName, err)
-		return err
+		return fault.NewUnhandled(err)
 	}
 	return nil
 }
@@ -215,8 +206,7 @@ func (q *QingStorObjectStorage) DeleteBucket() error {
 // DeleteObject will delete an object with specific key.
 func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 	if _, err = q.bucket.DeleteObject(objectKey); err != nil {
-		log.Errorf("Delete object <%s> failed [%v]", objectKey, err)
-		return
+		return fault.NewUnhandled(err)
 	}
 	return nil
 }
@@ -225,8 +215,7 @@ func (q *QingStorObjectStorage) DeleteObject(objectKey string) (err error) {
 func (q *QingStorObjectStorage) ListBuckets(zone string) (buckets []string, err error) {
 	res, err := q.service.ListBuckets(&service.ListBucketsInput{Location: convert.String(zone)})
 	if err != nil {
-		log.Errorf("List bucket failed [%v]", err)
-		return nil, err
+		return nil, fault.NewUnhandled(err)
 	}
 	log.Debugf("<%d> Buckets found.\n", *res.Count)
 	for _, b := range res.Buckets {
@@ -246,9 +235,7 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 			Marker:    marker,
 		})
 		if err != nil {
-			log.Errorf("List objects from bucket <%s> at marker <%s> failed [%v]",
-				*q.bucket.Properties.BucketName, convert.StringValue(marker), err)
-			return nil, err
+			return nil, fault.NewUnhandled(err)
 		}
 		// Add directories into oms (if exists)
 		for _, cpf := range res.CommonPrefixes {
@@ -284,8 +271,7 @@ func (q *QingStorObjectStorage) ListObjects(prefix, delimiter string, marker *st
 func (q *QingStorObjectStorage) GetBucketACL() (ar *storage.ACLResp, err error) {
 	res, err := q.bucket.GetACL()
 	if err != nil {
-		log.Errorf("Get bucket <%s> acl failed [%v]", *q.bucket.Properties.BucketName, err)
-		return nil, err
+		return nil, fault.NewUnhandled(err)
 	}
 	ar = &storage.ACLResp{
 		OwnerID:   convert.StringValue(res.Owner.ID),
@@ -310,8 +296,7 @@ func (q *QingStorObjectStorage) PutObject(objectKey string, md5sum []byte, r io.
 		Body:       r,
 	})
 	if err != nil {
-		log.Errorf("Put object <%s> failed [%v]", objectKey, err)
-		return
+		return fault.NewUnhandled(err)
 	}
 	return nil
 }
@@ -325,16 +310,13 @@ func (q *QingStorObjectStorage) GetBucketZone() (zone string) {
 func (q *QingStorObjectStorage) PresignObject(objectKey string, expire int) (url string, err error) {
 	r, _, err := q.bucket.GetObjectRequest(objectKey, nil)
 	if err != nil {
-		log.Errorf("Get object <%s> request failed [%v]", objectKey, err)
-		return "", err
+		return "", fault.NewUnhandled(err)
 	}
 	if err = r.Build(); err != nil {
-		log.Errorf("Object <%s> request build failed [%v]", objectKey, err)
-		return
+		return "", fault.NewUnhandled(err)
 	}
 	if err = r.SignQuery(expire); err != nil {
-		log.Errorf("Object <%s> request sign failed [%v]", objectKey, err)
-		return
+		return "", fault.NewUnhandled(err)
 	}
 	return r.HTTPRequest.URL.String(), nil
 }

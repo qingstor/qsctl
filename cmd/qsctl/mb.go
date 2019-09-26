@@ -50,7 +50,7 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 		if keyType != constants.KeyTypeBucket {
-			err = constants.ErrorQsPathInvalid
+			// TODO: we need to return an error here.
 			return
 		}
 		t.SetBucketName(bucketName)
@@ -80,7 +80,8 @@ func initMbFlag() {
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
 	if mbInput.Zone == "" {
-		return constants.ErrorZoneRequired
+		// TODO: we need to return an error here.
+		return nil
 	}
 	return nil
 }

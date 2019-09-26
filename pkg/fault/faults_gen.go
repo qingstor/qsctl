@@ -99,7 +99,7 @@ import (
 
 {{- range $_, $fault := . }}
 type {{$fault.Name}} struct {
-	err error
+	types.Fault
 
 {{- range $k, $v := $fault.Value }}
 	types.{{$v}}
@@ -111,7 +111,8 @@ func (f *{{$fault.Name}}) Error() string {
 }
 
 func New{{$fault.Name}}(err error{{- range $k, $v := $fault.Value }},{{$v | lowerFirst}} {{$v | getType}}{{- end }}) error {
-	f := &{{$fault.Name}}{err: err}
+	f := &{{$fault.Name}}{}
+	f.SetFault(err)
 {{- range $k, $v := $fault.Value }}
 	f.Set{{$v}}({{$v | lowerFirst}})
 {{- end }}
