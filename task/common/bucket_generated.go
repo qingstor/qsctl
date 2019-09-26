@@ -2,6 +2,8 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -17,6 +19,7 @@ type bucketCreateTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
 
 	// Inherited value
 	types.BucketNameGetter
@@ -28,6 +31,7 @@ type bucketCreateTaskRequirement interface {
 type mockBucketCreateTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.BucketName
@@ -48,6 +52,10 @@ type BucketCreateTask struct {
 func (t *BucketCreateTask) Run() {
 	t.run()
 	utils.SubmitNextTask(t.bucketCreateTaskRequirement)
+}
+
+func (t *BucketCreateTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task BucketCreate failed: {%w}", err))
 }
 
 // NewBucketCreateTask will create a new BucketCreateTask.

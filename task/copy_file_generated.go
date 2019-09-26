@@ -2,6 +2,8 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -27,6 +29,7 @@ type copyFileTaskRequirement interface {
 type mockCopyFileTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.Key
@@ -43,6 +46,7 @@ type CopyFileTask struct {
 	copyFileTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.TotalSize
 }
@@ -50,6 +54,10 @@ type CopyFileTask struct {
 // Run implement navvy.Task
 func (t *CopyFileTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyFileTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
 
 // initCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
@@ -77,6 +85,7 @@ type copyLargeFileTaskRequirement interface {
 type mockCopyLargeFileTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.Key
@@ -94,6 +103,7 @@ type CopyLargeFileTask struct {
 	copyLargeFileTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.CurrentOffset
 	types.CurrentPartNumber
@@ -106,6 +116,10 @@ type CopyLargeFileTask struct {
 // Run implement navvy.Task
 func (t *CopyLargeFileTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyLargeFileTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
 
 // initCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
@@ -138,6 +152,7 @@ type copyPartialFileTaskRequirement interface {
 type mockCopyPartialFileTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.CurrentOffset
@@ -160,6 +175,7 @@ type CopyPartialFileTask struct {
 	copyPartialFileTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.MD5Sum
 	types.Offset
@@ -170,6 +186,10 @@ type CopyPartialFileTask struct {
 // Run implement navvy.Task
 func (t *CopyPartialFileTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyPartialFileTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
 
 // initCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
@@ -197,6 +217,7 @@ type copySmallFileTaskRequirement interface {
 type mockCopySmallFileTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.Key
@@ -214,6 +235,7 @@ type CopySmallFileTask struct {
 	copySmallFileTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.MD5Sum
 	types.Offset
@@ -223,6 +245,10 @@ type CopySmallFileTask struct {
 // Run implement navvy.Task
 func (t *CopySmallFileTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopySmallFileTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
 
 // initCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.

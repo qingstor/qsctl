@@ -2,6 +2,8 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -23,6 +25,7 @@ type makeBucketTaskRequirement interface {
 type mockMakeBucketTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 }
@@ -36,6 +39,7 @@ type MakeBucketTask struct {
 	makeBucketTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.BucketName
 	types.Pool
@@ -46,6 +50,10 @@ type MakeBucketTask struct {
 // Run implement navvy.Task
 func (t *MakeBucketTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *MakeBucketTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
 }
 
 // Wait will wait until MakeBucketTask has been finished

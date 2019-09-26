@@ -2,6 +2,8 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -17,6 +19,7 @@ type objectStatTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
 
 	// Inherited value
 	types.KeyGetter
@@ -29,6 +32,7 @@ type objectStatTaskRequirement interface {
 type mockObjectStatTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.Key
@@ -50,6 +54,10 @@ type ObjectStatTask struct {
 func (t *ObjectStatTask) Run() {
 	t.run()
 	utils.SubmitNextTask(t.objectStatTaskRequirement)
+}
+
+func (t *ObjectStatTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 
 // NewObjectStatTask will create a new ObjectStatTask.

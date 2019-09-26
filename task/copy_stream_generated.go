@@ -2,6 +2,8 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -33,6 +35,7 @@ type copyPartialStreamTaskRequirement interface {
 type mockCopyPartialStreamTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.BytesPool
@@ -55,6 +58,7 @@ type CopyPartialStreamTask struct {
 	copyPartialStreamTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.Content
 	types.MD5Sum
@@ -65,6 +69,10 @@ type CopyPartialStreamTask struct {
 // Run implement navvy.Task
 func (t *CopyPartialStreamTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyPartialStreamTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
 
 // initCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
@@ -91,6 +99,7 @@ type copyStreamTaskRequirement interface {
 type mockCopyStreamTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.Key
@@ -107,6 +116,7 @@ type CopyStreamTask struct {
 	copyStreamTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.BytesPool
 	types.CurrentOffset
@@ -121,6 +131,10 @@ type CopyStreamTask struct {
 // Run implement navvy.Task
 func (t *CopyStreamTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyStreamTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
 
 // initCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.

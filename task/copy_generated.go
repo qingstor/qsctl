@@ -2,6 +2,8 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -23,6 +25,7 @@ type copyTaskRequirement interface {
 type mockCopyTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 }
@@ -36,6 +39,7 @@ type CopyTask struct {
 	copyTaskRequirement
 
 	// Runtime value
+	types.Fault
 	types.Todo
 	types.BucketName
 	types.FlowType
@@ -51,6 +55,10 @@ type CopyTask struct {
 // Run implement navvy.Task
 func (t *CopyTask) Run() {
 	utils.SubmitNextTask(t)
+}
+
+func (t *CopyTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task Copy failed: {%w}", err))
 }
 
 // Wait will wait until CopyTask has been finished

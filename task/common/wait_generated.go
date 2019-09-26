@@ -2,6 +2,8 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -17,6 +19,7 @@ type waitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
 
 	// Inherited value
 	types.WaitGroupGetter
@@ -27,6 +30,7 @@ type waitTaskRequirement interface {
 type mockWaitTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
 
 	// Inherited value
 	types.WaitGroup
@@ -46,6 +50,10 @@ type WaitTask struct {
 func (t *WaitTask) Run() {
 	t.run()
 	utils.SubmitNextTask(t.waitTaskRequirement)
+}
+
+func (t *WaitTask) TriggerError(err error) {
+	t.SetFault(fmt.Errorf("Task Wait failed: {%w}", err))
 }
 
 // NewWaitTask will create a new WaitTask.
