@@ -8,6 +8,7 @@
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
   "Fault": "error",
+  "Expire": "int",
   "FlowType": "constants.FlowType",
   "ID": "string",
   "Key": "string",
@@ -27,6 +28,7 @@
   "Storage": "storage.ObjectStorage",
   "Stream": "io.Reader",
   "TotalSize": "int64",
+  "URL": "string",
   "UploadID": "string",
   "Zone": "string"
 }
