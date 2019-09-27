@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
@@ -53,12 +54,14 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewCopyTask(func(t *task.CopyTask) {
 		err = cpParse(t, args)
 		if err != nil {
-			panic(err)
+			t.TriggerError(fault.NewUnhandled(err))
+			return
 		}
 
 		err = utils.ParseInput(t, args[0], args[1])
 		if err != nil {
-			panic(err)
+			t.TriggerError(fault.NewUnhandled(err))
+			return
 		}
 
 		stor, err := storage.NewQingStorObjectStorage()

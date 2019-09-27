@@ -3,7 +3,7 @@
     "value": [
       "Path"
     ],
-    "message": "`Local file [%s] is not exist: {%w}`, f.GetPath(), f.GetFault()"
+    "message": "`Local file [%s] is not exist: {%v}`, f.GetPath(), f.GetFault()"
   },
   "LocalFileTooLarge": {
     "value": [
@@ -16,31 +16,31 @@
       "BucketName",
       "Zone"
     ],
-    "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%w}`, f.GetBucketName(), f.GetZone(), f.GetFault()"
+    "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetBucketName(), f.GetZone(), f.GetFault()"
   },
   "StorageObjectNoPermission": {
     "value": [
       "Key"
     ],
-    "message": "`Storage Object [%s] do not have enough permission: {%w}`, f.GetKey(), f.GetFault()"
+    "message": "`Storage Object [%s] do not have enough permission: {%v}`, f.GetKey(), f.GetFault()"
   },
   "StorageObjectNotFound": {
     "value": [
       "Key"
     ],
-    "message": "`Storage Object [%s] is not found: {%w}`, f.GetKey(), f.GetFault()"
+    "message": "`Storage Object [%s] is not found: {%v}`, f.GetKey(), f.GetFault()"
   },
   "StorageServiceInitFailed": {
-    "message": "`Storage service initiate failed: {%w}`, f.GetFault()"
+    "message": "`Storage service initiate failed: {%v}`, f.GetFault()"
   },
   "Unhandled": {
-    "message": "`Operation failed via unhandled error: {%w}`, f.GetFault()"
+    "message": "`Operation failed via unhandled error: {%v}`, f.GetFault()"
   },
   "UserInputByteSizeInvalid": {
     "value": [
       "ByteSize"
     ],
-    "message": "`User input byte size [%s] is invalid: {%w}`, f.GetByteSize(), f.GetFault()"
+    "message": "`User input byte size [%s] is invalid: {%v}`, f.GetByteSize(), f.GetFault()"
   },
   "UserInputKeyInvalid": {
     "value": [

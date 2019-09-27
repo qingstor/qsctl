@@ -26,6 +26,9 @@ func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 	t.SetPool(pool)
 
 	fn(t)
+	if t.ValidateFault() {
+		return t
+	}
 
 	todo := copyTaskConstructor[t.GetFlowType()][t.GetPathType()]
 	if todo == nil {

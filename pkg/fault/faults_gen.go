@@ -110,6 +110,10 @@ func (f *{{$fault.Name}}) Error() string {
 	return fmt.Sprintf({{$fault.Message}})
 }
 
+func (f *{{$fault.Name}}) Unwrap() error {
+	return f.GetFault()
+}
+
 func New{{$fault.Name}}(err error{{- range $k, $v := $fault.Value }},{{$v | lowerFirst}} {{$v | getType}}{{- end }}) error {
 	f := &{{$fault.Name}}{}
 	f.SetFault(err)
