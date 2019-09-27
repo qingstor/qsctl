@@ -10,6 +10,7 @@
   "Expire": "int",
   "Fault": "error",
   "FlowType": "constants.FlowType",
+  "Force": "bool",
   "ID": "string",
   "Key": "string",
   "KeyType": "constants.KeyType",

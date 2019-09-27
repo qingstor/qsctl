@@ -8,6 +8,15 @@
       "Storage"
     ]
   },
+  "BucketDelete": {
+    "type": "required",
+    "path": "common/bucket",
+    "description": "send delete request to delete a bucket",
+    "inherited_value": [
+      "BucketName",
+      "Storage"
+    ]
+  },
   "Copy": {
     "type": "dependent",
     "path": "copy",
@@ -269,6 +278,17 @@
       "Pool",
       "Storage",
       "URL"
+    ]
+  },
+  "RemoveBucket": {
+    "type": "dependent",
+    "path": "remove_bucket",
+    "description": "remove a bucket",
+    "runtime_value": [
+      "BucketName",
+      "Force",
+      "Pool",
+      "Storage"
     ]
   },
   "Stat": {

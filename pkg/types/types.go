@@ -375,6 +375,39 @@ func (o *FlowType) ValidateFlowType() bool {
 	return o.valid
 }
 
+type Force struct {
+	valid bool
+	v     bool
+}
+
+type ForceGetter interface {
+	GetForce() bool
+}
+
+func (o *Force) GetForce() bool {
+	if !o.valid {
+		panic("Force value is not valid")
+	}
+	return o.v
+}
+
+type ForceSetter interface {
+	SetForce(bool)
+}
+
+func (o *Force) SetForce(v bool) {
+	o.v = v
+	o.valid = true
+}
+
+type ForceValidator interface {
+	ValidateForce() bool
+}
+
+func (o *Force) ValidateForce() bool {
+	return o.valid
+}
+
 type ID struct {
 	valid bool
 	v     string
