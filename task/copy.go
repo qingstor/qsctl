@@ -20,7 +20,7 @@ func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 
 	pool, err := navvy.NewPool(10)
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return t
 	}
 	t.SetPool(pool)

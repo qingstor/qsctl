@@ -61,7 +61,7 @@ func (t *MakeBucketTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *MakeBucketTask) TriggerError(err error) {
+func (t *MakeBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
 }
 

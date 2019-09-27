@@ -66,7 +66,7 @@ func (t *MultipartCompleteTask) Run() {
 	utils.SubmitNextTask(t.multipartCompleteTaskRequirement)
 }
 
-func (t *MultipartCompleteTask) TriggerError(err error) {
+func (t *MultipartCompleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartComplete failed: {%w}", err))
 }
 
@@ -135,7 +135,7 @@ func (t *MultipartFileUploadTask) Run() {
 	utils.SubmitNextTask(t.multipartFileUploadTaskRequirement)
 }
 
-func (t *MultipartFileUploadTask) TriggerError(err error) {
+func (t *MultipartFileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartFileUpload failed: {%w}", err))
 }
 
@@ -198,7 +198,7 @@ func (t *MultipartInitTask) Run() {
 	utils.SubmitNextTask(t.multipartInitTaskRequirement)
 }
 
-func (t *MultipartInitTask) TriggerError(err error) {
+func (t *MultipartInitTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartInit failed: {%w}", err))
 }
 
@@ -265,7 +265,7 @@ func (t *MultipartStreamUploadTask) Run() {
 	utils.SubmitNextTask(t.multipartStreamUploadTaskRequirement)
 }
 
-func (t *MultipartStreamUploadTask) TriggerError(err error) {
+func (t *MultipartStreamUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartStreamUpload failed: {%w}", err))
 }
 

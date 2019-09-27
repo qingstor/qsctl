@@ -60,7 +60,7 @@ func (t *WaitTask) Run() {
 	utils.SubmitNextTask(t.waitTaskRequirement)
 }
 
-func (t *WaitTask) TriggerError(err error) {
+func (t *WaitTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Wait failed: {%w}", err))
 }
 

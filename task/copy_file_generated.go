@@ -65,7 +65,7 @@ func (t *CopyFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyFileTask) TriggerError(err error) {
+func (t *CopyFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
 
@@ -134,7 +134,7 @@ func (t *CopyLargeFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyLargeFileTask) TriggerError(err error) {
+func (t *CopyLargeFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
 
@@ -212,7 +212,7 @@ func (t *CopyPartialFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyPartialFileTask) TriggerError(err error) {
+func (t *CopyPartialFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
 
@@ -279,7 +279,7 @@ func (t *CopySmallFileTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopySmallFileTask) TriggerError(err error) {
+func (t *CopySmallFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
 

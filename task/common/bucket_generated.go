@@ -62,7 +62,7 @@ func (t *BucketCreateTask) Run() {
 	utils.SubmitNextTask(t.bucketCreateTaskRequirement)
 }
 
-func (t *BucketCreateTask) TriggerError(err error) {
+func (t *BucketCreateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketCreate failed: {%w}", err))
 }
 

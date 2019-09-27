@@ -66,7 +66,7 @@ func (t *FileMD5SumTask) Run() {
 	utils.SubmitNextTask(t.fileMD5SumTaskRequirement)
 }
 
-func (t *FileMD5SumTask) TriggerError(err error) {
+func (t *FileMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
@@ -121,7 +121,7 @@ func (t *StreamMD5SumTask) Run() {
 	utils.SubmitNextTask(t.streamMD5SumTaskRequirement)
 }
 
-func (t *StreamMD5SumTask) TriggerError(err error) {
+func (t *StreamMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 

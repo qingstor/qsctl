@@ -66,7 +66,7 @@ func (t *CopyTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyTask) TriggerError(err error) {
+func (t *CopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Copy failed: {%w}", err))
 }
 

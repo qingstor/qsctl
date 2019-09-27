@@ -16,14 +16,14 @@ import (
 func (t *CopyFileTask) new() {
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	defer f.Close()
 
 	size, err := utils.CalculateFileSize(f)
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetTotalSize(size)
@@ -52,7 +52,7 @@ func (t *CopyLargeFileTask) new() {
 	// Init part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetPartSize(partSize)

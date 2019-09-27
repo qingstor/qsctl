@@ -15,7 +15,7 @@ func (t *FileMD5SumTask) run() {
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	defer f.Close()
@@ -24,7 +24,7 @@ func (t *FileMD5SumTask) run() {
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 

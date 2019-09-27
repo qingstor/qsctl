@@ -12,7 +12,7 @@ func (t *FileUploadTask) run() {
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	defer f.Close()

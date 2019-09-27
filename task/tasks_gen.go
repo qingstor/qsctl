@@ -222,7 +222,7 @@ func (t *{{ .Name }}Task) Run() {
 	utils.SubmitNextTask(t.{{ .Name | lowerFirst }}TaskRequirement)
 }
 
-func (t *{{ .Name }}Task) TriggerError(err error) {
+func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
@@ -256,7 +256,7 @@ func (t *{{ .Name }}Task) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *{{ .Name }}Task) TriggerError(err error) {
+func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 

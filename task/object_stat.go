@@ -8,7 +8,7 @@ import (
 func (t *ObjectStatTask) run() {
 	om, err := t.GetStorage().HeadObject(t.GetKey())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	// replace the original om

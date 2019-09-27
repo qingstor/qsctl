@@ -58,7 +58,7 @@ func (t *CopyPartialStreamTask) new() {
 	b := t.GetBytesPool().Get().(*bytes.Buffer)
 	n, err := io.Copy(b, r)
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 

@@ -64,7 +64,7 @@ func (t *ObjectStatTask) Run() {
 	utils.SubmitNextTask(t.objectStatTaskRequirement)
 }
 
-func (t *ObjectStatTask) TriggerError(err error) {
+func (t *ObjectStatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 

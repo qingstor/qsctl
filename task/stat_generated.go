@@ -61,7 +61,7 @@ func (t *StatTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *StatTask) TriggerError(err error) {
+func (t *StatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Stat failed: {%w}", err))
 }
 

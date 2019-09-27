@@ -66,7 +66,7 @@ func (t *FileUploadTask) Run() {
 	utils.SubmitNextTask(t.fileUploadTaskRequirement)
 }
 
-func (t *FileUploadTask) TriggerError(err error) {
+func (t *FileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileUpload failed: {%w}", err))
 }
 

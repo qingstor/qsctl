@@ -80,7 +80,7 @@ func (t *CopyPartialStreamTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyPartialStreamTask) TriggerError(err error) {
+func (t *CopyPartialStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
 
@@ -149,7 +149,7 @@ func (t *CopyStreamTask) Run() {
 	utils.SubmitNextTask(t)
 }
 
-func (t *CopyStreamTask) TriggerError(err error) {
+func (t *CopyStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
 

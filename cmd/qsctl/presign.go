@@ -50,7 +50,8 @@ func presignRun(_ *cobra.Command, args []string) error {
 		}
 		// only handle object key, if dir, it's meaningless
 		if keyType != constants.KeyTypeObject {
-			panic(constants.ErrorQsPathInvalid)
+			// TODO: we should handle this error
+			return
 		}
 		t.SetBucketName(bucketName)
 		t.SetKey(objectKey)

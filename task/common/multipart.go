@@ -14,7 +14,7 @@ func (t *MultipartInitTask) run() {
 
 	uploadID, err := t.GetStorage().InitiateMultipartUpload(t.GetKey())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetUploadID(uploadID)
@@ -37,7 +37,7 @@ func (t *MultipartFileUploadTask) run() {
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	defer f.Close()
@@ -46,7 +46,7 @@ func (t *MultipartFileUploadTask) run() {
 
 	err = t.GetStorage().UploadMultipart(t.GetKey(), t.GetUploadID(), t.GetSize(), t.GetPartNumber(), t.GetMD5Sum(), r)
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 
@@ -62,7 +62,7 @@ func (t *MultipartStreamUploadTask) run() {
 		t.GetKey(), t.GetUploadID(), t.GetSize(),
 		t.GetPartNumber(), t.GetMD5Sum(), t.GetContent())
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 
@@ -74,7 +74,7 @@ func (t *MultipartCompleteTask) run() {
 
 	err := t.GetStorage().CompleteMultipartUpload(t.GetKey(), t.GetUploadID(), int(*t.GetCurrentPartNumber()))
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 

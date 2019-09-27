@@ -2,7 +2,10 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,12 +14,16 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // objectPresignTaskRequirement is the requirement for execute ObjectPresignTask.
 type objectPresignTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.BucketNameGetter
@@ -31,6 +38,8 @@ type objectPresignTaskRequirement interface {
 type mockObjectPresignTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.BucketName
@@ -53,7 +62,14 @@ type ObjectPresignTask struct {
 // Run implement navvy.Task.
 func (t *ObjectPresignTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.objectPresignTaskRequirement)
+}
+
+func (t *ObjectPresignTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectPresign failed: {%w}", err))
 }
 
 // NewObjectPresignTask will create a new ObjectPresignTask.

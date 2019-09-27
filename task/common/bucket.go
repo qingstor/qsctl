@@ -8,7 +8,7 @@ import (
 func (t *BucketCreateTask) run() {
 	err := t.GetStorage().PutBucket()
 	if err != nil {
-		t.TriggerError(fault.NewUnhandled(err))
+		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	log.Debugf("Task <%s> for Bucket <%s> finished.", "BucketCreateTask", t.GetBucketName())
