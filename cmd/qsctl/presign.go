@@ -32,7 +32,7 @@ this URL can always retrieve the object with an HTTP GET request.`,
 	PreRun: validatePresignFlag,
 }
 
-func presignParse(t *task.PresignTask, args []string) (err error) {
+func presignParse(t *task.PresignTask, _ []string) (err error) {
 	// Parse flags.
 	t.SetExpire(presignInput.expire)
 	return nil
@@ -65,9 +65,6 @@ func presignRun(_ *cobra.Command, args []string) error {
 		if err != nil {
 			return
 		}
-
-		// init blank url
-		t.SetURL("")
 	})
 
 	t.Run()

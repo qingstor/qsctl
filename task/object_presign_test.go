@@ -5,10 +5,8 @@ import (
 	"testing"
 
 	"github.com/Xuanwo/navvy"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
 )
 
@@ -25,14 +23,6 @@ func TestObjectPresignTask_Run(t *testing.T) {
 		expire    int
 		url       string
 	}{
-		// public bucket url
-		{storage.MockPublicBucket, storage.MockMBObject, 0, fmt.Sprintf("%s://%s.%s.%s:%d/%s",
-			viper.GetString(constants.ConfigProtocol),
-			storage.MockPublicBucket,
-			storage.MockZoneAlpha,
-			viper.GetString(constants.ConfigHost),
-			viper.GetInt(constants.ConfigPort),
-			storage.MockMBObject)},
 		// private bucket url
 		{storage.MockZoneAlpha, storage.MockMBObject, 300, fmt.Sprintf("%s.%s/%s?expire=%d",
 			storage.MockZoneAlpha,

@@ -22,8 +22,6 @@ const (
 
 	MockZoneAlpha = "mock-alpha"
 	MockZoneBeta  = "mock-beta"
-
-	MockPublicBucket = "mock-public-bucket"
 )
 
 // MockObjectStorage will implement ObjectStorage interface.
@@ -92,14 +90,6 @@ func NewMockObjectStorage() *MockObjectStorage {
 		Location: MockZoneBeta,
 		OwnerID:  MockZoneBeta + "user",
 		URL:      fmt.Sprintf("%s.%s", MockZoneBeta, MockZoneBeta),
-	}
-	s.Buckets[MockPublicBucket] = &bucketMeta{
-		Created:  time.Unix(612889200, 0),
-		Location: MockZoneAlpha,
-		Name:     MockPublicBucket,
-		URL:      fmt.Sprintf("%s.%s", MockPublicBucket, MockZoneAlpha),
-		OwnerID:  MockZoneAlpha + "user",
-		ACL:      constants.PublicBucketACL,
 	}
 	return s
 }
