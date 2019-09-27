@@ -187,6 +187,31 @@ func (o *ExpectSize) SetExpectSize(v int64) {
 	o.valid = true
 }
 
+type ExpireGetter interface {
+	GetExpire() int
+}
+
+type ExpireSetter interface {
+	SetExpire(int)
+}
+
+type Expire struct {
+	valid bool
+	v     int
+}
+
+func (o *Expire) GetExpire() int {
+	if !o.valid {
+		panic("Expire value is not valid")
+	}
+	return o.v
+}
+
+func (o *Expire) SetExpire(v int) {
+	o.v = v
+	o.valid = true
+}
+
 type FlowTypeGetter interface {
 	GetFlowType() constants.FlowType
 }
@@ -583,6 +608,31 @@ func (o *TotalSize) GetTotalSize() int64 {
 }
 
 func (o *TotalSize) SetTotalSize(v int64) {
+	o.v = v
+	o.valid = true
+}
+
+type URLGetter interface {
+	GetURL() string
+}
+
+type URLSetter interface {
+	SetURL(string)
+}
+
+type URL struct {
+	valid bool
+	v     string
+}
+
+func (o *URL) GetURL() string {
+	if !o.valid {
+		panic("URL value is not valid")
+	}
+	return o.v
+}
+
+func (o *URL) SetURL(v string) {
 	o.v = v
 	o.valid = true
 }

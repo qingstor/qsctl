@@ -52,8 +52,6 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		if err = stor.SetupBucket(bucketName, ""); err != nil {
 			return
 		}
-		// init a blank om
-		t.SetObjectMeta(&storage.ObjectMeta{})
 	})
 
 	t.Run()

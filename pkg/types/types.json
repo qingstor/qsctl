@@ -6,6 +6,7 @@
   "CurrentPartNumber": "*int32",
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
+  "Expire": "int",
   "FlowType": "constants.FlowType",
   "Key": "string",
   "KeyType": "constants.KeyType",
@@ -22,6 +23,7 @@
   "Stream": "io.Reader",
   "TaskConstructor": "TodoFunc",
   "TotalSize": "int64",
+  "URL": "string",
   "UploadID": "string",
   "WaitGroup": "*sync.WaitGroup",
   "Zone": "string"
