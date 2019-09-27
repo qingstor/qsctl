@@ -45,15 +45,11 @@ func TestObjectPresignTask_Run(t *testing.T) {
 		x.SetBucketName(v.bucket)
 		x.SetKey(v.objectKey)
 		x.SetExpire(v.expire)
-		x.SetURL("")
 
 		task := NewObjectPresignTask(x)
 		task.Run()
 		pool.Wait()
 
-		assert.Equal(t,
-			fmt.Sprintf("%v", v.url),
-			fmt.Sprintf("%v", x.GetURL()),
-		)
+		assert.Equal(t, v.url, x.GetURL())
 	}
 }
