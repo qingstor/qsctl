@@ -2,11 +2,11 @@ package task
 
 import (
 	"os"
-	"sync"
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
 
 	"github.com/yunify/qsctl/v2/task/common"
@@ -57,16 +57,13 @@ func (t *CopyLargeFileTask) new() {
 	}
 	t.SetPartSize(partSize)
 
-	t.SetTaskConstructor(NewCopyPartialFileTask)
+	t.SetScheduler(types.NewScheduler(NewCopyPartialFileTask))
 
 	currentPartNumber := int32(0)
 	t.SetCurrentPartNumber(&currentPartNumber)
 
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
-
-	wg := &sync.WaitGroup{}
-	t.SetWaitGroup(wg)
 
 	t.AddTODOs(
 		common.NewMultipartInitTask,

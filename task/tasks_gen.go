@@ -139,6 +139,7 @@ import (
 	"fmt"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -147,6 +148,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 `))
 
 var requirementTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
@@ -158,6 +160,7 @@ type {{ .Name | lowerFirst }}TaskRequirement interface {
 	types.PoolGetter
 	types.FaultSetter
 	types.FaultValidator
+	types.IDGetter
 {{ else }}
 {{- if .Depend }}
 	types.PoolGetter
@@ -184,6 +187,7 @@ type mock{{ .Name }}Task struct {
 	types.Todo
 	types.Pool
 	types.Fault
+	types.ID
 
 	// Inherited value
 {{- range $k, $v := .InheritedValue }}
@@ -212,6 +216,9 @@ type {{ .Name }}Task struct {
 // Run implement navvy.Task.
 func (t *{{ .Name }}Task) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.{{ .Name | lowerFirst }}TaskRequirement)
 }
 
@@ -230,9 +237,12 @@ var dependentTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 type {{ .Name }}Task struct {
 	{{ .Name | lowerFirst }}TaskRequirement
 
-	// Runtime value
+	// Predefined runtime value
 	types.Fault
+	types.ID
 	types.Todo
+
+	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
 	types.{{$v}}
 {{- end }}
@@ -240,6 +250,9 @@ type {{ .Name }}Task struct {
 
 // Run implement navvy.Task
 func (t *{{ .Name }}Task) Run() {
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t)
 }
 
@@ -248,11 +261,12 @@ func (t *{{ .Name }}Task) TriggerError(err error) {
 }
 
 {{- if .Depend }}
-// init{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
+// New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
 func New{{ .Name }}Task(task types.Todoist) navvy.Task {
 	t := &{{ .Name }}Task{
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
 	}
+	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }

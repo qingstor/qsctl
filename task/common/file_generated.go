@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -13,6 +14,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // fileUploadTaskRequirement is the requirement for execute FileUploadTask.
 type fileUploadTaskRequirement interface {
@@ -21,6 +23,7 @@ type fileUploadTaskRequirement interface {
 	types.PoolGetter
 	types.FaultSetter
 	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.KeyGetter
@@ -35,6 +38,7 @@ type mockFileUploadTask struct {
 	types.Todo
 	types.Pool
 	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Key
@@ -56,6 +60,9 @@ type FileUploadTask struct {
 // Run implement navvy.Task.
 func (t *FileUploadTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.fileUploadTaskRequirement)
 }
 

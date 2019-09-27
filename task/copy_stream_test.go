@@ -8,6 +8,7 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/storage"
@@ -84,9 +85,9 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 		},
 	})
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	x.SetWaitGroup(wg)
+	sche := types.NewMockScheduler(nil)
+	sche.New(nil)
+	x.SetScheduler(sche)
 
 	currentPartNumber := int32(0)
 	x.SetCurrentPartNumber(&currentPartNumber)

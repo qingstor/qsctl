@@ -75,5 +75,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 
 	t.Run()
 	t.Wait()
+	if t.ValidateFault() {
+		return t.GetFault()
+	}
 	return
 }

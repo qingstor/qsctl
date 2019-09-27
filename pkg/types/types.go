@@ -342,6 +342,39 @@ func (o *FlowType) ValidateFlowType() bool {
 	return o.valid
 }
 
+type ID struct {
+	valid bool
+	v     string
+}
+
+type IDGetter interface {
+	GetID() string
+}
+
+func (o *ID) GetID() string {
+	if !o.valid {
+		panic("ID value is not valid")
+	}
+	return o.v
+}
+
+type IDSetter interface {
+	SetID(string)
+}
+
+func (o *ID) SetID(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type IDValidator interface {
+	ValidateID() bool
+}
+
+func (o *ID) ValidateID() bool {
+	return o.valid
+}
+
 type Key struct {
 	valid bool
 	v     string
@@ -438,6 +471,39 @@ type MD5SumValidator interface {
 }
 
 func (o *MD5Sum) ValidateMD5Sum() bool {
+	return o.valid
+}
+
+type Name struct {
+	valid bool
+	v     string
+}
+
+type NameGetter interface {
+	GetName() string
+}
+
+func (o *Name) GetName() string {
+	if !o.valid {
+		panic("Name value is not valid")
+	}
+	return o.v
+}
+
+type NameSetter interface {
+	SetName(string)
+}
+
+func (o *Name) SetName(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type NameValidator interface {
+	ValidateName() bool
+}
+
+func (o *Name) ValidateName() bool {
 	return o.valid
 }
 
@@ -705,6 +771,39 @@ func (o *ReadableSize) ValidateReadableSize() bool {
 	return o.valid
 }
 
+type Scheduler struct {
+	valid bool
+	v     scheduler
+}
+
+type SchedulerGetter interface {
+	GetScheduler() scheduler
+}
+
+func (o *Scheduler) GetScheduler() scheduler {
+	if !o.valid {
+		panic("Scheduler value is not valid")
+	}
+	return o.v
+}
+
+type SchedulerSetter interface {
+	SetScheduler(scheduler)
+}
+
+func (o *Scheduler) SetScheduler(v scheduler) {
+	o.v = v
+	o.valid = true
+}
+
+type SchedulerValidator interface {
+	ValidateScheduler() bool
+}
+
+func (o *Scheduler) ValidateScheduler() bool {
+	return o.valid
+}
+
 type Size struct {
 	valid bool
 	v     int64
@@ -804,39 +903,6 @@ func (o *Stream) ValidateStream() bool {
 	return o.valid
 }
 
-type TaskConstructor struct {
-	valid bool
-	v     TodoFunc
-}
-
-type TaskConstructorGetter interface {
-	GetTaskConstructor() TodoFunc
-}
-
-func (o *TaskConstructor) GetTaskConstructor() TodoFunc {
-	if !o.valid {
-		panic("TaskConstructor value is not valid")
-	}
-	return o.v
-}
-
-type TaskConstructorSetter interface {
-	SetTaskConstructor(TodoFunc)
-}
-
-func (o *TaskConstructor) SetTaskConstructor(v TodoFunc) {
-	o.v = v
-	o.valid = true
-}
-
-type TaskConstructorValidator interface {
-	ValidateTaskConstructor() bool
-}
-
-func (o *TaskConstructor) ValidateTaskConstructor() bool {
-	return o.valid
-}
-
 type TotalSize struct {
 	valid bool
 	v     int64
@@ -900,39 +966,6 @@ type UploadIDValidator interface {
 }
 
 func (o *UploadID) ValidateUploadID() bool {
-	return o.valid
-}
-
-type WaitGroup struct {
-	valid bool
-	v     *sync.WaitGroup
-}
-
-type WaitGroupGetter interface {
-	GetWaitGroup() *sync.WaitGroup
-}
-
-func (o *WaitGroup) GetWaitGroup() *sync.WaitGroup {
-	if !o.valid {
-		panic("WaitGroup value is not valid")
-	}
-	return o.v
-}
-
-type WaitGroupSetter interface {
-	SetWaitGroup(*sync.WaitGroup)
-}
-
-func (o *WaitGroup) SetWaitGroup(v *sync.WaitGroup) {
-	o.v = v
-	o.valid = true
-}
-
-type WaitGroupValidator interface {
-	ValidateWaitGroup() bool
-}
-
-func (o *WaitGroup) ValidateWaitGroup() bool {
 	return o.valid
 }
 

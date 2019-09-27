@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -13,6 +14,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // waitTaskRequirement is the requirement for execute WaitTask.
 type waitTaskRequirement interface {
@@ -21,9 +23,10 @@ type waitTaskRequirement interface {
 	types.PoolGetter
 	types.FaultSetter
 	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
-	types.WaitGroupGetter
+	types.SchedulerGetter
 	// Runtime value
 }
 
@@ -32,9 +35,10 @@ type mockWaitTask struct {
 	types.Todo
 	types.Pool
 	types.Fault
+	types.ID
 
 	// Inherited value
-	types.WaitGroup
+	types.Scheduler
 	// Runtime value
 }
 
@@ -50,6 +54,9 @@ type WaitTask struct {
 // Run implement navvy.Task.
 func (t *WaitTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.waitTaskRequirement)
 }
 

@@ -19,17 +19,12 @@ func (t *MultipartInitTask) run() {
 	}
 	t.SetUploadID(uploadID)
 
-	wg := t.GetWaitGroup()
-
 	for {
 		if *t.GetCurrentOffset() == t.GetTotalSize() {
 			break
 		}
 
-		task := t.GetTaskConstructor()(t.multipartInitTaskRequirement)
-		wg.Add(1)
-
-		go t.GetPool().Submit(task)
+		t.GetScheduler().New(t.multipartInitTaskRequirement)
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetKey())
@@ -37,6 +32,8 @@ func (t *MultipartInitTask) run() {
 
 func (t *MultipartFileUploadTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
+
+	defer t.GetScheduler().Done(t.GetID())
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
@@ -53,13 +50,13 @@ func (t *MultipartFileUploadTask) run() {
 		return
 	}
 
-	t.GetWaitGroup().Done()
-
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetPath(), t.GetOffset())
 }
 
 func (t *MultipartStreamUploadTask) run() {
 	log.Debugf("Task <%s> for Stream at PartNumber <%d> started.", "MultipartStreamUploadTask", t.GetPartNumber())
+
+	defer t.GetScheduler().Done(t.GetID())
 
 	err := t.GetStorage().UploadMultipart(
 		t.GetKey(), t.GetUploadID(), t.GetSize(),
@@ -68,8 +65,6 @@ func (t *MultipartStreamUploadTask) run() {
 		t.TriggerError(fault.NewUnhandled(err))
 		return
 	}
-
-	t.GetWaitGroup().Done()
 
 	log.Debugf("Task <%s> for Stream at PartNumber <%d> finished.", "MultipartStreamUploadTask", t.GetPartNumber())
 }

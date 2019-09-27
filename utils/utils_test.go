@@ -34,10 +34,9 @@ func TestCalculatePartSize(t *testing.T) {
 }
 
 func TestSubmitNextTask(t *testing.T) {
-	task := &EmptyTasker{
-		EmptyTask: EmptyTask{},
-		Todo:      types.Todo{},
-		Fault:     types.Fault{},
+	task := &EmptyTask{
+		Todo:  types.Todo{},
+		Fault: types.Fault{},
 	}
 	pool, err := navvy.NewPool(10)
 	if err != nil {

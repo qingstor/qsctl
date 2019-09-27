@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -13,6 +14,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // makeBucketTaskRequirement is the requirement for execute MakeBucketTask.
 type makeBucketTaskRequirement interface {
@@ -26,6 +28,7 @@ type mockMakeBucketTask struct {
 	types.Todo
 	types.Pool
 	types.Fault
+	types.ID
 
 	// Inherited value
 }
@@ -38,9 +41,12 @@ func (t *mockMakeBucketTask) Run() {
 type MakeBucketTask struct {
 	makeBucketTaskRequirement
 
-	// Runtime value
+	// Predefined runtime value
 	types.Fault
+	types.ID
 	types.Todo
+
+	// Runtime value
 	types.BucketName
 	types.Pool
 	types.Storage
@@ -49,6 +55,9 @@ type MakeBucketTask struct {
 
 // Run implement navvy.Task
 func (t *MakeBucketTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t)
 }
 
