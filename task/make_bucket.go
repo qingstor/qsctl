@@ -2,6 +2,7 @@ package task
 
 import (
 	"github.com/Xuanwo/navvy"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 
 	"github.com/yunify/qsctl/v2/task/common"
 )
@@ -12,7 +13,8 @@ func NewMakeBucketTask(fn func(t *MakeBucketTask)) *MakeBucketTask {
 
 	pool, err := navvy.NewPool(10)
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return t
 	}
 	t.SetPool(pool)
 

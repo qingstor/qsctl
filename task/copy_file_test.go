@@ -2,12 +2,12 @@ package task
 
 import (
 	"os"
-	"sync"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/utils"
@@ -77,15 +77,15 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 	x.SetPartSize(64 * 1024 * 1024)
 	x.SetTotalSize(size)
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	x.SetWaitGroup(wg)
-
 	currentPartNumber := int32(0)
 	x.SetCurrentPartNumber(&currentPartNumber)
 
 	currentOffset := int64(0)
 	x.SetCurrentOffset(&currentOffset)
+
+	sche := types.NewMockScheduler(nil)
+	sche.New(nil)
+	x.SetScheduler(sche)
 
 	task := NewCopyPartialFileTask(x)
 	task.Run()

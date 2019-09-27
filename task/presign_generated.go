@@ -2,7 +2,10 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,6 +14,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // presignTaskRequirement is the requirement for execute PresignTask.
 type presignTaskRequirement interface {
@@ -23,6 +27,8 @@ type presignTaskRequirement interface {
 type mockPresignTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 }
@@ -35,8 +41,12 @@ func (t *mockPresignTask) Run() {
 type PresignTask struct {
 	presignTaskRequirement
 
-	// Runtime value
+	// Predefined runtime value
+	types.Fault
+	types.ID
 	types.Todo
+
+	// Runtime value
 	types.BucketName
 	types.Expire
 	types.Key
@@ -47,7 +57,14 @@ type PresignTask struct {
 
 // Run implement navvy.Task
 func (t *PresignTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t)
+}
+
+func (t *PresignTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task Presign failed: {%w}", err))
 }
 
 // Wait will wait until PresignTask has been finished

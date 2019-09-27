@@ -9,20 +9,16 @@ import (
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/pkg/types/storage"
 )
-
-type BucketNameGetter interface {
-	GetBucketName() string
-}
-
-type BucketNameSetter interface {
-	SetBucketName(string)
-}
 
 type BucketName struct {
 	valid bool
 	v     string
+}
+
+type BucketNameGetter interface {
+	GetBucketName() string
 }
 
 func (o *BucketName) GetBucketName() string {
@@ -32,22 +28,63 @@ func (o *BucketName) GetBucketName() string {
 	return o.v
 }
 
+type BucketNameSetter interface {
+	SetBucketName(string)
+}
+
 func (o *BucketName) SetBucketName(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type BytesPoolGetter interface {
-	GetBytesPool() *sync.Pool
+type BucketNameValidator interface {
+	ValidateBucketName() bool
 }
 
-type BytesPoolSetter interface {
-	SetBytesPool(*sync.Pool)
+func (o *BucketName) ValidateBucketName() bool {
+	return o.valid
+}
+
+type ByteSize struct {
+	valid bool
+	v     string
+}
+
+type ByteSizeGetter interface {
+	GetByteSize() string
+}
+
+func (o *ByteSize) GetByteSize() string {
+	if !o.valid {
+		panic("ByteSize value is not valid")
+	}
+	return o.v
+}
+
+type ByteSizeSetter interface {
+	SetByteSize(string)
+}
+
+func (o *ByteSize) SetByteSize(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type ByteSizeValidator interface {
+	ValidateByteSize() bool
+}
+
+func (o *ByteSize) ValidateByteSize() bool {
+	return o.valid
 }
 
 type BytesPool struct {
 	valid bool
 	v     *sync.Pool
+}
+
+type BytesPoolGetter interface {
+	GetBytesPool() *sync.Pool
 }
 
 func (o *BytesPool) GetBytesPool() *sync.Pool {
@@ -57,22 +94,30 @@ func (o *BytesPool) GetBytesPool() *sync.Pool {
 	return o.v
 }
 
+type BytesPoolSetter interface {
+	SetBytesPool(*sync.Pool)
+}
+
 func (o *BytesPool) SetBytesPool(v *sync.Pool) {
 	o.v = v
 	o.valid = true
 }
 
-type ContentGetter interface {
-	GetContent() *bytes.Buffer
+type BytesPoolValidator interface {
+	ValidateBytesPool() bool
 }
 
-type ContentSetter interface {
-	SetContent(*bytes.Buffer)
+func (o *BytesPool) ValidateBytesPool() bool {
+	return o.valid
 }
 
 type Content struct {
 	valid bool
 	v     *bytes.Buffer
+}
+
+type ContentGetter interface {
+	GetContent() *bytes.Buffer
 }
 
 func (o *Content) GetContent() *bytes.Buffer {
@@ -82,22 +127,30 @@ func (o *Content) GetContent() *bytes.Buffer {
 	return o.v
 }
 
+type ContentSetter interface {
+	SetContent(*bytes.Buffer)
+}
+
 func (o *Content) SetContent(v *bytes.Buffer) {
 	o.v = v
 	o.valid = true
 }
 
-type CurrentOffsetGetter interface {
-	GetCurrentOffset() *int64
+type ContentValidator interface {
+	ValidateContent() bool
 }
 
-type CurrentOffsetSetter interface {
-	SetCurrentOffset(*int64)
+func (o *Content) ValidateContent() bool {
+	return o.valid
 }
 
 type CurrentOffset struct {
 	valid bool
 	v     *int64
+}
+
+type CurrentOffsetGetter interface {
+	GetCurrentOffset() *int64
 }
 
 func (o *CurrentOffset) GetCurrentOffset() *int64 {
@@ -107,22 +160,30 @@ func (o *CurrentOffset) GetCurrentOffset() *int64 {
 	return o.v
 }
 
+type CurrentOffsetSetter interface {
+	SetCurrentOffset(*int64)
+}
+
 func (o *CurrentOffset) SetCurrentOffset(v *int64) {
 	o.v = v
 	o.valid = true
 }
 
-type CurrentPartNumberGetter interface {
-	GetCurrentPartNumber() *int32
+type CurrentOffsetValidator interface {
+	ValidateCurrentOffset() bool
 }
 
-type CurrentPartNumberSetter interface {
-	SetCurrentPartNumber(*int32)
+func (o *CurrentOffset) ValidateCurrentOffset() bool {
+	return o.valid
 }
 
 type CurrentPartNumber struct {
 	valid bool
 	v     *int32
+}
+
+type CurrentPartNumberGetter interface {
+	GetCurrentPartNumber() *int32
 }
 
 func (o *CurrentPartNumber) GetCurrentPartNumber() *int32 {
@@ -132,22 +193,30 @@ func (o *CurrentPartNumber) GetCurrentPartNumber() *int32 {
 	return o.v
 }
 
+type CurrentPartNumberSetter interface {
+	SetCurrentPartNumber(*int32)
+}
+
 func (o *CurrentPartNumber) SetCurrentPartNumber(v *int32) {
 	o.v = v
 	o.valid = true
 }
 
-type EnableBenchmarkGetter interface {
-	GetEnableBenchmark() bool
+type CurrentPartNumberValidator interface {
+	ValidateCurrentPartNumber() bool
 }
 
-type EnableBenchmarkSetter interface {
-	SetEnableBenchmark(bool)
+func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
+	return o.valid
 }
 
 type EnableBenchmark struct {
 	valid bool
 	v     bool
+}
+
+type EnableBenchmarkGetter interface {
+	GetEnableBenchmark() bool
 }
 
 func (o *EnableBenchmark) GetEnableBenchmark() bool {
@@ -157,22 +226,30 @@ func (o *EnableBenchmark) GetEnableBenchmark() bool {
 	return o.v
 }
 
+type EnableBenchmarkSetter interface {
+	SetEnableBenchmark(bool)
+}
+
 func (o *EnableBenchmark) SetEnableBenchmark(v bool) {
 	o.v = v
 	o.valid = true
 }
 
-type ExpectSizeGetter interface {
-	GetExpectSize() int64
+type EnableBenchmarkValidator interface {
+	ValidateEnableBenchmark() bool
 }
 
-type ExpectSizeSetter interface {
-	SetExpectSize(int64)
+func (o *EnableBenchmark) ValidateEnableBenchmark() bool {
+	return o.valid
 }
 
 type ExpectSize struct {
 	valid bool
 	v     int64
+}
+
+type ExpectSizeGetter interface {
+	GetExpectSize() int64
 }
 
 func (o *ExpectSize) GetExpectSize() int64 {
@@ -182,22 +259,30 @@ func (o *ExpectSize) GetExpectSize() int64 {
 	return o.v
 }
 
+type ExpectSizeSetter interface {
+	SetExpectSize(int64)
+}
+
 func (o *ExpectSize) SetExpectSize(v int64) {
 	o.v = v
 	o.valid = true
 }
 
-type ExpireGetter interface {
-	GetExpire() int
+type ExpectSizeValidator interface {
+	ValidateExpectSize() bool
 }
 
-type ExpireSetter interface {
-	SetExpire(int)
+func (o *ExpectSize) ValidateExpectSize() bool {
+	return o.valid
 }
 
 type Expire struct {
 	valid bool
 	v     int
+}
+
+type ExpireGetter interface {
+	GetExpire() int
 }
 
 func (o *Expire) GetExpire() int {
@@ -207,22 +292,63 @@ func (o *Expire) GetExpire() int {
 	return o.v
 }
 
+type ExpireSetter interface {
+	SetExpire(int)
+}
+
 func (o *Expire) SetExpire(v int) {
 	o.v = v
 	o.valid = true
 }
 
-type FlowTypeGetter interface {
-	GetFlowType() constants.FlowType
+type ExpireValidator interface {
+	ValidateExpire() bool
 }
 
-type FlowTypeSetter interface {
-	SetFlowType(constants.FlowType)
+func (o *Expire) ValidateExpire() bool {
+	return o.valid
+}
+
+type Fault struct {
+	valid bool
+	v     error
+}
+
+type FaultGetter interface {
+	GetFault() error
+}
+
+func (o *Fault) GetFault() error {
+	if !o.valid {
+		panic("Fault value is not valid")
+	}
+	return o.v
+}
+
+type FaultSetter interface {
+	SetFault(error)
+}
+
+func (o *Fault) SetFault(v error) {
+	o.v = v
+	o.valid = true
+}
+
+type FaultValidator interface {
+	ValidateFault() bool
+}
+
+func (o *Fault) ValidateFault() bool {
+	return o.valid
 }
 
 type FlowType struct {
 	valid bool
 	v     constants.FlowType
+}
+
+type FlowTypeGetter interface {
+	GetFlowType() constants.FlowType
 }
 
 func (o *FlowType) GetFlowType() constants.FlowType {
@@ -232,22 +358,63 @@ func (o *FlowType) GetFlowType() constants.FlowType {
 	return o.v
 }
 
+type FlowTypeSetter interface {
+	SetFlowType(constants.FlowType)
+}
+
 func (o *FlowType) SetFlowType(v constants.FlowType) {
 	o.v = v
 	o.valid = true
 }
 
-type KeyGetter interface {
-	GetKey() string
+type FlowTypeValidator interface {
+	ValidateFlowType() bool
 }
 
-type KeySetter interface {
-	SetKey(string)
+func (o *FlowType) ValidateFlowType() bool {
+	return o.valid
+}
+
+type ID struct {
+	valid bool
+	v     string
+}
+
+type IDGetter interface {
+	GetID() string
+}
+
+func (o *ID) GetID() string {
+	if !o.valid {
+		panic("ID value is not valid")
+	}
+	return o.v
+}
+
+type IDSetter interface {
+	SetID(string)
+}
+
+func (o *ID) SetID(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type IDValidator interface {
+	ValidateID() bool
+}
+
+func (o *ID) ValidateID() bool {
+	return o.valid
 }
 
 type Key struct {
 	valid bool
 	v     string
+}
+
+type KeyGetter interface {
+	GetKey() string
 }
 
 func (o *Key) GetKey() string {
@@ -257,22 +424,30 @@ func (o *Key) GetKey() string {
 	return o.v
 }
 
+type KeySetter interface {
+	SetKey(string)
+}
+
 func (o *Key) SetKey(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type KeyTypeGetter interface {
-	GetKeyType() constants.KeyType
+type KeyValidator interface {
+	ValidateKey() bool
 }
 
-type KeyTypeSetter interface {
-	SetKeyType(constants.KeyType)
+func (o *Key) ValidateKey() bool {
+	return o.valid
 }
 
 type KeyType struct {
 	valid bool
 	v     constants.KeyType
+}
+
+type KeyTypeGetter interface {
+	GetKeyType() constants.KeyType
 }
 
 func (o *KeyType) GetKeyType() constants.KeyType {
@@ -282,22 +457,30 @@ func (o *KeyType) GetKeyType() constants.KeyType {
 	return o.v
 }
 
+type KeyTypeSetter interface {
+	SetKeyType(constants.KeyType)
+}
+
 func (o *KeyType) SetKeyType(v constants.KeyType) {
 	o.v = v
 	o.valid = true
 }
 
-type MD5SumGetter interface {
-	GetMD5Sum() []byte
+type KeyTypeValidator interface {
+	ValidateKeyType() bool
 }
 
-type MD5SumSetter interface {
-	SetMD5Sum([]byte)
+func (o *KeyType) ValidateKeyType() bool {
+	return o.valid
 }
 
 type MD5Sum struct {
 	valid bool
 	v     []byte
+}
+
+type MD5SumGetter interface {
+	GetMD5Sum() []byte
 }
 
 func (o *MD5Sum) GetMD5Sum() []byte {
@@ -307,22 +490,63 @@ func (o *MD5Sum) GetMD5Sum() []byte {
 	return o.v
 }
 
+type MD5SumSetter interface {
+	SetMD5Sum([]byte)
+}
+
 func (o *MD5Sum) SetMD5Sum(v []byte) {
 	o.v = v
 	o.valid = true
 }
 
-type ObjectMetaGetter interface {
-	GetObjectMeta() *storage.ObjectMeta
+type MD5SumValidator interface {
+	ValidateMD5Sum() bool
 }
 
-type ObjectMetaSetter interface {
-	SetObjectMeta(*storage.ObjectMeta)
+func (o *MD5Sum) ValidateMD5Sum() bool {
+	return o.valid
+}
+
+type Name struct {
+	valid bool
+	v     string
+}
+
+type NameGetter interface {
+	GetName() string
+}
+
+func (o *Name) GetName() string {
+	if !o.valid {
+		panic("Name value is not valid")
+	}
+	return o.v
+}
+
+type NameSetter interface {
+	SetName(string)
+}
+
+func (o *Name) SetName(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type NameValidator interface {
+	ValidateName() bool
+}
+
+func (o *Name) ValidateName() bool {
+	return o.valid
 }
 
 type ObjectMeta struct {
 	valid bool
 	v     *storage.ObjectMeta
+}
+
+type ObjectMetaGetter interface {
+	GetObjectMeta() *storage.ObjectMeta
 }
 
 func (o *ObjectMeta) GetObjectMeta() *storage.ObjectMeta {
@@ -332,22 +556,30 @@ func (o *ObjectMeta) GetObjectMeta() *storage.ObjectMeta {
 	return o.v
 }
 
+type ObjectMetaSetter interface {
+	SetObjectMeta(*storage.ObjectMeta)
+}
+
 func (o *ObjectMeta) SetObjectMeta(v *storage.ObjectMeta) {
 	o.v = v
 	o.valid = true
 }
 
-type OffsetGetter interface {
-	GetOffset() int64
+type ObjectMetaValidator interface {
+	ValidateObjectMeta() bool
 }
 
-type OffsetSetter interface {
-	SetOffset(int64)
+func (o *ObjectMeta) ValidateObjectMeta() bool {
+	return o.valid
 }
 
 type Offset struct {
 	valid bool
 	v     int64
+}
+
+type OffsetGetter interface {
+	GetOffset() int64
 }
 
 func (o *Offset) GetOffset() int64 {
@@ -357,22 +589,30 @@ func (o *Offset) GetOffset() int64 {
 	return o.v
 }
 
+type OffsetSetter interface {
+	SetOffset(int64)
+}
+
 func (o *Offset) SetOffset(v int64) {
 	o.v = v
 	o.valid = true
 }
 
-type PartNumberGetter interface {
-	GetPartNumber() int
+type OffsetValidator interface {
+	ValidateOffset() bool
 }
 
-type PartNumberSetter interface {
-	SetPartNumber(int)
+func (o *Offset) ValidateOffset() bool {
+	return o.valid
 }
 
 type PartNumber struct {
 	valid bool
 	v     int
+}
+
+type PartNumberGetter interface {
+	GetPartNumber() int
 }
 
 func (o *PartNumber) GetPartNumber() int {
@@ -382,22 +622,30 @@ func (o *PartNumber) GetPartNumber() int {
 	return o.v
 }
 
+type PartNumberSetter interface {
+	SetPartNumber(int)
+}
+
 func (o *PartNumber) SetPartNumber(v int) {
 	o.v = v
 	o.valid = true
 }
 
-type PartSizeGetter interface {
-	GetPartSize() int64
+type PartNumberValidator interface {
+	ValidatePartNumber() bool
 }
 
-type PartSizeSetter interface {
-	SetPartSize(int64)
+func (o *PartNumber) ValidatePartNumber() bool {
+	return o.valid
 }
 
 type PartSize struct {
 	valid bool
 	v     int64
+}
+
+type PartSizeGetter interface {
+	GetPartSize() int64
 }
 
 func (o *PartSize) GetPartSize() int64 {
@@ -407,22 +655,30 @@ func (o *PartSize) GetPartSize() int64 {
 	return o.v
 }
 
+type PartSizeSetter interface {
+	SetPartSize(int64)
+}
+
 func (o *PartSize) SetPartSize(v int64) {
 	o.v = v
 	o.valid = true
 }
 
-type PathGetter interface {
-	GetPath() string
+type PartSizeValidator interface {
+	ValidatePartSize() bool
 }
 
-type PathSetter interface {
-	SetPath(string)
+func (o *PartSize) ValidatePartSize() bool {
+	return o.valid
 }
 
 type Path struct {
 	valid bool
 	v     string
+}
+
+type PathGetter interface {
+	GetPath() string
 }
 
 func (o *Path) GetPath() string {
@@ -432,22 +688,30 @@ func (o *Path) GetPath() string {
 	return o.v
 }
 
+type PathSetter interface {
+	SetPath(string)
+}
+
 func (o *Path) SetPath(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type PathTypeGetter interface {
-	GetPathType() constants.PathType
+type PathValidator interface {
+	ValidatePath() bool
 }
 
-type PathTypeSetter interface {
-	SetPathType(constants.PathType)
+func (o *Path) ValidatePath() bool {
+	return o.valid
 }
 
 type PathType struct {
 	valid bool
 	v     constants.PathType
+}
+
+type PathTypeGetter interface {
+	GetPathType() constants.PathType
 }
 
 func (o *PathType) GetPathType() constants.PathType {
@@ -457,22 +721,30 @@ func (o *PathType) GetPathType() constants.PathType {
 	return o.v
 }
 
+type PathTypeSetter interface {
+	SetPathType(constants.PathType)
+}
+
 func (o *PathType) SetPathType(v constants.PathType) {
 	o.v = v
 	o.valid = true
 }
 
-type PoolGetter interface {
-	GetPool() *navvy.Pool
+type PathTypeValidator interface {
+	ValidatePathType() bool
 }
 
-type PoolSetter interface {
-	SetPool(*navvy.Pool)
+func (o *PathType) ValidatePathType() bool {
+	return o.valid
 }
 
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
+}
+
+type PoolGetter interface {
+	GetPool() *navvy.Pool
 }
 
 func (o *Pool) GetPool() *navvy.Pool {
@@ -482,22 +754,96 @@ func (o *Pool) GetPool() *navvy.Pool {
 	return o.v
 }
 
+type PoolSetter interface {
+	SetPool(*navvy.Pool)
+}
+
 func (o *Pool) SetPool(v *navvy.Pool) {
 	o.v = v
 	o.valid = true
 }
 
-type SizeGetter interface {
-	GetSize() int64
+type PoolValidator interface {
+	ValidatePool() bool
 }
 
-type SizeSetter interface {
-	SetSize(int64)
+func (o *Pool) ValidatePool() bool {
+	return o.valid
+}
+
+type ReadableSize struct {
+	valid bool
+	v     string
+}
+
+type ReadableSizeGetter interface {
+	GetReadableSize() string
+}
+
+func (o *ReadableSize) GetReadableSize() string {
+	if !o.valid {
+		panic("ReadableSize value is not valid")
+	}
+	return o.v
+}
+
+type ReadableSizeSetter interface {
+	SetReadableSize(string)
+}
+
+func (o *ReadableSize) SetReadableSize(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type ReadableSizeValidator interface {
+	ValidateReadableSize() bool
+}
+
+func (o *ReadableSize) ValidateReadableSize() bool {
+	return o.valid
+}
+
+type Scheduler struct {
+	valid bool
+	v     scheduler
+}
+
+type SchedulerGetter interface {
+	GetScheduler() scheduler
+}
+
+func (o *Scheduler) GetScheduler() scheduler {
+	if !o.valid {
+		panic("Scheduler value is not valid")
+	}
+	return o.v
+}
+
+type SchedulerSetter interface {
+	SetScheduler(scheduler)
+}
+
+func (o *Scheduler) SetScheduler(v scheduler) {
+	o.v = v
+	o.valid = true
+}
+
+type SchedulerValidator interface {
+	ValidateScheduler() bool
+}
+
+func (o *Scheduler) ValidateScheduler() bool {
+	return o.valid
 }
 
 type Size struct {
 	valid bool
 	v     int64
+}
+
+type SizeGetter interface {
+	GetSize() int64
 }
 
 func (o *Size) GetSize() int64 {
@@ -507,22 +853,30 @@ func (o *Size) GetSize() int64 {
 	return o.v
 }
 
+type SizeSetter interface {
+	SetSize(int64)
+}
+
 func (o *Size) SetSize(v int64) {
 	o.v = v
 	o.valid = true
 }
 
-type StorageGetter interface {
-	GetStorage() storage.ObjectStorage
+type SizeValidator interface {
+	ValidateSize() bool
 }
 
-type StorageSetter interface {
-	SetStorage(storage.ObjectStorage)
+func (o *Size) ValidateSize() bool {
+	return o.valid
 }
 
 type Storage struct {
 	valid bool
 	v     storage.ObjectStorage
+}
+
+type StorageGetter interface {
+	GetStorage() storage.ObjectStorage
 }
 
 func (o *Storage) GetStorage() storage.ObjectStorage {
@@ -532,22 +886,30 @@ func (o *Storage) GetStorage() storage.ObjectStorage {
 	return o.v
 }
 
+type StorageSetter interface {
+	SetStorage(storage.ObjectStorage)
+}
+
 func (o *Storage) SetStorage(v storage.ObjectStorage) {
 	o.v = v
 	o.valid = true
 }
 
-type StreamGetter interface {
-	GetStream() io.Reader
+type StorageValidator interface {
+	ValidateStorage() bool
 }
 
-type StreamSetter interface {
-	SetStream(io.Reader)
+func (o *Storage) ValidateStorage() bool {
+	return o.valid
 }
 
 type Stream struct {
 	valid bool
 	v     io.Reader
+}
+
+type StreamGetter interface {
+	GetStream() io.Reader
 }
 
 func (o *Stream) GetStream() io.Reader {
@@ -557,47 +919,30 @@ func (o *Stream) GetStream() io.Reader {
 	return o.v
 }
 
+type StreamSetter interface {
+	SetStream(io.Reader)
+}
+
 func (o *Stream) SetStream(v io.Reader) {
 	o.v = v
 	o.valid = true
 }
 
-type TaskConstructorGetter interface {
-	GetTaskConstructor() TodoFunc
+type StreamValidator interface {
+	ValidateStream() bool
 }
 
-type TaskConstructorSetter interface {
-	SetTaskConstructor(TodoFunc)
-}
-
-type TaskConstructor struct {
-	valid bool
-	v     TodoFunc
-}
-
-func (o *TaskConstructor) GetTaskConstructor() TodoFunc {
-	if !o.valid {
-		panic("TaskConstructor value is not valid")
-	}
-	return o.v
-}
-
-func (o *TaskConstructor) SetTaskConstructor(v TodoFunc) {
-	o.v = v
-	o.valid = true
-}
-
-type TotalSizeGetter interface {
-	GetTotalSize() int64
-}
-
-type TotalSizeSetter interface {
-	SetTotalSize(int64)
+func (o *Stream) ValidateStream() bool {
+	return o.valid
 }
 
 type TotalSize struct {
 	valid bool
 	v     int64
+}
+
+type TotalSizeGetter interface {
+	GetTotalSize() int64
 }
 
 func (o *TotalSize) GetTotalSize() int64 {
@@ -607,22 +952,30 @@ func (o *TotalSize) GetTotalSize() int64 {
 	return o.v
 }
 
+type TotalSizeSetter interface {
+	SetTotalSize(int64)
+}
+
 func (o *TotalSize) SetTotalSize(v int64) {
 	o.v = v
 	o.valid = true
 }
 
-type URLGetter interface {
-	GetURL() string
+type TotalSizeValidator interface {
+	ValidateTotalSize() bool
 }
 
-type URLSetter interface {
-	SetURL(string)
+func (o *TotalSize) ValidateTotalSize() bool {
+	return o.valid
 }
 
 type URL struct {
 	valid bool
 	v     string
+}
+
+type URLGetter interface {
+	GetURL() string
 }
 
 func (o *URL) GetURL() string {
@@ -632,22 +985,30 @@ func (o *URL) GetURL() string {
 	return o.v
 }
 
+type URLSetter interface {
+	SetURL(string)
+}
+
 func (o *URL) SetURL(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type UploadIDGetter interface {
-	GetUploadID() string
+type URLValidator interface {
+	ValidateURL() bool
 }
 
-type UploadIDSetter interface {
-	SetUploadID(string)
+func (o *URL) ValidateURL() bool {
+	return o.valid
 }
 
 type UploadID struct {
 	valid bool
 	v     string
+}
+
+type UploadIDGetter interface {
+	GetUploadID() string
 }
 
 func (o *UploadID) GetUploadID() string {
@@ -657,47 +1018,30 @@ func (o *UploadID) GetUploadID() string {
 	return o.v
 }
 
+type UploadIDSetter interface {
+	SetUploadID(string)
+}
+
 func (o *UploadID) SetUploadID(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type WaitGroupGetter interface {
-	GetWaitGroup() *sync.WaitGroup
+type UploadIDValidator interface {
+	ValidateUploadID() bool
 }
 
-type WaitGroupSetter interface {
-	SetWaitGroup(*sync.WaitGroup)
-}
-
-type WaitGroup struct {
-	valid bool
-	v     *sync.WaitGroup
-}
-
-func (o *WaitGroup) GetWaitGroup() *sync.WaitGroup {
-	if !o.valid {
-		panic("WaitGroup value is not valid")
-	}
-	return o.v
-}
-
-func (o *WaitGroup) SetWaitGroup(v *sync.WaitGroup) {
-	o.v = v
-	o.valid = true
-}
-
-type ZoneGetter interface {
-	GetZone() string
-}
-
-type ZoneSetter interface {
-	SetZone(string)
+func (o *UploadID) ValidateUploadID() bool {
+	return o.valid
 }
 
 type Zone struct {
 	valid bool
 	v     string
+}
+
+type ZoneGetter interface {
+	GetZone() string
 }
 
 func (o *Zone) GetZone() string {
@@ -707,7 +1051,19 @@ func (o *Zone) GetZone() string {
 	return o.v
 }
 
+type ZoneSetter interface {
+	SetZone(string)
+}
+
 func (o *Zone) SetZone(v string) {
 	o.v = v
 	o.valid = true
+}
+
+type ZoneValidator interface {
+	ValidateZone() bool
+}
+
+func (o *Zone) ValidateZone() bool {
+	return o.valid
 }

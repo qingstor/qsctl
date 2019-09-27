@@ -4,6 +4,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *FileUploadTask) run() {
@@ -11,7 +12,8 @@ func (t *FileUploadTask) run() {
 
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 	defer f.Close()
 

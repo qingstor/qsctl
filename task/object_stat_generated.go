@@ -2,7 +2,10 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,12 +14,16 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // objectStatTaskRequirement is the requirement for execute ObjectStatTask.
 type objectStatTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.KeyGetter
@@ -29,6 +36,8 @@ type objectStatTaskRequirement interface {
 type mockObjectStatTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Key
@@ -49,7 +58,14 @@ type ObjectStatTask struct {
 // Run implement navvy.Task.
 func (t *ObjectStatTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.objectStatTaskRequirement)
+}
+
+func (t *ObjectStatTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 
 // NewObjectStatTask will create a new ObjectStatTask.

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -47,12 +49,10 @@ func ParsePath(p string) (pathType constants.PathType, err error) {
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		log.Infof("File <%s> is not exist, please check your input", p)
-		return constants.PathTypeInvalid, constants.ErrorFileNotExist
+		return constants.PathTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
 	}
 	if err != nil {
-		log.Errorf("Stat file failed [%s]", err)
-		return
+		return constants.PathTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
 	}
 	if fi.IsDir() {
 		return constants.PathTypeLocalDir, nil
@@ -70,7 +70,8 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 	s := strings.SplitN(p, "/", 2)
 
 	if !IsValidBucketName(s[0]) {
-		return constants.KeyTypeInvalid, "", "", constants.ErrorQsPathInvalid
+		// FIXME: maybe we could tell user directly that bucket name is invalid ?
+		return constants.KeyTypeInvalid, "", "", fault.NewUserInputKeyInvalid(nil, s[0])
 	}
 
 	// Only have bucket name or object key is "/"

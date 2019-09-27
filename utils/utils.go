@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -14,8 +14,7 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize
 
 	if size > constants.MaximumObjectSize {
-		log.Errorf("File with size <%d> is too large", size)
-		return 0, constants.ErrorFileTooLarge
+		return 0, fmt.Errorf("calculate part size failed: {%w}", fault.NewLocalFileTooLarge(nil, size))
 	}
 
 	for size/partSize >= int64(constants.MaximumMultipartNumber) {

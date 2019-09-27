@@ -8,6 +8,8 @@ import (
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/common"
 )
 
@@ -23,9 +25,7 @@ func (t *CopyStreamTask) new() {
 	// TODO: we will use expect size to calculate part size later.
 	t.SetPartSize(constants.DefaultPartSize)
 
-	t.SetWaitGroup(&sync.WaitGroup{})
-
-	t.SetTaskConstructor(NewCopyPartialStreamTask)
+	t.SetScheduler(types.NewScheduler(NewCopyPartialStreamTask))
 
 	currentPartNumber := int32(0)
 	t.SetCurrentPartNumber(&currentPartNumber)
@@ -58,7 +58,8 @@ func (t *CopyPartialStreamTask) new() {
 	b := t.GetBytesPool().Get().(*bytes.Buffer)
 	n, err := io.Copy(b, r)
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 
 	t.SetSize(n)

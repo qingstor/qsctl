@@ -2,7 +2,10 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,12 +14,16 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // multipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
 type multipartCompleteTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.CurrentPartNumberGetter
@@ -30,6 +37,8 @@ type multipartCompleteTaskRequirement interface {
 type mockMultipartCompleteTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.CurrentPartNumber
@@ -51,7 +60,14 @@ type MultipartCompleteTask struct {
 // Run implement navvy.Task.
 func (t *MultipartCompleteTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.multipartCompleteTaskRequirement)
+}
+
+func (t *MultipartCompleteTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task MultipartComplete failed: {%w}", err))
 }
 
 // NewMultipartCompleteTask will create a new MultipartCompleteTask.
@@ -64,6 +80,9 @@ type multipartFileUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.KeyGetter
@@ -71,10 +90,10 @@ type multipartFileUploadTaskRequirement interface {
 	types.OffsetGetter
 	types.PartNumberGetter
 	types.PathGetter
+	types.SchedulerGetter
 	types.SizeGetter
 	types.StorageGetter
 	types.UploadIDGetter
-	types.WaitGroupGetter
 	// Runtime value
 }
 
@@ -82,6 +101,8 @@ type multipartFileUploadTaskRequirement interface {
 type mockMultipartFileUploadTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Key
@@ -89,10 +110,10 @@ type mockMultipartFileUploadTask struct {
 	types.Offset
 	types.PartNumber
 	types.Path
+	types.Scheduler
 	types.Size
 	types.Storage
 	types.UploadID
-	types.WaitGroup
 	// Runtime value
 }
 
@@ -108,7 +129,14 @@ type MultipartFileUploadTask struct {
 // Run implement navvy.Task.
 func (t *MultipartFileUploadTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.multipartFileUploadTaskRequirement)
+}
+
+func (t *MultipartFileUploadTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task MultipartFileUpload failed: {%w}", err))
 }
 
 // NewMultipartFileUploadTask will create a new MultipartFileUploadTask.
@@ -121,14 +149,16 @@ type multipartInitTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.CurrentOffsetGetter
 	types.KeyGetter
+	types.SchedulerGetter
 	types.StorageGetter
-	types.TaskConstructorGetter
 	types.TotalSizeGetter
-	types.WaitGroupGetter
 	// Runtime value
 	types.UploadIDSetter
 }
@@ -137,14 +167,15 @@ type multipartInitTaskRequirement interface {
 type mockMultipartInitTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.CurrentOffset
 	types.Key
+	types.Scheduler
 	types.Storage
-	types.TaskConstructor
 	types.TotalSize
-	types.WaitGroup
 	// Runtime value
 	types.UploadID
 }
@@ -161,7 +192,14 @@ type MultipartInitTask struct {
 // Run implement navvy.Task.
 func (t *MultipartInitTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.multipartInitTaskRequirement)
+}
+
+func (t *MultipartInitTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task MultipartInit failed: {%w}", err))
 }
 
 // NewMultipartInitTask will create a new MultipartInitTask.
@@ -174,16 +212,19 @@ type multipartStreamUploadTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.ContentGetter
 	types.KeyGetter
 	types.MD5SumGetter
 	types.PartNumberGetter
+	types.SchedulerGetter
 	types.SizeGetter
 	types.StorageGetter
 	types.UploadIDGetter
-	types.WaitGroupGetter
 	// Runtime value
 }
 
@@ -191,16 +232,18 @@ type multipartStreamUploadTaskRequirement interface {
 type mockMultipartStreamUploadTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Content
 	types.Key
 	types.MD5Sum
 	types.PartNumber
+	types.Scheduler
 	types.Size
 	types.Storage
 	types.UploadID
-	types.WaitGroup
 	// Runtime value
 }
 
@@ -216,7 +259,14 @@ type MultipartStreamUploadTask struct {
 // Run implement navvy.Task.
 func (t *MultipartStreamUploadTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.multipartStreamUploadTaskRequirement)
+}
+
+func (t *MultipartStreamUploadTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task MultipartStreamUpload failed: {%w}", err))
 }
 
 // NewMultipartStreamUploadTask will create a new MultipartStreamUploadTask.

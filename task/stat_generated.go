@@ -2,7 +2,10 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,6 +14,7 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // statTaskRequirement is the requirement for execute StatTask.
 type statTaskRequirement interface {
@@ -23,6 +27,8 @@ type statTaskRequirement interface {
 type mockStatTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 }
@@ -35,8 +41,12 @@ func (t *mockStatTask) Run() {
 type StatTask struct {
 	statTaskRequirement
 
-	// Runtime value
+	// Predefined runtime value
+	types.Fault
+	types.ID
 	types.Todo
+
+	// Runtime value
 	types.Key
 	types.ObjectMeta
 	types.Pool
@@ -45,7 +55,14 @@ type StatTask struct {
 
 // Run implement navvy.Task
 func (t *StatTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t)
+}
+
+func (t *StatTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task Stat failed: {%w}", err))
 }
 
 // Wait will wait until StatTask has been finished
