@@ -3,6 +3,7 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -19,11 +20,15 @@ func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 
 	pool, err := navvy.NewPool(10)
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return t
 	}
 	t.SetPool(pool)
 
 	fn(t)
+	if t.ValidateFault() {
+		return t
+	}
 
 	todo := copyTaskConstructor[t.GetFlowType()][t.GetPathType()]
 	if todo == nil {

@@ -2,11 +2,12 @@ package task
 
 import (
 	"os"
-	"sync"
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
-	utils2 "github.com/yunify/qsctl/v2/utils"
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/utils"
 
 	"github.com/yunify/qsctl/v2/task/common"
 )
@@ -15,13 +16,15 @@ import (
 func (t *CopyFileTask) new() {
 	f, err := os.Open(t.GetPath())
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 	defer f.Close()
 
-	size, err := utils2.CalculateFileSize(f)
+	size, err := utils.CalculateFileSize(f)
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 	t.SetTotalSize(size)
 
@@ -47,22 +50,20 @@ func (t *CopySmallFileTask) new() {
 // newCopyLargeFileTask will create a new Task.
 func (t *CopyLargeFileTask) new() {
 	// Init part size.
-	partSize, err := utils2.CalculatePartSize(t.GetTotalSize())
+	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 	t.SetPartSize(partSize)
 
-	t.SetTaskConstructor(NewCopyPartialFileTask)
+	t.SetScheduler(types.NewScheduler(NewCopyPartialFileTask))
 
 	currentPartNumber := int32(0)
 	t.SetCurrentPartNumber(&currentPartNumber)
 
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
-
-	wg := &sync.WaitGroup{}
-	t.SetWaitGroup(wg)
 
 	t.AddTODOs(
 		common.NewMultipartInitTask,

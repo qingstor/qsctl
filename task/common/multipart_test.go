@@ -2,7 +2,6 @@ package common
 
 import (
 	"os"
-	"sync"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -29,29 +28,32 @@ func TestMultipartInitTask_Run(t *testing.T) {
 	key := uuid.New().String()
 	x.SetKey(key)
 
-	wg := &sync.WaitGroup{}
-	x.SetWaitGroup(wg)
-
 	offset := int64(0)
 	x.SetCurrentOffset(&offset)
 	x.SetTotalSize(1024)
 
+	id := uuid.New().String()
+
 	fn := func(task types.Todoist) navvy.Task {
 		s := int64(1024)
 		x.SetCurrentOffset(&s)
-		return &utils.EmptyTask{}
+
+		t := &utils.EmptyTask{}
+		t.SetID(id)
+		t.SetPool(pool)
+		return t
 	}
-	x.SetTaskConstructor(fn)
+	x.SetScheduler(types.NewScheduler(fn))
 
 	task := NewMultipartInitTask(x)
 	task.Run()
 
 	// There must be only one task in wg, so the first should be ok, and the next should panic.
 	assert.NotPanics(t, func() {
-		wg.Done()
+		x.GetScheduler().Done(id)
 	})
 	assert.Panics(t, func() {
-		wg.Done()
+		x.GetScheduler().Done(id)
 	})
 }
 
@@ -76,10 +78,11 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	x.SetSize(size)
 	x.SetPartNumber(0)
 	x.SetMD5Sum(md5sum)
+	x.SetID(uuid.New().String())
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	x.SetWaitGroup(wg)
+	sche := types.NewMockScheduler(nil)
+	sche.New(nil)
+	x.SetScheduler(sche)
 
 	task := NewMultipartFileUploadTask(x)
 	task.Run()
@@ -111,10 +114,11 @@ func TestMultipartStreamUploadTask_Run(t *testing.T) {
 	x.SetPartNumber(0)
 	x.SetContent(buf)
 	x.SetMD5Sum(md5sum)
+	x.SetID(uuid.New().String())
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	x.SetWaitGroup(wg)
+	sche := types.NewMockScheduler(nil)
+	sche.New(nil)
+	x.SetScheduler(sche)
 
 	task := NewMultipartStreamUploadTask(x)
 	task.Run()

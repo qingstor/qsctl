@@ -1,0 +1,51 @@
+{
+  "LocalFileNotExist": {
+    "value": [
+      "Path"
+    ],
+    "message": "`Local file [%s] is not exist: {%v}`, f.GetPath(), f.GetFault()"
+  },
+  "LocalFileTooLarge": {
+    "value": [
+      "Size"
+    ],
+    "message": "`Local file size [%d] is too large`, f.GetSize()"
+  },
+  "StorageBucketInitFailed": {
+    "value": [
+      "BucketName",
+      "Zone"
+    ],
+    "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetBucketName(), f.GetZone(), f.GetFault()"
+  },
+  "StorageObjectNoPermission": {
+    "value": [
+      "Key"
+    ],
+    "message": "`Storage Object [%s] do not have enough permission: {%v}`, f.GetKey(), f.GetFault()"
+  },
+  "StorageObjectNotFound": {
+    "value": [
+      "Key"
+    ],
+    "message": "`Storage Object [%s] is not found: {%v}`, f.GetKey(), f.GetFault()"
+  },
+  "StorageServiceInitFailed": {
+    "message": "`Storage service initiate failed: {%v}`, f.GetFault()"
+  },
+  "Unhandled": {
+    "message": "`Operation failed via unhandled error: {%v}`, f.GetFault()"
+  },
+  "UserInputByteSizeInvalid": {
+    "value": [
+      "ByteSize"
+    ],
+    "message": "`User input byte size [%s] is invalid: {%v}`, f.GetByteSize(), f.GetFault()"
+  },
+  "UserInputKeyInvalid": {
+    "value": [
+      "Key"
+    ],
+    "message": "`User input key [%s] is invalid`, f.GetKey()"
+  }
+}

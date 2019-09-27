@@ -2,7 +2,10 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/Xuanwo/navvy"
+	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -11,12 +14,16 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
+var _ = uuid.New()
 
 // fileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
 type fileMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.OffsetGetter
@@ -30,6 +37,8 @@ type fileMD5SumTaskRequirement interface {
 type mockFileMD5SumTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Offset
@@ -51,7 +60,14 @@ type FileMD5SumTask struct {
 // Run implement navvy.Task.
 func (t *FileMD5SumTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.fileMD5SumTaskRequirement)
+}
+
+func (t *FileMD5SumTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
 // NewFileMD5SumTask will create a new FileMD5SumTask.
@@ -64,6 +80,9 @@ type streamMD5SumTaskRequirement interface {
 	navvy.Task
 	types.Todoist
 	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
 
 	// Inherited value
 	types.ContentGetter
@@ -75,6 +94,8 @@ type streamMD5SumTaskRequirement interface {
 type mockStreamMD5SumTask struct {
 	types.Todo
 	types.Pool
+	types.Fault
+	types.ID
 
 	// Inherited value
 	types.Content
@@ -94,7 +115,14 @@ type StreamMD5SumTask struct {
 // Run implement navvy.Task.
 func (t *StreamMD5SumTask) Run() {
 	t.run()
+	if t.ValidateFault() {
+		return
+	}
 	utils.SubmitNextTask(t.streamMD5SumTaskRequirement)
+}
+
+func (t *StreamMD5SumTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 
 // NewStreamMD5SumTask will create a new StreamMD5SumTask.

@@ -9,13 +9,21 @@ import (
 	"os"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 const maxTestSize = 64 * int64(datasize.MB)
 
+var _ = uuid.New()
+
 // EmptyTask is used for test.
 type EmptyTask struct {
+	types.ID
+	types.Fault
+	types.Pool
+	types.Todo
 }
 
 // Run implement navvy.Task interface.
