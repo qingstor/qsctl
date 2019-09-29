@@ -70,3 +70,58 @@ func (t *BucketCreateTask) TriggerFault(err error) {
 func NewBucketCreateTask(task types.Todoist) navvy.Task {
 	return &BucketCreateTask{task.(bucketCreateTaskRequirement)}
 }
+
+// bucketDeleteTaskRequirement is the requirement for execute BucketDeleteTask.
+type bucketDeleteTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.BucketNameGetter
+	types.StorageGetter
+	// Runtime value
+}
+
+// mockBucketDeleteTask is the mock task for BucketDeleteTask.
+type mockBucketDeleteTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.BucketName
+	types.Storage
+	// Runtime value
+}
+
+func (t *mockBucketDeleteTask) Run() {
+	panic("mockBucketDeleteTask should not be run.")
+}
+
+// BucketDeleteTask will send delete request to delete a bucket.
+type BucketDeleteTask struct {
+	bucketDeleteTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *BucketDeleteTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.bucketDeleteTaskRequirement)
+}
+
+func (t *BucketDeleteTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task BucketDelete failed: {%w}", err))
+}
+
+// NewBucketDeleteTask will create a new BucketDeleteTask.
+func NewBucketDeleteTask(task types.Todoist) navvy.Task {
+	return &BucketDeleteTask{task.(bucketDeleteTaskRequirement)}
+}

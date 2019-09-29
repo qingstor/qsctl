@@ -13,3 +13,12 @@ func (t *BucketCreateTask) run() {
 	}
 	log.Debugf("Task <%s> for Bucket <%s> finished.", "BucketCreateTask", t.GetBucketName())
 }
+
+func (t *BucketDeleteTask) run() {
+	err := t.GetStorage().DeleteBucket()
+	if err != nil {
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
+	}
+	log.Debugf("Task <%s> for Bucket <%s> finished.", "BucketDeleteTask", t.GetBucketName())
+}
