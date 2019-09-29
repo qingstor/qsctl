@@ -39,6 +39,7 @@ func init() {
 	initLsFlag()
 	initMbFlag()
 	initPresignFlag()
+	initRbFlag()
 	initRmFlag()
 	initStatFlag()
 	initTeeFlag()

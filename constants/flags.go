@@ -8,6 +8,8 @@ const (
 	ExpectSizeFlag = "expect-size"
 	// ExpireFlag represents the flag expire
 	ExpireFlag = "expire"
+	// ForceFlag represents the flag force
+	ForceFlag = "force"
 	// FormatFlag represents the flag format
 	FormatFlag = "format"
 	// HumanReadableFlag represents the flag human-readable
