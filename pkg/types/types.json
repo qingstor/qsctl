@@ -24,6 +24,7 @@
   "PathType": "constants.PathType",
   "Pool": "*navvy.Pool",
   "ReadableSize": "string",
+  "Recursive": "bool",
   "Scheduler": "scheduler",
   "Size": "int64",
   "Storage": "storage.ObjectStorage",

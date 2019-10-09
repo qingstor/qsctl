@@ -241,6 +241,15 @@
       "UploadID"
     ]
   },
+  "ObjectDelete": {
+    "type": "required",
+    "path": "object_delete",
+    "description": "will delete a remote object with specific key",
+    "inherited_value": [
+      "Key",
+      "Storage"
+    ]
+  },
   "ObjectPresign": {
     "type": "required",
     "path": "object_presign",
@@ -288,6 +297,17 @@
       "BucketName",
       "Force",
       "Pool",
+      "Storage"
+    ]
+  },
+  "RemoveObject": {
+    "type": "dependent",
+    "path": "remove_object",
+    "description": "will remove object",
+    "runtime_value": [
+      "Key",
+      "Pool",
+      "Recursive",
       "Storage"
     ]
   },
