@@ -41,16 +41,18 @@ func presignParse(t *task.PresignTask, _ []string) (err error) {
 func presignRun(_ *cobra.Command, args []string) error {
 	t := task.NewPresignTask(func(t *task.PresignTask) {
 		if err := presignParse(t, args); err != nil {
-			panic(err)
+			t.TriggerFault(err)
+			return
 		}
 
 		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
 		if err != nil {
-			panic(err)
+			t.TriggerFault(err)
+			return
 		}
 		// only handle object key, if dir, it's meaningless
 		if keyType != constants.KeyTypeObject {
-			// TODO: we should handle this error
+			t.TriggerFault(fmt.Errorf("key type is not match"))
 			return
 		}
 		t.SetBucketName(bucketName)
@@ -58,12 +60,14 @@ func presignRun(_ *cobra.Command, args []string) error {
 
 		stor, err := storage.NewQingStorObjectStorage()
 		if err != nil {
+			t.TriggerFault(err)
 			return
 		}
 		t.SetStorage(stor)
 
 		err = stor.SetupBucket(bucketName, "")
 		if err != nil {
+			t.TriggerFault(err)
 			return
 		}
 	})
@@ -71,8 +75,16 @@ func presignRun(_ *cobra.Command, args []string) error {
 	t.Run()
 	t.Wait()
 
-	fmt.Println(t.GetURL())
+	if t.ValidateFault() {
+		return t.GetFault()
+	}
+
+	presignOutput(t)
 	return nil
+}
+
+func presignOutput(t *task.PresignTask) {
+	fmt.Println(t.GetURL())
 }
 
 func initPresignFlag() {

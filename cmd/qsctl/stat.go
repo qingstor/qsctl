@@ -33,24 +33,27 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewStatTask(func(t *task.StatTask) {
-		keyType, bucketName, objectKey, e := utils.ParseKey(args[0])
-		if e != nil {
-			panic(e)
+		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		if err != nil {
+			t.TriggerFault(err)
+			return
 		}
 		// for now, only support stat object
 		if keyType != constants.KeyTypeObject {
-			panic(fmt.Errorf("key type is not match"))
+			t.TriggerFault(fmt.Errorf("key type is not match"))
+			return
 		}
 		t.SetKey(objectKey)
 
-		stor, e := storage.NewQingStorObjectStorage()
-		if e != nil {
-			err = e
+		stor, err := storage.NewQingStorObjectStorage()
+		if err != nil {
+			t.TriggerFault(err)
 			return
 		}
 		t.SetStorage(stor)
 
 		if err = stor.SetupBucket(bucketName, ""); err != nil {
+			t.TriggerFault(err)
 			return
 		}
 	})
@@ -58,26 +61,11 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 	t.Run()
 	t.Wait()
 
-	// if format string was set, print result as format string
-	if statInput.format != "" {
-		fmt.Println(statFormat(statInput.format, t.GetObjectMeta()))
-		return
+	if t.ValidateFault() {
+		return t.GetFault()
 	}
 
-	om := t.GetObjectMeta()
-	content := []string{
-		"Key: " + om.Key,
-		"Size: " + datasize.ByteSize(om.ContentLength).String(),
-		"Type: " + om.ContentType,
-		"Modify: " + om.LastModified.String(),
-		"StorageClass: " + om.StorageClass,
-	}
-
-	if om.ETag != "" {
-		content = append(content, "MD5: "+om.ETag)
-	}
-
-	fmt.Println(utils.AlignPrintWithColon(content...))
+	statOutput(t, statInput.format)
 	return
 }
 
@@ -107,4 +95,27 @@ func statFormat(input string, om *storageType.ObjectMeta) string {
 	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
 
 	return input
+}
+
+func statOutput(t *task.StatTask, format string) {
+	// if format string was set, print result as format string
+	if format != "" {
+		fmt.Println(statFormat(format, t.GetObjectMeta()))
+		return
+	}
+
+	om := t.GetObjectMeta()
+	content := []string{
+		"Key: " + om.Key,
+		"Size: " + datasize.ByteSize(om.ContentLength).String(),
+		"Type: " + om.ContentType,
+		"Modify: " + om.LastModified.String(),
+		"StorageClass: " + om.StorageClass,
+	}
+
+	if om.ETag != "" {
+		content = append(content, "MD5: "+om.ETag)
+	}
+
+	fmt.Println(utils.AlignPrintWithColon(content...))
 }
