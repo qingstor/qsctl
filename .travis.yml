@@ -4,7 +4,10 @@ go:
   - master
 
 install:
+  # code lint tools
   - go get -u golang.org/x/lint/golint
+  # mock generator
+  - go get github.com/golang/mock/mockgen
 
 script:
   - make check
