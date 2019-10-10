@@ -235,24 +235,24 @@ func (mr *MockStoragerMockRecorder) Reach(arg0 interface{}, arg1 ...interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reach", reflect.TypeOf((*MockStorager)(nil).Reach), varargs...)
 }
 
-// ReadFile mocks base method
-func (m *MockStorager) ReadFile(arg0 string, arg1 ...*types.Pair) (io.ReadCloser, error) {
+// Read mocks base method
+func (m *MockStorager) Read(arg0 string, arg1 ...*types.Pair) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "ReadFile", varargs...)
+	ret := m.ctrl.Call(m, "Read", varargs...)
 	ret0, _ := ret[0].(io.ReadCloser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ReadFile indicates an expected call of ReadFile
-func (mr *MockStoragerMockRecorder) ReadFile(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+// Read indicates an expected call of Read
+func (mr *MockStoragerMockRecorder) Read(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadFile", reflect.TypeOf((*MockStorager)(nil).ReadFile), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockStorager)(nil).Read), varargs...)
 }
 
 // ReadSegment mocks base method
@@ -273,26 +273,6 @@ func (mr *MockStoragerMockRecorder) ReadSegment(arg0, arg1, arg2 interface{}, ar
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadSegment", reflect.TypeOf((*MockStorager)(nil).ReadSegment), varargs...)
-}
-
-// ReadStream mocks base method
-func (m *MockStorager) ReadStream(arg0 string, arg1 ...*types.Pair) (io.ReadCloser, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ReadStream", varargs...)
-	ret0, _ := ret[0].(io.ReadCloser)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ReadStream indicates an expected call of ReadStream
-func (mr *MockStoragerMockRecorder) ReadStream(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadStream", reflect.TypeOf((*MockStorager)(nil).ReadStream), varargs...)
 }
 
 // Stat mocks base method
