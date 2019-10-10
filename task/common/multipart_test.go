@@ -25,10 +25,7 @@ func TestMultipartInitTask_Run(t *testing.T) {
 	store := mock.NewMockStorager(ctrl)
 	x.SetDestinationStorage(store)
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 	x.SetPool(pool)
 
 	key := uuid.New().String()

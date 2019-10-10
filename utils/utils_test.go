@@ -38,11 +38,7 @@ func TestSubmitNextTask(t *testing.T) {
 		Todo:  types.Todo{},
 		Fault: types.Fault{},
 	}
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	task.SetPool(pool)
+	task.SetPool(navvy.NewPool(10))
 
 	assert.NotPanics(t, func() {
 		SubmitNextTask(task)

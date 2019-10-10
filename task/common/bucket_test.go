@@ -24,10 +24,7 @@ func TestBucketCreateTask_Run(t *testing.T) {
 		assert.Equal(t, zone, option[0].Value.(string))
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockBucketCreateTask{}
 	x.SetBucketName(bucketName)
@@ -51,10 +48,7 @@ func TestBucketDeleteTask_Run(t *testing.T) {
 		assert.Equal(t, bucketName, inputPath)
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockBucketDeleteTask{}
 	x.SetBucketName(bucketName)

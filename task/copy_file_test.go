@@ -25,10 +25,7 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 
 	store := mock.NewMockStorager(ctrl)
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockCopyLargeFileTask{}
 	x.SetPool(pool)
@@ -70,10 +67,7 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 		assert.Equal(t, size, inputSize)
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockCopyPartialFileTask{}
 	x.SetPool(pool)
@@ -110,10 +104,7 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 		assert.Equal(t, size, inputSize)
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockCopySmallFileTask{}
 	x.SetPool(pool)

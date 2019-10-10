@@ -26,10 +26,7 @@ func TestCopyStreamTask_Run(t *testing.T) {
 
 	buf, size, _ := utils.GenerateTestStream()
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := NewCopyTask(func(task *CopyTask) {
 		task.SetDestinationStorage(store)
@@ -73,10 +70,7 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 		assert.Equal(t, size, inputSize)
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockCopyPartialStreamTask{}
 	x.SetPool(pool)

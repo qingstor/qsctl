@@ -2,8 +2,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/Xuanwo/navvy v0.0.0-20190815090000-f06348b0fd64 h1:amj4IXCiqVKBfWwa68SHAWisnWUqo4ccm0yuQTKV0Co=
-github.com/Xuanwo/navvy v0.0.0-20190815090000-f06348b0fd64/go.mod h1:FfMsXg0w9OrzdLvhDHGzdBx35cw1qTpKLcGNC8RtgQA=
+github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27 h1:zSUdlUFOVurqOOXYregowl3LDoHimf8pjWeimSkzokM=
+github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27/go.mod h1:FfMsXg0w9OrzdLvhDHGzdBx35cw1qTpKLcGNC8RtgQA=
 github.com/Xuanwo/storage v0.0.0-20191010140458-777ee5f7ca23 h1:z6gDsNG3KLdHeUAc/biMgoPdQC28Cn1Epe+xjd+JDBw=
 github.com/Xuanwo/storage v0.0.0-20191010140458-777ee5f7ca23/go.mod h1:/tPK8HCuJwG7uAQVZvSdSlPpdEZVm46Q3UsNGZ8HbGk=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

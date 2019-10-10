@@ -23,10 +23,7 @@ func TestObjectStatTask_Run(t *testing.T) {
 		assert.Equal(t, objectKey, inputPath)
 	})
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := &mockObjectStatTask{}
 	x.SetKey(objectKey)
