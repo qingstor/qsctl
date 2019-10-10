@@ -215,6 +215,26 @@ func (mr *MockStoragerMockRecorder) Move(arg0, arg1 interface{}, arg2 ...interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockStorager)(nil).Move), varargs...)
 }
 
+// Reach mocks base method
+func (m *MockStorager) Reach(arg0 string, arg1 ...*types.Pair) (string, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0}
+	for _, a := range arg1 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Reach", varargs...)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Reach indicates an expected call of Reach
+func (mr *MockStoragerMockRecorder) Reach(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0}, arg1...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reach", reflect.TypeOf((*MockStorager)(nil).Reach), varargs...)
+}
+
 // ReadFile mocks base method
 func (m *MockStorager) ReadFile(arg0 string, arg1 ...*types.Pair) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
@@ -296,7 +316,7 @@ func (mr *MockStoragerMockRecorder) Stat(arg0 interface{}, arg1 ...interface{}) 
 }
 
 // WriteFile mocks base method
-func (m *MockStorager) WriteFile(arg0 string, arg1 int64, arg2 io.ReadCloser, arg3 ...*types.Pair) error {
+func (m *MockStorager) WriteFile(arg0 string, arg1 int64, arg2 io.Reader, arg3 ...*types.Pair) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
@@ -315,7 +335,7 @@ func (mr *MockStoragerMockRecorder) WriteFile(arg0, arg1, arg2 interface{}, arg3
 }
 
 // WriteSegment mocks base method
-func (m *MockStorager) WriteSegment(arg0 string, arg1, arg2 int64, arg3 io.ReadCloser, arg4 ...*types.Pair) error {
+func (m *MockStorager) WriteSegment(arg0 string, arg1, arg2 int64, arg3 io.Reader, arg4 ...*types.Pair) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2, arg3}
 	for _, a := range arg4 {
@@ -334,7 +354,7 @@ func (mr *MockStoragerMockRecorder) WriteSegment(arg0, arg1, arg2, arg3 interfac
 }
 
 // WriteStream mocks base method
-func (m *MockStorager) WriteStream(arg0 string, arg1 io.ReadCloser, arg2 ...*types.Pair) error {
+func (m *MockStorager) WriteStream(arg0 string, arg1 io.Reader, arg2 ...*types.Pair) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
