@@ -2,6 +2,7 @@ package task
 
 import (
 	"github.com/Xuanwo/navvy"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"

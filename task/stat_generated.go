@@ -47,10 +47,10 @@ type StatTask struct {
 	types.Todo
 
 	// Runtime value
+	types.DestinationStorage
 	types.Key
-	types.ObjectMeta
+	types.Object
 	types.Pool
-	types.Storage
 }
 
 // Run implement navvy.Task

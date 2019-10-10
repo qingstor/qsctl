@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/Xuanwo/storage/services/qingstor"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -58,17 +59,21 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetBucketName(bucketName)
 
-		stor, err := storage.NewQingStorObjectStorage()
+		cfg := qingstor.Config{
+			AccessKeyID:     viper.GetString(constants.ConfigAccessKeyID),
+			SecretAccessKey: viper.GetString(constants.ConfigSecretAccessKey),
+			Host:            viper.GetString(constants.ConfigHost),
+			Port:            viper.GetInt(constants.ConfigPort),
+			Protocol:        viper.GetString(constants.ConfigProtocol),
+			BucketName:      t.GetBucketName(),
+			Zone:            t.GetZone(),
+		}
+		stor, err := cfg.New()
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetStorage(stor)
-
-		if err = stor.SetupBucket(t.GetBucketName(), t.GetZone()); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()

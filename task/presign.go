@@ -4,6 +4,7 @@ import (
 	"github.com/Xuanwo/navvy"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/task/common"
 )
 
 // NewPresignTask will create a presign task
@@ -19,6 +20,6 @@ func NewPresignTask(fn func(*PresignTask)) *PresignTask {
 
 	fn(t)
 
-	t.AddTODOs(NewObjectPresignTask)
+	t.AddTODOs(common.NewObjectPresignTask)
 	return t
 }

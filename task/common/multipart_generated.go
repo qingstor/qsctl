@@ -26,10 +26,8 @@ type multipartCompleteTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
-	types.CurrentPartNumberGetter
+	types.DestinationStorageGetter
 	types.KeyGetter
-	types.StorageGetter
-	types.UploadIDGetter
 	// Runtime value
 }
 
@@ -41,10 +39,8 @@ type mockMultipartCompleteTask struct {
 	types.ID
 
 	// Inherited value
-	types.CurrentPartNumber
+	types.DestinationStorage
 	types.Key
-	types.Storage
-	types.UploadID
 	// Runtime value
 }
 
@@ -85,15 +81,13 @@ type multipartFileUploadTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.MD5SumGetter
 	types.OffsetGetter
-	types.PartNumberGetter
 	types.PathGetter
 	types.SchedulerGetter
 	types.SizeGetter
-	types.StorageGetter
-	types.UploadIDGetter
 	// Runtime value
 }
 
@@ -105,15 +99,13 @@ type mockMultipartFileUploadTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationStorage
 	types.Key
 	types.MD5Sum
 	types.Offset
-	types.PartNumber
 	types.Path
 	types.Scheduler
 	types.Size
-	types.Storage
-	types.UploadID
 	// Runtime value
 }
 
@@ -155,12 +147,11 @@ type multipartInitTaskRequirement interface {
 
 	// Inherited value
 	types.CurrentOffsetGetter
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.SchedulerGetter
-	types.StorageGetter
 	types.TotalSizeGetter
 	// Runtime value
-	types.UploadIDSetter
 }
 
 // mockMultipartInitTask is the mock task for MultipartInitTask.
@@ -172,12 +163,11 @@ type mockMultipartInitTask struct {
 
 	// Inherited value
 	types.CurrentOffset
+	types.DestinationStorage
 	types.Key
 	types.Scheduler
-	types.Storage
 	types.TotalSize
 	// Runtime value
-	types.UploadID
 }
 
 func (t *mockMultipartInitTask) Run() {
@@ -218,13 +208,12 @@ type multipartStreamUploadTaskRequirement interface {
 
 	// Inherited value
 	types.ContentGetter
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.MD5SumGetter
-	types.PartNumberGetter
+	types.OffsetGetter
 	types.SchedulerGetter
 	types.SizeGetter
-	types.StorageGetter
-	types.UploadIDGetter
 	// Runtime value
 }
 
@@ -237,13 +226,12 @@ type mockMultipartStreamUploadTask struct {
 
 	// Inherited value
 	types.Content
+	types.DestinationStorage
 	types.Key
 	types.MD5Sum
-	types.PartNumber
+	types.Offset
 	types.Scheduler
 	types.Size
-	types.Storage
-	types.UploadID
 	// Runtime value
 }
 

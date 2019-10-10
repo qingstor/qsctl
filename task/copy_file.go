@@ -7,9 +7,8 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
-
 	"github.com/yunify/qsctl/v2/task/common"
+	"github.com/yunify/qsctl/v2/utils"
 )
 
 // newCopyFileTask will create a new copy file task.
@@ -59,9 +58,6 @@ func (t *CopyLargeFileTask) new() {
 
 	t.SetScheduler(types.NewScheduler(NewCopyPartialFileTask))
 
-	currentPartNumber := int32(0)
-	t.SetCurrentPartNumber(&currentPartNumber)
-
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
 
@@ -79,15 +75,12 @@ func (t *CopyPartialFileTask) new() {
 	partSize := t.GetPartSize()
 
 	// Set part number and update current part number.
-	currentPartNumber := t.GetCurrentPartNumber()
-	t.SetPartNumber(int(*currentPartNumber))
-	atomic.AddInt32(currentPartNumber, 1)
+	currentOffset := t.GetCurrentOffset()
 
 	// Set size and update offset.
-	offset := partSize * int64(t.GetPartNumber())
-	t.SetOffset(offset)
-	if totalSize < offset+partSize {
-		t.SetSize(totalSize - offset)
+	t.SetOffset(*currentOffset)
+	if totalSize < *currentOffset+partSize {
+		t.SetSize(totalSize - *currentOffset)
 	} else {
 		t.SetSize(partSize)
 	}

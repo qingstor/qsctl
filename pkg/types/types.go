@@ -7,9 +7,10 @@ import (
 	"sync"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/types/storage"
 )
 
 type BucketName struct {
@@ -207,6 +208,39 @@ type CurrentPartNumberValidator interface {
 }
 
 func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
+	return o.valid
+}
+
+type DestinationStorage struct {
+	valid bool
+	v     storage.Storager
+}
+
+type DestinationStorageGetter interface {
+	GetDestinationStorage() storage.Storager
+}
+
+func (o *DestinationStorage) GetDestinationStorage() storage.Storager {
+	if !o.valid {
+		panic("DestinationStorage value is not valid")
+	}
+	return o.v
+}
+
+type DestinationStorageSetter interface {
+	SetDestinationStorage(storage.Storager)
+}
+
+func (o *DestinationStorage) SetDestinationStorage(v storage.Storager) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationStorageValidator interface {
+	ValidateDestinationStorage() bool
+}
+
+func (o *DestinationStorage) ValidateDestinationStorage() bool {
 	return o.valid
 }
 
@@ -573,36 +607,36 @@ func (o *Name) ValidateName() bool {
 	return o.valid
 }
 
-type ObjectMeta struct {
+type Object struct {
 	valid bool
-	v     *storage.ObjectMeta
+	v     *types.Object
 }
 
-type ObjectMetaGetter interface {
-	GetObjectMeta() *storage.ObjectMeta
+type ObjectGetter interface {
+	GetObject() *types.Object
 }
 
-func (o *ObjectMeta) GetObjectMeta() *storage.ObjectMeta {
+func (o *Object) GetObject() *types.Object {
 	if !o.valid {
-		panic("ObjectMeta value is not valid")
+		panic("Object value is not valid")
 	}
 	return o.v
 }
 
-type ObjectMetaSetter interface {
-	SetObjectMeta(*storage.ObjectMeta)
+type ObjectSetter interface {
+	SetObject(*types.Object)
 }
 
-func (o *ObjectMeta) SetObjectMeta(v *storage.ObjectMeta) {
+func (o *Object) SetObject(v *types.Object) {
 	o.v = v
 	o.valid = true
 }
 
-type ObjectMetaValidator interface {
-	ValidateObjectMeta() bool
+type ObjectValidator interface {
+	ValidateObject() bool
 }
 
-func (o *ObjectMeta) ValidateObjectMeta() bool {
+func (o *Object) ValidateObject() bool {
 	return o.valid
 }
 
@@ -900,39 +934,6 @@ type SizeValidator interface {
 }
 
 func (o *Size) ValidateSize() bool {
-	return o.valid
-}
-
-type Storage struct {
-	valid bool
-	v     storage.ObjectStorage
-}
-
-type StorageGetter interface {
-	GetStorage() storage.ObjectStorage
-}
-
-func (o *Storage) GetStorage() storage.ObjectStorage {
-	if !o.valid {
-		panic("Storage value is not valid")
-	}
-	return o.v
-}
-
-type StorageSetter interface {
-	SetStorage(storage.ObjectStorage)
-}
-
-func (o *Storage) SetStorage(v storage.ObjectStorage) {
-	o.v = v
-	o.valid = true
-}
-
-type StorageValidator interface {
-	ValidateStorage() bool
-}
-
-func (o *Storage) ValidateStorage() bool {
 	return o.valid
 }
 
