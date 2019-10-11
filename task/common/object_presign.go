@@ -1,13 +1,14 @@
 package common
 
 import (
+	"github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *ObjectPresignTask) run() {
-	// TODO: add expire support.
-	url, err := t.GetDestinationStorage().Reach(t.GetKey())
+	url, err := t.GetDestinationStorage().Reach(t.GetKey(), types.WithExpire(t.GetExpire()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return

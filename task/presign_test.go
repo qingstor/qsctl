@@ -19,8 +19,7 @@ func TestNewPresignTask(t *testing.T) {
 	}
 
 	for _, v := range cases {
-		pt := NewPresignTask(func(task *PresignTask) {
-		})
+		pt := NewPresignTask(func(task *PresignTask) {})
 
 		assert.Equal(t,
 			fmt.Sprintf("%v", v.expectedTodoFunc),
