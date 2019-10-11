@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Xuanwo/storage/services/qingstor"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -120,4 +121,41 @@ func initGlobalFlag() {
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
+}
+
+// StorageOption is the alias for config register func
+type StorageOption func(*qingstor.Config)
+
+// NewQingstorConfig will collect option func and conduct a pointer to qingstor.Config
+func NewQingstorConfig(opt ...StorageOption) *qingstor.Config {
+	r := new(qingstor.Config)
+	for _, o := range opt {
+		o(r)
+	}
+	return r
+}
+
+// WriteBase will return a conduct func for base info
+func WriteBase() StorageOption {
+	return func(c *qingstor.Config) {
+		c.AccessKeyID = viper.GetString(constants.ConfigAccessKeyID)
+		c.SecretAccessKey = viper.GetString(constants.ConfigSecretAccessKey)
+		c.Host = viper.GetString(constants.ConfigHost)
+		c.Port = viper.GetInt(constants.ConfigPort)
+		c.Protocol = viper.GetString(constants.ConfigProtocol)
+	}
+}
+
+// WriteBucketName will return a conduct func for bucket name
+func WriteBucketName(name string) StorageOption {
+	return func(c *qingstor.Config) {
+		c.BucketName = name
+	}
+}
+
+// WriteZone will return a conduct func for zone
+func WriteZone(z string) StorageOption {
+	return func(c *qingstor.Config) {
+		c.Zone = z
+	}
 }

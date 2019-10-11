@@ -5,11 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Xuanwo/storage/services/qingstor"
 	storageType "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -46,14 +44,11 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetKey(objectKey)
 
-		cfg := qingstor.Config{
-			AccessKeyID:     viper.GetString(constants.ConfigAccessKeyID),
-			SecretAccessKey: viper.GetString(constants.ConfigSecretAccessKey),
-			Host:            viper.GetString(constants.ConfigHost),
-			Port:            viper.GetInt(constants.ConfigPort),
-			Protocol:        viper.GetString(constants.ConfigProtocol),
-			BucketName:      bucketName,
-		}
+		cfg := NewQingstorConfig(
+			WriteBase(),
+			WriteBucketName(bucketName),
+		)
+
 		stor, err := cfg.New()
 		if err != nil {
 			t.TriggerFault(err)

@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Xuanwo/storage/services/qingstor"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -59,14 +57,11 @@ func presignRun(_ *cobra.Command, args []string) error {
 		t.SetBucketName(bucketName)
 		t.SetKey(objectKey)
 
-		cfg := qingstor.Config{
-			AccessKeyID:     viper.GetString(constants.ConfigAccessKeyID),
-			SecretAccessKey: viper.GetString(constants.ConfigSecretAccessKey),
-			Host:            viper.GetString(constants.ConfigHost),
-			Port:            viper.GetInt(constants.ConfigPort),
-			Protocol:        viper.GetString(constants.ConfigProtocol),
-			BucketName:      t.GetBucketName(),
-		}
+		cfg := NewQingstorConfig(
+			WriteBase(),
+			WriteBucketName(t.GetBucketName()),
+		)
+
 		stor, err := cfg.New()
 		if err != nil {
 			t.TriggerFault(err)

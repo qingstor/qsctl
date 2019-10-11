@@ -2,11 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	"github.com/Xuanwo/storage/services/qingstor"
-
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -66,14 +62,11 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		cfg := qingstor.Config{
-			AccessKeyID:     viper.GetString(constants.ConfigAccessKeyID),
-			SecretAccessKey: viper.GetString(constants.ConfigSecretAccessKey),
-			Host:            viper.GetString(constants.ConfigHost),
-			Port:            viper.GetInt(constants.ConfigPort),
-			Protocol:        viper.GetString(constants.ConfigProtocol),
-			BucketName:      t.GetBucketName(),
-		}
+		cfg := NewQingstorConfig(
+			WriteBase(),
+			WriteBucketName(t.GetBucketName()),
+		)
+
 		stor, err := cfg.New()
 		if err != nil {
 			t.TriggerFault(err)
