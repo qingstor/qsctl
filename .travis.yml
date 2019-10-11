@@ -16,8 +16,9 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - make release
 
+before_deploy:
+  - make release
 deploy:
   provider: releases
   api_key: $API_KEY
