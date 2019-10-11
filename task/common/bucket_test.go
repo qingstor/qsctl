@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -16,46 +17,88 @@ func TestBucketCreateTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	bucketName, zone := uuid.New().String(), uuid.New().String()
+	bucketName, zone, errBucket := uuid.New().String(), uuid.New().String(), "error-bucket"
 	store := mock.NewMockStorager(ctrl)
-
-	store.EXPECT().CreateDir(gomock.Any(), gomock.Any()).Do(func(inputPath string, option ...*types.Pair) {
-		assert.Equal(t, bucketName, inputPath)
-		assert.Equal(t, zone, option[0].Value.(string))
-	})
-
+	bucketErr := errors.New(errBucket)
 	pool := navvy.NewPool(10)
 
-	x := &mockBucketCreateTask{}
-	x.SetBucketName(bucketName)
-	x.SetZone(zone)
-	x.SetPool(pool)
-	x.SetDestinationStorage(store)
+	cases := []struct {
+		name       string
+		bucketName string
+		zone       string
+		err        error
+	}{
+		{"ok", bucketName, zone, nil},
+		{"error", errBucket, zone, bucketErr},
+	}
 
-	task := NewBucketCreateTask(x)
-	task.Run()
-	pool.Wait()
+	for _, ca := range cases {
+		store.EXPECT().CreateDir(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option ...*types.Pair) (err error) {
+			assert.Equal(t, ca.bucketName, inputPath)
+			assert.Equal(t, ca.zone, option[0].Value.(string))
+			return ca.err
+		}).Times(1)
+
+		x := &mockBucketCreateTask{}
+		x.SetBucketName(ca.bucketName)
+		x.SetZone(zone)
+		x.SetPool(pool)
+		x.SetDestinationStorage(store)
+
+		task := NewBucketCreateTask(x)
+		task.Run()
+		pool.Wait()
+
+		if ca.err == nil {
+			assert.Equal(t, false, x.ValidateFault())
+			continue
+		}
+		assert.Equal(t, x.ValidateFault(), true)
+		assert.Error(t, x.GetFault())
+		assert.Equal(t, true, errors.Is(x.GetFault(), ca.err))
+	}
 }
 
 func TestBucketDeleteTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	bucketName := uuid.New().String()
+	bucketName, errBucket := uuid.New().String(), "err-bucket"
+	bucketErr := errors.New(errBucket)
+	pool := navvy.NewPool(10)
 	store := mock.NewMockStorager(ctrl)
 
-	store.EXPECT().Delete(gomock.Any(), gomock.Any()).Do(func(inputPath string, option ...*types.Pair) {
-		assert.Equal(t, bucketName, inputPath)
-	})
+	cases := []struct {
+		name       string
+		bucketName string
+		err        error
+	}{
+		{"ok", bucketName, nil},
+		{"error", errBucket, bucketErr},
+	}
 
-	pool := navvy.NewPool(10)
+	for _, ca := range cases {
+		// different case different behaviour
+		store.EXPECT().Delete(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option ...*types.Pair) error {
+			assert.Equal(t, "/", inputPath)
+			return ca.err
+		}).Times(1)
 
-	x := &mockBucketDeleteTask{}
-	x.SetBucketName(bucketName)
-	x.SetPool(pool)
-	x.SetDestinationStorage(store)
+		x := &mockBucketDeleteTask{}
+		x.SetBucketName(bucketName)
+		x.SetPool(pool)
+		x.SetDestinationStorage(store)
 
-	task := NewBucketDeleteTask(x)
-	task.Run()
-	pool.Wait()
+		task := NewBucketDeleteTask(x)
+		task.Run()
+		pool.Wait()
+
+		if ca.err == nil {
+			assert.Equal(t, false, x.ValidateFault())
+			continue
+		}
+		assert.Equal(t, x.ValidateFault(), true)
+		assert.Error(t, x.GetFault())
+		assert.Equal(t, true, errors.Is(x.GetFault(), ca.err))
+	}
 }

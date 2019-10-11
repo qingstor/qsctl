@@ -17,7 +17,8 @@ func (t *BucketCreateTask) run() {
 }
 
 func (t *BucketDeleteTask) run() {
-	err := t.GetDestinationStorage().Delete(t.GetBucketName())
+	// path / means delete root dir, which indicates the bucket
+	err := t.GetDestinationStorage().Delete("/")
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
