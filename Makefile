@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 CMD_PKG := github.com/yunify/qsctl/v2/cmd/qsctl
 
-.PHONY: all check format vet lint build install uninstall release clean test coverage generate
+.PHONY: all check format vet lint build install uninstall release clean test generate
 
 VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 
@@ -14,7 +14,6 @@ help:
 	@echo "  release    to release qsctl"
 	@echo "  clean      to clean build and test files"
 	@echo "  test       to run test"
-	@echo "  coverage   to test with coverage"
 
 check: format vet lint
 
