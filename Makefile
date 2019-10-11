@@ -38,7 +38,7 @@ generate:
 	@go generate pkg/types/types_gen.go
 	@go generate pkg/fault/faults_gen.go
 	@go generate task/tasks_gen.go
-	@mockgen -package mock -destination pkg/mock/storager.go github.com/Xuanwo/storage Storager
+	@mockgen -package mock -destination pkg/mock/storager.go github.com/Xuanwo/storage Storager,Servicer
 	@echo "Done"
 
 build: tidy generate check

@@ -27,7 +27,7 @@ type bucketCreateTaskRequirement interface {
 
 	// Inherited value
 	types.BucketNameGetter
-	types.DestinationStorageGetter
+	types.DestinationServiceGetter
 	types.ZoneGetter
 	// Runtime value
 }
@@ -41,7 +41,7 @@ type mockBucketCreateTask struct {
 
 	// Inherited value
 	types.BucketName
-	types.DestinationStorage
+	types.DestinationService
 	types.Zone
 	// Runtime value
 }
@@ -84,7 +84,7 @@ type bucketDeleteTaskRequirement interface {
 
 	// Inherited value
 	types.BucketNameGetter
-	types.DestinationStorageGetter
+	types.DestinationServiceGetter
 	// Runtime value
 }
 
@@ -97,7 +97,7 @@ type mockBucketDeleteTask struct {
 
 	// Inherited value
 	types.BucketName
-	types.DestinationStorage
+	types.DestinationService
 	// Runtime value
 }
 

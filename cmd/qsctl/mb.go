@@ -57,18 +57,12 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetBucketName(bucketName)
 
-		cfg := NewQingstorConfig(
-			WriteBase(),
-			WriteBucketName(t.GetBucketName()),
-			WriteZone(t.GetZone()),
-		)
-
-		stor, err := cfg.New()
+		srv, err := NewQingStorService()
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetDestinationStorage(stor)
+		t.SetDestinationService(srv)
 	})
 
 	t.Run()

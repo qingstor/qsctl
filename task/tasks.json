@@ -5,7 +5,7 @@
     "description": "send put request to create a bucket",
     "inherited_value": [
       "BucketName",
-      "DestinationStorage",
+      "DestinationService",
       "Zone"
     ]
   },
@@ -15,7 +15,7 @@
     "description": "send delete request to delete a bucket",
     "inherited_value": [
       "BucketName",
-      "DestinationStorage"
+      "DestinationService"
     ]
   },
   "Copy": {
@@ -172,7 +172,7 @@
     "description": "make new bucket with given key",
     "runtime_value": [
       "BucketName",
-      "DestinationStorage",
+      "DestinationService",
       "Pool",
       "Zone"
     ]
@@ -271,7 +271,7 @@
     "description": "remove a bucket",
     "runtime_value": [
       "BucketName",
-      "DestinationStorage",
+      "DestinationService",
       "Force",
       "Pool"
     ]

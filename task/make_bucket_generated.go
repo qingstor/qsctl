@@ -48,7 +48,7 @@ type MakeBucketTask struct {
 
 	// Runtime value
 	types.BucketName
-	types.DestinationStorage
+	types.DestinationService
 	types.Pool
 	types.Zone
 }

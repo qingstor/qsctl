@@ -44,12 +44,13 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetKey(objectKey)
 
-		cfg := NewQingstorConfig(
-			WriteBase(),
-			WriteBucketName(bucketName),
-		)
+		srv, err := NewQingStorService()
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
 
-		stor, err := cfg.New()
+		stor, err := srv.Get(bucketName)
 		if err != nil {
 			t.TriggerFault(err)
 			return

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
@@ -59,17 +58,13 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 
 		t.SetBucketName(bucketName)
 
-		cfg := NewQingstorConfig(
-			WriteBase(),
-			WriteBucketName(t.GetBucketName()),
-		)
-
-		stor, err := cfg.New()
+		srv, err := NewQingStorService()
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetDestinationStorage(stor)
+
+		t.SetDestinationService(srv)
 	})
 
 	t.Run()

@@ -211,6 +211,39 @@ func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
 }
 
+type DestinationService struct {
+	valid bool
+	v     storage.Servicer
+}
+
+type DestinationServiceGetter interface {
+	GetDestinationService() storage.Servicer
+}
+
+func (o *DestinationService) GetDestinationService() storage.Servicer {
+	if !o.valid {
+		panic("DestinationService value is not valid")
+	}
+	return o.v
+}
+
+type DestinationServiceSetter interface {
+	SetDestinationService(storage.Servicer)
+}
+
+func (o *DestinationService) SetDestinationService(v storage.Servicer) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationServiceValidator interface {
+	ValidateDestinationService() bool
+}
+
+func (o *DestinationService) ValidateDestinationService() bool {
+	return o.valid
+}
+
 type DestinationStorage struct {
 	valid bool
 	v     storage.Storager

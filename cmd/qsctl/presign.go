@@ -57,12 +57,13 @@ func presignRun(_ *cobra.Command, args []string) error {
 		t.SetBucketName(bucketName)
 		t.SetKey(objectKey)
 
-		cfg := NewQingstorConfig(
-			WriteBase(),
-			WriteBucketName(t.GetBucketName()),
-		)
+		srv, err := NewQingStorService()
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
 
-		stor, err := cfg.New()
+		stor, err := srv.Get(t.GetBucketName())
 		if err != nil {
 			t.TriggerFault(err)
 			return

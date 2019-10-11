@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -62,12 +61,13 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		cfg := NewQingstorConfig(
-			WriteBase(),
-			WriteBucketName(t.GetBucketName()),
-		)
+		srv, err := NewQingStorService()
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
 
-		stor, err := cfg.New()
+		stor, err := srv.Get(t.GetBucketName())
 		if err != nil {
 			t.TriggerFault(err)
 			return

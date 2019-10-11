@@ -8,7 +8,7 @@ import (
 )
 
 func (t *BucketCreateTask) run() {
-	err := t.GetDestinationStorage().CreateDir(t.GetBucketName(), types.WithLocation(t.GetZone()))
+	_, err := t.GetDestinationService().Create(t.GetBucketName(), types.WithLocation(t.GetZone()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
@@ -18,7 +18,7 @@ func (t *BucketCreateTask) run() {
 
 func (t *BucketDeleteTask) run() {
 	// path / means delete root dir, which indicates the bucket
-	err := t.GetDestinationStorage().Delete("/")
+	err := t.GetDestinationService().Delete(t.GetBucketName())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return

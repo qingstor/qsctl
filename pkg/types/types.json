@@ -5,6 +5,7 @@
   "Content": "*bytes.Buffer",
   "CurrentOffset": "*int64",
   "CurrentPartNumber": "*int32",
+  "DestinationService": "storage.Servicer",
   "DestinationStorage": "storage.Storager",
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
