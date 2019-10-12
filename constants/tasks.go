@@ -33,3 +33,13 @@ const (
 	KeyTypeObject
 	KeyTypePseudoDir
 )
+
+// ListType is the type for list
+type ListType uint8
+
+// All available list type
+const (
+	ListTypeInvalid ListType = iota
+	ListTypeBucket
+	ListTypeKey
+)

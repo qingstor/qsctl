@@ -13,6 +13,39 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 )
 
+type BucketList struct {
+	valid bool
+	v     []string
+}
+
+type BucketListGetter interface {
+	GetBucketList() []string
+}
+
+func (o *BucketList) GetBucketList() []string {
+	if !o.valid {
+		panic("BucketList value is not valid")
+	}
+	return o.v
+}
+
+type BucketListSetter interface {
+	SetBucketList([]string)
+}
+
+func (o *BucketList) SetBucketList(v []string) {
+	o.v = v
+	o.valid = true
+}
+
+type BucketListValidator interface {
+	ValidateBucketList() bool
+}
+
+func (o *BucketList) ValidateBucketList() bool {
+	return o.valid
+}
+
 type BucketName struct {
 	valid bool
 	v     string
@@ -571,6 +604,39 @@ type KeyTypeValidator interface {
 }
 
 func (o *KeyType) ValidateKeyType() bool {
+	return o.valid
+}
+
+type ListType struct {
+	valid bool
+	v     constants.ListType
+}
+
+type ListTypeGetter interface {
+	GetListType() constants.ListType
+}
+
+func (o *ListType) GetListType() constants.ListType {
+	if !o.valid {
+		panic("ListType value is not valid")
+	}
+	return o.v
+}
+
+type ListTypeSetter interface {
+	SetListType(constants.ListType)
+}
+
+func (o *ListType) SetListType(v constants.ListType) {
+	o.v = v
+	o.valid = true
+}
+
+type ListTypeValidator interface {
+	ValidateListType() bool
+}
+
+func (o *ListType) ValidateListType() bool {
 	return o.valid
 }
 
