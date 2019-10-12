@@ -24,13 +24,11 @@ type copyPartialStreamTaskRequirement interface {
 	// Inherited value
 	types.BytesPoolGetter
 	types.CurrentOffsetGetter
-	types.CurrentPartNumberGetter
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.PartSizeGetter
 	types.SchedulerGetter
-	types.StorageGetter
 	types.StreamGetter
-	types.UploadIDGetter
 }
 
 // mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
@@ -43,20 +41,18 @@ type mockCopyPartialStreamTask struct {
 	// Inherited value
 	types.BytesPool
 	types.CurrentOffset
-	types.CurrentPartNumber
+	types.DestinationStorage
 	types.Key
 	types.PartSize
 	types.Scheduler
-	types.Storage
 	types.Stream
-	types.UploadID
 }
 
 func (t *mockCopyPartialStreamTask) Run() {
 	panic("mockCopyPartialStreamTask should not be run.")
 }
 
-// CopyPartialStreamTask will copy a partial stream to storage.
+// CopyPartialStreamTask will copy a partial stream to DestinationStorage.
 type CopyPartialStreamTask struct {
 	copyPartialStreamTaskRequirement
 
@@ -68,7 +64,7 @@ type CopyPartialStreamTask struct {
 	// Runtime value
 	types.Content
 	types.MD5Sum
-	types.PartNumber
+	types.Offset
 	types.Size
 }
 
@@ -100,8 +96,8 @@ type copyStreamTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationStorageGetter
 	types.KeyGetter
-	types.StorageGetter
 	types.StreamGetter
 }
 
@@ -113,8 +109,8 @@ type mockCopyStreamTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationStorage
 	types.Key
-	types.Storage
 	types.Stream
 }
 
@@ -122,7 +118,7 @@ func (t *mockCopyStreamTask) Run() {
 	panic("mockCopyStreamTask should not be run.")
 }
 
-// CopyStreamTask will copy a stream to storage.
+// CopyStreamTask will copy a stream to DestinationStorage.
 type CopyStreamTask struct {
 	copyStreamTaskRequirement
 
@@ -134,11 +130,9 @@ type CopyStreamTask struct {
 	// Runtime value
 	types.BytesPool
 	types.CurrentOffset
-	types.CurrentPartNumber
 	types.PartSize
 	types.Scheduler
 	types.TotalSize
-	types.UploadID
 }
 
 // Run implement navvy.Task

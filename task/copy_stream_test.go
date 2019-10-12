@@ -2,37 +2,34 @@ package task
 
 import (
 	"bytes"
+	"io"
 	"sync"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
+	"github.com/yunify/qsctl/v2/pkg/mock"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestCopyStreamTask_Run(t *testing.T) {
-	bucketName := uuid.New().String()
-	store := storage.NewMockObjectStorage()
-	err := store.SetupBucket(bucketName, "")
-	if err != nil {
-		t.Fatal(err)
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	store := mock.NewMockStorager(ctrl)
 	key := uuid.New().String()
 
 	buf, size, _ := utils.GenerateTestStream()
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	pool := navvy.NewPool(10)
 
 	x := NewCopyTask(func(task *CopyTask) {
-		task.SetStorage(store)
+		task.SetDestinationStorage(store)
 		task.SetKey(key)
 		task.SetPath("-")
 		task.SetPool(pool)
@@ -42,42 +39,44 @@ func TestCopyStreamTask_Run(t *testing.T) {
 		task.SetStream(buf)
 	})
 
+	store.EXPECT().InitSegment(gomock.Any()).Do(func(inputPath string) {
+		assert.Equal(t, key, inputPath)
+	})
+	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
+		assert.Equal(t, key, inputPath)
+		assert.Equal(t, int64(0), inputOffset)
+		assert.Equal(t, size, inputSize)
+	})
+	store.EXPECT().CompleteSegment(gomock.Any()).Do(func(inputPath string) {
+		assert.Equal(t, key, inputPath)
+	})
+
 	task := NewCopyStreamTask(x)
 	task.Run()
 	pool.Wait()
-
-	object, ok := store.Meta[key]
-	assert.Equal(t, true, ok)
-	assert.Equal(t, size, object.ContentLength)
 }
 
 func TestCopyPartialStreamTask_Run(t *testing.T) {
-	bucketName := uuid.New().String()
-	store := storage.NewMockObjectStorage()
-	err := store.SetupBucket(bucketName, "")
-	if err != nil {
-		t.Fatal(err)
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	key := uuid.New().String()
-
-	uploadID, err := store.InitiateMultipartUpload(key)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	buf, size, _ := utils.GenerateTestStream()
 
-	pool, err := navvy.NewPool(10)
-	if err != nil {
-		t.Fatal(err)
-	}
+	store := mock.NewMockStorager(ctrl)
+	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
+		assert.Equal(t, key, inputPath)
+		assert.Equal(t, int64(0), inputOffset)
+		assert.Equal(t, size, inputSize)
+	})
+
+	pool := navvy.NewPool(10)
 
 	x := &mockCopyPartialStreamTask{}
 	x.SetPool(pool)
 	x.SetStream(buf)
 	x.SetKey(key)
-	x.SetStorage(store)
-	x.SetUploadID(uploadID)
+	x.SetDestinationStorage(store)
 	x.SetPartSize(64 * 1024 * 1024)
 	x.SetBytesPool(&sync.Pool{
 		New: func() interface{} {
@@ -89,18 +88,10 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 	sche.New(nil)
 	x.SetScheduler(sche)
 
-	currentPartNumber := int32(0)
-	x.SetCurrentPartNumber(&currentPartNumber)
-
 	currentOffset := int64(0)
 	x.SetCurrentOffset(&currentOffset)
 
 	task := NewCopyPartialStreamTask(x)
 	task.Run()
 	pool.Wait()
-
-	multipart, ok := store.Multipart[key]
-	assert.Equal(t, true, ok)
-	assert.Equal(t, 1, len(multipart.Parts))
-	assert.Equal(t, size, multipart.Length)
 }

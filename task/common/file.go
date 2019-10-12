@@ -4,6 +4,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
@@ -17,7 +18,8 @@ func (t *FileUploadTask) run() {
 	}
 	defer f.Close()
 
-	err = t.GetStorage().PutObject(t.GetKey(), t.GetMD5Sum(), f)
+	// TODO: add checksum support
+	err = t.GetDestinationStorage().WriteFile(t.GetKey(), t.GetSize(), f)
 	if err != nil {
 		panic(err)
 	}

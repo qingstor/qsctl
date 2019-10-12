@@ -5,12 +5,11 @@ import (
 	"strconv"
 	"strings"
 
+	storageType "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
-	storageType "github.com/yunify/qsctl/v2/pkg/types/storage"
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -45,17 +44,18 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetKey(objectKey)
 
-		stor, err := storage.NewQingStorObjectStorage()
+		srv, err := NewQingStorService()
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetStorage(stor)
 
-		if err = stor.SetupBucket(bucketName, ""); err != nil {
+		stor, err := srv.Get(bucketName)
+		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
+		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()
@@ -86,13 +86,21 @@ The valid format sequences for files:
 	)
 }
 
-func statFormat(input string, om *storageType.ObjectMeta) string {
-	input = strings.ReplaceAll(input, "%F", om.ContentType)
-	input = strings.ReplaceAll(input, "%h", om.ETag)
-	input = strings.ReplaceAll(input, "%n", om.Key)
-	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.ContentLength, 10))
-	input = strings.ReplaceAll(input, "%y", om.LastModified.String())
-	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
+func statFormat(input string, om *storageType.Object) string {
+	input = strings.ReplaceAll(input, "%n", om.Name)
+
+	if v, ok := om.GetType(); ok {
+		input = strings.ReplaceAll(input, "%F", v)
+	}
+	if v, ok := om.GetChecksum(); ok {
+		input = strings.ReplaceAll(input, "%h", v)
+	}
+	if v, ok := om.GetSize(); ok {
+		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
+	}
+	// TODO: add last modified support
+	// input = strings.ReplaceAll(input, "%y", om.LastModified.String())
+	// input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
 
 	return input
 }
@@ -100,22 +108,27 @@ func statFormat(input string, om *storageType.ObjectMeta) string {
 func statOutput(t *task.StatTask, format string) {
 	// if format string was set, print result as format string
 	if format != "" {
-		fmt.Println(statFormat(format, t.GetObjectMeta()))
+		fmt.Println(statFormat(format, t.GetObject()))
 		return
 	}
 
-	om := t.GetObjectMeta()
-	content := []string{
-		"Key: " + om.Key,
-		"Size: " + datasize.ByteSize(om.ContentLength).String(),
-		"Type: " + om.ContentType,
-		"Modify: " + om.LastModified.String(),
-		"StorageClass: " + om.StorageClass,
-	}
+	om := t.GetObject()
+	content := []string{}
 
-	if om.ETag != "" {
-		content = append(content, "MD5: "+om.ETag)
+	content = append(content, "Key: "+om.Name)
+	if v, ok := om.GetSize(); ok {
+		content = append(content, "Size: "+datasize.ByteSize(v).String())
 	}
+	if v, ok := om.GetType(); ok {
+		content = append(content, "Type: "+v)
+	}
+	if v, ok := om.GetStorageClass(); ok {
+		content = append(content, "StorageClass: "+v)
+	}
+	if v, ok := om.GetChecksum(); ok {
+		content = append(content, "MD5: "+v)
+	}
+	// TODO: add modify support.
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 }

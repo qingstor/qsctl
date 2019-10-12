@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/storage"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -58,17 +57,12 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetBucketName(bucketName)
 
-		stor, err := storage.NewQingStorObjectStorage()
+		srv, err := NewQingStorService()
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetStorage(stor)
-
-		if err = stor.SetupBucket(t.GetBucketName(), t.GetZone()); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+		t.SetDestinationService(srv)
 	})
 
 	t.Run()
