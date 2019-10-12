@@ -127,3 +127,60 @@ func (t *BucketDeleteTask) TriggerFault(err error) {
 func NewBucketDeleteTask(task types.Todoist) navvy.Task {
 	return &BucketDeleteTask{task.(bucketDeleteTaskRequirement)}
 }
+
+// bucketListTaskRequirement is the requirement for execute BucketListTask.
+type bucketListTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.DestinationServiceGetter
+	types.ZoneGetter
+	// Runtime value
+	types.BucketListSetter
+}
+
+// mockBucketListTask is the mock task for BucketListTask.
+type mockBucketListTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DestinationService
+	types.Zone
+	// Runtime value
+	types.BucketList
+}
+
+func (t *mockBucketListTask) Run() {
+	panic("mockBucketListTask should not be run.")
+}
+
+// BucketListTask will send get request to get bucket list.
+type BucketListTask struct {
+	bucketListTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *BucketListTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.bucketListTaskRequirement)
+}
+
+func (t *BucketListTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task BucketList failed: {%w}", err))
+}
+
+// NewBucketListTask will create a new BucketListTask.
+func NewBucketListTask(task types.Todoist) navvy.Task {
+	return &BucketListTask{task.(bucketListTaskRequirement)}
+}
