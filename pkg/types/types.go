@@ -673,6 +673,39 @@ func (o *Object) ValidateObject() bool {
 	return o.valid
 }
 
+type ObjectChannel struct {
+	valid bool
+	v     chan *types.Object
+}
+
+type ObjectChannelGetter interface {
+	GetObjectChannel() chan *types.Object
+}
+
+func (o *ObjectChannel) GetObjectChannel() chan *types.Object {
+	if !o.valid {
+		panic("ObjectChannel value is not valid")
+	}
+	return o.v
+}
+
+type ObjectChannelSetter interface {
+	SetObjectChannel(chan *types.Object)
+}
+
+func (o *ObjectChannel) SetObjectChannel(v chan *types.Object) {
+	o.v = v
+	o.valid = true
+}
+
+type ObjectChannelValidator interface {
+	ValidateObjectChannel() bool
+}
+
+func (o *ObjectChannel) ValidateObjectChannel() bool {
+	return o.valid
+}
+
 type Offset struct {
 	valid bool
 	v     int64

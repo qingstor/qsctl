@@ -19,6 +19,7 @@
   "MD5Sum": "[]byte",
   "Name": "string",
   "Object": "*types.Object",
+  "ObjectChannel": "chan *types.Object",
   "Offset": "int64",
   "PartNumber": "int",
   "PartSize": "int64",

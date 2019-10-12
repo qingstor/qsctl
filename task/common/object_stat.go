@@ -12,7 +12,6 @@ func (t *ObjectStatTask) run() {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
-	// replace the original om
 	t.SetObject(om)
 	log.Debugf("Task <%s> for Key <%s> finished.", "StatObjectTask", t.GetKey())
 }
