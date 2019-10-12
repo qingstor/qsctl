@@ -47,10 +47,10 @@ type RemoveObjectTask struct {
 	types.Todo
 
 	// Runtime value
+	types.DestinationStorage
 	types.Key
 	types.Pool
 	types.Recursive
-	types.Storage
 }
 
 // Run implement navvy.Task

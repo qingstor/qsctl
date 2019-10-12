@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/task/common"
 )
 
 func TestNewRemoveObjectTask(t *testing.T) {
@@ -18,7 +19,7 @@ func TestNewRemoveObjectTask(t *testing.T) {
 		args args
 		want types.TodoFunc
 	}{
-		{name: "next", args: args{func(task *RemoveObjectTask) { task.SetRecursive(false) }}, want: NewObjectDeleteTask},
+		{name: "next", args: args{func(task *RemoveObjectTask) { task.SetRecursive(false) }}, want: common.NewObjectDeleteTask},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

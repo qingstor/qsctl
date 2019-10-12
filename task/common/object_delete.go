@@ -1,4 +1,4 @@
-package task
+package common
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -7,12 +7,7 @@ import (
 )
 
 func (t *ObjectDeleteTask) run() {
-	if _, err := t.GetStorage().HeadObject(t.GetKey()); err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
-		return
-	}
-
-	if err := t.GetStorage().DeleteObject(t.GetKey()); err != nil {
+	if err := t.GetDestinationStorage().Delete(t.GetKey()); err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}

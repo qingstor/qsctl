@@ -228,11 +228,11 @@
   },
   "ObjectDelete": {
     "type": "required",
-    "path": "object_delete",
+    "path": "common/object_delete",
     "description": "will delete a remote object with specific key",
     "inherited_value": [
-      "Key",
-      "Storage"
+      "DestinationStorage",
+      "Key"
     ]
   },
   "ObjectPresign": {
@@ -290,10 +290,10 @@
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
+      "DestinationStorage",
       "Key",
       "Pool",
-      "Recursive",
-      "Storage"
+      "Recursive"
     ]
   },
   "Stat": {
