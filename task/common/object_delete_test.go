@@ -12,16 +12,6 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/mock"
 )
 
-const (
-	MockMbObj = "mock-mb-object"
-	MockGbObj = "mock-gb-object"
-)
-
-var objList = map[string]string{
-	MockGbObj: MockGbObj,
-	MockMbObj: MockMbObj,
-}
-
 func TestObjectDeleteTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -38,18 +28,17 @@ func TestObjectDeleteTask_run(t *testing.T) {
 		key  string
 		err  error
 	}{
-		{"ok", MockGbObj, nil},
-		{"error", key, removeErr},
+		{"ok", key, nil},
+		{"error", errKey, removeErr},
 	}
 
 	for _, ca := range cases {
-		objCount := len(objList)
 		store.EXPECT().Delete(gomock.Any()).DoAndReturn(func(key string) error {
-			if key, ok := objList[key]; ok {
-				delete(objList, key)
-				return nil
+			assert.Equal(t, ca.key, key)
+			if ca.err != nil {
+				return ca.err
 			}
-			return ca.err
+			return nil
 		}).Times(1)
 
 		x := &mockObjectDeleteTask{}
@@ -64,11 +53,9 @@ func TestObjectDeleteTask_run(t *testing.T) {
 		if ca.err != nil {
 			assert.Equal(t, x.ValidateFault(), true)
 			assert.Equal(t, errors.Is(x.GetFault(), ca.err), true)
-			assert.Equal(t, len(objList), objCount)
 			continue
 		}
 
 		assert.Equal(t, x.ValidateFault(), false)
-		assert.Equal(t, len(objList), objCount-1)
 	}
 }
