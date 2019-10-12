@@ -235,6 +235,17 @@
       "Key"
     ]
   },
+  "ObjectList": {
+    "type": "required",
+    "path": "common/object_list",
+    "description": "list objects",
+    "inherited_value": [
+      "DestinationStorage",
+      "Key",
+      "ObjectChannel",
+      "Recursive"
+    ]
+  },
   "ObjectPresign": {
     "type": "required",
     "path": "common/object_presign",
