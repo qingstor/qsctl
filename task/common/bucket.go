@@ -17,11 +17,31 @@ func (t *BucketCreateTask) run() {
 }
 
 func (t *BucketDeleteTask) run() {
-	// path / means delete root dir, which indicates the bucket
 	err := t.GetDestinationService().Delete(t.GetBucketName())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	log.Debugf("Task <%s> for Bucket <%s> finished.", "BucketDeleteTask", t.GetBucketName())
+}
+
+func (t *BucketListTask) run() {
+	resp, err := t.GetDestinationService().List(types.WithLocation(t.GetZone()))
+	if err != nil {
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
+	}
+	buckets := make([]string, 0, len(resp))
+	for _, v := range resp {
+		b, err := v.Metadata()
+		if err != nil {
+			t.TriggerFault(fault.NewUnhandled(err))
+			return
+		}
+		if name, ok := b.GetName(); ok {
+			buckets = append(buckets, name)
+		}
+	}
+	t.SetBucketList(buckets)
+	log.Debugf("Task <%s> in zone <%s> finished.", "BucketListTask", t.GetZone())
 }

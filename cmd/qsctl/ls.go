@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
+
+var lsInput struct {
+	Zone string
+}
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
@@ -22,10 +30,57 @@ var LsCommand = &cobra.Command{
 	RunE: lsRun,
 }
 
-func lsRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
-	// if no args, handle cmd as list buckets, otherwise list objects.
+func lsParse(t *task.ListTask, _ []string) (err error) {
+	// Parse flags.
+	t.SetZone(lsInput.Zone)
 	return nil
+}
+
+func lsRun(_ *cobra.Command, args []string) (err error) {
+	t := task.NewListTask(func(t *task.ListTask) {
+		err = lsParse(t, args)
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
+
+		srv, err := NewQingStorService()
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
+
+		// if no args, handle cmd as list buckets, otherwise list objects.
+		if len(args) == 0 {
+			t.SetListType(constants.ListTypeBucket)
+			t.SetDestinationService(srv)
+			return
+		}
+
+		t.SetListType(constants.ListTypeKey)
+		_, bucketName, _, err := utils.ParseKey(args[0])
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
+
+		store, err := srv.Get(bucketName, types.WithLocation(t.GetZone()))
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
+		t.SetDestinationStorage(store)
+		t.SetBucketName(bucketName)
+	})
+
+	t.Run()
+	t.Wait()
+	if t.ValidateFault() {
+		return t.GetFault()
+	}
+
+	lsOutput(t)
+	return
 }
 
 func initLsFlag() {
@@ -39,6 +94,15 @@ func initLsFlag() {
 		"recursively list subdirectories encountered")
 	LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 		"reverse the order of the sort to get reverse lexicographical order")
-	LsCommand.Flags().StringVarP(&zone, constants.ZoneFlag, "z", "",
+	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
 		"in which zone to do the operation")
+}
+
+func lsOutput(t *task.ListTask) {
+	if t.GetListType() == constants.ListTypeBucket {
+		for _, v := range t.GetBucketList() {
+			fmt.Println(v)
+		}
+		return
+	}
 }

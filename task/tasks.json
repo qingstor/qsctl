@@ -18,6 +18,18 @@
       "DestinationService"
     ]
   },
+  "BucketList": {
+    "type": "required",
+    "path": "common/bucket",
+    "description": "send get request to get bucket list",
+    "inherited_value": [
+      "DestinationService",
+      "Zone"
+    ],
+    "runtime_value": [
+      "BucketList"
+    ]
+  },
   "Copy": {
     "type": "dependent",
     "path": "copy",
@@ -164,6 +176,20 @@
       "MD5Sum",
       "Path",
       "Size"
+    ]
+  },
+  "List": {
+    "type": "dependent",
+    "path": "list",
+    "description": "the root list task",
+    "runtime_value": [
+      "BucketList",
+      "BucketName",
+      "DestinationService",
+      "DestinationStorage",
+      "ListType",
+      "Pool",
+      "Zone"
     ]
   },
   "MakeBucket": {

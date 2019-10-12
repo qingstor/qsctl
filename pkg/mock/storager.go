@@ -197,6 +197,21 @@ func (mr *MockStoragerMockRecorder) ListDir(arg0 interface{}, arg1 ...interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDir", reflect.TypeOf((*MockStorager)(nil).ListDir), varargs...)
 }
 
+// Metadata mocks base method
+func (m *MockStorager) Metadata() (types.Metadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Metadata")
+	ret0, _ := ret[0].(types.Metadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Metadata indicates an expected call of Metadata
+func (mr *MockStoragerMockRecorder) Metadata() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Metadata", reflect.TypeOf((*MockStorager)(nil).Metadata))
+}
+
 // Move mocks base method
 func (m *MockStorager) Move(arg0, arg1 string, arg2 ...*types.Pair) error {
 	m.ctrl.T.Helper()
