@@ -904,6 +904,39 @@ func (o *ReadableSize) ValidateReadableSize() bool {
 	return o.valid
 }
 
+type Recursive struct {
+	valid bool
+	v     bool
+}
+
+type RecursiveGetter interface {
+	GetRecursive() bool
+}
+
+func (o *Recursive) GetRecursive() bool {
+	if !o.valid {
+		panic("Recursive value is not valid")
+	}
+	return o.v
+}
+
+type RecursiveSetter interface {
+	SetRecursive(bool)
+}
+
+func (o *Recursive) SetRecursive(v bool) {
+	o.v = v
+	o.valid = true
+}
+
+type RecursiveValidator interface {
+	ValidateRecursive() bool
+}
+
+func (o *Recursive) ValidateRecursive() bool {
+	return o.valid
+}
+
 type Scheduler struct {
 	valid bool
 	v     scheduler
