@@ -22,9 +22,9 @@ type copyFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.PathGetter
-	types.StorageGetter
 }
 
 // mockCopyFileTask is the mock task for CopyFileTask.
@@ -35,16 +35,16 @@ type mockCopyFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationStorage
 	types.Key
 	types.Path
-	types.Storage
 }
 
 func (t *mockCopyFileTask) Run() {
 	panic("mockCopyFileTask should not be run.")
 }
 
-// CopyFileTask will copy a file to storage.
+// CopyFileTask will copy a file to DestinationStorage.
 type CopyFileTask struct {
 	copyFileTaskRequirement
 
@@ -85,9 +85,9 @@ type copyLargeFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.PathGetter
-	types.StorageGetter
 	types.TotalSizeGetter
 }
 
@@ -99,9 +99,9 @@ type mockCopyLargeFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationStorage
 	types.Key
 	types.Path
-	types.Storage
 	types.TotalSize
 }
 
@@ -109,7 +109,7 @@ func (t *mockCopyLargeFileTask) Run() {
 	panic("mockCopyLargeFileTask should not be run.")
 }
 
-// CopyLargeFileTask will copy a large file to storage.
+// CopyLargeFileTask will copy a large file to DestinationStorage.
 type CopyLargeFileTask struct {
 	copyLargeFileTaskRequirement
 
@@ -120,10 +120,8 @@ type CopyLargeFileTask struct {
 
 	// Runtime value
 	types.CurrentOffset
-	types.CurrentPartNumber
 	types.PartSize
 	types.Scheduler
-	types.UploadID
 }
 
 // Run implement navvy.Task
@@ -155,14 +153,12 @@ type copyPartialFileTaskRequirement interface {
 
 	// Inherited value
 	types.CurrentOffsetGetter
-	types.CurrentPartNumberGetter
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.PartSizeGetter
 	types.PathGetter
 	types.SchedulerGetter
-	types.StorageGetter
 	types.TotalSizeGetter
-	types.UploadIDGetter
 }
 
 // mockCopyPartialFileTask is the mock task for CopyPartialFileTask.
@@ -174,21 +170,19 @@ type mockCopyPartialFileTask struct {
 
 	// Inherited value
 	types.CurrentOffset
-	types.CurrentPartNumber
+	types.DestinationStorage
 	types.Key
 	types.PartSize
 	types.Path
 	types.Scheduler
-	types.Storage
 	types.TotalSize
-	types.UploadID
 }
 
 func (t *mockCopyPartialFileTask) Run() {
 	panic("mockCopyPartialFileTask should not be run.")
 }
 
-// CopyPartialFileTask will copy a partial file to storage, is the sub task for CopyLargeFile.
+// CopyPartialFileTask will copy a partial file to DestinationStorage, is the sub task for CopyLargeFile.
 type CopyPartialFileTask struct {
 	copyPartialFileTaskRequirement
 
@@ -200,7 +194,6 @@ type CopyPartialFileTask struct {
 	// Runtime value
 	types.MD5Sum
 	types.Offset
-	types.PartNumber
 	types.Size
 }
 
@@ -232,9 +225,9 @@ type copySmallFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationStorageGetter
 	types.KeyGetter
 	types.PathGetter
-	types.StorageGetter
 	types.TotalSizeGetter
 }
 
@@ -246,9 +239,9 @@ type mockCopySmallFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationStorage
 	types.Key
 	types.Path
-	types.Storage
 	types.TotalSize
 }
 
@@ -256,7 +249,7 @@ func (t *mockCopySmallFileTask) Run() {
 	panic("mockCopySmallFileTask should not be run.")
 }
 
-// CopySmallFileTask will copy a small file to storage.
+// CopySmallFileTask will copy a small file to DestinationStorage.
 type CopySmallFileTask struct {
 	copySmallFileTaskRequirement
 

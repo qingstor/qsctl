@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/task/common"
 )
 
 func TestNewPresignTask(t *testing.T) {
@@ -13,12 +15,11 @@ func TestNewPresignTask(t *testing.T) {
 		input            string
 		expectedTodoFunc types.TodoFunc
 	}{
-		{"qs://test-bucket/yyyyy", NewObjectPresignTask},
+		{"qs://test-bucket/yyyyy", common.NewObjectPresignTask},
 	}
 
 	for _, v := range cases {
-		pt := NewPresignTask(func(task *PresignTask) {
-		})
+		pt := NewPresignTask(func(task *PresignTask) {})
 
 		assert.Equal(t,
 			fmt.Sprintf("%v", v.expectedTodoFunc),

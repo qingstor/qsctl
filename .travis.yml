@@ -1,21 +1,23 @@
 language: go
 go:
   - "1.13"
-  - master
 
 install:
+  # code lint tools
   - go get -u golang.org/x/lint/golint
+  # mock generator
+  - go get github.com/golang/mock/mockgen
 
 script:
   - make check
   - make build
   - make test
-  - make coverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - make release
 
+before_deploy:
+  - make release
 deploy:
   provider: releases
   api_key: $API_KEY

@@ -27,9 +27,6 @@ func (t *CopyStreamTask) new() {
 
 	t.SetScheduler(types.NewScheduler(NewCopyPartialStreamTask))
 
-	currentPartNumber := int32(0)
-	t.SetCurrentPartNumber(&currentPartNumber)
-
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
 
@@ -47,11 +44,6 @@ func (t *CopyStreamTask) new() {
 
 // NewCopyPartialStreamTask will create a new Task.
 func (t *CopyPartialStreamTask) new() {
-	// Set part number and update current part number.
-	currentPartNumber := t.GetCurrentPartNumber()
-	t.SetPartNumber(int(*currentPartNumber))
-	atomic.AddInt32(currentPartNumber, 1)
-
 	// Set size and update offset.
 	partSize := t.GetPartSize()
 	r := bufio.NewReader(io.LimitReader(t.GetStream(), partSize))
@@ -62,6 +54,7 @@ func (t *CopyPartialStreamTask) new() {
 		return
 	}
 
+	t.SetOffset(*t.GetCurrentOffset())
 	t.SetSize(n)
 	t.SetContent(b)
 	if n < partSize {

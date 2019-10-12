@@ -48,13 +48,13 @@ type CopyTask struct {
 
 	// Runtime value
 	types.BucketName
+	types.DestinationStorage
 	types.FlowType
 	types.Key
 	types.KeyType
 	types.Path
 	types.PathType
 	types.Pool
-	types.Storage
 	types.Stream
 }
 

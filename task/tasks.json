@@ -5,7 +5,8 @@
     "description": "send put request to create a bucket",
     "inherited_value": [
       "BucketName",
-      "Storage"
+      "DestinationService",
+      "Zone"
     ]
   },
   "BucketDelete": {
@@ -14,7 +15,7 @@
     "description": "send delete request to delete a bucket",
     "inherited_value": [
       "BucketName",
-      "Storage"
+      "DestinationService"
     ]
   },
   "Copy": {
@@ -23,13 +24,13 @@
     "description": "the root copy task",
     "runtime_value": [
       "BucketName",
+      "DestinationStorage",
       "FlowType",
       "Key",
       "KeyType",
       "Path",
       "PathType",
       "Pool",
-      "Storage",
       "Stream"
     ]
   },
@@ -37,11 +38,11 @@
     "type": "dependent",
     "path": "copy_file",
     "depend": "Copy",
-    "description": "copy a file to storage",
+    "description": "copy a file to DestinationStorage",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
-      "Path",
-      "Storage"
+      "Path"
     ],
     "runtime_value": [
       "TotalSize"
@@ -51,41 +52,36 @@
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
-    "description": "copy a large file to storage",
+    "description": "copy a large file to DestinationStorage",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
       "Path",
-      "Storage",
       "TotalSize"
     ],
     "runtime_value": [
       "CurrentOffset",
-      "CurrentPartNumber",
       "PartSize",
-      "Scheduler",
-      "UploadID"
+      "Scheduler"
     ]
   },
   "CopyPartialFile": {
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyLargeFile",
-    "description": "copy a partial file to storage, is the sub task for CopyLargeFile",
+    "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
     "inherited_value": [
       "CurrentOffset",
-      "CurrentPartNumber",
+      "DestinationStorage",
       "Key",
       "PartSize",
       "Path",
       "Scheduler",
-      "Storage",
-      "TotalSize",
-      "UploadID"
+      "TotalSize"
     ],
     "runtime_value": [
       "MD5Sum",
       "Offset",
-      "PartNumber",
       "Size"
     ]
   },
@@ -93,22 +89,20 @@
     "type": "dependent",
     "path": "copy_stream",
     "depend": "CopyStream",
-    "description": "copy a partial stream to storage",
+    "description": "copy a partial stream to DestinationStorage",
     "inherited_value": [
       "BytesPool",
       "CurrentOffset",
-      "CurrentPartNumber",
+      "DestinationStorage",
       "Key",
       "PartSize",
       "Scheduler",
-      "Storage",
-      "Stream",
-      "UploadID"
+      "Stream"
     ],
     "runtime_value": [
       "Content",
       "MD5Sum",
-      "PartNumber",
+      "Offset",
       "Size"
     ]
   },
@@ -116,11 +110,11 @@
     "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
-    "description": "copy a small file to storage",
+    "description": "copy a small file to DestinationStorage",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
       "Path",
-      "Storage",
       "TotalSize"
     ],
     "runtime_value": [
@@ -133,20 +127,18 @@
     "type": "dependent",
     "path": "copy_stream",
     "depend": "Copy",
-    "description": "copy a stream to storage",
+    "description": "copy a stream to DestinationStorage",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
-      "Storage",
       "Stream"
     ],
     "runtime_value": [
       "BytesPool",
       "CurrentOffset",
-      "CurrentPartNumber",
       "PartSize",
       "Scheduler",
-      "TotalSize",
-      "UploadID"
+      "TotalSize"
     ]
   },
   "FileMD5Sum": {
@@ -167,10 +159,11 @@
     "path": "common/file",
     "description": "upload file as an object",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
       "MD5Sum",
       "Path",
-      "Storage"
+      "Size"
     ]
   },
   "MakeBucket": {
@@ -179,8 +172,8 @@
     "description": "make new bucket with given key",
     "runtime_value": [
       "BucketName",
+      "DestinationService",
       "Pool",
-      "Storage",
       "Zone"
     ]
   },
@@ -189,10 +182,8 @@
     "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
-      "CurrentPartNumber",
-      "Key",
-      "Storage",
-      "UploadID"
+      "DestinationStorage",
+      "Key"
     ]
   },
   "MultipartFileUpload": {
@@ -200,15 +191,13 @@
     "path": "common/multipart",
     "description": "upload a multipart via file",
     "inherited_value": [
+      "DestinationStorage",
       "Key",
       "MD5Sum",
       "Offset",
-      "PartNumber",
       "Path",
       "Scheduler",
-      "Size",
-      "Storage",
-      "UploadID"
+      "Size"
     ]
   },
   "MultipartInit": {
@@ -217,13 +206,10 @@
     "description": "init a multipart upload",
     "inherited_value": [
       "CurrentOffset",
+      "DestinationStorage",
       "Key",
       "Scheduler",
-      "Storage",
       "TotalSize"
-    ],
-    "runtime_value": [
-      "UploadID"
     ]
   },
   "MultipartStreamUpload": {
@@ -232,24 +218,23 @@
     "description": "upload a multipart via stream",
     "inherited_value": [
       "Content",
+      "DestinationStorage",
       "Key",
       "MD5Sum",
-      "PartNumber",
+      "Offset",
       "Scheduler",
-      "Size",
-      "Storage",
-      "UploadID"
+      "Size"
     ]
   },
   "ObjectPresign": {
     "type": "required",
-    "path": "object_presign",
+    "path": "common/object_presign",
     "description": "will presign a remote object and return the signed url",
     "inherited_value": [
       "BucketName",
+      "DestinationStorage",
       "Expire",
-      "Key",
-      "Storage"
+      "Key"
     ],
     "runtime_value": [
       "URL"
@@ -257,14 +242,14 @@
   },
   "ObjectStat": {
     "type": "required",
-    "path": "object_stat",
+    "path": "common/object_stat",
     "description": "stat a remote object by request headObject",
     "inherited_value": [
-      "Key",
-      "Storage"
+      "DestinationStorage",
+      "Key"
     ],
     "runtime_value": [
-      "ObjectMeta"
+      "Object"
     ]
   },
   "Presign": {
@@ -273,10 +258,10 @@
     "description": "will handle presign tasks",
     "runtime_value": [
       "BucketName",
+      "DestinationStorage",
       "Expire",
       "Key",
       "Pool",
-      "Storage",
       "URL"
     ]
   },
@@ -286,9 +271,9 @@
     "description": "remove a bucket",
     "runtime_value": [
       "BucketName",
+      "DestinationService",
       "Force",
-      "Pool",
-      "Storage"
+      "Pool"
     ]
   },
   "Stat": {
@@ -296,10 +281,10 @@
     "path": "stat",
     "description": "will stat a remote object",
     "runtime_value": [
+      "DestinationStorage",
       "Key",
-      "ObjectMeta",
-      "Pool",
-      "Storage"
+      "Object",
+      "Pool"
     ]
   },
   "StreamMD5Sum": {

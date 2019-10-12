@@ -63,9 +63,10 @@ import (
 	"io"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/types/storage"
 )
 
 {{- range $k, $v := .Data }}

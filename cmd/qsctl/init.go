@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/Xuanwo/storage/services/qingstor"
+	"github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -120,4 +122,17 @@ func initGlobalFlag() {
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
+}
+
+// NewQingStorService will create a new qingstor service.
+func NewQingStorService() (*qingstor.Service, error) {
+	srv := qingstor.New()
+	err := srv.Init(
+		types.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
+		types.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
+		types.WithHost(viper.GetString(constants.ConfigHost)),
+		types.WithPort(viper.GetInt(constants.ConfigPort)),
+		types.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+	)
+	return srv, err
 }

@@ -48,9 +48,9 @@ type RemoveBucketTask struct {
 
 	// Runtime value
 	types.BucketName
+	types.DestinationService
 	types.Force
 	types.Pool
-	types.Storage
 }
 
 // Run implement navvy.Task
