@@ -226,6 +226,15 @@
       "Size"
     ]
   },
+  "ObjectDelete": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "will delete a remote object with specific key",
+    "inherited_value": [
+      "DestinationStorage",
+      "Key"
+    ]
+  },
   "ObjectList": {
     "type": "required",
     "path": "common/object_list",
@@ -235,15 +244,6 @@
       "Key",
       "ObjectChannel",
       "Recursive"
-     ]
-  },
-  "ObjectDelete": {
-    "type": "required",
-    "path": "common/object_delete",
-    "description": "will delete a remote object with specific key",
-    "inherited_value": [
-      "DestinationStorage",
-      "Key"
     ]
   },
   "ObjectPresign": {
