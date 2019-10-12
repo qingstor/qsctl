@@ -226,6 +226,15 @@
       "Size"
     ]
   },
+  "ObjectDelete": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "will delete a remote object with specific key",
+    "inherited_value": [
+      "DestinationStorage",
+      "Key"
+    ]
+  },
   "ObjectPresign": {
     "type": "required",
     "path": "common/object_presign",
@@ -274,6 +283,17 @@
       "DestinationService",
       "Force",
       "Pool"
+    ]
+  },
+  "RemoveObject": {
+    "type": "dependent",
+    "path": "remove_object",
+    "description": "will remove object",
+    "runtime_value": [
+      "DestinationStorage",
+      "Key",
+      "Pool",
+      "Recursive"
     ]
   },
   "Stat": {
