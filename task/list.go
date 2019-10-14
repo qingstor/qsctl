@@ -10,6 +10,7 @@ import (
 
 var listTaskConstructor = map[constants.ListType]types.TodoFunc{
 	constants.ListTypeBucket: common.NewBucketListTask,
+	constants.ListTypeKey:    common.NewObjectListTask,
 }
 
 // NewListTask will create a list task.

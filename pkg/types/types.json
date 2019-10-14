@@ -18,6 +18,7 @@
   "Key": "string",
   "KeyType": "constants.KeyType",
   "ListType": "constants.ListType",
+  "LongFormat": "bool",
   "MD5Sum": "[]byte",
   "Name": "string",
   "Object": "*types.Object",

@@ -12,7 +12,9 @@ import (
 )
 
 var lsInput struct {
-	Zone string
+	LongFormat bool
+	Recursive  bool
+	Zone       string
 }
 
 // LsCommand will handle list command.
@@ -32,6 +34,8 @@ var LsCommand = &cobra.Command{
 
 func lsParse(t *task.ListTask, _ []string) (err error) {
 	// Parse flags.
+	t.SetLongFormat(lsInput.LongFormat)
+	t.SetRecursive(lsInput.Recursive)
 	t.SetZone(lsInput.Zone)
 	return nil
 }
@@ -58,11 +62,12 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 
 		t.SetListType(constants.ListTypeKey)
-		_, bucketName, _, err := utils.ParseKey(args[0])
+		_, bucketName, key, err := utils.ParseKey(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
+		t.SetKey(key)
 
 		store, err := srv.Get(bucketName, types.WithLocation(t.GetZone()))
 		if err != nil {
@@ -71,6 +76,11 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetDestinationStorage(store)
 		t.SetBucketName(bucketName)
+
+		oc := make(chan *types.Object)
+		t.SetObjectChannel(oc)
+
+		go listObjectsOutput(t)
 	})
 
 	t.Run()
@@ -79,7 +89,10 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	lsOutput(t)
+	// only list buckets need output after task
+	if t.GetListType() == constants.ListTypeBucket {
+		listBucketsOutput(t)
+	}
 	return
 }
 
@@ -87,10 +100,10 @@ func initLsFlag() {
 	LsCommand.Flags().BoolVarP(&humanReadable, constants.HumanReadableFlag, "h", false,
 		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
 			" in order to reduce the number of digits to three or less using base 2 for sizes")
-	LsCommand.Flags().BoolVarP(&longFormat, constants.LongFormatFlag, "l", false,
+	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
 		"list in long format and a total sum for all the file sizes is"+
 			" output on a line before the long listing")
-	LsCommand.Flags().BoolVarP(&recursive, constants.RecursiveFlag, "R", false,
+	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
 		"recursively list subdirectories encountered")
 	LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 		"reverse the order of the sort to get reverse lexicographical order")
@@ -98,11 +111,18 @@ func initLsFlag() {
 		"in which zone to do the operation")
 }
 
-func lsOutput(t *task.ListTask) {
-	if t.GetListType() == constants.ListTypeBucket {
-		for _, v := range t.GetBucketList() {
-			fmt.Println(v)
+func listBucketsOutput(t *task.ListTask) {
+	for _, v := range t.GetBucketList() {
+		fmt.Println(v)
+	}
+	return
+}
+
+func listObjectsOutput(t *task.ListTask) {
+	for v := range t.GetObjectChannel() {
+		if !t.GetLongFormat() {
+			fmt.Println(v.Name)
+			continue
 		}
-		return
 	}
 }

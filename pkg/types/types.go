@@ -640,6 +640,39 @@ func (o *ListType) ValidateListType() bool {
 	return o.valid
 }
 
+type LongFormat struct {
+	valid bool
+	v     bool
+}
+
+type LongFormatGetter interface {
+	GetLongFormat() bool
+}
+
+func (o *LongFormat) GetLongFormat() bool {
+	if !o.valid {
+		panic("LongFormat value is not valid")
+	}
+	return o.v
+}
+
+type LongFormatSetter interface {
+	SetLongFormat(bool)
+}
+
+func (o *LongFormat) SetLongFormat(v bool) {
+	o.v = v
+	o.valid = true
+}
+
+type LongFormatValidator interface {
+	ValidateLongFormat() bool
+}
+
+func (o *LongFormat) ValidateLongFormat() bool {
+	return o.valid
+}
+
 type MD5Sum struct {
 	valid bool
 	v     []byte
