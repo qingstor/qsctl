@@ -1,9 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/Xuanwo/storage/types"
+	"github.com/c2h5oh/datasize"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -12,9 +17,10 @@ import (
 )
 
 var lsInput struct {
-	LongFormat bool
-	Recursive  bool
-	Zone       string
+	HumanReadable bool
+	LongFormat    bool
+	Recursive     bool
+	Zone          string
 }
 
 // LsCommand will handle list command.
@@ -34,6 +40,7 @@ var LsCommand = &cobra.Command{
 
 func lsParse(t *task.ListTask, _ []string) (err error) {
 	// Parse flags.
+	t.SetHumanReadable(lsInput.HumanReadable)
 	t.SetLongFormat(lsInput.LongFormat)
 	t.SetRecursive(lsInput.Recursive)
 	t.SetZone(lsInput.Zone)
@@ -80,7 +87,9 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		oc := make(chan *types.Object)
 		t.SetObjectChannel(oc)
 
-		go listObjectsOutput(t)
+		outList := make([][]string, 0)
+		t.SetObjectLongList(&outList)
+		go packLsOut(t)
 	})
 
 	t.Run()
@@ -89,15 +98,12 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	// only list buckets need output after task
-	if t.GetListType() == constants.ListTypeBucket {
-		listBucketsOutput(t)
-	}
+	listOutput(t)
 	return
 }
 
 func initLsFlag() {
-	LsCommand.Flags().BoolVarP(&humanReadable, constants.HumanReadableFlag, "h", false,
+	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
 		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
 			" in order to reduce the number of digits to three or less using base 2 for sizes")
 	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
@@ -105,24 +111,66 @@ func initLsFlag() {
 			" output on a line before the long listing")
 	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
 		"recursively list subdirectories encountered")
-	LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
-		"reverse the order of the sort to get reverse lexicographical order")
+	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
+	// 	"reverse the order of the sort to get reverse lexicographical order")
 	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
 		"in which zone to do the operation")
 }
 
-func listBucketsOutput(t *task.ListTask) {
-	for _, v := range t.GetBucketList() {
-		fmt.Println(v)
+func listOutput(t *task.ListTask) {
+	if t.GetListType() == constants.ListTypeBucket {
+		for _, v := range t.GetBucketList() {
+			fmt.Println(v)
+		}
+		return
 	}
-	return
+	if t.GetListType() == constants.ListTypeKey {
+		if !t.GetLongFormat() {
+			for _, v := range *t.GetObjectLongList() {
+				fmt.Println(v[0])
+			}
+			return
+		}
+		// if -l align the result and print
+		for _, line := range utils.AlignLinux(*t.GetObjectLongList()...) {
+			fmt.Println(strings.Join(line, " "))
+		}
+		return
+	}
 }
 
-func listObjectsOutput(t *task.ListTask) {
+func packLsOut(t *task.ListTask) {
+	var err error
+	list := t.GetObjectLongList()
 	for v := range t.GetObjectChannel() {
 		if !t.GetLongFormat() {
-			fmt.Println(v.Name)
+			*list = append(*list, []string{v.Name})
 			continue
 		}
+
+		objType := constants.ACLObject
+		if v.Type == types.ObjectTypeDir {
+			objType = constants.ACLDirectory
+		}
+
+		size, ok := v.Metadata.GetSize()
+		if !ok {
+			t.TriggerFault(errors.New("get size failed"))
+			// not return after trigger fault
+			// because if return here, will block send run func
+			log.Debugf("get size failed with key <%s>", v.Name)
+		}
+
+		// default print size by bytes
+		readableSize := strconv.FormatInt(size, 10)
+		if t.GetHumanReadable() {
+			// if human readable flag true, print size as human readable format
+			readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
+			if err != nil {
+				t.TriggerFault(err)
+				log.Debugf("parse size <%v> failed [%v], key: <%s>", size, err, v.Name)
+			}
+		}
+		*list = append(*list, []string{objType, readableSize, v.Name})
 	}
 }

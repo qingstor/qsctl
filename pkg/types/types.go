@@ -508,6 +508,39 @@ func (o *Force) ValidateForce() bool {
 	return o.valid
 }
 
+type HumanReadable struct {
+	valid bool
+	v     bool
+}
+
+type HumanReadableGetter interface {
+	GetHumanReadable() bool
+}
+
+func (o *HumanReadable) GetHumanReadable() bool {
+	if !o.valid {
+		panic("HumanReadable value is not valid")
+	}
+	return o.v
+}
+
+type HumanReadableSetter interface {
+	SetHumanReadable(bool)
+}
+
+func (o *HumanReadable) SetHumanReadable(v bool) {
+	o.v = v
+	o.valid = true
+}
+
+type HumanReadableValidator interface {
+	ValidateHumanReadable() bool
+}
+
+func (o *HumanReadable) ValidateHumanReadable() bool {
+	return o.valid
+}
+
 type ID struct {
 	valid bool
 	v     string
@@ -802,6 +835,39 @@ type ObjectChannelValidator interface {
 }
 
 func (o *ObjectChannel) ValidateObjectChannel() bool {
+	return o.valid
+}
+
+type ObjectLongList struct {
+	valid bool
+	v     *[][]string
+}
+
+type ObjectLongListGetter interface {
+	GetObjectLongList() *[][]string
+}
+
+func (o *ObjectLongList) GetObjectLongList() *[][]string {
+	if !o.valid {
+		panic("ObjectLongList value is not valid")
+	}
+	return o.v
+}
+
+type ObjectLongListSetter interface {
+	SetObjectLongList(*[][]string)
+}
+
+func (o *ObjectLongList) SetObjectLongList(v *[][]string) {
+	o.v = v
+	o.valid = true
+}
+
+type ObjectLongListValidator interface {
+	ValidateObjectLongList() bool
+}
+
+func (o *ObjectLongList) ValidateObjectLongList() bool {
 	return o.valid
 }
 
