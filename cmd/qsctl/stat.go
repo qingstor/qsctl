@@ -80,7 +80,7 @@ The valid format sequences for files:
   %h   content md5 of the file
   %n   file name
   %s   total size, in bytes
-  %y   time of last data modification, human-readable
+  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
 	`,
 	)
@@ -98,9 +98,10 @@ func statFormat(input string, om *storageType.Object) string {
 	if v, ok := om.GetSize(); ok {
 		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
 	}
-	// TODO: add last modified support
-	// input = strings.ReplaceAll(input, "%y", om.LastModified.String())
-	// input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.LastModified.Unix(), 10))
+	if v, ok := om.GetUpdatedAt(); ok {
+		input = strings.ReplaceAll(input, "%y", v.String())
+		input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(v.Unix(), 10))
+	}
 
 	return input
 }
@@ -113,7 +114,7 @@ func statOutput(t *task.StatTask, format string) {
 	}
 
 	om := t.GetObject()
-	content := []string{}
+	var content []string
 
 	content = append(content, "Key: "+om.Name)
 	if v, ok := om.GetSize(); ok {
@@ -128,7 +129,9 @@ func statOutput(t *task.StatTask, format string) {
 	if v, ok := om.GetChecksum(); ok {
 		content = append(content, "MD5: "+v)
 	}
-	// TODO: add modify support.
+	if v, ok := om.GetUpdatedAt(); ok {
+		content = append(content, "UpdatedAt: "+v.String())
+	}
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 }
