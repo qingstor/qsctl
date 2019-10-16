@@ -148,12 +148,12 @@ func TestBucketListTask_run(t *testing.T) {
 		pool.Wait()
 
 		if ca.listErr == nil && ca.metadataErr == nil {
-			assert.Equal(t, len(ca.meta), len(x.GetBucketList()))
-			assert.Equal(t, false, x.ValidateFault())
+			assert.Equal(t, len(ca.meta), len(x.GetBucketList()), ca.name)
+			assert.Equal(t, false, x.ValidateFault(), ca.name)
 			continue
 		}
-		assert.Equal(t, x.ValidateFault(), true)
-		assert.Error(t, x.GetFault())
-		assert.Equal(t, true, errors.Is(x.GetFault(), listErr))
+		assert.Equal(t, x.ValidateFault(), true, ca.name)
+		assert.Error(t, x.GetFault(), ca.name)
+		assert.Equal(t, true, errors.Is(x.GetFault(), listErr), ca.name)
 	}
 }

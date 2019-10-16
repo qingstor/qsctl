@@ -187,8 +187,13 @@
       "BucketName",
       "DestinationService",
       "DestinationStorage",
+      "HumanReadable",
+      "Key",
       "ListType",
+      "LongFormat",
+      "ObjectChannel",
       "Pool",
+      "Recursive",
       "Zone"
     ]
   },

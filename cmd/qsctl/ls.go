@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Xuanwo/storage/types"
+	"github.com/c2h5oh/datasize"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -12,7 +15,10 @@ import (
 )
 
 var lsInput struct {
-	Zone string
+	HumanReadable bool
+	LongFormat    bool
+	Recursive     bool
+	Zone          string
 }
 
 // LsCommand will handle list command.
@@ -32,6 +38,9 @@ var LsCommand = &cobra.Command{
 
 func lsParse(t *task.ListTask, _ []string) (err error) {
 	// Parse flags.
+	t.SetHumanReadable(lsInput.HumanReadable)
+	t.SetLongFormat(lsInput.LongFormat)
+	t.SetRecursive(lsInput.Recursive)
 	t.SetZone(lsInput.Zone)
 	return nil
 }
@@ -58,11 +67,12 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 
 		t.SetListType(constants.ListTypeKey)
-		_, bucketName, _, err := utils.ParseKey(args[0])
+		_, bucketName, key, err := utils.ParseKey(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
+		t.SetKey(key)
 
 		store, err := srv.Get(bucketName, types.WithLocation(t.GetZone()))
 		if err != nil {
@@ -71,6 +81,11 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 		t.SetDestinationStorage(store)
 		t.SetBucketName(bucketName)
+
+		// init object channel, then stream output by goroutine
+		oc := make(chan *types.Object)
+		t.SetObjectChannel(oc)
+		go listObjectOutput(t)
 	})
 
 	t.Run()
@@ -79,30 +94,75 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	lsOutput(t)
+	// only list bucket output here, if list objects, use goroutine for stream output
+	if t.GetListType() == constants.ListTypeBucket {
+		listBucketOutput(t)
+	}
 	return
 }
 
 func initLsFlag() {
-	LsCommand.Flags().BoolVarP(&humanReadable, constants.HumanReadableFlag, "h", false,
+	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
 		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
 			" in order to reduce the number of digits to three or less using base 2 for sizes")
-	LsCommand.Flags().BoolVarP(&longFormat, constants.LongFormatFlag, "l", false,
+	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
 		"list in long format and a total sum for all the file sizes is"+
 			" output on a line before the long listing")
-	LsCommand.Flags().BoolVarP(&recursive, constants.RecursiveFlag, "R", false,
+	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
 		"recursively list subdirectories encountered")
-	LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
-		"reverse the order of the sort to get reverse lexicographical order")
+	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
+	// 	"reverse the order of the sort to get reverse lexicographical order")
 	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
 		"in which zone to do the operation")
 }
 
-func lsOutput(t *task.ListTask) {
-	if t.GetListType() == constants.ListTypeBucket {
-		for _, v := range t.GetBucketList() {
-			fmt.Println(v)
+// listBucketOutput list buckets with normal slice
+func listBucketOutput(t *task.ListTask) {
+	for _, v := range t.GetBucketList() {
+		fmt.Println(v)
+	}
+}
+
+// listObjectOutput get object from channel asynchronously, and pack them into output format
+func listObjectOutput(t *task.ListTask) {
+	if !t.GetLongFormat() {
+		for v := range t.GetObjectChannel() {
+			fmt.Println(v.Name)
 		}
 		return
+	}
+
+	var err error
+	for v := range t.GetObjectChannel() {
+		objACL := constants.ACLObject
+		if v.Type == types.ObjectTypeDir {
+			objACL = constants.ACLDirectory
+		}
+
+		size, ok := v.Metadata.GetSize()
+		if !ok {
+			// if size not exists (like dir), set size to 0
+			size = 0
+		}
+
+		// default print size by bytes
+		readableSize := strconv.FormatInt(size, 10)
+		if t.GetHumanReadable() {
+			// if human readable flag true, print size as human readable format
+			readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
+			if err != nil {
+				t.TriggerFault(err)
+				log.Debugf("parse size <%v> failed [%v], key: <%s>", size, err, v.Name)
+			}
+		}
+
+		// if modified not exists (like dir), init str with blank
+		modifiedStr := ""
+		if modified, ok := v.Metadata.GetUpdatedAt(); ok {
+			modifiedStr = modified.Format(constants.LsDefaultFormat)
+		}
+		// output order: acl  size  lastModified  key
+		// join with two space
+		fmt.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, v.Name)
 	}
 }

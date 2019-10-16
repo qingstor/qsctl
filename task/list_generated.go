@@ -51,8 +51,13 @@ type ListTask struct {
 	types.BucketName
 	types.DestinationService
 	types.DestinationStorage
+	types.HumanReadable
+	types.Key
 	types.ListType
+	types.LongFormat
+	types.ObjectChannel
 	types.Pool
+	types.Recursive
 	types.Zone
 }
 
