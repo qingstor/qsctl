@@ -11,6 +11,12 @@
     ],
     "message": "`Local file size [%d] is too large`, f.GetSize()"
   },
+  "ReadableSizeFormatInvalid": {
+    "value": [
+      "ByteSize"
+    ],
+    "message": "`readable size format invalid [%s]`, f.GetByteSize()"
+  },
   "StorageBucketInitFailed": {
     "value": [
       "BucketName",

@@ -49,6 +49,27 @@ func NewLocalFileTooLarge(err error, size int64) error {
 	return f
 }
 
+type ReadableSizeFormatInvalid struct {
+	types.Fault
+	types.ByteSize
+}
+
+func (f *ReadableSizeFormatInvalid) Error() string {
+	return fmt.Sprintf(`readable size format invalid [%s]`, f.GetByteSize())
+}
+
+func (f *ReadableSizeFormatInvalid) Unwrap() error {
+	return f.GetFault()
+}
+
+func NewReadableSizeFormatInvalid(err error, byteSize string) error {
+	f := &ReadableSizeFormatInvalid{}
+	f.SetFault(err)
+	f.SetByteSize(byteSize)
+
+	return f
+}
+
 type StorageBucketInitFailed struct {
 	types.Fault
 	types.BucketName
