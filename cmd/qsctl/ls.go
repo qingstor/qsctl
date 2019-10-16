@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
@@ -83,12 +82,10 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		t.SetDestinationStorage(store)
 		t.SetBucketName(bucketName)
 
+		// init object channel, then stream output by goroutine
 		oc := make(chan *types.Object)
 		t.SetObjectChannel(oc)
-
-		outList := make([][]string, 0)
-		t.SetObjectLongList(&outList)
-		go packLsOut(t)
+		go listObjectOutput(t)
 	})
 
 	t.Run()
@@ -97,7 +94,10 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	listOutput(t)
+	// only list bucket output here, if list objects, use goroutine for stream output
+	if t.GetListType() == constants.ListTypeBucket {
+		listBucketOutput(t)
+	}
 	return
 }
 
@@ -116,38 +116,24 @@ func initLsFlag() {
 		"in which zone to do the operation")
 }
 
-func listOutput(t *task.ListTask) {
-	if t.GetListType() == constants.ListTypeBucket {
-		for _, v := range t.GetBucketList() {
-			fmt.Println(v)
-		}
-		return
-	}
-	if t.GetListType() == constants.ListTypeKey {
-		if !t.GetLongFormat() {
-			for _, v := range *t.GetObjectLongList() {
-				fmt.Println(v[0])
-			}
-			return
-		}
-		// if -l align the result and print
-		for _, line := range utils.AlignLinux(*t.GetObjectLongList()...) {
-			fmt.Println(strings.Join(line, " "))
-		}
-		return
+// listBucketOutput list buckets with normal slice
+func listBucketOutput(t *task.ListTask) {
+	for _, v := range t.GetBucketList() {
+		fmt.Println(v)
 	}
 }
 
-// packLsOut get object from channel asynchronously, and pack them into output format
-func packLsOut(t *task.ListTask) {
-	var err error
-	list := t.GetObjectLongList()
-	for v := range t.GetObjectChannel() {
-		if !t.GetLongFormat() {
-			*list = append(*list, []string{v.Name})
-			continue
+// listObjectOutput get object from channel asynchronously, and pack them into output format
+func listObjectOutput(t *task.ListTask) {
+	if !t.GetLongFormat() {
+		for v := range t.GetObjectChannel() {
+			fmt.Println(v.Name)
 		}
+		return
+	}
 
+	var err error
+	for v := range t.GetObjectChannel() {
 		objACL := constants.ACLObject
 		if v.Type == types.ObjectTypeDir {
 			objACL = constants.ACLDirectory
@@ -175,7 +161,8 @@ func packLsOut(t *task.ListTask) {
 		if modified, ok := v.Metadata.GetUpdatedAt(); ok {
 			modifiedStr = modified.Format(constants.LsDefaultFormat)
 		}
-		// output order: acl size lastModified key
-		*list = append(*list, []string{objACL, readableSize, modifiedStr, v.Name})
+		// output order: acl  size  lastModified  key
+		// join with two space
+		fmt.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, v.Name)
 	}
 }

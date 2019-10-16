@@ -14,12 +14,7 @@ var (
 	// register available flag vars here
 	bench                bool
 	expectSize           string
-	humanReadable        bool
-	longFormat           bool
 	maximumMemoryContent string
-	recursive            bool
-	reverse              bool
-	zone                 string
 )
 
 var (
