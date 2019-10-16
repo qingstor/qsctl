@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -139,6 +138,7 @@ func listOutput(t *task.ListTask) {
 	}
 }
 
+// packLsOut get object from channel asynchronously, and pack them into output format
 func packLsOut(t *task.ListTask) {
 	var err error
 	list := t.GetObjectLongList()
@@ -148,17 +148,15 @@ func packLsOut(t *task.ListTask) {
 			continue
 		}
 
-		objType := constants.ACLObject
+		objACL := constants.ACLObject
 		if v.Type == types.ObjectTypeDir {
-			objType = constants.ACLDirectory
+			objACL = constants.ACLDirectory
 		}
 
 		size, ok := v.Metadata.GetSize()
 		if !ok {
-			t.TriggerFault(errors.New("get size failed"))
-			// not return after trigger fault
-			// because if return here, will block send run func
-			log.Debugf("get size failed with key <%s>", v.Name)
+			// if size not exists (like dir), set size to 0
+			size = 0
 		}
 
 		// default print size by bytes
@@ -171,6 +169,13 @@ func packLsOut(t *task.ListTask) {
 				log.Debugf("parse size <%v> failed [%v], key: <%s>", size, err, v.Name)
 			}
 		}
-		*list = append(*list, []string{objType, readableSize, v.Name})
+
+		// if modified not exists (like dir), init str with blank
+		modifiedStr := ""
+		if modified, ok := v.Metadata.GetUpdatedAt(); ok {
+			modifiedStr = modified.Format(constants.LsDefaultFormat)
+		}
+		// output order: acl size lastModified key
+		*list = append(*list, []string{objACL, readableSize, modifiedStr, v.Name})
 	}
 }
