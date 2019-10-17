@@ -39,8 +39,17 @@ log_level: 'debug'
 
 Commands supported by qsctl are listed below:
 
-- `cat`: Cat a remote object into stdout.
 - `cp`: Copy local file(s) to QingStor or QingStor key(s) to local.
+- `ls`: List buckets, or objects with given prefix.
+- `mb`: Make a new bucket.
+- `presign`: Get the pre-signed URL by given object key.
+- `rb`: Delete a bucket.
+- `rm`: Remove remote object(s).
+- `stat`: Stat a remote object.
+
+(not implements by now)
+- `cat`: Cat a remote object into stdout.
+- `sync`: Sync between local directory and QS-Directory.
 - `tee`: Tee from stdin to a remote object.
 
 
@@ -50,11 +59,12 @@ Stat key in bucket <mybucket> by running
 
 ```bash
 :) qsctl stat qs://mybucket/test
-Key         : test
-Size        : 10GB
-Type        : application/octet-stream
-Modify      : 2019-07-04 09:50:46 +0000 UTC
+         Key: test
+        Size: 10GB
+        Type: application/octet-stream
 StorageClass: STANDARD
+         MD5: "23ec6a98d5fa026a4f2f0f6c89e8089b"
+   UpdatedAt: 2019-07-04 09:50:46 +0000 UTC
 ```
 
 See the detailed usage and more examples with 'qsctl help' or 'qsctl <command> help'.
