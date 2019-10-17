@@ -74,7 +74,8 @@
     "runtime_value": [
       "CurrentOffset",
       "PartSize",
-      "Scheduler"
+      "Scheduler",
+      "SegmentID"
     ]
   },
   "CopyPartialFile": {
@@ -89,6 +90,7 @@
       "PartSize",
       "Path",
       "Scheduler",
+      "SegmentID",
       "TotalSize"
     ],
     "runtime_value": [
@@ -109,6 +111,7 @@
       "Key",
       "PartSize",
       "Scheduler",
+      "SegmentID",
       "Stream"
     ],
     "runtime_value": [
@@ -150,6 +153,7 @@
       "CurrentOffset",
       "PartSize",
       "Scheduler",
+      "SegmentID",
       "TotalSize"
     ]
   },
@@ -214,7 +218,8 @@
     "description": "upload a multipart via stream",
     "inherited_value": [
       "DestinationStorage",
-      "Key"
+      "Key",
+      "SegmentID"
     ]
   },
   "MultipartFileUpload": {
@@ -228,6 +233,7 @@
       "Offset",
       "Path",
       "Scheduler",
+      "SegmentID",
       "Size"
     ]
   },
@@ -241,6 +247,9 @@
       "Key",
       "Scheduler",
       "TotalSize"
+    ],
+    "runtime_value": [
+      "SegmentID"
     ]
   },
   "MultipartStreamUpload": {
@@ -254,6 +263,7 @@
       "MD5Sum",
       "Offset",
       "Scheduler",
+      "SegmentID",
       "Size"
     ]
   },

@@ -68,6 +68,9 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	key := uuid.New().String()
 	x.SetKey(key)
 
+	segmentID := uuid.New().String()
+	x.SetSegmentID(segmentID)
+
 	name, size, md5sum := utils.GenerateTestFile()
 	defer os.Remove(name)
 
@@ -82,7 +85,7 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	x.SetScheduler(sche)
 
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
@@ -100,6 +103,9 @@ func TestMultipartStreamUploadTask_Run(t *testing.T) {
 	store := mock.NewMockStorager(ctrl)
 	x.SetDestinationStorage(store)
 
+	segmentID := uuid.New().String()
+	x.SetSegmentID(segmentID)
+
 	key := uuid.New().String()
 	x.SetKey(key)
 
@@ -116,7 +122,7 @@ func TestMultipartStreamUploadTask_Run(t *testing.T) {
 	x.SetScheduler(sche)
 
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
@@ -135,9 +141,11 @@ func TestMultipartCompleteTask_Run(t *testing.T) {
 	x.SetDestinationStorage(store)
 	key := uuid.New().String()
 	x.SetKey(key)
+	segmentID := uuid.New().String()
+	x.SetSegmentID(segmentID)
 
 	store.EXPECT().CompleteSegment(gomock.Any()).Do(func(inputPath string, option ...*types.Pair) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 	})
 
 	task := NewMultipartCompleteTask(x)

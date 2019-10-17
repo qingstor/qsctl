@@ -1168,6 +1168,39 @@ func (o *Scheduler) ValidateScheduler() bool {
 	return o.valid
 }
 
+type SegmentID struct {
+	valid bool
+	v     string
+}
+
+type SegmentIDGetter interface {
+	GetSegmentID() string
+}
+
+func (o *SegmentID) GetSegmentID() string {
+	if !o.valid {
+		panic("SegmentID value is not valid")
+	}
+	return o.v
+}
+
+type SegmentIDSetter interface {
+	SetSegmentID(string)
+}
+
+func (o *SegmentID) SetSegmentID(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type SegmentIDValidator interface {
+	ValidateSegmentID() bool
+}
+
+func (o *SegmentID) ValidateSegmentID() bool {
+	return o.valid
+}
+
 type Size struct {
 	valid bool
 	v     int64
@@ -1297,39 +1330,6 @@ type URLValidator interface {
 }
 
 func (o *URL) ValidateURL() bool {
-	return o.valid
-}
-
-type UploadID struct {
-	valid bool
-	v     string
-}
-
-type UploadIDGetter interface {
-	GetUploadID() string
-}
-
-func (o *UploadID) GetUploadID() string {
-	if !o.valid {
-		panic("UploadID value is not valid")
-	}
-	return o.v
-}
-
-type UploadIDSetter interface {
-	SetUploadID(string)
-}
-
-func (o *UploadID) SetUploadID(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type UploadIDValidator interface {
-	ValidateUploadID() bool
-}
-
-func (o *UploadID) ValidateUploadID() bool {
 	return o.valid
 }
 
