@@ -197,6 +197,7 @@
       "LongFormat",
       "ObjectChannel",
       "Pool",
+      "Prefix",
       "Recursive",
       "Zone"
     ]
@@ -276,14 +277,51 @@
       "Key"
     ]
   },
+  "ObjectDeleteRecursively": {
+    "type": "dependent",
+    "path": "common/object_delete",
+    "depend": "RemoveDir",
+    "description": "will delete a dir recursively",
+    "inherited_value": [
+      "DeleteKey",
+      "DestinationStorage",
+      "Scheduler"
+    ],
+    "runtime_value": [
+      "Key"
+    ]
+  },
+  "ObjectDeleteWithScheduler": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "will delete a remote object with specific key",
+    "inherited_value": [
+      "DestinationStorage",
+      "Key",
+      "Scheduler"
+    ]
+  },
+  "ObjectInitDirDelete": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "will init object delete recursively work",
+    "inherited_value": [
+      "ObjectChannel",
+      "Prefix",
+      "Scheduler"
+    ],
+    "runtime_value": [
+      "DeleteKey"
+    ]
+  },
   "ObjectList": {
     "type": "required",
     "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
       "DestinationStorage",
-      "Key",
       "ObjectChannel",
+      "Prefix",
       "Recursive"
     ]
   },
@@ -337,15 +375,35 @@
       "Pool"
     ]
   },
+  "RemoveDir": {
+    "type": "dependent",
+    "path": "remove_object",
+    "depend": "RemoveObject",
+    "description": "will remove a directory recursively",
+    "inherited_value": [
+      "DestinationStorage",
+      "Prefix",
+      "Recursive"
+    ],
+    "runtime_value": [
+      "DeleteKey",
+      "Key",
+      "ObjectChannel",
+      "Scheduler"
+    ]
+  },
   "RemoveObject": {
     "type": "dependent",
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
+      "BucketName",
       "DestinationStorage",
       "Key",
       "Pool",
-      "Recursive"
+      "Prefix",
+      "Recursive",
+      "Scheduler"
     ]
   },
   "Stat": {

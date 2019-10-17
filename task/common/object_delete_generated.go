@@ -70,3 +70,182 @@ func (t *ObjectDeleteTask) TriggerFault(err error) {
 func NewObjectDeleteTask(task types.Todoist) navvy.Task {
 	return &ObjectDeleteTask{task.(objectDeleteTaskRequirement)}
 }
+
+// objectDeleteRecursivelyTaskRequirement is the requirement for execute ObjectDeleteRecursivelyTask.
+type objectDeleteRecursivelyTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.DeleteKeyGetter
+	types.DestinationStorageGetter
+	types.SchedulerGetter
+}
+
+// mockObjectDeleteRecursivelyTask is the mock task for ObjectDeleteRecursivelyTask.
+type mockObjectDeleteRecursivelyTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DeleteKey
+	types.DestinationStorage
+	types.Scheduler
+}
+
+func (t *mockObjectDeleteRecursivelyTask) Run() {
+	panic("mockObjectDeleteRecursivelyTask should not be run.")
+}
+
+// ObjectDeleteRecursivelyTask will will delete a dir recursively.
+type ObjectDeleteRecursivelyTask struct {
+	objectDeleteRecursivelyTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Todo
+
+	// Runtime value
+	types.Key
+}
+
+// Run implement navvy.Task
+func (t *ObjectDeleteRecursivelyTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t)
+}
+
+func (t *ObjectDeleteRecursivelyTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectDeleteRecursively failed: {%w}", err))
+}
+
+// NewObjectDeleteRecursivelyTask will create a ObjectDeleteRecursivelyTask and fetch inherited data from RemoveDirTask.
+func NewObjectDeleteRecursivelyTask(task types.Todoist) navvy.Task {
+	t := &ObjectDeleteRecursivelyTask{
+		objectDeleteRecursivelyTaskRequirement: task.(objectDeleteRecursivelyTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}
+
+// objectDeleteWithSchedulerTaskRequirement is the requirement for execute ObjectDeleteWithSchedulerTask.
+type objectDeleteWithSchedulerTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.DestinationStorageGetter
+	types.KeyGetter
+	types.SchedulerGetter
+	// Runtime value
+}
+
+// mockObjectDeleteWithSchedulerTask is the mock task for ObjectDeleteWithSchedulerTask.
+type mockObjectDeleteWithSchedulerTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DestinationStorage
+	types.Key
+	types.Scheduler
+	// Runtime value
+}
+
+func (t *mockObjectDeleteWithSchedulerTask) Run() {
+	panic("mockObjectDeleteWithSchedulerTask should not be run.")
+}
+
+// ObjectDeleteWithSchedulerTask will will delete a remote object with specific key.
+type ObjectDeleteWithSchedulerTask struct {
+	objectDeleteWithSchedulerTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *ObjectDeleteWithSchedulerTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.objectDeleteWithSchedulerTaskRequirement)
+}
+
+func (t *ObjectDeleteWithSchedulerTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectDeleteWithScheduler failed: {%w}", err))
+}
+
+// NewObjectDeleteWithSchedulerTask will create a new ObjectDeleteWithSchedulerTask.
+func NewObjectDeleteWithSchedulerTask(task types.Todoist) navvy.Task {
+	return &ObjectDeleteWithSchedulerTask{task.(objectDeleteWithSchedulerTaskRequirement)}
+}
+
+// objectInitDirDeleteTaskRequirement is the requirement for execute ObjectInitDirDeleteTask.
+type objectInitDirDeleteTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.ObjectChannelGetter
+	types.PrefixGetter
+	types.SchedulerGetter
+	// Runtime value
+	types.DeleteKeySetter
+}
+
+// mockObjectInitDirDeleteTask is the mock task for ObjectInitDirDeleteTask.
+type mockObjectInitDirDeleteTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.ObjectChannel
+	types.Prefix
+	types.Scheduler
+	// Runtime value
+	types.DeleteKey
+}
+
+func (t *mockObjectInitDirDeleteTask) Run() {
+	panic("mockObjectInitDirDeleteTask should not be run.")
+}
+
+// ObjectInitDirDeleteTask will will init object delete recursively work.
+type ObjectInitDirDeleteTask struct {
+	objectInitDirDeleteTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *ObjectInitDirDeleteTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.objectInitDirDeleteTaskRequirement)
+}
+
+func (t *ObjectInitDirDeleteTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectInitDirDelete failed: {%w}", err))
+}
+
+// NewObjectInitDirDeleteTask will create a new ObjectInitDirDeleteTask.
+func NewObjectInitDirDeleteTask(task types.Todoist) navvy.Task {
+	return &ObjectInitDirDeleteTask{task.(objectInitDirDeleteTaskRequirement)}
+}

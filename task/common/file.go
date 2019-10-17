@@ -19,9 +19,9 @@ func (t *FileUploadTask) run() {
 	defer f.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().WriteFile(t.GetKey(), t.GetSize(), f)
-	if err != nil {
-		panic(err)
+	if err = t.GetDestinationStorage().WriteFile(t.GetKey(), t.GetSize(), f); err != nil {
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetKey())
