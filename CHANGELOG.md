@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-alpha.8] - 2019-10-17
+
+### Added
+
+- cmd/stat: Add updatedAt output support (#123)
+- cmd/ls: Add ls command, use stream stdout while list objects (#122, #121, #120)
+- Add fault support (#113)
+- utils: Add bucket name validator (#109)
+- misc: Add support for codecov (#108)
+
+### Changed
+
+- Replace storage logic with new storage layer (#118)
+- cmd: Unify error handle by using TriggerFault (#116)
+- pkg: Move types to pkg and merge utils for better share (#111)
+- Use new task execution framework (#107)
+- Modify cmd by using new task framework: cp(#107), mb(#110), presign(#114), rb(#115), rm(#119), stat(#112) 
+
 ## [2.0.0-alpha.7] - 2019-07-15
 
 ### Added
@@ -333,6 +351,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-alpha.8]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.7...v2.0.0-alpha.8
 [2.0.0-alpha.7]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.6...v2.0.0-alpha.7
 [2.0.0-alpha.6]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.5...v2.0.0-alpha.6
 [2.0.0-alpha.5]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.4...v2.0.0-alpha.5
