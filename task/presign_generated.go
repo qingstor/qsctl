@@ -66,7 +66,6 @@ func (t *PresignTask) Run() {
 func (t *PresignTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Presign failed: {%w}", err))
 }
-
 // Wait will wait until PresignTask has been finished
 func (t *PresignTask) Wait() {
 	t.GetPool().Wait()

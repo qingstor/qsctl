@@ -69,7 +69,6 @@ func (t *CopyTask) Run() {
 func (t *CopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Copy failed: {%w}", err))
 }
-
 // Wait will wait until CopyTask has been finished
 func (t *CopyTask) Wait() {
 	t.GetPool().Wait()

@@ -64,7 +64,6 @@ func (t *RemoveBucketTask) Run() {
 func (t *RemoveBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveBucket failed: {%w}", err))
 }
-
 // Wait will wait until RemoveBucketTask has been finished
 func (t *RemoveBucketTask) Wait() {
 	t.GetPool().Wait()

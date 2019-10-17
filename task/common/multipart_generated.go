@@ -25,9 +25,11 @@ type multipartCompleteTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.DestinationStorageGetter
 	types.KeyGetter
+	types.SegmentIDGetter
 	// Runtime value
 }
 
@@ -41,6 +43,7 @@ type mockMultipartCompleteTask struct {
 	// Inherited value
 	types.DestinationStorage
 	types.Key
+	types.SegmentID
 	// Runtime value
 }
 
@@ -80,6 +83,7 @@ type multipartFileUploadTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.DestinationStorageGetter
 	types.KeyGetter
@@ -87,6 +91,7 @@ type multipartFileUploadTaskRequirement interface {
 	types.OffsetGetter
 	types.PathGetter
 	types.SchedulerGetter
+	types.SegmentIDGetter
 	types.SizeGetter
 	// Runtime value
 }
@@ -105,6 +110,7 @@ type mockMultipartFileUploadTask struct {
 	types.Offset
 	types.Path
 	types.Scheduler
+	types.SegmentID
 	types.Size
 	// Runtime value
 }
@@ -145,6 +151,7 @@ type multipartInitTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.CurrentOffsetGetter
 	types.DestinationStorageGetter
@@ -152,6 +159,7 @@ type multipartInitTaskRequirement interface {
 	types.SchedulerGetter
 	types.TotalSizeGetter
 	// Runtime value
+	types.SegmentIDSetter
 }
 
 // mockMultipartInitTask is the mock task for MultipartInitTask.
@@ -168,6 +176,7 @@ type mockMultipartInitTask struct {
 	types.Scheduler
 	types.TotalSize
 	// Runtime value
+	types.SegmentID
 }
 
 func (t *mockMultipartInitTask) Run() {
@@ -206,6 +215,7 @@ type multipartStreamUploadTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.ContentGetter
 	types.DestinationStorageGetter
@@ -213,6 +223,7 @@ type multipartStreamUploadTaskRequirement interface {
 	types.MD5SumGetter
 	types.OffsetGetter
 	types.SchedulerGetter
+	types.SegmentIDGetter
 	types.SizeGetter
 	// Runtime value
 }
@@ -231,6 +242,7 @@ type mockMultipartStreamUploadTask struct {
 	types.MD5Sum
 	types.Offset
 	types.Scheduler
+	types.SegmentID
 	types.Size
 	// Runtime value
 }

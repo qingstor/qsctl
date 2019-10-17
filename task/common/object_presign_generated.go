@@ -25,6 +25,7 @@ type objectPresignTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.BucketNameGetter
 	types.DestinationStorageGetter

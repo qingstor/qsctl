@@ -20,6 +20,7 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 	defer ctrl.Finish()
 
 	key := uuid.New().String()
+	segmentID := uuid.New().String()
 	name, size, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
@@ -34,16 +35,17 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 	x.SetDestinationStorage(store)
 	x.SetTotalSize(size)
 
-	store.EXPECT().InitSegment(gomock.Any()).Do(func(inputPath string) {
+	store.EXPECT().InitSegment(gomock.Any()).DoAndReturn(func(inputPath string) (id string, err error) {
 		assert.Equal(t, key, inputPath)
+		return segmentID, nil
 	})
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
 	store.EXPECT().CompleteSegment(gomock.Any()).Do(func(inputPath string) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 	})
 
 	task := NewCopyLargeFileTask(x)
@@ -56,13 +58,14 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 	defer ctrl.Finish()
 
 	key := uuid.New().String()
+	segmentID := uuid.New().String()
 
 	name, size, _ := utils.GenerateTestFile()
 	defer os.Remove(name)
 
 	store := mock.NewMockStorager(ctrl)
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
@@ -76,6 +79,7 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 	x.SetDestinationStorage(store)
 	x.SetPartSize(64 * 1024 * 1024)
 	x.SetTotalSize(size)
+	x.SetSegmentID(segmentID)
 
 	currentOffset := int64(0)
 	x.SetCurrentOffset(&currentOffset)

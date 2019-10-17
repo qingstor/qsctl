@@ -25,6 +25,7 @@ type fileMD5SumTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
+
 	// Inherited value
 	types.OffsetGetter
 	types.PathGetter
@@ -83,6 +84,7 @@ type streamMD5SumTaskRequirement interface {
 	types.FaultSetter
 	types.FaultValidator
 	types.IDGetter
+
 
 	// Inherited value
 	types.ContentGetter
