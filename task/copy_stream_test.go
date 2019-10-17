@@ -23,6 +23,7 @@ func TestCopyStreamTask_Run(t *testing.T) {
 
 	store := mock.NewMockStorager(ctrl)
 	key := uuid.New().String()
+	segmentID := uuid.New().String()
 
 	buf, size, _ := utils.GenerateTestStream()
 
@@ -39,16 +40,17 @@ func TestCopyStreamTask_Run(t *testing.T) {
 		task.SetStream(buf)
 	})
 
-	store.EXPECT().InitSegment(gomock.Any()).Do(func(inputPath string) {
+	store.EXPECT().InitSegment(gomock.Any()).DoAndReturn(func(inputPath string) (id string, err error) {
 		assert.Equal(t, key, inputPath)
+		return segmentID, nil
 	})
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
 	store.EXPECT().CompleteSegment(gomock.Any()).Do(func(inputPath string) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 	})
 
 	task := NewCopyStreamTask(x)
@@ -61,11 +63,12 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 	defer ctrl.Finish()
 
 	key := uuid.New().String()
+	segmentID := uuid.New().String()
 	buf, size, _ := utils.GenerateTestStream()
 
 	store := mock.NewMockStorager(ctrl)
 	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, key, inputPath)
+		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
 	})
@@ -78,6 +81,7 @@ func TestCopyPartialStreamTask_Run(t *testing.T) {
 	x.SetKey(key)
 	x.SetDestinationStorage(store)
 	x.SetPartSize(64 * 1024 * 1024)
+	x.SetSegmentID(segmentID)
 	x.SetBytesPool(&sync.Pool{
 		New: func() interface{} {
 			return bytes.NewBuffer(make([]byte, 0, x.GetPartSize()))

@@ -122,6 +122,7 @@ type CopyLargeFileTask struct {
 	types.CurrentOffset
 	types.PartSize
 	types.Scheduler
+	types.SegmentID
 }
 
 // Run implement navvy.Task
@@ -158,6 +159,7 @@ type copyPartialFileTaskRequirement interface {
 	types.PartSizeGetter
 	types.PathGetter
 	types.SchedulerGetter
+	types.SegmentIDGetter
 	types.TotalSizeGetter
 }
 
@@ -175,6 +177,7 @@ type mockCopyPartialFileTask struct {
 	types.PartSize
 	types.Path
 	types.Scheduler
+	types.SegmentID
 	types.TotalSize
 }
 

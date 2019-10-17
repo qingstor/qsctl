@@ -28,6 +28,7 @@ type copyPartialStreamTaskRequirement interface {
 	types.KeyGetter
 	types.PartSizeGetter
 	types.SchedulerGetter
+	types.SegmentIDGetter
 	types.StreamGetter
 }
 
@@ -45,6 +46,7 @@ type mockCopyPartialStreamTask struct {
 	types.Key
 	types.PartSize
 	types.Scheduler
+	types.SegmentID
 	types.Stream
 }
 
@@ -132,6 +134,7 @@ type CopyStreamTask struct {
 	types.CurrentOffset
 	types.PartSize
 	types.Scheduler
+	types.SegmentID
 	types.TotalSize
 }
 

@@ -34,10 +34,10 @@
   "ReadableSize": "string",
   "Recursive": "bool",
   "Scheduler": "scheduler",
+  "SegmentID": "string",
   "Size": "int64",
   "Stream": "io.Reader",
   "TotalSize": "int64",
   "URL": "string",
-  "UploadID": "string",
   "Zone": "string"
 }

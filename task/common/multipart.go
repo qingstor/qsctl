@@ -14,11 +14,12 @@ import (
 func (t *MultipartInitTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetKey())
 
-	err := t.GetDestinationStorage().InitSegment(t.GetKey())
+	id, err := t.GetDestinationStorage().InitSegment(t.GetKey())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
+	t.SetSegmentID(id)
 
 	for {
 		if *t.GetCurrentOffset() == t.GetTotalSize() {
@@ -47,7 +48,7 @@ func (t *MultipartFileUploadTask) run() {
 
 	// TODO: Add checksum support.
 	// TODO: storage should not handle file close?
-	err = t.GetDestinationStorage().WriteSegment(t.GetKey(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(r))
+	err = t.GetDestinationStorage().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(r))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
@@ -62,7 +63,7 @@ func (t *MultipartStreamUploadTask) run() {
 	defer t.GetScheduler().Done(t.GetID())
 
 	// TODO: Add checksum support
-	err := t.GetDestinationStorage().WriteSegment(t.GetKey(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
+	err := t.GetDestinationStorage().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
@@ -74,7 +75,7 @@ func (t *MultipartStreamUploadTask) run() {
 func (t *MultipartCompleteTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "MultipartCompleteTask", t.GetKey())
 
-	err := t.GetDestinationStorage().CompleteSegment(t.GetKey())
+	err := t.GetDestinationStorage().CompleteSegment(t.GetSegmentID())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return

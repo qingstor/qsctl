@@ -47,7 +47,7 @@ func TestObjectListTask_Run(t *testing.T) {
 			}
 		}()
 
-		store.EXPECT().ListDir(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, paris ...*types.Pair) iterator.Iterator {
+		store.EXPECT().ListDir(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, paris ...*types.Pair) iterator.ObjectIterator {
 			assert.Equal(t, inputPath, key)
 			if ca.recursive {
 				assert.Equal(t, 0, len(paris), ca.name)
@@ -55,7 +55,7 @@ func TestObjectListTask_Run(t *testing.T) {
 				assert.Equal(t, "/", paris[0].Value.(string), ca.name)
 			}
 			count := 3
-			return iterator.NewPrefixBasedIterator(func(object *[]*types.Object) error {
+			return iterator.NewObjectIterator(func(object *[]*types.Object) error {
 				*object = make([]*types.Object, 1)
 				count--
 				if count > 0 {
