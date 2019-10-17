@@ -81,6 +81,7 @@ func (t *CopyPartialStreamTask) Run() {
 func (t *CopyPartialStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
+
 // NewCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
 func NewCopyPartialStreamTask(task types.Todoist) navvy.Task {
 	t := &CopyPartialStreamTask{
@@ -148,6 +149,7 @@ func (t *CopyStreamTask) Run() {
 func (t *CopyStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
+
 // NewCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.
 func NewCopyStreamTask(task types.Todoist) navvy.Task {
 	t := &CopyStreamTask{

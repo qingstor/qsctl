@@ -64,6 +64,7 @@ func (t *StatTask) Run() {
 func (t *StatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Stat failed: {%w}", err))
 }
+
 // Wait will wait until StatTask has been finished
 func (t *StatTask) Wait() {
 	t.GetPool().Wait()

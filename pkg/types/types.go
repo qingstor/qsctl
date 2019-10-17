@@ -3,8 +3,8 @@ package types
 
 import (
 	"bytes"
-	"sync"
 	"io"
+	"sync"
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
@@ -12,9 +12,10 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 )
+
 type BucketList struct {
 	valid bool
-	v []string
+	v     []string
 }
 
 type BucketListGetter interface {
@@ -44,9 +45,10 @@ type BucketListValidator interface {
 func (o *BucketList) ValidateBucketList() bool {
 	return o.valid
 }
+
 type BucketName struct {
 	valid bool
-	v string
+	v     string
 }
 
 type BucketNameGetter interface {
@@ -76,9 +78,10 @@ type BucketNameValidator interface {
 func (o *BucketName) ValidateBucketName() bool {
 	return o.valid
 }
+
 type ByteSize struct {
 	valid bool
-	v string
+	v     string
 }
 
 type ByteSizeGetter interface {
@@ -108,9 +111,10 @@ type ByteSizeValidator interface {
 func (o *ByteSize) ValidateByteSize() bool {
 	return o.valid
 }
+
 type BytesPool struct {
 	valid bool
-	v *sync.Pool
+	v     *sync.Pool
 }
 
 type BytesPoolGetter interface {
@@ -140,9 +144,10 @@ type BytesPoolValidator interface {
 func (o *BytesPool) ValidateBytesPool() bool {
 	return o.valid
 }
+
 type Content struct {
 	valid bool
-	v *bytes.Buffer
+	v     *bytes.Buffer
 }
 
 type ContentGetter interface {
@@ -172,9 +177,10 @@ type ContentValidator interface {
 func (o *Content) ValidateContent() bool {
 	return o.valid
 }
+
 type CurrentOffset struct {
 	valid bool
-	v *int64
+	v     *int64
 }
 
 type CurrentOffsetGetter interface {
@@ -204,9 +210,10 @@ type CurrentOffsetValidator interface {
 func (o *CurrentOffset) ValidateCurrentOffset() bool {
 	return o.valid
 }
+
 type CurrentPartNumber struct {
 	valid bool
-	v *int32
+	v     *int32
 }
 
 type CurrentPartNumberGetter interface {
@@ -236,9 +243,10 @@ type CurrentPartNumberValidator interface {
 func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
 }
+
 type DestinationService struct {
 	valid bool
-	v storage.Servicer
+	v     storage.Servicer
 }
 
 type DestinationServiceGetter interface {
@@ -268,9 +276,10 @@ type DestinationServiceValidator interface {
 func (o *DestinationService) ValidateDestinationService() bool {
 	return o.valid
 }
+
 type DestinationStorage struct {
 	valid bool
-	v storage.Storager
+	v     storage.Storager
 }
 
 type DestinationStorageGetter interface {
@@ -300,9 +309,10 @@ type DestinationStorageValidator interface {
 func (o *DestinationStorage) ValidateDestinationStorage() bool {
 	return o.valid
 }
+
 type EnableBenchmark struct {
 	valid bool
-	v bool
+	v     bool
 }
 
 type EnableBenchmarkGetter interface {
@@ -332,9 +342,10 @@ type EnableBenchmarkValidator interface {
 func (o *EnableBenchmark) ValidateEnableBenchmark() bool {
 	return o.valid
 }
+
 type ExpectSize struct {
 	valid bool
-	v int64
+	v     int64
 }
 
 type ExpectSizeGetter interface {
@@ -364,9 +375,10 @@ type ExpectSizeValidator interface {
 func (o *ExpectSize) ValidateExpectSize() bool {
 	return o.valid
 }
+
 type Expire struct {
 	valid bool
-	v int
+	v     int
 }
 
 type ExpireGetter interface {
@@ -396,9 +408,10 @@ type ExpireValidator interface {
 func (o *Expire) ValidateExpire() bool {
 	return o.valid
 }
+
 type Fault struct {
 	valid bool
-	v error
+	v     error
 }
 
 type FaultGetter interface {
@@ -428,9 +441,10 @@ type FaultValidator interface {
 func (o *Fault) ValidateFault() bool {
 	return o.valid
 }
+
 type FlowType struct {
 	valid bool
-	v constants.FlowType
+	v     constants.FlowType
 }
 
 type FlowTypeGetter interface {
@@ -460,9 +474,10 @@ type FlowTypeValidator interface {
 func (o *FlowType) ValidateFlowType() bool {
 	return o.valid
 }
+
 type Force struct {
 	valid bool
-	v bool
+	v     bool
 }
 
 type ForceGetter interface {
@@ -492,9 +507,10 @@ type ForceValidator interface {
 func (o *Force) ValidateForce() bool {
 	return o.valid
 }
+
 type HumanReadable struct {
 	valid bool
-	v bool
+	v     bool
 }
 
 type HumanReadableGetter interface {
@@ -524,9 +540,10 @@ type HumanReadableValidator interface {
 func (o *HumanReadable) ValidateHumanReadable() bool {
 	return o.valid
 }
+
 type ID struct {
 	valid bool
-	v string
+	v     string
 }
 
 type IDGetter interface {
@@ -556,9 +573,10 @@ type IDValidator interface {
 func (o *ID) ValidateID() bool {
 	return o.valid
 }
+
 type Key struct {
 	valid bool
-	v string
+	v     string
 }
 
 type KeyGetter interface {
@@ -588,9 +606,10 @@ type KeyValidator interface {
 func (o *Key) ValidateKey() bool {
 	return o.valid
 }
+
 type KeyType struct {
 	valid bool
-	v constants.KeyType
+	v     constants.KeyType
 }
 
 type KeyTypeGetter interface {
@@ -620,9 +639,10 @@ type KeyTypeValidator interface {
 func (o *KeyType) ValidateKeyType() bool {
 	return o.valid
 }
+
 type ListType struct {
 	valid bool
-	v constants.ListType
+	v     constants.ListType
 }
 
 type ListTypeGetter interface {
@@ -652,9 +672,10 @@ type ListTypeValidator interface {
 func (o *ListType) ValidateListType() bool {
 	return o.valid
 }
+
 type LongFormat struct {
 	valid bool
-	v bool
+	v     bool
 }
 
 type LongFormatGetter interface {
@@ -684,9 +705,10 @@ type LongFormatValidator interface {
 func (o *LongFormat) ValidateLongFormat() bool {
 	return o.valid
 }
+
 type MD5Sum struct {
 	valid bool
-	v []byte
+	v     []byte
 }
 
 type MD5SumGetter interface {
@@ -716,9 +738,10 @@ type MD5SumValidator interface {
 func (o *MD5Sum) ValidateMD5Sum() bool {
 	return o.valid
 }
+
 type Name struct {
 	valid bool
-	v string
+	v     string
 }
 
 type NameGetter interface {
@@ -748,9 +771,10 @@ type NameValidator interface {
 func (o *Name) ValidateName() bool {
 	return o.valid
 }
+
 type Object struct {
 	valid bool
-	v *types.Object
+	v     *types.Object
 }
 
 type ObjectGetter interface {
@@ -780,9 +804,10 @@ type ObjectValidator interface {
 func (o *Object) ValidateObject() bool {
 	return o.valid
 }
+
 type ObjectChannel struct {
 	valid bool
-	v chan *types.Object
+	v     chan *types.Object
 }
 
 type ObjectChannelGetter interface {
@@ -812,9 +837,10 @@ type ObjectChannelValidator interface {
 func (o *ObjectChannel) ValidateObjectChannel() bool {
 	return o.valid
 }
+
 type ObjectLongList struct {
 	valid bool
-	v *[][]string
+	v     *[][]string
 }
 
 type ObjectLongListGetter interface {
@@ -844,9 +870,10 @@ type ObjectLongListValidator interface {
 func (o *ObjectLongList) ValidateObjectLongList() bool {
 	return o.valid
 }
+
 type Offset struct {
 	valid bool
-	v int64
+	v     int64
 }
 
 type OffsetGetter interface {
@@ -876,9 +903,10 @@ type OffsetValidator interface {
 func (o *Offset) ValidateOffset() bool {
 	return o.valid
 }
+
 type PartNumber struct {
 	valid bool
-	v int
+	v     int
 }
 
 type PartNumberGetter interface {
@@ -908,9 +936,10 @@ type PartNumberValidator interface {
 func (o *PartNumber) ValidatePartNumber() bool {
 	return o.valid
 }
+
 type PartSize struct {
 	valid bool
-	v int64
+	v     int64
 }
 
 type PartSizeGetter interface {
@@ -940,9 +969,10 @@ type PartSizeValidator interface {
 func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
 }
+
 type Path struct {
 	valid bool
-	v string
+	v     string
 }
 
 type PathGetter interface {
@@ -972,9 +1002,10 @@ type PathValidator interface {
 func (o *Path) ValidatePath() bool {
 	return o.valid
 }
+
 type PathType struct {
 	valid bool
-	v constants.PathType
+	v     constants.PathType
 }
 
 type PathTypeGetter interface {
@@ -1004,9 +1035,10 @@ type PathTypeValidator interface {
 func (o *PathType) ValidatePathType() bool {
 	return o.valid
 }
+
 type Pool struct {
 	valid bool
-	v *navvy.Pool
+	v     *navvy.Pool
 }
 
 type PoolGetter interface {
@@ -1036,9 +1068,10 @@ type PoolValidator interface {
 func (o *Pool) ValidatePool() bool {
 	return o.valid
 }
+
 type ReadableSize struct {
 	valid bool
-	v string
+	v     string
 }
 
 type ReadableSizeGetter interface {
@@ -1068,9 +1101,10 @@ type ReadableSizeValidator interface {
 func (o *ReadableSize) ValidateReadableSize() bool {
 	return o.valid
 }
+
 type Recursive struct {
 	valid bool
-	v bool
+	v     bool
 }
 
 type RecursiveGetter interface {
@@ -1100,9 +1134,10 @@ type RecursiveValidator interface {
 func (o *Recursive) ValidateRecursive() bool {
 	return o.valid
 }
+
 type Scheduler struct {
 	valid bool
-	v scheduler
+	v     scheduler
 }
 
 type SchedulerGetter interface {
@@ -1132,9 +1167,10 @@ type SchedulerValidator interface {
 func (o *Scheduler) ValidateScheduler() bool {
 	return o.valid
 }
+
 type SegmentID struct {
 	valid bool
-	v string
+	v     string
 }
 
 type SegmentIDGetter interface {
@@ -1164,9 +1200,10 @@ type SegmentIDValidator interface {
 func (o *SegmentID) ValidateSegmentID() bool {
 	return o.valid
 }
+
 type Size struct {
 	valid bool
-	v int64
+	v     int64
 }
 
 type SizeGetter interface {
@@ -1196,9 +1233,10 @@ type SizeValidator interface {
 func (o *Size) ValidateSize() bool {
 	return o.valid
 }
+
 type Stream struct {
 	valid bool
-	v io.Reader
+	v     io.Reader
 }
 
 type StreamGetter interface {
@@ -1228,9 +1266,10 @@ type StreamValidator interface {
 func (o *Stream) ValidateStream() bool {
 	return o.valid
 }
+
 type TotalSize struct {
 	valid bool
-	v int64
+	v     int64
 }
 
 type TotalSizeGetter interface {
@@ -1260,9 +1299,10 @@ type TotalSizeValidator interface {
 func (o *TotalSize) ValidateTotalSize() bool {
 	return o.valid
 }
+
 type URL struct {
 	valid bool
-	v string
+	v     string
 }
 
 type URLGetter interface {
@@ -1292,9 +1332,10 @@ type URLValidator interface {
 func (o *URL) ValidateURL() bool {
 	return o.valid
 }
+
 type Zone struct {
 	valid bool
-	v string
+	v     string
 }
 
 type ZoneGetter interface {
@@ -1324,4 +1365,3 @@ type ZoneValidator interface {
 func (o *Zone) ValidateZone() bool {
 	return o.valid
 }
-

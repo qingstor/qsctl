@@ -68,6 +68,7 @@ func (t *CopyFileTask) Run() {
 func (t *CopyFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
+
 // NewCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
 func NewCopyFileTask(task types.Todoist) navvy.Task {
 	t := &CopyFileTask{
@@ -135,6 +136,7 @@ func (t *CopyLargeFileTask) Run() {
 func (t *CopyLargeFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
+
 // NewCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
 func NewCopyLargeFileTask(task types.Todoist) navvy.Task {
 	t := &CopyLargeFileTask{
@@ -209,6 +211,7 @@ func (t *CopyPartialFileTask) Run() {
 func (t *CopyPartialFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
+
 // NewCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
 func NewCopyPartialFileTask(task types.Todoist) navvy.Task {
 	t := &CopyPartialFileTask{
@@ -275,6 +278,7 @@ func (t *CopySmallFileTask) Run() {
 func (t *CopySmallFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
+
 // NewCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.
 func NewCopySmallFileTask(task types.Todoist) navvy.Task {
 	t := &CopySmallFileTask{

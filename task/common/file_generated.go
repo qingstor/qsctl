@@ -25,7 +25,6 @@ type fileUploadTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.DestinationStorageGetter
 	types.KeyGetter

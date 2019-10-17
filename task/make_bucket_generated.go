@@ -64,6 +64,7 @@ func (t *MakeBucketTask) Run() {
 func (t *MakeBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
 }
+
 // Wait will wait until MakeBucketTask has been finished
 func (t *MakeBucketTask) Wait() {
 	t.GetPool().Wait()

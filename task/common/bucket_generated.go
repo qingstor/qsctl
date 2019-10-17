@@ -25,7 +25,6 @@ type bucketCreateTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.BucketNameGetter
 	types.DestinationServiceGetter
@@ -83,7 +82,6 @@ type bucketDeleteTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.BucketNameGetter
 	types.DestinationServiceGetter
@@ -138,7 +136,6 @@ type bucketListTaskRequirement interface {
 	types.FaultSetter
 	types.FaultValidator
 	types.IDGetter
-
 
 	// Inherited value
 	types.DestinationServiceGetter

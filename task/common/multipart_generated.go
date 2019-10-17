@@ -25,7 +25,6 @@ type multipartCompleteTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.DestinationStorageGetter
 	types.KeyGetter
@@ -82,7 +81,6 @@ type multipartFileUploadTaskRequirement interface {
 	types.FaultSetter
 	types.FaultValidator
 	types.IDGetter
-
 
 	// Inherited value
 	types.DestinationStorageGetter
@@ -151,7 +149,6 @@ type multipartInitTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.CurrentOffsetGetter
 	types.DestinationStorageGetter
@@ -214,7 +211,6 @@ type multipartStreamUploadTaskRequirement interface {
 	types.FaultSetter
 	types.FaultValidator
 	types.IDGetter
-
 
 	// Inherited value
 	types.ContentGetter

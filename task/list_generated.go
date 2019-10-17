@@ -72,6 +72,7 @@ func (t *ListTask) Run() {
 func (t *ListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task List failed: {%w}", err))
 }
+
 // Wait will wait until ListTask has been finished
 func (t *ListTask) Wait() {
 	t.GetPool().Wait()

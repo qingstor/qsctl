@@ -25,7 +25,6 @@ type waitTaskRequirement interface {
 	types.FaultValidator
 	types.IDGetter
 
-
 	// Inherited value
 	types.SchedulerGetter
 	// Runtime value
