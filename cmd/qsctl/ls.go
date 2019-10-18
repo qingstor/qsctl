@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"sync"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
@@ -20,6 +21,8 @@ var lsInput struct {
 	Recursive     bool
 	Zone          string
 }
+
+var wg sync.WaitGroup
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
@@ -85,11 +88,13 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		// init object channel, then stream output by goroutine
 		oc := make(chan *types.Object)
 		t.SetObjectChannel(oc)
+		wg.Add(1)
 		go listObjectOutput(t)
 	})
 
 	t.Run()
 	t.Wait()
+	wg.Wait()
 	if t.ValidateFault() {
 		return t.GetFault()
 	}
@@ -125,6 +130,7 @@ func listBucketOutput(t *task.ListTask) {
 
 // listObjectOutput get object from channel asynchronously, and pack them into output format
 func listObjectOutput(t *task.ListTask) {
+	defer wg.Done()
 	if !t.GetLongFormat() {
 		for v := range t.GetObjectChannel() {
 			fmt.Println(v.Name)
