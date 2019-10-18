@@ -33,10 +33,10 @@ func TestFileUploadTask_Run(t *testing.T) {
 	x.SetSize(size)
 	x.SetMD5Sum(md5sum)
 
-	store.EXPECT().WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).
-		Do(func(inputPath string, inputSize int64, r io.ReadCloser, option ...*types.Pair) {
+	store.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(inputPath string, r io.ReadCloser, option ...*types.Pair) {
 			assert.Equal(t, key, inputPath)
-			assert.Equal(t, size, inputSize)
+			assert.Equal(t, size, option[0].Value.(int64))
 		})
 
 	task := NewFileUploadTask(x)

@@ -3,6 +3,7 @@ package common
 import (
 	"os"
 
+	"github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
@@ -19,7 +20,7 @@ func (t *FileUploadTask) run() {
 	defer f.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().WriteFile(t.GetKey(), t.GetSize(), f)
+	err = t.GetDestinationStorage().Write(t.GetKey(), f, types.WithSize(t.GetSize()))
 	if err != nil {
 		panic(err)
 	}

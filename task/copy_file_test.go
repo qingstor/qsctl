@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	stypes "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -103,9 +104,9 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 
 	store := mock.NewMockStorager(ctrl)
 
-	store.EXPECT().WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputSize int64, _ io.ReadCloser) {
+	store.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, _ io.ReadCloser, option ...*stypes.Pair) {
 		assert.Equal(t, key, inputPath)
-		assert.Equal(t, size, inputSize)
+		assert.Equal(t, size, option[0].Value.(int64))
 	})
 
 	pool := navvy.NewPool(10)
