@@ -157,6 +157,33 @@
       "TotalSize"
     ]
   },
+  "DirDelete": {
+    "type": "dependent",
+    "path": "common/object_delete",
+    "depend": "RemoveDir",
+    "description": "will delete a dir recursively",
+    "inherited_value": [
+      "DeleteKey",
+      "DestinationStorage",
+      "Scheduler"
+    ],
+    "runtime_value": [
+      "Key"
+    ]
+  },
+  "DirDeleteInit": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "will init object delete recursively work",
+    "inherited_value": [
+      "ObjectChannel",
+      "Prefix",
+      "Scheduler"
+    ],
+    "runtime_value": [
+      "DeleteKey"
+    ]
+  },
   "FileMD5Sum": {
     "type": "required",
     "path": "common/md5sum",
@@ -277,20 +304,6 @@
       "Key"
     ]
   },
-  "ObjectDeleteRecursively": {
-    "type": "dependent",
-    "path": "common/object_delete",
-    "depend": "RemoveDir",
-    "description": "will delete a dir recursively",
-    "inherited_value": [
-      "DeleteKey",
-      "DestinationStorage",
-      "Scheduler"
-    ],
-    "runtime_value": [
-      "Key"
-    ]
-  },
   "ObjectDeleteWithScheduler": {
     "type": "required",
     "path": "common/object_delete",
@@ -299,19 +312,6 @@
       "DestinationStorage",
       "Key",
       "Scheduler"
-    ]
-  },
-  "ObjectInitDirDelete": {
-    "type": "required",
-    "path": "common/object_delete",
-    "description": "will init object delete recursively work",
-    "inherited_value": [
-      "ObjectChannel",
-      "Prefix",
-      "Scheduler"
-    ],
-    "runtime_value": [
-      "DeleteKey"
     ]
   },
   "ObjectList": {
@@ -377,7 +377,7 @@
   },
   "RemoveDir": {
     "type": "dependent",
-    "path": "remove_object",
+    "path": "common/object_delete",
     "depend": "RemoveObject",
     "description": "will remove a directory recursively",
     "inherited_value": [

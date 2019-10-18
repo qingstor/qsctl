@@ -3,7 +3,10 @@ package common
 import (
 	log "github.com/sirupsen/logrus"
 
+	storType "github.com/Xuanwo/storage/types"
+
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *ObjectDeleteTask) run() {
@@ -30,20 +33,33 @@ func (t *ObjectDeleteWithSchedulerTask) run() {
 		"ObjectDeleteWithSchedulerTask", t.GetKey())
 }
 
-func (t *ObjectInitDirDeleteTask) run() {
-	log.Debugf("Task <%s> for prefix <%s> started.", "ObjectInitDirDeleteTask", t.GetPrefix())
+func (t *DirDeleteInitTask) run() {
+	log.Debugf("Task <%s> for prefix <%s> started.", "DirDeleteInitTask", t.GetPrefix())
 	go func() {
 		for obj := range t.GetObjectChannel() {
 			t.SetDeleteKey(obj.Name)
-			t.GetScheduler().New(t.objectInitDirDeleteTaskRequirement)
+			t.GetScheduler().New(t.dirDeleteInitTaskRequirement)
 		}
 	}()
-	log.Debugf("Task <%s> for prefix <%s> finished.", "ObjectInitDirDeleteTask", t.GetPrefix())
+	log.Debugf("Task <%s> for prefix <%s> finished.", "DirDeleteInitTask", t.GetPrefix())
 }
 
-func (t *ObjectDeleteRecursivelyTask) new() {
+func (t *DirDeleteTask) new() {
 	t.SetKey(t.GetDeleteKey())
 	t.AddTODOs(
 		NewObjectDeleteWithSchedulerTask,
+	)
+}
+
+func (t *RemoveDirTask) new() {
+	oc := make(chan *storType.Object)
+	t.SetObjectChannel(oc)
+
+	t.SetScheduler(types.NewScheduler(NewDirDeleteTask))
+
+	t.AddTODOs(
+		NewDirDeleteInitTask,
+		NewObjectListTask,
+		NewWaitTask,
 	)
 }
