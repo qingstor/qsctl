@@ -3,10 +3,8 @@ package common
 import (
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/Xuanwo/navvy"
-	storTypes "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -113,38 +111,4 @@ func TestObjectDeleteWithSchedulerTask_run(t *testing.T) {
 
 		assert.Equal(t, x.ValidateFault(), false)
 	}
-}
-
-func TestDirDeleteInitTask_run(t *testing.T) {
-	pool := navvy.NewPool(10)
-	objKey := uuid.New().String()
-	objList := []storTypes.Object{
-		{Name: objKey},
-		{Name: objKey},
-		{Name: objKey},
-	}
-
-	oc := make(chan *storTypes.Object, len(objList))
-	for _, obj := range objList {
-		oc <- &obj
-	}
-	close(oc)
-
-	x := &mockDirDeleteInitTask{}
-	x.SetPool(pool)
-	x.SetObjectChannel(oc)
-	x.SetPrefix(uuid.New().String())
-
-	x.SetID(uuid.New().String())
-	sche := types.NewMockScheduler(nil)
-	sche.New(nil)
-	x.SetScheduler(sche)
-
-	task := NewDirDeleteInitTask(x)
-	task.Run()
-	pool.Wait()
-
-	time.Sleep(time.Second) // wait goroutine to set delete key
-	assert.Equal(t, x.GetDeleteKey(), objKey)
-	assert.Equal(t, x.ValidateFault(), false)
 }
