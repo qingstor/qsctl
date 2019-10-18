@@ -85,18 +85,25 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		// init object channel, then stream output by goroutine
 		oc := make(chan *types.Object)
 		t.SetObjectChannel(oc)
-		go listObjectOutput(t)
 	})
 
 	t.Run()
-	t.Wait()
-	if t.ValidateFault() {
-		return t.GetFault()
+
+	// list bucket output here
+	if t.GetListType() == constants.ListTypeBucket {
+		t.Wait()
+		if t.ValidateFault() {
+			return t.GetFault()
+		}
+		listBucketOutput(t)
+		return
 	}
 
-	// only list bucket output here, if list objects, use goroutine for stream output
-	if t.GetListType() == constants.ListTypeBucket {
-		listBucketOutput(t)
+	// list objects sync with channel, so do not need wait here
+	listObjectOutput(t)
+	// but we have to get fault after output, otherwise fault will not be triggered
+	if t.ValidateFault() {
+		return t.GetFault()
 	}
 	return
 }
