@@ -197,6 +197,7 @@
       "LongFormat",
       "ObjectChannel",
       "Pool",
+      "Prefix",
       "Recursive",
       "Zone"
     ]
@@ -282,8 +283,8 @@
     "description": "list objects",
     "inherited_value": [
       "DestinationStorage",
-      "Key",
       "ObjectChannel",
+      "Prefix",
       "Recursive"
     ]
   },
@@ -337,14 +338,32 @@
       "Pool"
     ]
   },
+  "RemoveDir": {
+    "type": "dependent",
+    "path": "common/object_delete",
+    "depend": "RemoveObject",
+    "description": "remove a directory recursively",
+    "inherited_value": [
+      "DeleteKey",
+      "DestinationStorage",
+      "Recursive"
+    ],
+    "runtime_value": [
+      "Key",
+      "ObjectChannel",
+      "Prefix"
+    ]
+  },
   "RemoveObject": {
     "type": "dependent",
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
+      "DeleteKey",
       "DestinationStorage",
       "Key",
       "Pool",
+      "Prefix",
       "Recursive"
     ]
   },

@@ -244,6 +244,39 @@ func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
 }
 
+type DeleteKey struct {
+	valid bool
+	v     string
+}
+
+type DeleteKeyGetter interface {
+	GetDeleteKey() string
+}
+
+func (o *DeleteKey) GetDeleteKey() string {
+	if !o.valid {
+		panic("DeleteKey value is not valid")
+	}
+	return o.v
+}
+
+type DeleteKeySetter interface {
+	SetDeleteKey(string)
+}
+
+func (o *DeleteKey) SetDeleteKey(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type DeleteKeyValidator interface {
+	ValidateDeleteKey() bool
+}
+
+func (o *DeleteKey) ValidateDeleteKey() bool {
+	return o.valid
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
@@ -1066,6 +1099,39 @@ type PoolValidator interface {
 }
 
 func (o *Pool) ValidatePool() bool {
+	return o.valid
+}
+
+type Prefix struct {
+	valid bool
+	v     string
+}
+
+type PrefixGetter interface {
+	GetPrefix() string
+}
+
+func (o *Prefix) GetPrefix() string {
+	if !o.valid {
+		panic("Prefix value is not valid")
+	}
+	return o.v
+}
+
+type PrefixSetter interface {
+	SetPrefix(string)
+}
+
+func (o *Prefix) SetPrefix(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type PrefixValidator interface {
+	ValidatePrefix() bool
+}
+
+func (o *Prefix) ValidatePrefix() bool {
 	return o.valid
 }
 

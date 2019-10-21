@@ -21,7 +21,9 @@ func NewRemoveObjectTask(fn func(*RemoveObjectTask)) *RemoveObjectTask {
 
 	// TODO: check recursive flag, if true, do rm -r
 	if t.GetRecursive() {
-		panic("rm -r not implemented.")
+		t.SetDeleteKey(t.GetKey())
+		t.AddTODOs(common.NewRemoveDirTask)
+		return t
 	}
 	t.AddTODOs(common.NewObjectDeleteTask)
 	return t

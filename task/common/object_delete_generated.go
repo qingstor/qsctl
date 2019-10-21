@@ -70,3 +70,68 @@ func (t *ObjectDeleteTask) TriggerFault(err error) {
 func NewObjectDeleteTask(task types.Todoist) navvy.Task {
 	return &ObjectDeleteTask{task.(objectDeleteTaskRequirement)}
 }
+
+// removeDirTaskRequirement is the requirement for execute RemoveDirTask.
+type removeDirTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.DeleteKeyGetter
+	types.DestinationStorageGetter
+	types.RecursiveGetter
+}
+
+// mockRemoveDirTask is the mock task for RemoveDirTask.
+type mockRemoveDirTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DeleteKey
+	types.DestinationStorage
+	types.Recursive
+}
+
+func (t *mockRemoveDirTask) Run() {
+	panic("mockRemoveDirTask should not be run.")
+}
+
+// RemoveDirTask will remove a directory recursively.
+type RemoveDirTask struct {
+	removeDirTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Todo
+
+	// Runtime value
+	types.Key
+	types.ObjectChannel
+	types.Prefix
+}
+
+// Run implement navvy.Task
+func (t *RemoveDirTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t)
+}
+
+func (t *RemoveDirTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task RemoveDir failed: {%w}", err))
+}
+
+// NewRemoveDirTask will create a RemoveDirTask and fetch inherited data from RemoveObjectTask.
+func NewRemoveDirTask(task types.Todoist) navvy.Task {
+	t := &RemoveDirTask{
+		removeDirTaskRequirement: task.(removeDirTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}

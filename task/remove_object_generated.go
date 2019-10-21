@@ -47,9 +47,11 @@ type RemoveObjectTask struct {
 	types.Todo
 
 	// Runtime value
+	types.DeleteKey
 	types.DestinationStorage
 	types.Key
 	types.Pool
+	types.Prefix
 	types.Recursive
 }
 

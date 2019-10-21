@@ -57,6 +57,7 @@ type ListTask struct {
 	types.LongFormat
 	types.ObjectChannel
 	types.Pool
+	types.Prefix
 	types.Recursive
 	types.Zone
 }
