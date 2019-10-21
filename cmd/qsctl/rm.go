@@ -44,21 +44,21 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		_, bucketName, objectKey, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
 
-		if keyType == constants.KeyTypePseudoDir && !t.GetRecursive() {
-			t.TriggerFault(fmt.Errorf("-r is required for removing dir operation"))
-			return
-		}
-
-		if keyType != constants.KeyTypeObject {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
+		// if keyType == constants.KeyTypePseudoDir && !t.GetRecursive() {
+		// 	t.TriggerFault(fmt.Errorf("-r is required for removing dir operation"))
+		// 	return
+		// }
+		//
+		// if keyType != constants.KeyTypeObject {
+		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
+		// 	return
+		// }
 		t.SetKey(objectKey)
 		srv, err := NewQingStorService()
 		if err != nil {

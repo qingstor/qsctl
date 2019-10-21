@@ -8,9 +8,9 @@ import (
 )
 
 func (t *FileUploadTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetKey())
+	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetDestinationPath())
 
-	r, err := t.GetSourceStorage().Read(t.GetPath())
+	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
@@ -18,10 +18,10 @@ func (t *FileUploadTask) run() {
 	defer r.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().Write(t.GetKey(), r, types.WithSize(t.GetSize()))
+	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, types.WithSize(t.GetSize()))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetKey())
+	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetDestinationPath())
 }

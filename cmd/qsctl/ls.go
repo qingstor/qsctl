@@ -67,7 +67,7 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 
 		t.SetListType(constants.ListTypeKey)
-		_, bucketName, key, err := utils.ParseKey(args[0])
+		_, bucketName, key, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return

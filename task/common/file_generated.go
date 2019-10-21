@@ -26,11 +26,11 @@ type fileUploadTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.MD5SumGetter
-	types.PathGetter
 	types.SizeGetter
+	types.SourcePathGetter
 	types.SourceStorageGetter
 	// Runtime value
 }
@@ -43,11 +43,11 @@ type mockFileUploadTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.MD5Sum
-	types.Path
 	types.Size
+	types.SourcePath
 	types.SourceStorage
 	// Runtime value
 }

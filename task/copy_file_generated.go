@@ -22,9 +22,10 @@ type copyFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
-	types.PathGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 }
 
 // mockCopyFileTask is the mock task for CopyFileTask.
@@ -35,9 +36,10 @@ type mockCopyFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
-	types.Path
+	types.SourcePath
+	types.SourceStorage
 }
 
 func (t *mockCopyFileTask) Run() {
@@ -85,9 +87,10 @@ type copyLargeFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
-	types.PathGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 	types.TotalSizeGetter
 }
 
@@ -99,9 +102,10 @@ type mockCopyLargeFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
-	types.Path
+	types.SourcePath
+	types.SourceStorage
 	types.TotalSize
 }
 
@@ -154,12 +158,13 @@ type copyPartialFileTaskRequirement interface {
 
 	// Inherited value
 	types.CurrentOffsetGetter
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.PartSizeGetter
-	types.PathGetter
 	types.SchedulerGetter
 	types.SegmentIDGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 	types.TotalSizeGetter
 }
 
@@ -172,12 +177,13 @@ type mockCopyPartialFileTask struct {
 
 	// Inherited value
 	types.CurrentOffset
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.PartSize
-	types.Path
 	types.Scheduler
 	types.SegmentID
+	types.SourcePath
+	types.SourceStorage
 	types.TotalSize
 }
 
@@ -228,9 +234,10 @@ type copySmallFileTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
-	types.PathGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 	types.TotalSizeGetter
 }
 
@@ -242,9 +249,10 @@ type mockCopySmallFileTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
-	types.Path
+	types.SourcePath
+	types.SourceStorage
 	types.TotalSize
 }
 

@@ -244,6 +244,39 @@ func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
 }
 
+type DestinationPath struct {
+	valid bool
+	v     string
+}
+
+type DestinationPathGetter interface {
+	GetDestinationPath() string
+}
+
+func (o *DestinationPath) GetDestinationPath() string {
+	if !o.valid {
+		panic("DestinationPath value is not valid")
+	}
+	return o.v
+}
+
+type DestinationPathSetter interface {
+	SetDestinationPath(string)
+}
+
+func (o *DestinationPath) SetDestinationPath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationPathValidator interface {
+	ValidateDestinationPath() bool
+}
+
+func (o *DestinationPath) ValidateDestinationPath() bool {
+	return o.valid
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
@@ -307,6 +340,39 @@ type DestinationStorageValidator interface {
 }
 
 func (o *DestinationStorage) ValidateDestinationStorage() bool {
+	return o.valid
+}
+
+type DestinationType struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type DestinationTypeGetter interface {
+	GetDestinationType() types.ObjectType
+}
+
+func (o *DestinationType) GetDestinationType() types.ObjectType {
+	if !o.valid {
+		panic("DestinationType value is not valid")
+	}
+	return o.v
+}
+
+type DestinationTypeSetter interface {
+	SetDestinationType(types.ObjectType)
+}
+
+func (o *DestinationType) SetDestinationType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationTypeValidator interface {
+	ValidateDestinationType() bool
+}
+
+func (o *DestinationType) ValidateDestinationType() bool {
 	return o.valid
 }
 
@@ -1234,6 +1300,72 @@ func (o *Size) ValidateSize() bool {
 	return o.valid
 }
 
+type SourcePath struct {
+	valid bool
+	v     string
+}
+
+type SourcePathGetter interface {
+	GetSourcePath() string
+}
+
+func (o *SourcePath) GetSourcePath() string {
+	if !o.valid {
+		panic("SourcePath value is not valid")
+	}
+	return o.v
+}
+
+type SourcePathSetter interface {
+	SetSourcePath(string)
+}
+
+func (o *SourcePath) SetSourcePath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type SourcePathValidator interface {
+	ValidateSourcePath() bool
+}
+
+func (o *SourcePath) ValidateSourcePath() bool {
+	return o.valid
+}
+
+type SourceService struct {
+	valid bool
+	v     storage.Servicer
+}
+
+type SourceServiceGetter interface {
+	GetSourceService() storage.Servicer
+}
+
+func (o *SourceService) GetSourceService() storage.Servicer {
+	if !o.valid {
+		panic("SourceService value is not valid")
+	}
+	return o.v
+}
+
+type SourceServiceSetter interface {
+	SetSourceService(storage.Servicer)
+}
+
+func (o *SourceService) SetSourceService(v storage.Servicer) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceServiceValidator interface {
+	ValidateSourceService() bool
+}
+
+func (o *SourceService) ValidateSourceService() bool {
+	return o.valid
+}
+
 type SourceStorage struct {
 	valid bool
 	v     storage.Storager
@@ -1264,6 +1396,39 @@ type SourceStorageValidator interface {
 }
 
 func (o *SourceStorage) ValidateSourceStorage() bool {
+	return o.valid
+}
+
+type SourceType struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type SourceTypeGetter interface {
+	GetSourceType() types.ObjectType
+}
+
+func (o *SourceType) GetSourceType() types.ObjectType {
+	if !o.valid {
+		panic("SourceType value is not valid")
+	}
+	return o.v
+}
+
+type SourceTypeSetter interface {
+	SetSourceType(types.ObjectType)
+}
+
+func (o *SourceType) SetSourceType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceTypeValidator interface {
+	ValidateSourceType() bool
+}
+
+func (o *SourceType) ValidateSourceType() bool {
 	return o.valid
 }
 

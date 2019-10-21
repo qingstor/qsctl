@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Xuanwo/storage/services/posixfs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	"github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
@@ -130,4 +131,9 @@ func NewQingStorService() (*qingstor.Service, error) {
 		types.WithProtocol(viper.GetString(constants.ConfigProtocol)),
 	)
 	return srv, err
+}
+
+// NewPOSIXFsStorage will create a new posix storage.
+func NewPOSIXFsStorage() (*posixfs.Client, error) {
+	return posixfs.NewClient(), nil
 }

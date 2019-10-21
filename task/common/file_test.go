@@ -27,12 +27,12 @@ func TestFileUploadTask_Run(t *testing.T) {
 	mockReader := mock.NewMockReadCloser(ctrl)
 
 	key := uuid.New().String()
-	x.SetKey(key)
+	x.SetDestinationPath(key)
 
 	name := uuid.New().String()
 	size := int64(10)
 
-	x.SetPath(name)
+	x.SetSourcePath(name)
 	x.SetSize(size)
 
 	mockReader.EXPECT().Close().Do(func() {

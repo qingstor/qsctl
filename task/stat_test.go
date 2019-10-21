@@ -24,7 +24,7 @@ func TestNewStatTask(t *testing.T) {
 
 	for _, v := range cases {
 		pt := NewStatTask(func(task *StatTask) {
-			_, _, _, err := utils.ParseKey(v.input)
+			_, _, _, err := utils.ParseQsPath(v.input)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -6,7 +6,6 @@ type FlowType uint8
 // All available flow
 const (
 	FlowInvalid FlowType = iota
-	FlowAtLocal
 	FlowAtRemote
 	FlowToLocal
 	FlowToRemote

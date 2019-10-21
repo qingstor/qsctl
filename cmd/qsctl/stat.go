@@ -32,16 +32,16 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewStatTask(func(t *task.StatTask) {
-		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		_, bucketName, objectKey, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
 		// for now, only support stat object
-		if keyType != constants.KeyTypeObject {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
+		// if keyType != constants.KeyTypeObject {
+		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
+		// 	return
+		// }
 		t.SetKey(objectKey)
 
 		srv, err := NewQingStorService()

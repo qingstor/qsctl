@@ -44,16 +44,16 @@ func presignRun(_ *cobra.Command, args []string) error {
 			return
 		}
 
-		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		_, bucketName, objectKey, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		// only handle object key, if dir, it's meaningless
-		if keyType != constants.KeyTypeObject {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
+		// // only handle object key, if dir, it's meaningless
+		// if keyType != constants.KeyTypeObject {
+		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
+		// 	return
+		// }
 		t.SetBucketName(bucketName)
 		t.SetKey(objectKey)
 

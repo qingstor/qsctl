@@ -1,7 +1,6 @@
 package task
 
 import (
-	"os"
 	"sync/atomic"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -13,15 +12,15 @@ import (
 
 // newCopyFileTask will create a new copy file task.
 func (t *CopyFileTask) new() {
-	f, err := os.Open(t.GetPath())
+	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
-	defer f.Close()
 
-	size, err := utils.CalculateFileSize(f)
-	if err != nil {
+	size, ok := o.GetSize()
+	if !ok {
+		// TODO: return size not get error.
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}

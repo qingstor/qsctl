@@ -45,16 +45,16 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		keyType, bucketName, _, err := utils.ParseKey(args[0])
+		_, bucketName, _, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
 
-		if keyType != constants.KeyTypeBucket {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
+		// if keyType != constants.KeyTypeBucket {
+		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
+		// 	return
+		// }
 
 		t.SetBucketName(bucketName)
 

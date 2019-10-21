@@ -26,8 +26,8 @@ type multipartCompleteTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.SegmentIDGetter
 	// Runtime value
 }
@@ -40,8 +40,8 @@ type mockMultipartCompleteTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.SegmentID
 	// Runtime value
 }
@@ -83,14 +83,15 @@ type multipartFileUploadTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.MD5SumGetter
 	types.OffsetGetter
-	types.PathGetter
 	types.SchedulerGetter
 	types.SegmentIDGetter
 	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 	// Runtime value
 }
 
@@ -102,14 +103,15 @@ type mockMultipartFileUploadTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.MD5Sum
 	types.Offset
-	types.Path
 	types.Scheduler
 	types.SegmentID
 	types.Size
+	types.SourcePath
+	types.SourceStorage
 	// Runtime value
 }
 
@@ -151,8 +153,8 @@ type multipartInitTaskRequirement interface {
 
 	// Inherited value
 	types.CurrentOffsetGetter
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.SchedulerGetter
 	types.TotalSizeGetter
 	// Runtime value
@@ -168,8 +170,8 @@ type mockMultipartInitTask struct {
 
 	// Inherited value
 	types.CurrentOffset
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.Scheduler
 	types.TotalSize
 	// Runtime value

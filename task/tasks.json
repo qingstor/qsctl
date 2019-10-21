@@ -35,15 +35,13 @@
     "path": "copy",
     "description": "the root copy task",
     "runtime_value": [
-      "BucketName",
+      "DestinationPath",
       "DestinationStorage",
-      "FlowType",
-      "Key",
-      "KeyType",
-      "Path",
-      "PathType",
+      "DestinationType",
       "Pool",
-      "Stream"
+      "SourcePath",
+      "SourceStorage",
+      "SourceType"
     ]
   },
   "CopyFile": {
@@ -52,9 +50,10 @@
     "depend": "Copy",
     "description": "copy a file to DestinationStorage",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
-      "Path"
+      "SourcePath",
+      "SourceStorage"
     ],
     "runtime_value": [
       "TotalSize"
@@ -66,9 +65,10 @@
     "depend": "CopyFile",
     "description": "copy a large file to DestinationStorage",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
-      "Path",
+      "SourcePath",
+      "SourceStorage",
       "TotalSize"
     ],
     "runtime_value": [
@@ -85,12 +85,13 @@
     "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
     "inherited_value": [
       "CurrentOffset",
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "PartSize",
-      "Path",
       "Scheduler",
       "SegmentID",
+      "SourcePath",
+      "SourceStorage",
       "TotalSize"
     ],
     "runtime_value": [
@@ -107,12 +108,13 @@
     "inherited_value": [
       "BytesPool",
       "CurrentOffset",
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "PartSize",
       "Scheduler",
       "SegmentID",
-      "Stream"
+      "SourcePath",
+      "SourceStorage"
     ],
     "runtime_value": [
       "Content",
@@ -127,9 +129,10 @@
     "depend": "CopyFile",
     "description": "copy a small file to DestinationStorage",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
-      "Path",
+      "SourcePath",
+      "SourceStorage",
       "TotalSize"
     ],
     "runtime_value": [
@@ -144,9 +147,10 @@
     "depend": "Copy",
     "description": "copy a stream to DestinationStorage",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
-      "Stream"
+      "SourcePath",
+      "SourceStorage"
     ],
     "runtime_value": [
       "BytesPool",
@@ -163,8 +167,9 @@
     "description": "get file's md5 sum",
     "inherited_value": [
       "Offset",
-      "Path",
-      "Size"
+      "Size",
+      "SourcePath",
+      "SourceStorage"
     ],
     "runtime_value": [
       "MD5Sum"
@@ -175,11 +180,11 @@
     "path": "common/file",
     "description": "upload file as an object",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "MD5Sum",
-      "Path",
       "Size",
+      "SourcePath",
       "SourceStorage"
     ]
   },
@@ -218,8 +223,8 @@
     "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "SegmentID"
     ]
   },
@@ -228,14 +233,15 @@
     "path": "common/multipart",
     "description": "upload a multipart via file",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "MD5Sum",
       "Offset",
-      "Path",
       "Scheduler",
       "SegmentID",
-      "Size"
+      "Size",
+      "SourcePath",
+      "SourceStorage"
     ]
   },
   "MultipartInit": {
@@ -244,8 +250,8 @@
     "description": "init a multipart upload",
     "inherited_value": [
       "CurrentOffset",
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "Scheduler",
       "TotalSize"
     ],

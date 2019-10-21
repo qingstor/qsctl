@@ -2,7 +2,6 @@ package common
 
 import (
 	"io"
-	"os"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -29,7 +28,7 @@ func TestMultipartInitTask_Run(t *testing.T) {
 	x.SetPool(pool)
 
 	key := uuid.New().String()
-	x.SetKey(key)
+	x.SetDestinationPath(key)
 
 	offset := int64(0)
 	x.SetCurrentOffset(&offset)
@@ -60,31 +59,40 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	x := &mockMultipartFileUploadTask{}
-
-	store := mock.NewMockStorager(ctrl)
-	x.SetDestinationStorage(store)
-
 	key := uuid.New().String()
-	x.SetKey(key)
-
+	name := uuid.New().String()
 	segmentID := uuid.New().String()
+	size := int64(1234)
+
+	srcStore := mock.NewMockStorager(ctrl)
+	dstStore := mock.NewMockStorager(ctrl)
+
+	x := &mockMultipartFileUploadTask{}
+	x.SetDestinationPath(key)
+	x.SetDestinationStorage(dstStore)
+	x.SetSourcePath(name)
+	x.SetSourceStorage(srcStore)
 	x.SetSegmentID(segmentID)
-
-	name, size, md5sum := utils.GenerateTestFile()
-	defer os.Remove(name)
-
-	x.SetPath(name)
 	x.SetOffset(0)
 	x.SetSize(size)
-	x.SetMD5Sum(md5sum)
 	x.SetID(uuid.New().String())
 
 	sche := itypes.NewMockScheduler(nil)
 	sche.New(nil)
 	x.SetScheduler(sche)
 
-	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
+	mockReader := mock.NewMockReadCloser(ctrl)
+	mockReader.EXPECT().Close().Do(func() {
+		return
+	})
+
+	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*types.Pair) (r io.ReadCloser, err error) {
+		assert.Equal(t, name, inputPath)
+		assert.Equal(t, size, pairs[0].Value.(int64))
+		assert.Equal(t, int64(0), pairs[1].Value.(int64))
+		return mockReader, nil
+	})
+	dstStore.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
 		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
@@ -140,7 +148,7 @@ func TestMultipartCompleteTask_Run(t *testing.T) {
 	store := mock.NewMockStorager(ctrl)
 	x.SetDestinationStorage(store)
 	key := uuid.New().String()
-	x.SetKey(key)
+	x.SetDestinationPath(key)
 	segmentID := uuid.New().String()
 	x.SetSegmentID(segmentID)
 

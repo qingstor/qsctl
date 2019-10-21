@@ -3,15 +3,14 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 
-	"github.com/yunify/qsctl/v2/constants"
+	stypes "github.com/Xuanwo/storage/types"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-var copyTaskConstructor = map[constants.FlowType]map[constants.PathType]types.TodoFunc{
-	constants.FlowToRemote: {
-		constants.PathTypeStream: NewCopyStreamTask,
-		constants.PathTypeFile:   NewCopyFileTask,
-	},
+var copyTaskConstructor = map[stypes.ObjectType]types.TodoFunc{
+	stypes.ObjectTypeStream: NewCopyStreamTask,
+	stypes.ObjectTypeFile:   NewCopyFileTask,
 }
 
 // NewCopyTask will create a copy task.
@@ -26,7 +25,7 @@ func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 		return t
 	}
 
-	todo := copyTaskConstructor[t.GetFlowType()][t.GetPathType()]
+	todo := copyTaskConstructor[t.GetSourceType()]
 	if todo == nil {
 		panic("invalid todo func")
 	}
