@@ -31,6 +31,7 @@ type fileUploadTaskRequirement interface {
 	types.MD5SumGetter
 	types.PathGetter
 	types.SizeGetter
+	types.SourceStorageGetter
 	// Runtime value
 }
 
@@ -47,6 +48,7 @@ type mockFileUploadTask struct {
 	types.MD5Sum
 	types.Path
 	types.Size
+	types.SourceStorage
 	// Runtime value
 }
 

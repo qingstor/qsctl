@@ -1234,6 +1234,39 @@ func (o *Size) ValidateSize() bool {
 	return o.valid
 }
 
+type SourceStorage struct {
+	valid bool
+	v     storage.Storager
+}
+
+type SourceStorageGetter interface {
+	GetSourceStorage() storage.Storager
+}
+
+func (o *SourceStorage) GetSourceStorage() storage.Storager {
+	if !o.valid {
+		panic("SourceStorage value is not valid")
+	}
+	return o.v
+}
+
+type SourceStorageSetter interface {
+	SetSourceStorage(storage.Storager)
+}
+
+func (o *SourceStorage) SetSourceStorage(v storage.Storager) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceStorageValidator interface {
+	ValidateSourceStorage() bool
+}
+
+func (o *SourceStorage) ValidateSourceStorage() bool {
+	return o.valid
+}
+
 type Stream struct {
 	valid bool
 	v     io.Reader

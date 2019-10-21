@@ -36,6 +36,7 @@
   "Scheduler": "scheduler",
   "SegmentID": "string",
   "Size": "int64",
+  "SourceStorage": "storage.Storager",
   "Stream": "io.Reader",
   "TotalSize": "int64",
   "URL": "string",

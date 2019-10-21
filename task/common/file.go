@@ -1,8 +1,6 @@
 package common
 
 import (
-	"os"
-
 	"github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
@@ -12,15 +10,15 @@ import (
 func (t *FileUploadTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetKey())
 
-	f, err := os.Open(t.GetPath())
+	r, err := t.GetSourceStorage().Read(t.GetPath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
-	defer f.Close()
+	defer r.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().Write(t.GetKey(), f, types.WithSize(t.GetSize()))
+	err = t.GetDestinationStorage().Write(t.GetKey(), r, types.WithSize(t.GetSize()))
 	if err != nil {
 		panic(err)
 	}

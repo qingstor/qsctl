@@ -179,7 +179,8 @@
       "Key",
       "MD5Sum",
       "Path",
-      "Size"
+      "Size",
+      "SourceStorage"
     ]
   },
   "List": {
