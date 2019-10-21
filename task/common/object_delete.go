@@ -19,7 +19,6 @@ func (t *ObjectDeleteTask) run() {
 }
 
 func (t *RemoveDirTask) new() {
-	log.Debugf("new remove dir task")
 	t.SetPrefix(t.GetDeleteKey())
 	oc := make(chan *types.Object)
 	t.SetObjectChannel(oc)
