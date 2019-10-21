@@ -359,6 +359,7 @@
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
+      "BucketName",
       "DeleteKey",
       "DestinationStorage",
       "Key",

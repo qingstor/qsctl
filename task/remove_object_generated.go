@@ -47,6 +47,7 @@ type RemoveObjectTask struct {
 	types.Todo
 
 	// Runtime value
+	types.BucketName
 	types.DeleteKey
 	types.DestinationStorage
 	types.Key

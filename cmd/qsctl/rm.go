@@ -68,6 +68,7 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 		t.SetDestinationStorage(stor)
+		t.SetBucketName(bucketName)
 	})
 
 	t.Run()
@@ -82,5 +83,10 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func rmOutput(t *task.RemoveObjectTask) {
+	// blank key means remove all objects from bucket
+	if t.GetKey() == "" {
+		fmt.Printf("Objects in bucket <%s> removed.\n", t.GetBucketName())
+		return
+	}
 	fmt.Printf("Object <%s> removed.\n", t.GetKey())
 }
