@@ -137,7 +137,7 @@ func ParseBetweenStorageInput(t interface {
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(src, PathTypeQingStor)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, PathTypeQingStor)
 		if err != nil {
 			return
 		}
@@ -146,7 +146,7 @@ func ParseBetweenStorageInput(t interface {
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(src, PathTypePOSIXFs)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, PathTypePOSIXFs)
 		if err != nil {
 			return
 		}
