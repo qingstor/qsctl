@@ -82,9 +82,7 @@ func TestMultipartFileUploadTask_Run(t *testing.T) {
 	x.SetScheduler(sche)
 
 	mockReader := mock.NewMockReadCloser(ctrl)
-	mockReader.EXPECT().Close().Do(func() {
-		return
-	})
+	mockReader.EXPECT().Close().Do(func() {})
 
 	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*types.Pair) (r io.ReadCloser, err error) {
 		assert.Equal(t, name, inputPath)

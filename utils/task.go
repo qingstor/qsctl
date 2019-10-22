@@ -17,9 +17,10 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
+// Current supported path type
 const (
-	PathTypePOSIXFs  = "posixfs"
-	PathTypeQingStor = "qingstor"
+	StorageTypePOSIXFs  = "posixfs"
+	StorageTypeQingStor = "qingstor"
 )
 
 // ParseFlow will parse the data flow
@@ -82,9 +83,10 @@ func ParseQsPath(p string) (keyType stypes.ObjectType, bucketName, objectKey str
 	return stypes.ObjectTypeFile, s[0], s[1], nil
 }
 
+// ParseStorageInput will parse storage input and return a initiated storager.
 func ParseStorageInput(input, storageType string) (path string, objectType stypes.ObjectType, store storage.Storager, err error) {
 	switch storageType {
-	case PathTypePOSIXFs:
+	case StorageTypePOSIXFs:
 		objectType, err = ParseLocalPath(input)
 		if err != nil {
 			return
@@ -92,7 +94,7 @@ func ParseStorageInput(input, storageType string) (path string, objectType stype
 		path = input
 		store = posixfs.NewClient()
 		return
-	case PathTypeQingStor:
+	case StorageTypeQingStor:
 		var bucketName, objectKey string
 		var srv *qingstor.Service
 
@@ -133,20 +135,20 @@ func ParseBetweenStorageInput(t interface {
 
 	switch flow {
 	case constants.FlowToRemote:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, PathTypePOSIXFs)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, StorageTypePOSIXFs)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, PathTypeQingStor)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, StorageTypeQingStor)
 		if err != nil {
 			return
 		}
 	case constants.FlowToLocal:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, PathTypeQingStor)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, StorageTypeQingStor)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, PathTypePOSIXFs)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, StorageTypePOSIXFs)
 		if err != nil {
 			return
 		}

@@ -35,9 +35,7 @@ func TestFileUploadTask_Run(t *testing.T) {
 	x.SetSourcePath(name)
 	x.SetSize(size)
 
-	mockReader.EXPECT().Close().Do(func() {
-		return
-	})
+	mockReader.EXPECT().Close().Do(func() {})
 
 	srcStore.EXPECT().Read(gomock.Any()).DoAndReturn(func(inputPath string) (r io.ReadCloser, err error) {
 		assert.Equal(t, name, inputPath)
