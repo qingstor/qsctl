@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	storageType "github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
 
@@ -32,30 +32,11 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewStatTask(func(t *task.StatTask) {
-		keyType, bucketName, objectKey, err := utils.ParseKey(args[0])
+		err := utils.ParseAtStorageInput(t, args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		// for now, only support stat object
-		if keyType != constants.KeyTypeObject {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
-		t.SetKey(objectKey)
-
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		stor, err := srv.Get(bucketName)
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()
@@ -86,7 +67,7 @@ The valid format sequences for files:
 	)
 }
 
-func statFormat(input string, om *storageType.Object) string {
+func statFormat(input string, om *typ.Object) string {
 	input = strings.ReplaceAll(input, "%n", om.Name)
 
 	if v, ok := om.GetType(); ok {

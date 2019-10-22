@@ -1,70 +1,122 @@
 package task
 
 import (
+	"bytes"
+	"fmt"
 	"io"
-	"os"
+	"io/ioutil"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/constants"
 
 	"github.com/yunify/qsctl/v2/pkg/mock"
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
+
+func TestCopyFileTask_new(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	paths := make([]string, 100)
+	for k := range paths {
+		paths[k] = uuid.New().String()
+	}
+	tests := []struct {
+		name string
+		size int64
+		fn   types.TodoFunc
+	}{
+		{
+			"small file",
+			constants.MaximumAutoMultipartSize - 1,
+			NewCopySmallFileTask,
+		},
+		{
+			"large file",
+			constants.MaximumAutoMultipartSize + 1,
+			NewCopyLargeFileTask,
+		},
+	}
+
+	for k, v := range tests {
+		t.Run(v.name, func(t *testing.T) {
+			srcStore := mock.NewMockStorager(ctrl)
+			srcStore.EXPECT().Stat(gomock.Any()).DoAndReturn(func(inputPath string) (o *typ.Object, err error) {
+				assert.Equal(t, paths[k], inputPath)
+				return &typ.Object{
+					Name: inputPath,
+					Type: typ.ObjectTypeFile,
+					Metadata: typ.Metadata{
+						typ.Size: v.size,
+					},
+				}, nil
+			})
+
+			m := &mockCopyFileTask{}
+			m.SetSourceStorage(srcStore)
+			m.SetSourcePath(paths[k])
+			task := &CopyFileTask{copyFileTaskRequirement: m}
+			task.new()
+
+			assert.Equal(t, v.size, task.GetTotalSize())
+			assert.Equal(t,
+				fmt.Sprintf("%v", v.fn),
+				fmt.Sprintf("%v", task.NextTODO()))
+		})
+	}
+}
 
 func TestCopyLargeFileTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	name := uuid.New().String()
 	key := uuid.New().String()
-	segmentID := uuid.New().String()
-	name, size, _ := utils.GenerateTestFile()
-	defer os.Remove(name)
+	size := int64(1234)
 
-	store := mock.NewMockStorager(ctrl)
+	srcStore := mock.NewMockStorager(ctrl)
+	dstStore := mock.NewMockStorager(ctrl)
 
 	pool := navvy.NewPool(10)
 
 	x := &mockCopyLargeFileTask{}
 	x.SetPool(pool)
-	x.SetPath(name)
-	x.SetKey(key)
-	x.SetDestinationStorage(store)
+	x.SetSourcePath(name)
+	x.SetSourceStorage(srcStore)
+	x.SetDestinationPath(key)
+	x.SetDestinationStorage(dstStore)
 	x.SetTotalSize(size)
 
-	store.EXPECT().InitSegment(gomock.Any()).DoAndReturn(func(inputPath string) (id string, err error) {
-		assert.Equal(t, key, inputPath)
-		return segmentID, nil
-	})
-	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, segmentID, inputPath)
-		assert.Equal(t, int64(0), inputOffset)
-		assert.Equal(t, size, inputSize)
-	})
-	store.EXPECT().CompleteSegment(gomock.Any()).Do(func(inputPath string) {
-		assert.Equal(t, segmentID, inputPath)
-	})
-
 	task := NewCopyLargeFileTask(x)
-	task.Run()
-	pool.Wait()
+	tt := task.(*CopyLargeFileTask)
+	assert.Equal(t, int64(constants.DefaultPartSize), tt.GetPartSize())
+	assert.NotNil(t, tt.GetScheduler())
+	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
+	assert.NotNil(t, tt.NextTODO())
 }
 
 func TestCopyPartialFileTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	name := uuid.New().String()
 	key := uuid.New().String()
 	segmentID := uuid.New().String()
+	size := int64(1234)
+	buf := bytes.NewReader([]byte("Hello, World"))
 
-	name, size, _ := utils.GenerateTestFile()
-	defer os.Remove(name)
-
-	store := mock.NewMockStorager(ctrl)
-	store.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
+	srcStore := mock.NewMockStorager(ctrl)
+	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
+		assert.Equal(t, name, inputPath)
+		return ioutil.NopCloser(buf), nil
+	}).AnyTimes()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstStore.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
 		assert.Equal(t, segmentID, inputPath)
 		assert.Equal(t, int64(0), inputOffset)
 		assert.Equal(t, size, inputSize)
@@ -74,9 +126,10 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 
 	x := &mockCopyPartialFileTask{}
 	x.SetPool(pool)
-	x.SetPath(name)
-	x.SetKey(key)
-	x.SetDestinationStorage(store)
+	x.SetSourcePath(name)
+	x.SetSourceStorage(srcStore)
+	x.SetDestinationPath(key)
+	x.SetDestinationStorage(dstStore)
 	x.SetPartSize(64 * 1024 * 1024)
 	x.SetTotalSize(size)
 	x.SetSegmentID(segmentID)
@@ -97,24 +150,34 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	name := uuid.New().String()
 	key := uuid.New().String()
-	name, size, _ := utils.GenerateTestFile()
-	defer os.Remove(name)
+	size := int64(1234)
+	buf := bytes.NewReader([]byte("Hello, World"))
 
-	store := mock.NewMockStorager(ctrl)
-
-	store.EXPECT().WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputSize int64, _ io.ReadCloser) {
+	srcStore := mock.NewMockStorager(ctrl)
+	srcStore.EXPECT().Read(gomock.Any()).DoAndReturn(func(inputPath string) (r io.ReadCloser, err error) {
+		assert.Equal(t, name, inputPath)
+		return ioutil.NopCloser(buf), nil
+	})
+	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
+		assert.Equal(t, name, inputPath)
+		return ioutil.NopCloser(buf), nil
+	})
+	dstStore := mock.NewMockStorager(ctrl)
+	dstStore.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, _ io.ReadCloser, option ...*typ.Pair) {
 		assert.Equal(t, key, inputPath)
-		assert.Equal(t, size, inputSize)
+		assert.Equal(t, size, option[0].Value.(int64))
 	})
 
 	pool := navvy.NewPool(10)
 
 	x := &mockCopySmallFileTask{}
 	x.SetPool(pool)
-	x.SetPath(name)
-	x.SetKey(key)
-	x.SetDestinationStorage(store)
+	x.SetSourcePath(name)
+	x.SetSourceStorage(srcStore)
+	x.SetDestinationPath(key)
+	x.SetDestinationStorage(dstStore)
 	x.SetTotalSize(size)
 
 	task := NewCopySmallFileTask(x)

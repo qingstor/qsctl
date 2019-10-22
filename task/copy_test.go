@@ -2,34 +2,25 @@ package task
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/yunify/qsctl/v2/utils"
-
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func TestNewCopyTask(t *testing.T) {
-	name, _, _ := utils.GenerateTestFile()
-	defer os.Remove(name)
-
 	cases := []struct {
-		input1           string
-		input2           string
+		inputType        typ.ObjectType
 		expectedTodoFunc types.TodoFunc
 	}{
-		{name, "qs://test-bucket/yyyyy", NewCopyFileTask},
-		{"-", "qs://test-bucket/yyyyy", NewCopyStreamTask},
+		{typ.ObjectTypeFile, NewCopyFileTask},
+		{typ.ObjectTypeStream, NewCopyStreamTask},
 	}
 
 	for _, v := range cases {
 		pt := NewCopyTask(func(task *CopyTask) {
-			err := utils.ParseInput(task, v.input1, v.input2)
-			if err != nil {
-				t.Fatal(err)
-			}
+			task.SetSourceType(v.inputType)
 		})
 
 		assert.Equal(t,

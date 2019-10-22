@@ -46,23 +46,23 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 			t.TriggerFault(err)
 			return
 		}
-		keyType, bucketName, _, err := utils.ParseKey(args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		if keyType != constants.KeyTypeBucket {
-			t.TriggerFault(fmt.Errorf("key type is not match"))
-			return
-		}
-		t.SetBucketName(bucketName)
 
-		srv, err := NewQingStorService()
+		err = utils.ParseAtServiceInput(t)
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetDestinationService(srv)
+
+		_, bucketName, _, err := utils.ParseQsPath(args[0])
+		if err != nil {
+			t.TriggerFault(err)
+			return
+		}
+		// if keyType != constants.KeyTypeBucket {
+		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
+		// 	return
+		// }
+		t.SetBucketName(bucketName)
 	})
 
 	t.Run()

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -55,24 +56,11 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		err = utils.ParseInput(t, args[0], args[1])
+		err = utils.ParseBetweenStorageInput(t, args[0], args[1])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		stor, err := srv.Get(t.GetBucketName())
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()

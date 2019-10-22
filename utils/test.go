@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"crypto/md5"
 	"io"
-	"io/ioutil"
 	"math/rand"
-	"os"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -30,31 +29,26 @@ type EmptyTask struct {
 func (t *EmptyTask) Run() {
 }
 
-// GenerateTestFile will generate a test file.
-func GenerateTestFile() (name string, size int64, md5sum []byte) {
-	f, err := ioutil.TempFile(os.TempDir(), "")
-	if err != nil {
-		log.Fatal(err)
+// NewCallbackTask will create a new callback test.
+func NewCallbackTask(fn func()) *CallbackTask {
+	return &CallbackTask{
+		fn: fn,
 	}
+}
 
-	name = f.Name()
-	size = rand.Int63n(maxTestSize)
+// CallbackTask is the callback task.
+type CallbackTask struct {
+	types.ID
+	types.Fault
+	types.Pool
+	types.Todo
 
-	r := NewRand()
-	h := md5.New()
-	w := io.MultiWriter(f, h)
+	fn func()
+}
 
-	_, err = io.CopyN(w, r, size)
-	if err != nil {
-		log.Fatal(err)
-	}
-	md5sum = h.Sum(nil)
-
-	err = f.Sync()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return
+// Run implement navvy.Task interface.
+func (t *CallbackTask) Run() {
+	t.fn()
 }
 
 // GenerateTestStream will generate a test stream.

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -53,38 +53,24 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
+		// TODO: maybe we need ListBucketTask and ListObjectTask?
 
 		// if no args, handle cmd as list buckets, otherwise list objects.
 		if len(args) == 0 {
+			err = utils.ParseAtServiceInput(t)
+			if err != nil {
+				t.TriggerFault(err)
+				return
+			}
 			t.SetListType(constants.ListTypeBucket)
-			t.SetDestinationService(srv)
-			return
+		} else {
+			err = utils.ParseAtStorageInput(t, args[0])
+			if err != nil {
+				t.TriggerFault(err)
+				return
+			}
+			t.SetListType(constants.ListTypeKey)
 		}
-
-		t.SetListType(constants.ListTypeKey)
-		_, bucketName, key, err := utils.ParseKey(args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetKey(key)
-
-		store, err := srv.Get(bucketName, types.WithLocation(t.GetZone()))
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetDestinationStorage(store)
-		t.SetBucketName(bucketName)
-
-		// init object channel, then stream output by goroutine
-		oc := make(chan *types.Object)
-		t.SetObjectChannel(oc)
 	})
 
 	t.Run()
@@ -142,7 +128,7 @@ func listObjectOutput(t *task.ListTask) {
 	var err error
 	for v := range t.GetObjectChannel() {
 		objACL := constants.ACLObject
-		if v.Type == types.ObjectTypeDir {
+		if v.Type == typ.ObjectTypeDir {
 			objACL = constants.ACLDirectory
 		}
 

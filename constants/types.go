@@ -1,8 +1,5 @@
 package constants
 
-// DirectoryContentType is the content type qingstor used for directory.
-const DirectoryContentType = "application/x-directory"
-
 const (
 	// ACLDirectory is the acl of qingstor x-directory
 	ACLDirectory = "drwxr-xr-x"

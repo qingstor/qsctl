@@ -2,7 +2,6 @@ package common
 
 import (
 	"io"
-	"os"
 	"testing"
 
 	"github.com/Xuanwo/storage/types"
@@ -11,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/mock"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 func TestFileUploadTask_Run(t *testing.T) {
@@ -20,23 +18,34 @@ func TestFileUploadTask_Run(t *testing.T) {
 
 	x := &mockFileUploadTask{}
 
-	store := mock.NewMockStorager(ctrl)
-	x.SetDestinationStorage(store)
+	srcStore := mock.NewMockStorager(ctrl)
+	x.SetSourceStorage(srcStore)
+
+	dstStore := mock.NewMockStorager(ctrl)
+	x.SetDestinationStorage(dstStore)
+
+	mockReader := mock.NewMockReadCloser(ctrl)
 
 	key := uuid.New().String()
-	x.SetKey(key)
+	x.SetDestinationPath(key)
 
-	name, size, md5sum := utils.GenerateTestFile()
-	defer os.Remove(name)
+	name := uuid.New().String()
+	size := int64(10)
 
-	x.SetPath(name)
+	x.SetSourcePath(name)
 	x.SetSize(size)
-	x.SetMD5Sum(md5sum)
 
-	store.EXPECT().WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).
-		Do(func(inputPath string, inputSize int64, r io.ReadCloser, option ...*types.Pair) {
+	mockReader.EXPECT().Close().Do(func() {})
+
+	srcStore.EXPECT().Read(gomock.Any()).DoAndReturn(func(inputPath string) (r io.ReadCloser, err error) {
+		assert.Equal(t, name, inputPath)
+		return mockReader, nil
+	})
+
+	dstStore.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(inputPath string, r io.ReadCloser, option ...*types.Pair) {
 			assert.Equal(t, key, inputPath)
-			assert.Equal(t, size, inputSize)
+			assert.Equal(t, size, option[0].Value.(int64))
 		})
 
 	task := NewFileUploadTask(x)
