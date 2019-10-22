@@ -44,34 +44,11 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		_, bucketName, objectKey, err := utils.ParseQsPath(args[0])
+		err := utils.ParseAtStorageInput(t, args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-
-		// if keyType == constants.KeyTypePseudoDir && !t.GetRecursive() {
-		// 	t.TriggerFault(fmt.Errorf("-r is required for removing dir operation"))
-		// 	return
-		// }
-		//
-		// if keyType != constants.KeyTypeObject {
-		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
-		// 	return
-		// }
-		t.SetDestinationPath(objectKey)
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		stor, err := srv.Get(bucketName)
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()

@@ -52,6 +52,7 @@ type ListTask struct {
 	types.DestinationPath
 	types.DestinationService
 	types.DestinationStorage
+	types.DestinationType
 	types.HumanReadable
 	types.ListType
 	types.LongFormat

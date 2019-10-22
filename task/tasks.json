@@ -198,6 +198,7 @@
       "DestinationPath",
       "DestinationService",
       "DestinationStorage",
+      "DestinationType",
       "HumanReadable",
       "ListType",
       "LongFormat",
@@ -328,6 +329,7 @@
       "BucketName",
       "DestinationPath",
       "DestinationStorage",
+      "DestinationType",
       "Expire",
       "Pool",
       "URL"
@@ -339,7 +341,10 @@
     "description": "remove a bucket",
     "runtime_value": [
       "BucketName",
+      "DestinationPath",
       "DestinationService",
+      "DestinationStorage",
+      "DestinationType",
       "Force",
       "Pool"
     ]
@@ -351,6 +356,7 @@
     "runtime_value": [
       "DestinationPath",
       "DestinationStorage",
+      "DestinationType",
       "Pool",
       "Recursive"
     ]
@@ -362,6 +368,7 @@
     "runtime_value": [
       "DestinationPath",
       "DestinationStorage",
+      "DestinationType",
       "Object",
       "Pool"
     ]

@@ -50,6 +50,7 @@ type PresignTask struct {
 	types.BucketName
 	types.DestinationPath
 	types.DestinationStorage
+	types.DestinationType
 	types.Expire
 	types.Pool
 	types.URL

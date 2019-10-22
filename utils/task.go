@@ -8,19 +8,13 @@ import (
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/services/posixfs"
 	"github.com/Xuanwo/storage/services/qingstor"
-	stypes "github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
-)
-
-// Current supported path type
-const (
-	StorageTypePOSIXFs  = "posixfs"
-	StorageTypeQingStor = "qingstor"
 )
 
 // ParseFlow will parse the data flow
@@ -42,27 +36,27 @@ func ParseFlow(src, dst string) (flow constants.FlowType) {
 }
 
 // ParseLocalPath will parse a path into different path type.
-func ParseLocalPath(p string) (pathType stypes.ObjectType, err error) {
+func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 	// Use - means we will read from stdin.
 	if p == "-" {
-		return stypes.ObjectTypeStream, nil
+		return typ.ObjectTypeStream, nil
 	}
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return stypes.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
 	}
 	if err != nil {
-		return stypes.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
 	}
 	if fi.IsDir() {
-		return stypes.ObjectTypeDir, nil
+		return typ.ObjectTypeDir, nil
 	}
-	return stypes.ObjectTypeFile, nil
+	return typ.ObjectTypeFile, nil
 }
 
 // ParseQsPath will parse a key into different key type.
-func ParseQsPath(p string) (keyType stypes.ObjectType, bucketName, objectKey string, err error) {
+func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string, err error) {
 	// qs-path includes three part: "qs://" prefix, bucket name and object key.
 	// "qs://" prefix could be emit.
 	if strings.HasPrefix(p, "qs://") {
@@ -74,19 +68,19 @@ func ParseQsPath(p string) (keyType stypes.ObjectType, bucketName, objectKey str
 	// For example: "qs://testbucket/"
 
 	if len(s) == 1 || s[1] == "" {
-		return stypes.ObjectTypeDir, s[0], "", nil
+		return typ.ObjectTypeDir, s[0], "", nil
 	}
 
 	if strings.HasSuffix(p, "/") {
-		return stypes.ObjectTypeDir, s[0], s[1], nil
+		return typ.ObjectTypeDir, s[0], s[1], nil
 	}
-	return stypes.ObjectTypeFile, s[0], s[1], nil
+	return typ.ObjectTypeFile, s[0], s[1], nil
 }
 
 // ParseStorageInput will parse storage input and return a initiated storager.
-func ParseStorageInput(input, storageType string) (path string, objectType stypes.ObjectType, store storage.Storager, err error) {
+func ParseStorageInput(input string, storageType typ.StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
 	switch storageType {
-	case StorageTypePOSIXFs:
+	case posixfs.StoragerType:
 		objectType, err = ParseLocalPath(input)
 		if err != nil {
 			return
@@ -94,7 +88,7 @@ func ParseStorageInput(input, storageType string) (path string, objectType stype
 		path = input
 		store = posixfs.NewClient()
 		return
-	case StorageTypeQingStor:
+	case qingstor.StoragerType:
 		var bucketName, objectKey string
 		var srv *qingstor.Service
 
@@ -113,8 +107,53 @@ func ParseStorageInput(input, storageType string) (path string, objectType stype
 		path = objectKey
 		return
 	default:
-		panic("error")
+		panic(fmt.Errorf("no supported storager type %s", storageType))
 	}
+}
+
+// ParseServiceInput will parse service input.
+func ParseServiceInput(serviceType typ.ServicerType) (service storage.Servicer, err error) {
+	switch serviceType {
+	case qingstor.ServicerType:
+		service, err = NewQingStorService()
+		if err != nil {
+			return
+		}
+		return
+	default:
+		panic(fmt.Errorf("no supported servicer type %s", serviceType))
+	}
+}
+
+// ParseAtServiceInput will parse single args and setup service.
+func ParseAtServiceInput(t interface {
+	types.DestinationServiceSetter
+}) (err error) {
+	dstService, err := ParseServiceInput(qingstor.ServicerType)
+	if err != nil {
+		return
+	}
+	setupDestinationService(t, dstService)
+	return
+}
+
+// ParseAtStorageInput will parse single args and setup path, type, storager.
+func ParseAtStorageInput(t interface {
+	types.DestinationPathSetter
+	types.DestinationStorageSetter
+	types.DestinationTypeSetter
+}, input string) (err error) {
+	flow := ParseFlow(input, "")
+	if flow != constants.FlowAtRemote {
+		panic("invalid flow")
+	}
+
+	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.StoragerType)
+	if err != nil {
+		return
+	}
+	setupDestinationStorage(t, dstPath, dstType, dstStore)
+	return
 }
 
 // ParseBetweenStorageInput will parse two args into flow, path and key.
@@ -129,26 +168,26 @@ func ParseBetweenStorageInput(t interface {
 	flow := ParseFlow(src, dst)
 	var (
 		srcPath, dstPath   string
-		srcType, dstType   stypes.ObjectType
+		srcType, dstType   typ.ObjectType
 		srcStore, dstStore storage.Storager
 	)
 
 	switch flow {
 	case constants.FlowToRemote:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, StorageTypePOSIXFs)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, posixfs.StoragerType)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, StorageTypeQingStor)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.StoragerType)
 		if err != nil {
 			return
 		}
 	case constants.FlowToLocal:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, StorageTypeQingStor)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.StoragerType)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, StorageTypePOSIXFs)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, posixfs.StoragerType)
 		if err != nil {
 			return
 		}
@@ -165,7 +204,7 @@ func setupSourceStorage(t interface {
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
-}, path string, objectType stypes.ObjectType, store storage.Storager) {
+}, path string, objectType typ.ObjectType, store storage.Storager) {
 	t.SetSourcePath(path)
 	t.SetSourceType(objectType)
 	t.SetSourceStorage(store)
@@ -175,21 +214,27 @@ func setupDestinationStorage(t interface {
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, path string, objectType stypes.ObjectType, store storage.Storager) {
+}, path string, objectType typ.ObjectType, store storage.Storager) {
 	t.SetDestinationPath(path)
 	t.SetDestinationType(objectType)
 	t.SetDestinationStorage(store)
+}
+
+func setupDestinationService(t interface {
+	types.DestinationServiceSetter
+}, store storage.Servicer) {
+	t.SetDestinationService(store)
 }
 
 // NewQingStorService will create a new qingstor service.
 func NewQingStorService() (*qingstor.Service, error) {
 	srv := qingstor.New()
 	err := srv.Init(
-		stypes.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
-		stypes.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
-		stypes.WithHost(viper.GetString(constants.ConfigHost)),
-		stypes.WithPort(viper.GetInt(constants.ConfigPort)),
-		stypes.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+		typ.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
+		typ.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
+		typ.WithHost(viper.GetString(constants.ConfigHost)),
+		typ.WithPort(viper.GetInt(constants.ConfigPort)),
+		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
 	)
 	return srv, err
 }

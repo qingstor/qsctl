@@ -48,7 +48,10 @@ type RemoveBucketTask struct {
 
 	// Runtime value
 	types.BucketName
+	types.DestinationPath
 	types.DestinationService
+	types.DestinationStorage
+	types.DestinationType
 	types.Force
 	types.Pool
 }

@@ -45,26 +45,11 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		_, bucketName, _, err := utils.ParseQsPath(args[0])
+		err := utils.ParseAtStorageInput(t, args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-
-		// if keyType != constants.KeyTypeBucket {
-		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
-		// 	return
-		// }
-
-		t.SetBucketName(bucketName)
-
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		t.SetDestinationService(srv)
 	})
 
 	t.Run()

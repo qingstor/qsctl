@@ -44,31 +44,11 @@ func presignRun(_ *cobra.Command, args []string) error {
 			return
 		}
 
-		_, bucketName, objectKey, err := utils.ParseQsPath(args[0])
+		err := utils.ParseAtStorageInput(t, args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
 		}
-		// // only handle object key, if dir, it's meaningless
-		// if keyType != constants.KeyTypeObject {
-		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
-		// 	return
-		// }
-		t.SetBucketName(bucketName)
-		t.SetDestinationPath(objectKey)
-
-		srv, err := NewQingStorService()
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		stor, err := srv.Get(t.GetBucketName())
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetDestinationStorage(stor)
 	})
 
 	t.Run()

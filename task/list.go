@@ -3,6 +3,8 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 
+	pkg "github.com/Xuanwo/storage/types"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/common"
@@ -21,6 +23,9 @@ func NewListTask(fn func(*ListTask)) *ListTask {
 	t.SetPool(pool)
 
 	fn(t)
+
+	oc := make(chan *pkg.Object)
+	t.SetObjectChannel(oc)
 
 	todo := listTaskConstructor[t.GetListType()]
 	if todo == nil {

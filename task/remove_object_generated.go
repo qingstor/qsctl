@@ -49,6 +49,7 @@ type RemoveObjectTask struct {
 	// Runtime value
 	types.DestinationPath
 	types.DestinationStorage
+	types.DestinationType
 	types.Pool
 	types.Recursive
 }
