@@ -2,6 +2,7 @@ package task
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -16,6 +17,59 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/mock"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
+
+func TestCopyFileTask_new(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	paths := make([]string, 100)
+	for k := range paths {
+		paths[k] = uuid.New().String()
+	}
+	tests := []struct {
+		name string
+		size int64
+		fn   types.TodoFunc
+	}{
+		{
+			"small file",
+			constants.MaximumAutoMultipartSize - 1,
+			NewCopySmallFileTask,
+		},
+		{
+			"large file",
+			constants.MaximumAutoMultipartSize + 1,
+			NewCopyLargeFileTask,
+		},
+	}
+
+	for k, v := range tests {
+		t.Run(v.name, func(t *testing.T) {
+			srcStore := mock.NewMockStorager(ctrl)
+			srcStore.EXPECT().Stat(gomock.Any()).DoAndReturn(func(inputPath string) (o *typ.Object, err error) {
+				assert.Equal(t, paths[k], inputPath)
+				return &typ.Object{
+					Name: inputPath,
+					Type: typ.ObjectTypeFile,
+					Metadata: typ.Metadata{
+						typ.Size: v.size,
+					},
+				}, nil
+			})
+
+			m := &mockCopyFileTask{}
+			m.SetSourceStorage(srcStore)
+			m.SetSourcePath(paths[k])
+			task := &CopyFileTask{copyFileTaskRequirement: m}
+			task.new()
+
+			assert.Equal(t, v.size, task.GetTotalSize())
+			assert.Equal(t,
+				fmt.Sprintf("%v", v.fn),
+				fmt.Sprintf("%v", task.NextTODO()))
+		})
+	}
+}
 
 func TestCopyLargeFileTask_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
