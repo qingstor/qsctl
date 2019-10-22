@@ -3,29 +3,24 @@ package utils
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
+	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/services/posixfs"
+	"github.com/Xuanwo/storage/services/qingstor"
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-// bucketNameRegexp is the bucket name regexp, which indicates:
-// 1. length: 6-63;
-// 2. contains lowercase letters, digits and strikethrough;
-// 3. starts and ends with letter or digit.
-var bucketNameRegexp = regexp.MustCompile(`^[a-z\d][a-z-\d]{4,61}[a-z\d]$`)
-
 // ParseFlow will parse the data flow
 func ParseFlow(src, dst string) (flow constants.FlowType) {
 	if dst == "" {
-		if strings.HasPrefix(src, "qs://") {
-			return constants.FlowAtRemote
-		}
-		return constants.FlowAtLocal
+		return constants.FlowAtRemote
 	}
 
 	// If src and dst both local file or both remote object, the path is invalid.
@@ -40,28 +35,28 @@ func ParseFlow(src, dst string) (flow constants.FlowType) {
 	return constants.FlowToRemote
 }
 
-// ParsePath will parse a path into different path type.
-func ParsePath(p string) (pathType constants.PathType, err error) {
+// ParseLocalPath will parse a path into different path type.
+func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 	// Use - means we will read from stdin.
 	if p == "-" {
-		return constants.PathTypeStream, nil
+		return typ.ObjectTypeStream, nil
 	}
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return constants.PathTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
 	}
 	if err != nil {
-		return constants.PathTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
 	}
 	if fi.IsDir() {
-		return constants.PathTypeLocalDir, nil
+		return typ.ObjectTypeDir, nil
 	}
-	return constants.PathTypeFile, nil
+	return typ.ObjectTypeFile, nil
 }
 
-// ParseKey will parse a key into different key type.
-func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string, err error) {
+// ParseQsPath will parse a key into different key type.
+func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string, err error) {
 	// qs-path includes three part: "qs://" prefix, bucket name and object key.
 	// "qs://" prefix could be emit.
 	if strings.HasPrefix(p, "qs://") {
@@ -69,91 +64,177 @@ func ParseKey(p string) (keyType constants.KeyType, bucketName, objectKey string
 	}
 	s := strings.SplitN(p, "/", 2)
 
-	if !IsValidBucketName(s[0]) {
-		// FIXME: maybe we could tell user directly that bucket name is invalid ?
-		return constants.KeyTypeInvalid, "", "", fault.NewUserInputKeyInvalid(nil, s[0])
-	}
-
 	// Only have bucket name or object key is "/"
 	// For example: "qs://testbucket/"
 
 	if len(s) == 1 || s[1] == "" {
-		return constants.KeyTypeBucket, s[0], "", nil
+		return typ.ObjectTypeDir, s[0], "", nil
 	}
 
 	if strings.HasSuffix(p, "/") {
-		return constants.KeyTypePseudoDir, s[0], s[1], nil
+		return typ.ObjectTypeDir, s[0], s[1], nil
 	}
-	return constants.KeyTypeObject, s[0], s[1], nil
+	return typ.ObjectTypeFile, s[0], s[1], nil
 }
 
-// IsValidBucketName will check whether given string is a valid bucket name.
-func IsValidBucketName(s string) bool {
-	return bucketNameRegexp.MatchString(s)
+// ParseStorageInput will parse storage input and return a initiated storager.
+func ParseStorageInput(input string, storageType typ.StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
+	switch storageType {
+	case posixfs.StoragerType:
+		objectType, err = ParseLocalPath(input)
+		if err != nil {
+			return
+		}
+		path = input
+		store = posixfs.NewClient()
+		return
+	case qingstor.StoragerType:
+		var bucketName, objectKey string
+		var srv *qingstor.Service
+
+		objectType, bucketName, objectKey, err = ParseQsPath(input)
+		if err != nil {
+			return
+		}
+		srv, err = NewQingStorService()
+		if err != nil {
+			return
+		}
+		store, err = srv.Get(bucketName)
+		if err != nil {
+			return
+		}
+		path = objectKey
+		return
+	default:
+		panic(fmt.Errorf("no supported storager type %s", storageType))
+	}
 }
 
-// ParseInput will parse two args into flow, path and key.
-func ParseInput(t interface {
-	types.FlowTypeSetter
-	types.PathSetter
-	types.StreamSetter
-	types.PathTypeSetter
-	types.KeySetter
-	types.KeyTypeSetter
-	types.BucketNameSetter
+// ParseServiceInput will parse service input.
+func ParseServiceInput(serviceType typ.ServicerType) (service storage.Servicer, err error) {
+	switch serviceType {
+	case qingstor.ServicerType:
+		service, err = NewQingStorService()
+		if err != nil {
+			return
+		}
+		return
+	default:
+		panic(fmt.Errorf("no supported servicer type %s", serviceType))
+	}
+}
+
+// ParseAtServiceInput will parse single args and setup service.
+func ParseAtServiceInput(t interface {
+	types.DestinationServiceSetter
+}) (err error) {
+	dstService, err := ParseServiceInput(qingstor.ServicerType)
+	if err != nil {
+		return
+	}
+	setupDestinationService(t, dstService)
+	return
+}
+
+// ParseAtStorageInput will parse single args and setup path, type, storager.
+func ParseAtStorageInput(t interface {
+	types.DestinationPathSetter
+	types.DestinationStorageSetter
+	types.DestinationTypeSetter
+}, input string) (err error) {
+	flow := ParseFlow(input, "")
+	if flow != constants.FlowAtRemote {
+		panic("invalid flow")
+	}
+
+	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.StoragerType)
+	if err != nil {
+		return
+	}
+	setupDestinationStorage(t, dstPath, dstType, dstStore)
+	return
+}
+
+// ParseBetweenStorageInput will parse two args into flow, path and key.
+func ParseBetweenStorageInput(t interface {
+	types.SourcePathSetter
+	types.SourceStorageSetter
+	types.SourceTypeSetter
+	types.DestinationPathSetter
+	types.DestinationStorageSetter
+	types.DestinationTypeSetter
 }, src, dst string) (err error) {
 	flow := ParseFlow(src, dst)
-	t.SetFlowType(flow)
+	var (
+		srcPath, dstPath   string
+		srcType, dstType   typ.ObjectType
+		srcStore, dstStore storage.Storager
+	)
 
-	var path string
-	var pathType constants.PathType
 	switch flow {
 	case constants.FlowToRemote:
-		pathType, err = ParsePath(src)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, posixfs.StoragerType)
 		if err != nil {
-			return err
+			return
 		}
-		t.SetPathType(pathType)
-		path = src
-
-		keyType, bucketName, objectKey, err := ParseKey(dst)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.StoragerType)
 		if err != nil {
-			return err
+			return
 		}
-		t.SetKeyType(keyType)
-		t.SetKey(objectKey)
-		t.SetBucketName(bucketName)
-	case constants.FlowToLocal, constants.FlowAtRemote:
-		pathType, err = ParsePath(dst)
+	case constants.FlowToLocal:
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.StoragerType)
 		if err != nil {
-			return err
+			return
 		}
-		t.SetPathType(pathType)
-		path = dst
-
-		keyType, bucketName, objectKey, err := ParseKey(src)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, posixfs.StoragerType)
 		if err != nil {
-			return err
+			return
 		}
-		t.SetKeyType(keyType)
-		t.SetKey(objectKey)
-		t.SetBucketName(bucketName)
 	default:
-		panic("this case should never be switched")
+		panic("invalid flow")
 	}
 
-	t.SetPath(path)
-
-	switch pathType {
-	case constants.PathTypeFile:
-		t.SetPath(path)
-	case constants.PathTypeStream:
-		// TODO: we could support other stream type, for example, read from a socket.
-		t.SetStream(os.Stdin)
-	case constants.PathTypeLocalDir:
-	default:
-		panic("invalid path type")
-	}
-
+	setupSourceStorage(t, srcPath, srcType, srcStore)
+	setupDestinationStorage(t, dstPath, dstType, dstStore)
 	return
+}
+
+func setupSourceStorage(t interface {
+	types.SourcePathSetter
+	types.SourceStorageSetter
+	types.SourceTypeSetter
+}, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetSourcePath(path)
+	t.SetSourceType(objectType)
+	t.SetSourceStorage(store)
+}
+
+func setupDestinationStorage(t interface {
+	types.DestinationPathSetter
+	types.DestinationStorageSetter
+	types.DestinationTypeSetter
+}, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetDestinationPath(path)
+	t.SetDestinationType(objectType)
+	t.SetDestinationStorage(store)
+}
+
+func setupDestinationService(t interface {
+	types.DestinationServiceSetter
+}, store storage.Servicer) {
+	t.SetDestinationService(store)
+}
+
+// NewQingStorService will create a new qingstor service.
+func NewQingStorService() (*qingstor.Service, error) {
+	srv := qingstor.New()
+	err := srv.Init(
+		typ.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
+		typ.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
+		typ.WithHost(viper.GetString(constants.ConfigHost)),
+		typ.WithPort(viper.GetInt(constants.ConfigPort)),
+		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+	)
+	return srv, err
 }

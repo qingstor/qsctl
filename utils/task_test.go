@@ -3,6 +3,9 @@ package utils
 import (
 	"testing"
 
+	"github.com/Xuanwo/storage/services/posixfs"
+	"github.com/Xuanwo/storage/services/qingstor"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/yunify/qsctl/v2/constants"
 )
@@ -17,7 +20,7 @@ func TestParseFlow(t *testing.T) {
 		{"qs://xxxx", "xxxx", constants.FlowToLocal},
 		{"xxxx", "xxxx", constants.FlowInvalid},
 		{"qs://xxxx", "qs://xxxx", constants.FlowInvalid},
-		{"xxxx", "", constants.FlowAtLocal},
+		{"xxxx", "", constants.FlowAtRemote},
 		{"qs://xxxx", "", constants.FlowAtRemote},
 	}
 
@@ -27,26 +30,26 @@ func TestParseFlow(t *testing.T) {
 	}
 }
 
-func TestParseKey(t *testing.T) {
+func TestParseQsPath(t *testing.T) {
 	cases := []struct {
 		input              string
-		expectedKeyType    constants.KeyType
+		expectedKeyType    typ.ObjectType
 		expectedBucketName string
 		expectedKey        string
 	}{
-		{"qs://xxxx-bucket/abc", constants.KeyTypeObject, "xxxx-bucket", "abc"},
-		{"qs://abcdef", constants.KeyTypeBucket, "abcdef", ""},
-		{"qs://abcdef/", constants.KeyTypeBucket, "abcdef", ""},
-		{"qs://abcdef/def/ghi", constants.KeyTypeObject, "abcdef", "def/ghi"},
-		{"qs://abcdef/def/ghi/", constants.KeyTypePseudoDir, "abcdef", "def/ghi/"},
-		{"abcdef", constants.KeyTypeBucket, "abcdef", ""},
-		{"abcdef/", constants.KeyTypeBucket, "abcdef", ""},
-		{"abcdef/def/ghi", constants.KeyTypeObject, "abcdef", "def/ghi"},
-		{"abcdef/👾 🙇 💁 🙅 🙆 🙋 🙎 🙍", constants.KeyTypeObject, "abcdef", "👾 🙇 💁 🙅 🙆 🙋 🙎 🙍"},
+		{"qs://xxxx-bucket/abc", typ.ObjectTypeFile, "xxxx-bucket", "abc"},
+		{"qs://abcdef", typ.ObjectTypeDir, "abcdef", ""},
+		{"qs://abcdef/", typ.ObjectTypeDir, "abcdef", ""},
+		{"qs://abcdef/def/ghi", typ.ObjectTypeFile, "abcdef", "def/ghi"},
+		{"qs://abcdef/def/ghi/", typ.ObjectTypeDir, "abcdef", "def/ghi/"},
+		{"abcdef", typ.ObjectTypeDir, "abcdef", ""},
+		{"abcdef/", typ.ObjectTypeDir, "abcdef", ""},
+		{"abcdef/def/ghi", typ.ObjectTypeFile, "abcdef", "def/ghi"},
+		{"abcdef/👾 🙇 💁 🙅 🙆 🙋 🙎 🙍", typ.ObjectTypeFile, "abcdef", "👾 🙇 💁 🙅 🙆 🙋 🙎 🙍"},
 	}
 
 	for k, v := range cases {
-		actualKeyType, actualBucketName, actualKey, err := ParseKey(v.input)
+		actualKeyType, actualBucketName, actualKey, err := ParseQsPath(v.input)
 		assert.Equal(t, v.expectedKeyType, actualKeyType, k)
 		assert.Equal(t, v.expectedBucketName, actualBucketName, k)
 		assert.Equal(t, v.expectedKey, actualKey, k)
@@ -54,23 +57,85 @@ func TestParseKey(t *testing.T) {
 	}
 }
 
-func TestIsValidBucketName(t *testing.T) {
+func TestParseStorageInput(t *testing.T) {
 	cases := []struct {
-		name          string
-		input         string
-		expectedValid bool
+		name        string
+		input       string
+		storageType typ.StoragerType
+		hasPanic    bool
+		err         error
 	}{
-		{"start with letter", "a-bucket-test", true},
-		{"start with digit", "0-bucket-test", true},
-		{"start with strike", "-bucket-test", false},
-		{"end with strike", "bucket-test-", false},
-		{"too short", "abcd", false},
-		{"too long (64)", "abcdefghijklmnopqrstuvwxyz123456abcdefghijklmnopqrstuvwxyz123456", false},
-		{"contains illegal char", "abcdefg_1234", false},
+		{
+			"invalid storager type",
+			"qs://testaaa",
+			"test",
+			true,
+			nil,
+		},
+		{
+			"valid local path",
+			"/etc",
+			posixfs.StoragerType,
+			false,
+			nil,
+		},
 	}
 
 	for _, v := range cases {
-		valid := IsValidBucketName(v.input)
-		assert.Equal(t, valid, v.expectedValid)
+		t.Run(v.name, func(t *testing.T) {
+			if v.hasPanic {
+				assert.Panics(t, func() {
+					_, _, _, _ = ParseStorageInput(v.input, v.storageType)
+				})
+				return
+			}
+
+			gotPath, gotObjectType, gotStore, gotErr := ParseStorageInput(v.input, v.storageType)
+			assert.Equal(t, v.err == nil, gotErr == nil)
+			if v.err == nil {
+				assert.NotZero(t, gotPath)
+				assert.NotZero(t, gotObjectType)
+				assert.NotNil(t, gotStore)
+			}
+		})
+	}
+}
+
+func TestParseServiceInput(t *testing.T) {
+	cases := []struct {
+		name         string
+		servicerType typ.ServicerType
+		hasPanic     bool
+		err          error
+	}{
+		{
+			"invalid",
+			"invalid",
+			true,
+			nil,
+		},
+		{
+			"valid",
+			qingstor.ServicerType,
+			false,
+			nil,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			if v.hasPanic {
+				assert.Panics(t, func() {
+					_, _ = ParseServiceInput(v.servicerType)
+				})
+				return
+			}
+
+			gotStore, gotErr := ParseServiceInput(v.servicerType)
+			assert.Equal(t, v.err == nil, gotErr == nil)
+			if v.err == nil {
+				assert.NotNil(t, gotStore)
+			}
+		})
 	}
 }

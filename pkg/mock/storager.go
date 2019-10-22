@@ -311,23 +311,23 @@ func (mr *MockStoragerMockRecorder) Stat(arg0 interface{}, arg1 ...interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stat", reflect.TypeOf((*MockStorager)(nil).Stat), varargs...)
 }
 
-// WriteFile mocks base method
-func (m *MockStorager) WriteFile(arg0 string, arg1 int64, arg2 io.Reader, arg3 ...*types.Pair) error {
+// Write mocks base method
+func (m *MockStorager) Write(arg0 string, arg1 io.Reader, arg2 ...*types.Pair) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1, arg2}
-	for _, a := range arg3 {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "WriteFile", varargs...)
+	ret := m.ctrl.Call(m, "Write", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// WriteFile indicates an expected call of WriteFile
-func (mr *MockStoragerMockRecorder) WriteFile(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+// Write indicates an expected call of Write
+func (mr *MockStoragerMockRecorder) Write(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFile", reflect.TypeOf((*MockStorager)(nil).WriteFile), varargs...)
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockStorager)(nil).Write), varargs...)
 }
 
 // WriteSegment mocks base method
@@ -347,25 +347,6 @@ func (mr *MockStoragerMockRecorder) WriteSegment(arg0, arg1, arg2, arg3 interfac
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2, arg3}, arg4...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteSegment", reflect.TypeOf((*MockStorager)(nil).WriteSegment), varargs...)
-}
-
-// WriteStream mocks base method
-func (m *MockStorager) WriteStream(arg0 string, arg1 io.Reader, arg2 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "WriteStream", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// WriteStream indicates an expected call of WriteStream
-func (mr *MockStoragerMockRecorder) WriteStream(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteStream", reflect.TypeOf((*MockStorager)(nil).WriteStream), varargs...)
 }
 
 // MockServicer is a mock of Servicer interface

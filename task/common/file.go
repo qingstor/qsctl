@@ -1,28 +1,27 @@
 package common
 
 import (
-	"os"
-
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *FileUploadTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetKey())
+	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetDestinationPath())
 
-	f, err := os.Open(t.GetPath())
+	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
-	defer f.Close()
+	defer r.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().WriteFile(t.GetKey(), t.GetSize(), f)
+	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, typ.WithSize(t.GetSize()))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetKey())
+	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetDestinationPath())
 }

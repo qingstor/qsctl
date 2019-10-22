@@ -1,9 +1,9 @@
 {
   "LocalFileNotExist": {
     "value": [
-      "Path"
+      "SourcePath"
     ],
-    "message": "`Local file [%s] is not exist: {%v}`, f.GetPath(), f.GetFault()"
+    "message": "`Local file [%s] is not exist: {%v}`, f.GetSourcePath(), f.GetFault()"
   },
   "LocalFileTooLarge": {
     "value": [
@@ -26,15 +26,15 @@
   },
   "StorageObjectNoPermission": {
     "value": [
-      "Key"
+      "DestinationPath"
     ],
-    "message": "`Storage Object [%s] do not have enough permission: {%v}`, f.GetKey(), f.GetFault()"
+    "message": "`Storage Object [%s] do not have enough permission: {%v}`, f.GetDestinationPath(), f.GetFault()"
   },
   "StorageObjectNotFound": {
     "value": [
-      "Key"
+      "DestinationPath"
     ],
-    "message": "`Storage Object [%s] is not found: {%v}`, f.GetKey(), f.GetFault()"
+    "message": "`Storage Object [%s] is not found: {%v}`, f.GetDestinationPath(), f.GetFault()"
   },
   "StorageServiceInitFailed": {
     "message": "`Storage service initiate failed: {%v}`, f.GetFault()"
@@ -48,10 +48,10 @@
     ],
     "message": "`User input byte size [%s] is invalid: {%v}`, f.GetByteSize(), f.GetFault()"
   },
-  "UserInputKeyInvalid": {
+  "UserInputDestinationPathInvalid": {
     "value": [
-      "Key"
+      "DestinationPath"
     ],
-    "message": "`User input key [%s] is invalid`, f.GetKey()"
+    "message": "`User input key [%s] is invalid`, f.GetDestinationPath()"
   }
 }

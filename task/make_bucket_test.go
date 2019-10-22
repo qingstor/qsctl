@@ -23,7 +23,7 @@ func TestNewMakeBucketTask(t *testing.T) {
 
 	for _, v := range cases {
 		pt := NewMakeBucketTask(func(task *MakeBucketTask) {
-			_, bucketName, _, err := utils.ParseKey(v.input)
+			_, bucketName, _, err := utils.ParseQsPath(v.input)
 			if err != nil {
 				t.Fatal(err)
 			}

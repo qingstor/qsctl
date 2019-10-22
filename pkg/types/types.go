@@ -3,7 +3,6 @@ package types
 
 import (
 	"bytes"
-	"io"
 	"sync"
 
 	"github.com/Xuanwo/navvy"
@@ -244,6 +243,39 @@ func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
 }
 
+type DestinationPath struct {
+	valid bool
+	v     string
+}
+
+type DestinationPathGetter interface {
+	GetDestinationPath() string
+}
+
+func (o *DestinationPath) GetDestinationPath() string {
+	if !o.valid {
+		panic("DestinationPath value is not valid")
+	}
+	return o.v
+}
+
+type DestinationPathSetter interface {
+	SetDestinationPath(string)
+}
+
+func (o *DestinationPath) SetDestinationPath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationPathValidator interface {
+	ValidateDestinationPath() bool
+}
+
+func (o *DestinationPath) ValidateDestinationPath() bool {
+	return o.valid
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
@@ -307,6 +339,39 @@ type DestinationStorageValidator interface {
 }
 
 func (o *DestinationStorage) ValidateDestinationStorage() bool {
+	return o.valid
+}
+
+type DestinationType struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type DestinationTypeGetter interface {
+	GetDestinationType() types.ObjectType
+}
+
+func (o *DestinationType) GetDestinationType() types.ObjectType {
+	if !o.valid {
+		panic("DestinationType value is not valid")
+	}
+	return o.v
+}
+
+type DestinationTypeSetter interface {
+	SetDestinationType(types.ObjectType)
+}
+
+func (o *DestinationType) SetDestinationType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type DestinationTypeValidator interface {
+	ValidateDestinationType() bool
+}
+
+func (o *DestinationType) ValidateDestinationType() bool {
 	return o.valid
 }
 
@@ -442,39 +507,6 @@ func (o *Fault) ValidateFault() bool {
 	return o.valid
 }
 
-type FlowType struct {
-	valid bool
-	v     constants.FlowType
-}
-
-type FlowTypeGetter interface {
-	GetFlowType() constants.FlowType
-}
-
-func (o *FlowType) GetFlowType() constants.FlowType {
-	if !o.valid {
-		panic("FlowType value is not valid")
-	}
-	return o.v
-}
-
-type FlowTypeSetter interface {
-	SetFlowType(constants.FlowType)
-}
-
-func (o *FlowType) SetFlowType(v constants.FlowType) {
-	o.v = v
-	o.valid = true
-}
-
-type FlowTypeValidator interface {
-	ValidateFlowType() bool
-}
-
-func (o *FlowType) ValidateFlowType() bool {
-	return o.valid
-}
-
 type Force struct {
 	valid bool
 	v     bool
@@ -571,72 +603,6 @@ type IDValidator interface {
 }
 
 func (o *ID) ValidateID() bool {
-	return o.valid
-}
-
-type Key struct {
-	valid bool
-	v     string
-}
-
-type KeyGetter interface {
-	GetKey() string
-}
-
-func (o *Key) GetKey() string {
-	if !o.valid {
-		panic("Key value is not valid")
-	}
-	return o.v
-}
-
-type KeySetter interface {
-	SetKey(string)
-}
-
-func (o *Key) SetKey(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type KeyValidator interface {
-	ValidateKey() bool
-}
-
-func (o *Key) ValidateKey() bool {
-	return o.valid
-}
-
-type KeyType struct {
-	valid bool
-	v     constants.KeyType
-}
-
-type KeyTypeGetter interface {
-	GetKeyType() constants.KeyType
-}
-
-func (o *KeyType) GetKeyType() constants.KeyType {
-	if !o.valid {
-		panic("KeyType value is not valid")
-	}
-	return o.v
-}
-
-type KeyTypeSetter interface {
-	SetKeyType(constants.KeyType)
-}
-
-func (o *KeyType) SetKeyType(v constants.KeyType) {
-	o.v = v
-	o.valid = true
-}
-
-type KeyTypeValidator interface {
-	ValidateKeyType() bool
-}
-
-func (o *KeyType) ValidateKeyType() bool {
 	return o.valid
 }
 
@@ -970,72 +936,6 @@ func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
 }
 
-type Path struct {
-	valid bool
-	v     string
-}
-
-type PathGetter interface {
-	GetPath() string
-}
-
-func (o *Path) GetPath() string {
-	if !o.valid {
-		panic("Path value is not valid")
-	}
-	return o.v
-}
-
-type PathSetter interface {
-	SetPath(string)
-}
-
-func (o *Path) SetPath(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type PathValidator interface {
-	ValidatePath() bool
-}
-
-func (o *Path) ValidatePath() bool {
-	return o.valid
-}
-
-type PathType struct {
-	valid bool
-	v     constants.PathType
-}
-
-type PathTypeGetter interface {
-	GetPathType() constants.PathType
-}
-
-func (o *PathType) GetPathType() constants.PathType {
-	if !o.valid {
-		panic("PathType value is not valid")
-	}
-	return o.v
-}
-
-type PathTypeSetter interface {
-	SetPathType(constants.PathType)
-}
-
-func (o *PathType) SetPathType(v constants.PathType) {
-	o.v = v
-	o.valid = true
-}
-
-type PathTypeValidator interface {
-	ValidatePathType() bool
-}
-
-func (o *PathType) ValidatePathType() bool {
-	return o.valid
-}
-
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1234,36 +1134,135 @@ func (o *Size) ValidateSize() bool {
 	return o.valid
 }
 
-type Stream struct {
+type SourcePath struct {
 	valid bool
-	v     io.Reader
+	v     string
 }
 
-type StreamGetter interface {
-	GetStream() io.Reader
+type SourcePathGetter interface {
+	GetSourcePath() string
 }
 
-func (o *Stream) GetStream() io.Reader {
+func (o *SourcePath) GetSourcePath() string {
 	if !o.valid {
-		panic("Stream value is not valid")
+		panic("SourcePath value is not valid")
 	}
 	return o.v
 }
 
-type StreamSetter interface {
-	SetStream(io.Reader)
+type SourcePathSetter interface {
+	SetSourcePath(string)
 }
 
-func (o *Stream) SetStream(v io.Reader) {
+func (o *SourcePath) SetSourcePath(v string) {
 	o.v = v
 	o.valid = true
 }
 
-type StreamValidator interface {
-	ValidateStream() bool
+type SourcePathValidator interface {
+	ValidateSourcePath() bool
 }
 
-func (o *Stream) ValidateStream() bool {
+func (o *SourcePath) ValidateSourcePath() bool {
+	return o.valid
+}
+
+type SourceService struct {
+	valid bool
+	v     storage.Servicer
+}
+
+type SourceServiceGetter interface {
+	GetSourceService() storage.Servicer
+}
+
+func (o *SourceService) GetSourceService() storage.Servicer {
+	if !o.valid {
+		panic("SourceService value is not valid")
+	}
+	return o.v
+}
+
+type SourceServiceSetter interface {
+	SetSourceService(storage.Servicer)
+}
+
+func (o *SourceService) SetSourceService(v storage.Servicer) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceServiceValidator interface {
+	ValidateSourceService() bool
+}
+
+func (o *SourceService) ValidateSourceService() bool {
+	return o.valid
+}
+
+type SourceStorage struct {
+	valid bool
+	v     storage.Storager
+}
+
+type SourceStorageGetter interface {
+	GetSourceStorage() storage.Storager
+}
+
+func (o *SourceStorage) GetSourceStorage() storage.Storager {
+	if !o.valid {
+		panic("SourceStorage value is not valid")
+	}
+	return o.v
+}
+
+type SourceStorageSetter interface {
+	SetSourceStorage(storage.Storager)
+}
+
+func (o *SourceStorage) SetSourceStorage(v storage.Storager) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceStorageValidator interface {
+	ValidateSourceStorage() bool
+}
+
+func (o *SourceStorage) ValidateSourceStorage() bool {
+	return o.valid
+}
+
+type SourceType struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type SourceTypeGetter interface {
+	GetSourceType() types.ObjectType
+}
+
+func (o *SourceType) GetSourceType() types.ObjectType {
+	if !o.valid {
+		panic("SourceType value is not valid")
+	}
+	return o.v
+}
+
+type SourceTypeSetter interface {
+	SetSourceType(types.ObjectType)
+}
+
+func (o *SourceType) SetSourceType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type SourceTypeValidator interface {
+	ValidateSourceType() bool
+}
+
+func (o *SourceType) ValidateSourceType() bool {
 	return o.valid
 }
 

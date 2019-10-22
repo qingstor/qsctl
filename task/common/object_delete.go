@@ -7,11 +7,11 @@ import (
 )
 
 func (t *ObjectDeleteTask) run() {
-	if err := t.GetDestinationStorage().Delete(t.GetKey()); err != nil {
+	if err := t.GetDestinationStorage().Delete(t.GetDestinationPath()); err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 
 	log.Debugf("Task <%s> for key <%s> finished",
-		"ObjectDeleteTask", t.GetKey())
+		"ObjectDeleteTask", t.GetDestinationPath())
 }

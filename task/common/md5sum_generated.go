@@ -27,8 +27,9 @@ type fileMD5SumTaskRequirement interface {
 
 	// Inherited value
 	types.OffsetGetter
-	types.PathGetter
 	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 	// Runtime value
 	types.MD5SumSetter
 }
@@ -42,8 +43,9 @@ type mockFileMD5SumTask struct {
 
 	// Inherited value
 	types.Offset
-	types.Path
 	types.Size
+	types.SourcePath
+	types.SourceStorage
 	// Runtime value
 	types.MD5Sum
 }

@@ -1,27 +1,25 @@
 package common
 
 import (
-	"bufio"
 	"crypto/md5"
 	"io"
-	"os"
 
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *FileMD5SumTask) run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 
-	f, err := os.Open(t.GetPath())
+	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
-	defer f.Close()
+	defer r.Close()
 
-	r := bufio.NewReader(io.NewSectionReader(f, t.GetOffset(), t.GetSize()))
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
@@ -30,8 +28,7 @@ func (t *FileMD5SumTask) run() {
 	}
 
 	t.SetMD5Sum(h.Sum(nil)[:])
-
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 }
 
 func (t *StreamMD5SumTask) run() {

@@ -24,12 +24,13 @@ type copyPartialStreamTaskRequirement interface {
 	// Inherited value
 	types.BytesPoolGetter
 	types.CurrentOffsetGetter
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.PartSizeGetter
 	types.SchedulerGetter
 	types.SegmentIDGetter
-	types.StreamGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 }
 
 // mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
@@ -42,12 +43,13 @@ type mockCopyPartialStreamTask struct {
 	// Inherited value
 	types.BytesPool
 	types.CurrentOffset
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.PartSize
 	types.Scheduler
 	types.SegmentID
-	types.Stream
+	types.SourcePath
+	types.SourceStorage
 }
 
 func (t *mockCopyPartialStreamTask) Run() {
@@ -98,9 +100,10 @@ type copyStreamTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
-	types.StreamGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
 }
 
 // mockCopyStreamTask is the mock task for CopyStreamTask.
@@ -111,9 +114,10 @@ type mockCopyStreamTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
-	types.Stream
+	types.SourcePath
+	types.SourceStorage
 }
 
 func (t *mockCopyStreamTask) Run() {

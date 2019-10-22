@@ -49,10 +49,11 @@ type ListTask struct {
 	// Runtime value
 	types.BucketList
 	types.BucketName
+	types.DestinationPath
 	types.DestinationService
 	types.DestinationStorage
+	types.DestinationType
 	types.HumanReadable
-	types.Key
 	types.ListType
 	types.LongFormat
 	types.ObjectChannel

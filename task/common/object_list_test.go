@@ -36,7 +36,7 @@ func TestObjectListTask_Run(t *testing.T) {
 	for _, ca := range cases {
 		x := &mockObjectListTask{}
 		x.SetDestinationStorage(store)
-		x.SetKey(ca.key)
+		x.SetDestinationPath(ca.key)
 		x.SetRecursive(ca.recursive)
 		x.SetObjectChannel(make(chan *types.Object))
 

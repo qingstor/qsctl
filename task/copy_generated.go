@@ -47,15 +47,13 @@ type CopyTask struct {
 	types.Todo
 
 	// Runtime value
-	types.BucketName
+	types.DestinationPath
 	types.DestinationStorage
-	types.FlowType
-	types.Key
-	types.KeyType
-	types.Path
-	types.PathType
+	types.DestinationType
 	types.Pool
-	types.Stream
+	types.SourcePath
+	types.SourceStorage
+	types.SourceType
 }
 
 // Run implement navvy.Task

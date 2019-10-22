@@ -26,7 +26,7 @@ func TestObjectStatTask_Run(t *testing.T) {
 	pool := navvy.NewPool(10)
 
 	x := &mockObjectStatTask{}
-	x.SetKey(objectKey)
+	x.SetDestinationPath(objectKey)
 	x.SetPool(pool)
 	x.SetDestinationStorage(store)
 
