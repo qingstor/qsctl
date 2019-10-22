@@ -115,7 +115,7 @@ func TestMultipartStreamUploadTask_Run(t *testing.T) {
 	x.SetSegmentID(segmentID)
 
 	key := uuid.New().String()
-	x.SetKey(key)
+	x.SetDestinationPath(key)
 
 	buf, size, md5sum := utils.GenerateTestStream()
 

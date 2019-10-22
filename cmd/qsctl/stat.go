@@ -42,7 +42,7 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
 		// 	return
 		// }
-		t.SetKey(objectKey)
+		t.SetDestinationPath(objectKey)
 
 		srv, err := NewQingStorService()
 		if err != nil {

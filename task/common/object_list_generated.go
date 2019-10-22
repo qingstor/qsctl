@@ -26,8 +26,8 @@ type objectListTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.ObjectChannelGetter
 	types.RecursiveGetter
 	// Runtime value
@@ -41,8 +41,8 @@ type mockObjectListTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.ObjectChannel
 	types.Recursive
 	// Runtime value

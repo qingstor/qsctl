@@ -9,21 +9,21 @@ import (
 
 type LocalFileNotExist struct {
 	types.Fault
-	types.Path
+	types.SourcePath
 }
 
 func (f *LocalFileNotExist) Error() string {
-	return fmt.Sprintf(`Local file [%s] is not exist: {%v}`, f.GetPath(), f.GetFault())
+	return fmt.Sprintf(`Local file [%s] is not exist: {%v}`, f.GetSourcePath(), f.GetFault())
 }
 
 func (f *LocalFileNotExist) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewLocalFileNotExist(err error, path string) error {
+func NewLocalFileNotExist(err error, sourcePath string) error {
 	f := &LocalFileNotExist{}
 	f.SetFault(err)
-	f.SetPath(path)
+	f.SetSourcePath(sourcePath)
 
 	return f
 }
@@ -95,42 +95,42 @@ func NewStorageBucketInitFailed(err error, bucketName string, zone string) error
 
 type StorageObjectNoPermission struct {
 	types.Fault
-	types.Key
+	types.DestinationPath
 }
 
 func (f *StorageObjectNoPermission) Error() string {
-	return fmt.Sprintf(`Storage Object [%s] do not have enough permission: {%v}`, f.GetKey(), f.GetFault())
+	return fmt.Sprintf(`Storage Object [%s] do not have enough permission: {%v}`, f.GetDestinationPath(), f.GetFault())
 }
 
 func (f *StorageObjectNoPermission) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewStorageObjectNoPermission(err error, key string) error {
+func NewStorageObjectNoPermission(err error, destinationPath string) error {
 	f := &StorageObjectNoPermission{}
 	f.SetFault(err)
-	f.SetKey(key)
+	f.SetDestinationPath(destinationPath)
 
 	return f
 }
 
 type StorageObjectNotFound struct {
 	types.Fault
-	types.Key
+	types.DestinationPath
 }
 
 func (f *StorageObjectNotFound) Error() string {
-	return fmt.Sprintf(`Storage Object [%s] is not found: {%v}`, f.GetKey(), f.GetFault())
+	return fmt.Sprintf(`Storage Object [%s] is not found: {%v}`, f.GetDestinationPath(), f.GetFault())
 }
 
 func (f *StorageObjectNotFound) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewStorageObjectNotFound(err error, key string) error {
+func NewStorageObjectNotFound(err error, destinationPath string) error {
 	f := &StorageObjectNotFound{}
 	f.SetFault(err)
-	f.SetKey(key)
+	f.SetDestinationPath(destinationPath)
 
 	return f
 }
@@ -194,23 +194,23 @@ func NewUserInputByteSizeInvalid(err error, byteSize string) error {
 	return f
 }
 
-type UserInputKeyInvalid struct {
+type UserInputDestinationPathInvalid struct {
 	types.Fault
-	types.Key
+	types.DestinationPath
 }
 
-func (f *UserInputKeyInvalid) Error() string {
-	return fmt.Sprintf(`User input key [%s] is invalid`, f.GetKey())
+func (f *UserInputDestinationPathInvalid) Error() string {
+	return fmt.Sprintf(`User input key [%s] is invalid`, f.GetDestinationPath())
 }
 
-func (f *UserInputKeyInvalid) Unwrap() error {
+func (f *UserInputDestinationPathInvalid) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewUserInputKeyInvalid(err error, key string) error {
-	f := &UserInputKeyInvalid{}
+func NewUserInputDestinationPathInvalid(err error, destinationPath string) error {
+	f := &UserInputDestinationPathInvalid{}
 	f.SetFault(err)
-	f.SetKey(key)
+	f.SetDestinationPath(destinationPath)
 
 	return f
 }

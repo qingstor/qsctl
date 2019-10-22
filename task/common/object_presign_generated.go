@@ -27,9 +27,9 @@ type objectPresignTaskRequirement interface {
 
 	// Inherited value
 	types.BucketNameGetter
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
 	types.ExpireGetter
-	types.KeyGetter
 	// Runtime value
 	types.URLSetter
 }
@@ -43,9 +43,9 @@ type mockObjectPresignTask struct {
 
 	// Inherited value
 	types.BucketName
+	types.DestinationPath
 	types.DestinationStorage
 	types.Expire
-	types.Key
 	// Runtime value
 	types.URL
 }

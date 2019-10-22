@@ -72,7 +72,7 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 			t.TriggerFault(err)
 			return
 		}
-		t.SetKey(key)
+		t.SetDestinationPath(key)
 
 		store, err := srv.Get(bucketName, types.WithLocation(t.GetZone()))
 		if err != nil {

@@ -3,7 +3,6 @@ package types
 
 import (
 	"bytes"
-	"io"
 	"sync"
 
 	"github.com/Xuanwo/navvy"
@@ -508,39 +507,6 @@ func (o *Fault) ValidateFault() bool {
 	return o.valid
 }
 
-type FlowType struct {
-	valid bool
-	v     constants.FlowType
-}
-
-type FlowTypeGetter interface {
-	GetFlowType() constants.FlowType
-}
-
-func (o *FlowType) GetFlowType() constants.FlowType {
-	if !o.valid {
-		panic("FlowType value is not valid")
-	}
-	return o.v
-}
-
-type FlowTypeSetter interface {
-	SetFlowType(constants.FlowType)
-}
-
-func (o *FlowType) SetFlowType(v constants.FlowType) {
-	o.v = v
-	o.valid = true
-}
-
-type FlowTypeValidator interface {
-	ValidateFlowType() bool
-}
-
-func (o *FlowType) ValidateFlowType() bool {
-	return o.valid
-}
-
 type Force struct {
 	valid bool
 	v     bool
@@ -637,72 +603,6 @@ type IDValidator interface {
 }
 
 func (o *ID) ValidateID() bool {
-	return o.valid
-}
-
-type Key struct {
-	valid bool
-	v     string
-}
-
-type KeyGetter interface {
-	GetKey() string
-}
-
-func (o *Key) GetKey() string {
-	if !o.valid {
-		panic("Key value is not valid")
-	}
-	return o.v
-}
-
-type KeySetter interface {
-	SetKey(string)
-}
-
-func (o *Key) SetKey(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type KeyValidator interface {
-	ValidateKey() bool
-}
-
-func (o *Key) ValidateKey() bool {
-	return o.valid
-}
-
-type KeyType struct {
-	valid bool
-	v     constants.KeyType
-}
-
-type KeyTypeGetter interface {
-	GetKeyType() constants.KeyType
-}
-
-func (o *KeyType) GetKeyType() constants.KeyType {
-	if !o.valid {
-		panic("KeyType value is not valid")
-	}
-	return o.v
-}
-
-type KeyTypeSetter interface {
-	SetKeyType(constants.KeyType)
-}
-
-func (o *KeyType) SetKeyType(v constants.KeyType) {
-	o.v = v
-	o.valid = true
-}
-
-type KeyTypeValidator interface {
-	ValidateKeyType() bool
-}
-
-func (o *KeyType) ValidateKeyType() bool {
 	return o.valid
 }
 
@@ -1036,72 +936,6 @@ func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
 }
 
-type Path struct {
-	valid bool
-	v     string
-}
-
-type PathGetter interface {
-	GetPath() string
-}
-
-func (o *Path) GetPath() string {
-	if !o.valid {
-		panic("Path value is not valid")
-	}
-	return o.v
-}
-
-type PathSetter interface {
-	SetPath(string)
-}
-
-func (o *Path) SetPath(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type PathValidator interface {
-	ValidatePath() bool
-}
-
-func (o *Path) ValidatePath() bool {
-	return o.valid
-}
-
-type PathType struct {
-	valid bool
-	v     constants.PathType
-}
-
-type PathTypeGetter interface {
-	GetPathType() constants.PathType
-}
-
-func (o *PathType) GetPathType() constants.PathType {
-	if !o.valid {
-		panic("PathType value is not valid")
-	}
-	return o.v
-}
-
-type PathTypeSetter interface {
-	SetPathType(constants.PathType)
-}
-
-func (o *PathType) SetPathType(v constants.PathType) {
-	o.v = v
-	o.valid = true
-}
-
-type PathTypeValidator interface {
-	ValidatePathType() bool
-}
-
-func (o *PathType) ValidatePathType() bool {
-	return o.valid
-}
-
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1429,39 +1263,6 @@ type SourceTypeValidator interface {
 }
 
 func (o *SourceType) ValidateSourceType() bool {
-	return o.valid
-}
-
-type Stream struct {
-	valid bool
-	v     io.Reader
-}
-
-type StreamGetter interface {
-	GetStream() io.Reader
-}
-
-func (o *Stream) GetStream() io.Reader {
-	if !o.valid {
-		panic("Stream value is not valid")
-	}
-	return o.v
-}
-
-type StreamSetter interface {
-	SetStream(io.Reader)
-}
-
-func (o *Stream) SetStream(v io.Reader) {
-	o.v = v
-	o.valid = true
-}
-
-type StreamValidator interface {
-	ValidateStream() bool
-}
-
-func (o *Stream) ValidateStream() bool {
 	return o.valid
 }
 

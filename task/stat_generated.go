@@ -47,8 +47,8 @@ type StatTask struct {
 	types.Todo
 
 	// Runtime value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.Object
 	types.Pool
 }

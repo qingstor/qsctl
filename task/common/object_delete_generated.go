@@ -26,8 +26,8 @@ type objectDeleteTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	// Runtime value
 }
 
@@ -39,8 +39,8 @@ type mockObjectDeleteTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	// Runtime value
 }
 

@@ -60,7 +60,6 @@ package types
 import (
 	"bytes"
 	"sync"
-	"io"
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"

@@ -216,8 +216,8 @@ type multipartStreamUploadTaskRequirement interface {
 
 	// Inherited value
 	types.ContentGetter
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	types.MD5SumGetter
 	types.OffsetGetter
 	types.SchedulerGetter
@@ -235,8 +235,8 @@ type mockMultipartStreamUploadTask struct {
 
 	// Inherited value
 	types.Content
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	types.MD5Sum
 	types.Offset
 	types.Scheduler

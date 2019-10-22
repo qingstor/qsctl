@@ -48,7 +48,7 @@ func TestObjectPresignTask_Run(t *testing.T) {
 		x.SetPool(pool)
 		x.SetDestinationStorage(store)
 		x.SetBucketName(ca.bucketName)
-		x.SetKey(ca.key)
+		x.SetDestinationPath(ca.key)
 		x.SetExpire(ca.expire)
 
 		task := NewObjectPresignTask(x)

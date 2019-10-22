@@ -8,12 +8,12 @@ import (
 )
 
 func (t *ObjectPresignTask) run() {
-	url, err := t.GetDestinationStorage().Reach(t.GetKey(), types.WithExpire(t.GetExpire()))
+	url, err := t.GetDestinationStorage().Reach(t.GetDestinationPath(), types.WithExpire(t.GetExpire()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetURL(url)
 	log.Debugf("Task <%s> for key <%s> finished, get signed URL <%s>",
-		"ObjectPresignTask", t.GetKey(), "")
+		"ObjectPresignTask", t.GetDestinationPath(), "")
 }

@@ -44,7 +44,7 @@ func TestObjectDeleteTask_run(t *testing.T) {
 		x := &mockObjectDeleteTask{}
 		x.SetPool(pool)
 		x.SetDestinationStorage(store)
-		x.SetKey(ca.key)
+		x.SetDestinationPath(ca.key)
 
 		task := NewObjectDeleteTask(x)
 		task.Run()

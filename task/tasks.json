@@ -195,10 +195,10 @@
     "runtime_value": [
       "BucketList",
       "BucketName",
+      "DestinationPath",
       "DestinationService",
       "DestinationStorage",
       "HumanReadable",
-      "Key",
       "ListType",
       "LongFormat",
       "ObjectChannel",
@@ -265,8 +265,8 @@
     "description": "upload a multipart via stream",
     "inherited_value": [
       "Content",
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "MD5Sum",
       "Offset",
       "Scheduler",
@@ -279,8 +279,8 @@
     "path": "common/object_delete",
     "description": "will delete a remote object with specific key",
     "inherited_value": [
-      "DestinationStorage",
-      "Key"
+      "DestinationPath",
+      "DestinationStorage"
     ]
   },
   "ObjectList": {
@@ -288,8 +288,8 @@
     "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "ObjectChannel",
       "Recursive"
     ]
@@ -300,9 +300,9 @@
     "description": "will presign a remote object and return the signed url",
     "inherited_value": [
       "BucketName",
+      "DestinationPath",
       "DestinationStorage",
-      "Expire",
-      "Key"
+      "Expire"
     ],
     "runtime_value": [
       "URL"
@@ -313,8 +313,8 @@
     "path": "common/object_stat",
     "description": "stat a remote object by request headObject",
     "inherited_value": [
-      "DestinationStorage",
-      "Key"
+      "DestinationPath",
+      "DestinationStorage"
     ],
     "runtime_value": [
       "Object"
@@ -326,9 +326,9 @@
     "description": "will handle presign tasks",
     "runtime_value": [
       "BucketName",
+      "DestinationPath",
       "DestinationStorage",
       "Expire",
-      "Key",
       "Pool",
       "URL"
     ]
@@ -349,8 +349,8 @@
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "Pool",
       "Recursive"
     ]
@@ -360,8 +360,8 @@
     "path": "stat",
     "description": "will stat a remote object",
     "runtime_value": [
+      "DestinationPath",
       "DestinationStorage",
-      "Key",
       "Object",
       "Pool"
     ]

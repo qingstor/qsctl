@@ -26,8 +26,8 @@ type objectStatTaskRequirement interface {
 	types.IDGetter
 
 	// Inherited value
+	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	types.KeyGetter
 	// Runtime value
 	types.ObjectSetter
 }
@@ -40,8 +40,8 @@ type mockObjectStatTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
 	types.DestinationStorage
-	types.Key
 	// Runtime value
 	types.Object
 }

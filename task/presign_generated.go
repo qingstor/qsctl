@@ -48,9 +48,9 @@ type PresignTask struct {
 
 	// Runtime value
 	types.BucketName
+	types.DestinationPath
 	types.DestinationStorage
 	types.Expire
-	types.Key
 	types.Pool
 	types.URL
 }

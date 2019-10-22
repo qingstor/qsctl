@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
@@ -26,21 +25,6 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 		// integer division truncation.
 		partSize = size/int64(constants.MaximumMultipartNumber) + 1
 		break
-	}
-	return
-}
-
-// CalculateFileSize will calculate the seekable file's size.
-func CalculateFileSize(r io.Seeker) (size int64, err error) {
-	// Move the start to make sure size read correctly.
-	_, err = r.Seek(0, io.SeekStart)
-	if err != nil {
-		return
-	}
-
-	size, err = r.Seek(0, io.SeekEnd)
-	if err != nil {
-		return
 	}
 	return
 }

@@ -11,14 +11,14 @@ import (
 )
 
 func (t *ObjectListTask) run() {
-	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetKey())
+	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetDestinationPath())
 	pairs := make([]*types.Pair, 0)
 
 	if !t.GetRecursive() {
 		pairs = append(pairs, types.WithDelimiter("/"))
 	}
 
-	it := t.GetDestinationStorage().ListDir(t.GetKey(), pairs...)
+	it := t.GetDestinationStorage().ListDir(t.GetDestinationPath(), pairs...)
 
 	// Always close the object channel.
 	defer close(t.GetObjectChannel())
@@ -35,5 +35,5 @@ func (t *ObjectListTask) run() {
 		t.GetObjectChannel() <- o
 	}
 
-	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetKey())
+	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetDestinationPath())
 }

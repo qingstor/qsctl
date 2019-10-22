@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"io"
-	"io/ioutil"
 	"math/rand"
-	"os"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/google/uuid"
@@ -28,33 +26,6 @@ type EmptyTask struct {
 
 // Run implement navvy.Task interface.
 func (t *EmptyTask) Run() {
-}
-
-// GenerateTestFile will generate a test file.
-func GenerateTestFile() (name string, size int64, md5sum []byte) {
-	f, err := ioutil.TempFile(os.TempDir(), "")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	name = f.Name()
-	size = rand.Int63n(maxTestSize)
-
-	r := NewRand()
-	h := md5.New()
-	w := io.MultiWriter(f, h)
-
-	_, err = io.CopyN(w, r, size)
-	if err != nil {
-		log.Fatal(err)
-	}
-	md5sum = h.Sum(nil)
-
-	err = f.Sync()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return
 }
 
 // GenerateTestStream will generate a test stream.

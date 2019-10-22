@@ -55,7 +55,7 @@ func presignRun(_ *cobra.Command, args []string) error {
 		// 	return
 		// }
 		t.SetBucketName(bucketName)
-		t.SetKey(objectKey)
+		t.SetDestinationPath(objectKey)
 
 		srv, err := NewQingStorService()
 		if err != nil {

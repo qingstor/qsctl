@@ -59,7 +59,7 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
 		// 	return
 		// }
-		t.SetKey(objectKey)
+		t.SetDestinationPath(objectKey)
 		srv, err := NewQingStorService()
 		if err != nil {
 			t.TriggerFault(err)
@@ -86,5 +86,5 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func rmOutput(t *task.RemoveObjectTask) {
-	fmt.Printf("Object <%s> removed.\n", t.GetKey())
+	fmt.Printf("Object <%s> removed.\n", t.GetDestinationPath())
 }
