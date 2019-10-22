@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -128,7 +128,7 @@ func listObjectOutput(t *task.ListTask) {
 	var err error
 	for v := range t.GetObjectChannel() {
 		objACL := constants.ACLObject
-		if v.Type == types.ObjectTypeDir {
+		if v.Type == typ.ObjectTypeDir {
 			objACL = constants.ACLDirectory
 		}
 

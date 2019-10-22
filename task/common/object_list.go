@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/Xuanwo/storage/pkg/iterator"
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
@@ -12,10 +12,10 @@ import (
 
 func (t *ObjectListTask) run() {
 	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetDestinationPath())
-	pairs := make([]*types.Pair, 0)
+	pairs := make([]*typ.Pair, 0)
 
 	if !t.GetRecursive() {
-		pairs = append(pairs, types.WithDelimiter("/"))
+		pairs = append(pairs, typ.WithDelimiter("/"))
 	}
 
 	it := t.GetDestinationStorage().ListDir(t.GetDestinationPath(), pairs...)

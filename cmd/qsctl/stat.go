@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	storageType "github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
 
@@ -67,7 +67,7 @@ The valid format sequences for files:
 	)
 }
 
-func statFormat(input string, om *storageType.Object) string {
+func statFormat(input string, om *typ.Object) string {
 	input = strings.ReplaceAll(input, "%n", om.Name)
 
 	if v, ok := om.GetType(); ok {

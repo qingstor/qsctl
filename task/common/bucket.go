@@ -1,14 +1,14 @@
 package common
 
 import (
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 func (t *BucketCreateTask) run() {
-	_, err := t.GetDestinationService().Create(t.GetBucketName(), types.WithLocation(t.GetZone()))
+	_, err := t.GetDestinationService().Create(t.GetBucketName(), typ.WithLocation(t.GetZone()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
@@ -26,7 +26,7 @@ func (t *BucketDeleteTask) run() {
 }
 
 func (t *BucketListTask) run() {
-	resp, err := t.GetDestinationService().List(types.WithLocation(t.GetZone()))
+	resp, err := t.GetDestinationService().List(typ.WithLocation(t.GetZone()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return

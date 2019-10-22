@@ -3,14 +3,14 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 
-	stypes "github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-var copyTaskConstructor = map[stypes.ObjectType]types.TodoFunc{
-	stypes.ObjectTypeStream: NewCopyStreamTask,
-	stypes.ObjectTypeFile:   NewCopyFileTask,
+var copyTaskConstructor = map[typ.ObjectType]types.TodoFunc{
+	typ.ObjectTypeStream: NewCopyStreamTask,
+	typ.ObjectTypeFile:   NewCopyFileTask,
 }
 
 // NewCopyTask will create a copy task.

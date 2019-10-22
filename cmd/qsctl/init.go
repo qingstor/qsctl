@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Xuanwo/storage/services/qingstor"
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -123,11 +123,11 @@ func initGlobalFlag() {
 func NewQingStorService() (*qingstor.Service, error) {
 	srv := qingstor.New()
 	err := srv.Init(
-		types.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
-		types.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
-		types.WithHost(viper.GetString(constants.ConfigHost)),
-		types.WithPort(viper.GetInt(constants.ConfigPort)),
-		types.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+		typ.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
+		typ.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
+		typ.WithHost(viper.GetString(constants.ConfigHost)),
+		typ.WithPort(viper.GetInt(constants.ConfigPort)),
+		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
 	)
 	return srv, err
 }
