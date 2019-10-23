@@ -70,3 +70,10 @@ func TestStatTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
+
+func TestMockStatTask_Run(t *testing.T) {
+	task := &mockStatTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

@@ -70,3 +70,10 @@ func TestCopyTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
+
+func TestMockCopyTask_Run(t *testing.T) {
+	task := &mockCopyTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

@@ -29,3 +29,10 @@ func TestDoneSchedulerTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.doneSchedulerTaskRequirement.ValidateFault())
 }
+
+func TestMockDoneSchedulerTask_Run(t *testing.T) {
+	task := &mockDoneSchedulerTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

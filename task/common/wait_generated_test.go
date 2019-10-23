@@ -29,3 +29,10 @@ func TestWaitTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.waitTaskRequirement.ValidateFault())
 }
+
+func TestMockWaitTask_Run(t *testing.T) {
+	task := &mockWaitTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

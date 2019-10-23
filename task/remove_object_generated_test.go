@@ -70,3 +70,10 @@ func TestRemoveObjectTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
+
+func TestMockRemoveObjectTask_Run(t *testing.T) {
+	task := &mockRemoveObjectTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

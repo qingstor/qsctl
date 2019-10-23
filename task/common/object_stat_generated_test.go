@@ -29,3 +29,10 @@ func TestObjectStatTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.objectStatTaskRequirement.ValidateFault())
 }
+
+func TestMockObjectStatTask_Run(t *testing.T) {
+	task := &mockObjectStatTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

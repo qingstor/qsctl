@@ -30,6 +30,13 @@ func TestFileMD5SumTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.fileMD5SumTaskRequirement.ValidateFault())
 }
 
+func TestMockFileMD5SumTask_Run(t *testing.T) {
+	task := &mockFileMD5SumTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewStreamMD5SumTask(t *testing.T) {
 	m := &mockStreamMD5SumTask{}
 	task := NewStreamMD5SumTask(m)
@@ -42,4 +49,11 @@ func TestStreamMD5SumTask_TriggerFault(t *testing.T) {
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.streamMD5SumTaskRequirement.ValidateFault())
+}
+
+func TestMockStreamMD5SumTask_Run(t *testing.T) {
+	task := &mockStreamMD5SumTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }

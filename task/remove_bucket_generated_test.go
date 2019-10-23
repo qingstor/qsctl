@@ -70,3 +70,10 @@ func TestRemoveBucketTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
+
+func TestMockRemoveBucketTask_Run(t *testing.T) {
+	task := &mockRemoveBucketTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

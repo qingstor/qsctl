@@ -30,6 +30,13 @@ func TestObjectDeleteTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.objectDeleteTaskRequirement.ValidateFault())
 }
 
+func TestMockObjectDeleteTask_Run(t *testing.T) {
+	task := &mockObjectDeleteTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewObjectDeleteIterateTask(t *testing.T) {
 	m := &mockObjectDeleteIterateTask{}
 	task := NewObjectDeleteIterateTask(m)
@@ -42,6 +49,13 @@ func TestObjectDeleteIterateTask_TriggerFault(t *testing.T) {
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.objectDeleteIterateTaskRequirement.ValidateFault())
+}
+
+func TestMockObjectDeleteIterateTask_Run(t *testing.T) {
+	task := &mockObjectDeleteIterateTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }
 
 func TestObjectDeleteScheduledTask_GeneratedRun(t *testing.T) {
@@ -100,6 +114,13 @@ func TestObjectDeleteScheduledTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
 
+func TestMockObjectDeleteScheduledTask_Run(t *testing.T) {
+	task := &mockObjectDeleteScheduledTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestRemoveDirTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -154,4 +175,11 @@ func TestRemoveDirTask_TriggerFault(t *testing.T) {
 
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockRemoveDirTask_Run(t *testing.T) {
+	task := &mockRemoveDirTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }

@@ -70,3 +70,10 @@ func TestPresignTask_TriggerFault(t *testing.T) {
 	assert.Equal(t, true, x.ValidateFault())
 	assert.Equal(t, true, errors.Is(x.GetFault(), err))
 }
+
+func TestMockPresignTask_Run(t *testing.T) {
+	task := &mockPresignTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
