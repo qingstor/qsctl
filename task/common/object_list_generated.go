@@ -74,3 +74,62 @@ func (t *ObjectListTask) TriggerFault(err error) {
 func NewObjectListTask(task types.Todoist) navvy.Task {
 	return &ObjectListTask{task.(objectListTaskRequirement)}
 }
+
+// objectListAsyncTaskRequirement is the requirement for execute ObjectListAsyncTask.
+type objectListAsyncTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+	types.ObjectChannelGetter
+	types.RecursiveGetter
+	// Runtime value
+}
+
+// mockObjectListAsyncTask is the mock task for ObjectListAsyncTask.
+type mockObjectListAsyncTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DestinationPath
+	types.DestinationStorage
+	types.ObjectChannel
+	types.Recursive
+	// Runtime value
+}
+
+func (t *mockObjectListAsyncTask) Run() {
+	panic("mockObjectListAsyncTask should not be run.")
+}
+
+// ObjectListAsyncTask will list objects.
+type ObjectListAsyncTask struct {
+	objectListAsyncTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *ObjectListAsyncTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.objectListAsyncTaskRequirement)
+}
+
+func (t *ObjectListAsyncTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ObjectListAsync failed: {%w}", err))
+}
+
+// NewObjectListAsyncTask will create a new ObjectListAsyncTask.
+func NewObjectListAsyncTask(task types.Todoist) navvy.Task {
+	return &ObjectListAsyncTask{task.(objectListAsyncTaskRequirement)}
+}

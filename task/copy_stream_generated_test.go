@@ -63,6 +63,22 @@ func TestCopyPartialStreamTask_GeneratedRun(t *testing.T) {
 	}
 }
 
+func TestCopyPartialStreamTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyPartialStreamTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyPartialStreamTask_Run(t *testing.T) {
+	task := &mockCopyPartialStreamTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestCopyStreamTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -108,4 +124,20 @@ func TestCopyStreamTask_GeneratedRun(t *testing.T) {
 			assert.Equal(t, v.hasCall, v.gotCall)
 		})
 	}
+}
+
+func TestCopyStreamTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyStreamTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyStreamTask_Run(t *testing.T) {
+	task := &mockCopyStreamTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }

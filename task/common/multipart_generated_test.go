@@ -30,6 +30,13 @@ func TestMultipartCompleteTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.multipartCompleteTaskRequirement.ValidateFault())
 }
 
+func TestMockMultipartCompleteTask_Run(t *testing.T) {
+	task := &mockMultipartCompleteTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewMultipartFileUploadTask(t *testing.T) {
 	m := &mockMultipartFileUploadTask{}
 	task := NewMultipartFileUploadTask(m)
@@ -42,6 +49,13 @@ func TestMultipartFileUploadTask_TriggerFault(t *testing.T) {
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.multipartFileUploadTaskRequirement.ValidateFault())
+}
+
+func TestMockMultipartFileUploadTask_Run(t *testing.T) {
+	task := &mockMultipartFileUploadTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }
 
 func TestNewMultipartInitTask(t *testing.T) {
@@ -58,6 +72,13 @@ func TestMultipartInitTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.multipartInitTaskRequirement.ValidateFault())
 }
 
+func TestMockMultipartInitTask_Run(t *testing.T) {
+	task := &mockMultipartInitTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewMultipartStreamUploadTask(t *testing.T) {
 	m := &mockMultipartStreamUploadTask{}
 	task := NewMultipartStreamUploadTask(m)
@@ -70,4 +91,11 @@ func TestMultipartStreamUploadTask_TriggerFault(t *testing.T) {
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.multipartStreamUploadTaskRequirement.ValidateFault())
+}
+
+func TestMockMultipartStreamUploadTask_Run(t *testing.T) {
+	task := &mockMultipartStreamUploadTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }

@@ -2,15 +2,43 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/mock"
+	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/utils"
 )
+
+func TestRemoveDirTask_New(t *testing.T) {
+	cases := []struct {
+		name     string
+		nextFunc types.TodoFunc
+		err      error
+	}{
+		{
+			name:     "ok",
+			nextFunc: NewObjectListAsyncTask,
+			err:      nil,
+		},
+	}
+
+	for _, tt := range cases {
+		m := &mockRemoveDirTask{}
+		task := NewRemoveDirTask(m).(*RemoveDirTask)
+
+		assert.Equal(t,
+			fmt.Sprintf("%v", tt.nextFunc),
+			fmt.Sprintf("%v", task.NextTODO()))
+
+	}
+}
 
 func TestObjectDeleteTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -57,5 +85,95 @@ func TestObjectDeleteTask_run(t *testing.T) {
 		}
 
 		assert.Equal(t, x.ValidateFault(), false)
+	}
+}
+
+func TestObjectDeleteIterateTask_run(t *testing.T) {
+	pool := navvy.NewPool(10)
+	err := errors.New("test error")
+
+	x := &mockObjectDeleteIterateTask{}
+
+	id := uuid.New().String()
+
+	fn := func(task types.Todoist) navvy.Task {
+		assert.Equal(t, false, *x.GetDone())
+		*x.GetDone() = true
+
+		t := &utils.EmptyTask{}
+		t.SetID(id)
+		t.SetPool(pool)
+		return t
+	}
+	x.SetScheduler(types.NewScheduler(fn))
+
+	{
+		done := false
+		x.SetDone(&done)
+		task := NewObjectDeleteIterateTask(x)
+		task.Run()
+		assert.Equal(t, true, *x.GetDone())
+	}
+	{
+		done := false
+		x.SetDone(&done)
+		x.SetFault(err)
+		task := NewObjectDeleteIterateTask(x)
+		task.Run()
+		assert.Equal(t, true, *x.GetDone())
+		assert.Equal(t, true, x.ValidateFault())
+		assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	}
+}
+
+func TestObjectDeleteScheduledTask_New(t *testing.T) {
+	path := uuid.New().String()
+
+	cases := []struct {
+		name            string
+		nextFunc        types.TodoFunc
+		done            bool
+		destinationPath string
+	}{
+		{
+			name:            "ok",
+			nextFunc:        NewObjectDeleteTask,
+			done:            false,
+			destinationPath: path,
+		},
+		{
+			name:            "done",
+			nextFunc:        NewDoneSchedulerTask,
+			done:            true,
+			destinationPath: "",
+		},
+	}
+
+	for _, tt := range cases {
+		oc := make(chan *typ.Object)
+		m := &mockObjectDeleteScheduledTask{}
+		m.SetObjectChannel(oc)
+		done := false
+		m.SetDone(&done)
+
+		if tt.done {
+			close(oc)
+		} else {
+			go func() {
+				oc <- &typ.Object{Name: tt.destinationPath}
+			}()
+		}
+
+		task := NewObjectDeleteScheduledTask(m).(*ObjectDeleteScheduledTask)
+
+		assert.Equal(t,
+			fmt.Sprintf("%v", tt.nextFunc),
+			fmt.Sprintf("%v", task.NextTODO()))
+
+		if tt.done {
+			assert.Equal(t, *m.GetDone(), tt.done)
+		} else {
+			assert.Equal(t, task.GetDestinationPath(), tt.destinationPath)
+		}
 	}
 }

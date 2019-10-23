@@ -29,3 +29,10 @@ func TestObjectPresignTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.objectPresignTaskRequirement.ValidateFault())
 }
+
+func TestMockObjectPresignTask_Run(t *testing.T) {
+	task := &mockObjectPresignTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

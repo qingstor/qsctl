@@ -29,3 +29,10 @@ func TestFileUploadTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.fileUploadTaskRequirement.ValidateFault())
 }
+
+func TestMockFileUploadTask_Run(t *testing.T) {
+	task := &mockFileUploadTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

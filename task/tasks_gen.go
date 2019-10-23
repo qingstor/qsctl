@@ -309,6 +309,13 @@ func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.{{ .Name | lowerFirst }}TaskRequirement.ValidateFault())
 }
+
+func TestMock{{ .Name }}Task_Run(t *testing.T) {
+	task := &mock{{ .Name }}Task{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
 `))
 
 var dependentTaskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
@@ -409,5 +416,21 @@ func Test{{ .Name }}Task_GeneratedRun(t *testing.T) {
 			assert.Equal(t, v.hasCall, v.gotCall)
 		})
 	}
+}
+
+func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &{{ .Name }}Task{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMock{{ .Name }}Task_Run(t *testing.T) {
+	task := &mock{{ .Name }}Task{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }
 `))
