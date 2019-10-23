@@ -161,6 +161,14 @@
       "TotalSize"
     ]
   },
+  "DoneScheduler": {
+    "type": "required",
+    "path": "common/scheduler",
+    "description": "done scheduler manually",
+    "inherited_value": [
+      "Scheduler"
+    ]
+  },
   "FileMD5Sum": {
     "type": "required",
     "path": "common/md5sum",
@@ -284,7 +292,42 @@
       "DestinationStorage"
     ]
   },
+  "ObjectDeleteIterate": {
+    "type": "required",
+    "path": "common/object_delete",
+    "description": "delete a dir with rm -r",
+    "inherited_value": [
+      "Done",
+      "Scheduler"
+    ]
+  },
+  "ObjectDeleteScheduled": {
+    "type": "dependent",
+    "path": "common/object_delete",
+    "depend": "RemoveDir",
+    "description": "will delete remote objects with object channel",
+    "inherited_value": [
+      "DestinationStorage",
+      "Done",
+      "ObjectChannel",
+      "Scheduler"
+    ],
+    "runtime_value": [
+      "DestinationPath"
+    ]
+  },
   "ObjectList": {
+    "type": "required",
+    "path": "common/object_list",
+    "description": "list objects",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
+      "ObjectChannel",
+      "Recursive"
+    ]
+  },
+  "ObjectListAsync": {
     "type": "required",
     "path": "common/object_list",
     "description": "list objects",
@@ -347,6 +390,22 @@
       "DestinationType",
       "Force",
       "Pool"
+    ]
+  },
+  "RemoveDir": {
+    "type": "dependent",
+    "path": "common/object_delete",
+    "depend": "RemoveObject",
+    "description": "will delete a dir recursively",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage"
+    ],
+    "runtime_value": [
+      "Done",
+      "ObjectChannel",
+      "Recursive",
+      "Scheduler"
     ]
   },
   "RemoveObject": {

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -11,22 +12,47 @@ import (
 )
 
 func TestNewRemoveObjectTask(t *testing.T) {
-	type args struct {
-		fn func(*RemoveObjectTask)
-	}
+	removeObjectErr := errors.New("remove-object-err")
 	tests := []struct {
 		name string
-		args args
+		fn   func(*RemoveObjectTask)
 		want types.TodoFunc
+		err  error
 	}{
-		{name: "next", args: args{func(task *RemoveObjectTask) { task.SetRecursive(false) }}, want: common.NewObjectDeleteTask},
+		{
+			name: "obj",
+			fn:   func(task *RemoveObjectTask) { task.SetRecursive(false) },
+			want: common.NewObjectDeleteTask,
+			err:  nil,
+		},
+		{
+			name: "dir",
+			fn:   func(task *RemoveObjectTask) { task.SetRecursive(true) },
+			want: common.NewRemoveDirTask,
+			err:  nil,
+		},
+		{
+			name: "err",
+			fn: func(task *RemoveObjectTask) {
+				task.SetRecursive(true)
+				task.SetFault(removeObjectErr)
+			},
+			want: nil,
+			err:  removeObjectErr,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewRemoveObjectTask(tt.args.fn)
+			got := NewRemoveObjectTask(tt.fn)
 			assert.Equal(t,
 				fmt.Sprintf("%v", tt.want),
 				fmt.Sprintf("%v", got.NextTODO()))
+
+			if tt.err != nil {
+				assert.Equal(t, true, errors.Is(got.GetFault(), tt.err))
+			} else {
+				assert.Equal(t, false, got.ValidateFault())
+			}
 		})
 	}
 }

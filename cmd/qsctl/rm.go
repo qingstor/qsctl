@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -47,6 +48,11 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		err := utils.ParseAtStorageInput(t, args[0])
 		if err != nil {
 			t.TriggerFault(err)
+			return
+		}
+
+		if (t.GetDestinationType() == types.ObjectTypeDir) && !t.GetRecursive() {
+			t.TriggerFault(fmt.Errorf("-r is required for removing dir operation"))
 			return
 		}
 	})

@@ -29,3 +29,17 @@ func TestObjectListTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.objectListTaskRequirement.ValidateFault())
 }
+
+func TestNewObjectListAsyncTask(t *testing.T) {
+	m := &mockObjectListAsyncTask{}
+	task := NewObjectListAsyncTask(m)
+	assert.NotNil(t, task)
+}
+
+func TestObjectListAsyncTask_TriggerFault(t *testing.T) {
+	m := &mockObjectListAsyncTask{}
+	task := &ObjectListAsyncTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.objectListAsyncTaskRequirement.ValidateFault())
+}

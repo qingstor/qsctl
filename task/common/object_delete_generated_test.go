@@ -29,3 +29,129 @@ func TestObjectDeleteTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.objectDeleteTaskRequirement.ValidateFault())
 }
+
+func TestNewObjectDeleteIterateTask(t *testing.T) {
+	m := &mockObjectDeleteIterateTask{}
+	task := NewObjectDeleteIterateTask(m)
+	assert.NotNil(t, task)
+}
+
+func TestObjectDeleteIterateTask_TriggerFault(t *testing.T) {
+	m := &mockObjectDeleteIterateTask{}
+	task := &ObjectDeleteIterateTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.objectDeleteIterateTaskRequirement.ValidateFault())
+}
+
+func TestObjectDeleteScheduledTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			m := &mockObjectDeleteScheduledTask{}
+			m.SetPool(pool)
+			task := &ObjectDeleteScheduledTask{objectDeleteScheduledTaskRequirement: m}
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
+}
+
+func TestObjectDeleteScheduledTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &ObjectDeleteScheduledTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestRemoveDirTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			m := &mockRemoveDirTask{}
+			m.SetPool(pool)
+			task := &RemoveDirTask{removeDirTaskRequirement: m}
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
+}
+
+func TestRemoveDirTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &RemoveDirTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
