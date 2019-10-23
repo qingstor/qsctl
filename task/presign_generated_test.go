@@ -77,3 +77,18 @@ func TestMockPresignTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestPresignTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &PresignTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}

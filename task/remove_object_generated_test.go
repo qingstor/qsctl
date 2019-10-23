@@ -77,3 +77,18 @@ func TestMockRemoveObjectTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestRemoveObjectTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &RemoveObjectTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
