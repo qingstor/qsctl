@@ -61,3 +61,12 @@ func TestRemoveObjectTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestRemoveObjectTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &RemoveObjectTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}

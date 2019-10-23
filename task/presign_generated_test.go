@@ -61,3 +61,12 @@ func TestPresignTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestPresignTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &PresignTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}

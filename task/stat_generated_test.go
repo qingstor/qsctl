@@ -61,3 +61,12 @@ func TestStatTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestStatTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &StatTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}

@@ -61,3 +61,12 @@ func TestRemoveBucketTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestRemoveBucketTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &RemoveBucketTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
