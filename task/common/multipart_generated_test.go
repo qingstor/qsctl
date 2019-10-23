@@ -16,6 +16,27 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
+func TestNewAbortMultipartTask(t *testing.T) {
+	m := &mockAbortMultipartTask{}
+	task := NewAbortMultipartTask(m)
+	assert.NotNil(t, task)
+}
+
+func TestAbortMultipartTask_TriggerFault(t *testing.T) {
+	m := &mockAbortMultipartTask{}
+	task := &AbortMultipartTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.abortMultipartTaskRequirement.ValidateFault())
+}
+
+func TestMockAbortMultipartTask_Run(t *testing.T) {
+	task := &mockAbortMultipartTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewMultipartCompleteTask(t *testing.T) {
 	m := &mockMultipartCompleteTask{}
 	task := NewMultipartCompleteTask(m)

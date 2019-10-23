@@ -1,10 +1,13 @@
 package common
 
 import (
+	"errors"
 	"io"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/Xuanwo/storage/pkg/iterator"
+	"github.com/Xuanwo/storage/pkg/segment"
 	"github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -156,4 +159,84 @@ func TestMultipartCompleteTask_Run(t *testing.T) {
 
 	task := NewMultipartCompleteTask(x)
 	task.Run()
+}
+
+func TestAbortMultipartTask_Run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	store := mock.NewMockStorager(ctrl)
+	bucketName := uuid.New().String()
+	key, abortErr, listErr := "", errors.New("abort-multipart-abortErr"), errors.New("abort-multipart-listErr")
+	pool := navvy.NewPool(10)
+
+	cases := []struct {
+		name       string
+		listFault  bool
+		listErr    error
+		abortFault bool
+		abortErr   error
+	}{
+		{
+			name:       "ok",
+			listFault:  false,
+			listErr:    iterator.ErrDone,
+			abortFault: false,
+			abortErr:   nil,
+		},
+		{
+			name:       "list error",
+			listFault:  true,
+			listErr:    listErr,
+			abortFault: false,
+			abortErr:   nil,
+		},
+		{
+			name:       "abort error",
+			listFault:  false,
+			listErr:    iterator.ErrDone,
+			abortFault: true,
+			abortErr:   abortErr,
+		},
+	}
+
+	for _, ca := range cases {
+		x := &mockAbortMultipartTask{}
+		x.SetBucketName(bucketName)
+		x.SetPool(pool)
+
+		store.EXPECT().ListSegments(gomock.Any()).DoAndReturn(func(inputPath string) iterator.SegmentIterator {
+			assert.Equal(t, inputPath, key)
+
+			count := 3
+			return iterator.NewSegmentIterator(func(segments *[]*segment.Segment) error {
+				*segments = make([]*segment.Segment, 1)
+				(*segments)[0] = &segment.Segment{ID: ca.name}
+				count--
+				if count > 0 {
+					return nil
+				}
+				return ca.listErr
+			})
+		})
+
+		store.EXPECT().AbortSegment(gomock.Any()).DoAndReturn(func(inputPath string) error {
+			return ca.abortErr
+		}).AnyTimes()
+
+		x.SetDestinationStorage(store)
+
+		task := NewAbortMultipartTask(x)
+		task.Run()
+
+		assert.Equal(t, ca.listFault || ca.abortFault, x.ValidateFault(), ca.name)
+		if ca.listFault {
+			assert.Error(t, x.GetFault(), ca.name)
+			assert.Equal(t, true, errors.Is(x.GetFault(), ca.listErr), ca.name)
+		}
+		if ca.abortFault {
+			assert.Error(t, x.GetFault(), ca.name)
+			assert.Equal(t, true, errors.Is(x.GetFault(), ca.abortErr), ca.name)
+		}
+	}
 }
