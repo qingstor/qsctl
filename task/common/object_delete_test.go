@@ -89,11 +89,10 @@ func TestObjectDeleteTask_run(t *testing.T) {
 }
 
 func TestObjectDeleteIterateTask_run(t *testing.T) {
-	done := false
 	pool := navvy.NewPool(10)
+	err := errors.New("test error")
 
 	x := &mockObjectDeleteIterateTask{}
-	x.SetDone(&done)
 
 	id := uuid.New().String()
 
@@ -108,9 +107,23 @@ func TestObjectDeleteIterateTask_run(t *testing.T) {
 	}
 	x.SetScheduler(types.NewScheduler(fn))
 
-	task := NewObjectDeleteIterateTask(x)
-	task.Run()
-	assert.Equal(t, true, *x.GetDone())
+	{
+		done := false
+		x.SetDone(&done)
+		task := NewObjectDeleteIterateTask(x)
+		task.Run()
+		assert.Equal(t, true, *x.GetDone())
+	}
+	{
+		done := false
+		x.SetDone(&done)
+		x.SetFault(err)
+		task := NewObjectDeleteIterateTask(x)
+		task.Run()
+		assert.Equal(t, true, *x.GetDone())
+		assert.Equal(t, true, x.ValidateFault())
+		assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	}
 }
 
 func TestObjectDeleteScheduledTask_New(t *testing.T) {
