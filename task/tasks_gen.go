@@ -433,4 +433,22 @@ func TestMock{{ .Name }}Task_Run(t *testing.T) {
 		task.Run()
 	})
 }
+
+{{- if not .Depend }}
+func Test{{ .Name }}Task_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &{{ .Name }}Task{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
+{{- end }}
 `))
