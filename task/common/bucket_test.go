@@ -2,16 +2,18 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/mock"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func TestBucketCreateTask_Run(t *testing.T) {
@@ -35,7 +37,7 @@ func TestBucketCreateTask_Run(t *testing.T) {
 
 	for _, ca := range cases {
 		t.Run(ca.name, func(t *testing.T) {
-			store.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option *types.Pair) (_ storage.Storager, err error) {
+			store.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option *typ.Pair) (_ storage.Storager, err error) {
 				assert.Equal(t, ca.bucketName, inputPath)
 				assert.Equal(t, ca.zone, option.Value.(string))
 				return nil, ca.err
@@ -82,7 +84,7 @@ func TestBucketDeleteTask_Run(t *testing.T) {
 
 	for _, ca := range cases {
 		// different case different behaviour
-		store.EXPECT().Delete(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option ...*types.Pair) error {
+		store.EXPECT().Delete(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, option ...*typ.Pair) error {
 			assert.Equal(t, ca.bucketName, inputPath)
 			return ca.err
 		}).Times(1)
@@ -129,12 +131,12 @@ func TestBucketListTask_run(t *testing.T) {
 
 	for _, ca := range cases {
 		mStorage := mock.NewMockStorager(ctrl)
-		mStorage.EXPECT().Metadata().DoAndReturn(func() (types.Metadata, error) {
+		mStorage.EXPECT().Metadata().DoAndReturn(func() (typ.Metadata, error) {
 			return ca.meta, ca.metadataErr
 		}).MaxTimes(1)
 
-		store.EXPECT().List(gomock.Any()).DoAndReturn(func(option ...*types.Pair) ([]storage.Storager, error) {
-			assert.Equal(t, types.WithLocation(ca.zone), option[0])
+		store.EXPECT().List(gomock.Any()).DoAndReturn(func(option ...*typ.Pair) ([]storage.Storager, error) {
+			assert.Equal(t, typ.WithLocation(ca.zone), option[0])
 			return []storage.Storager{mStorage}, ca.listErr
 		}).Times(1)
 
@@ -155,5 +157,27 @@ func TestBucketListTask_run(t *testing.T) {
 		assert.Equal(t, x.ValidateFault(), true, ca.name)
 		assert.Error(t, x.GetFault(), ca.name)
 		assert.Equal(t, true, errors.Is(x.GetFault(), listErr), ca.name)
+	}
+}
+
+func TestRemoveBucketForceTask_new(t *testing.T) {
+	cases := []struct {
+		name     string
+		nextFunc types.TodoFunc
+	}{
+		{
+			name:     "ok",
+			nextFunc: NewObjectListAsyncTask,
+		},
+	}
+
+	for _, tt := range cases {
+		m := &mockRemoveBucketForceTask{}
+
+		task := NewRemoveBucketForceTask(m).(*RemoveBucketForceTask)
+
+		assert.Equal(t,
+			fmt.Sprintf("%v", tt.nextFunc),
+			fmt.Sprintf("%v", task.NextTODO()))
 	}
 }

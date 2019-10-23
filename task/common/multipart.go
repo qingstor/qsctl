@@ -1,8 +1,10 @@
 package common
 
 import (
+	"errors"
 	"io/ioutil"
 
+	"github.com/Xuanwo/storage/pkg/iterator"
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
@@ -77,4 +79,26 @@ func (t *MultipartCompleteTask) run() {
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartCompleteTask", t.GetDestinationPath())
+}
+
+func (t *AbortMultipartTask) run() {
+	log.Debugf("Task <%s> for Bucket <%s> started.", "AbortMultipartTask", t.GetBucketName())
+	it := t.GetDestinationStorage().ListSegments("")
+
+	for {
+		o, err := it.Next()
+		if err != nil && errors.Is(err, iterator.ErrDone) {
+			break
+		}
+		if err != nil {
+			t.TriggerFault(fault.NewUnhandled(err))
+			return
+		}
+		if err := t.GetDestinationStorage().AbortSegment(o.ID); err != nil {
+			t.TriggerFault(fault.NewUnhandled(err))
+			return
+		}
+	}
+
+	log.Debugf("Task <%s> for Bucket <%s> finished.", "AbortMultipartTask", t.GetBucketName())
 }
