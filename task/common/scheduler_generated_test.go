@@ -16,22 +16,22 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = utils.SubmitNextTask
 
-func TestNewObjectStatTask(t *testing.T) {
-	m := &mockObjectStatTask{}
-	task := NewObjectStatTask(m)
+func TestNewDoneSchedulerTask(t *testing.T) {
+	m := &mockDoneSchedulerTask{}
+	task := NewDoneSchedulerTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestObjectStatTask_TriggerFault(t *testing.T) {
-	m := &mockObjectStatTask{}
-	task := &ObjectStatTask{m}
+func TestDoneSchedulerTask_TriggerFault(t *testing.T) {
+	m := &mockDoneSchedulerTask{}
+	task := &DoneSchedulerTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.objectStatTaskRequirement.ValidateFault())
+	assert.True(t, task.doneSchedulerTaskRequirement.ValidateFault())
 }
 
-func TestMockObjectStatTask_Run(t *testing.T) {
-	task := &mockObjectStatTask{}
+func TestMockDoneSchedulerTask_Run(t *testing.T) {
+	task := &mockDoneSchedulerTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})

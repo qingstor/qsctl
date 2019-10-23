@@ -375,6 +375,39 @@ func (o *DestinationType) ValidateDestinationType() bool {
 	return o.valid
 }
 
+type Done struct {
+	valid bool
+	v     *bool
+}
+
+type DoneGetter interface {
+	GetDone() *bool
+}
+
+func (o *Done) GetDone() *bool {
+	if !o.valid {
+		panic("Done value is not valid")
+	}
+	return o.v
+}
+
+type DoneSetter interface {
+	SetDone(*bool)
+}
+
+func (o *Done) SetDone(v *bool) {
+	o.v = v
+	o.valid = true
+}
+
+type DoneValidator interface {
+	ValidateDone() bool
+}
+
+func (o *Done) ValidateDone() bool {
+	return o.valid
+}
+
 type EnableBenchmark struct {
 	valid bool
 	v     bool

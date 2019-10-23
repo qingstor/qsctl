@@ -37,3 +37,31 @@ func (t *ObjectListTask) run() {
 
 	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetDestinationPath())
 }
+
+func (t *ObjectListAsyncTask) run() {
+	log.Debugf("Task <%s> for key <%s> started", "ObjectListAsyncTask", t.GetDestinationPath())
+
+	go func() {
+		pairs := make([]*typ.Pair, 0)
+
+		if !t.GetRecursive() {
+			pairs = append(pairs, typ.WithDelimiter("/"))
+		}
+
+		it := t.GetDestinationStorage().ListDir(t.GetDestinationPath(), pairs...)
+		defer close(t.GetObjectChannel())
+		for {
+			o, err := it.Next()
+			if err != nil && errors.Is(err, iterator.ErrDone) {
+				break
+			}
+			if err != nil {
+				t.TriggerFault(fault.NewUnhandled(err))
+				return
+			}
+			t.GetObjectChannel() <- o
+		}
+	}()
+
+	log.Debugf("Task <%s> for key <%s> finished", "ObjectListAsyncTask", t.GetDestinationPath())
+}

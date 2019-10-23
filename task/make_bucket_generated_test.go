@@ -61,3 +61,19 @@ func TestMakeBucketTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestMakeBucketTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &MakeBucketTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockMakeBucketTask_Run(t *testing.T) {
+	task := &mockMakeBucketTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

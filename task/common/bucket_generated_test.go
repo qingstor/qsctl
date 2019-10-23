@@ -30,6 +30,13 @@ func TestBucketCreateTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.bucketCreateTaskRequirement.ValidateFault())
 }
 
+func TestMockBucketCreateTask_Run(t *testing.T) {
+	task := &mockBucketCreateTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewBucketDeleteTask(t *testing.T) {
 	m := &mockBucketDeleteTask{}
 	task := NewBucketDeleteTask(m)
@@ -44,6 +51,13 @@ func TestBucketDeleteTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.bucketDeleteTaskRequirement.ValidateFault())
 }
 
+func TestMockBucketDeleteTask_Run(t *testing.T) {
+	task := &mockBucketDeleteTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestNewBucketListTask(t *testing.T) {
 	m := &mockBucketListTask{}
 	task := NewBucketListTask(m)
@@ -56,4 +70,11 @@ func TestBucketListTask_TriggerFault(t *testing.T) {
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.bucketListTaskRequirement.ValidateFault())
+}
+
+func TestMockBucketListTask_Run(t *testing.T) {
+	task := &mockBucketListTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }

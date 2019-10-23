@@ -61,3 +61,19 @@ func TestListTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestListTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &ListTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockListTask_Run(t *testing.T) {
+	task := &mockListTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

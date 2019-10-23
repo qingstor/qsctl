@@ -61,3 +61,19 @@ func TestCopyTask_GeneratedRun(t *testing.T) {
 		})
 	}
 }
+
+func TestCopyTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyTask_Run(t *testing.T) {
+	task := &mockCopyTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

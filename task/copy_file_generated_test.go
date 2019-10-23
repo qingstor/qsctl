@@ -63,6 +63,22 @@ func TestCopyFileTask_GeneratedRun(t *testing.T) {
 	}
 }
 
+func TestCopyFileTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyFileTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyFileTask_Run(t *testing.T) {
+	task := &mockCopyFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestCopyLargeFileTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -108,6 +124,22 @@ func TestCopyLargeFileTask_GeneratedRun(t *testing.T) {
 			assert.Equal(t, v.hasCall, v.gotCall)
 		})
 	}
+}
+
+func TestCopyLargeFileTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyLargeFileTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyLargeFileTask_Run(t *testing.T) {
+	task := &mockCopyLargeFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }
 
 func TestCopyPartialFileTask_GeneratedRun(t *testing.T) {
@@ -157,6 +189,22 @@ func TestCopyPartialFileTask_GeneratedRun(t *testing.T) {
 	}
 }
 
+func TestCopyPartialFileTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopyPartialFileTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopyPartialFileTask_Run(t *testing.T) {
+	task := &mockCopyPartialFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestCopySmallFileTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -202,4 +250,20 @@ func TestCopySmallFileTask_GeneratedRun(t *testing.T) {
 			assert.Equal(t, v.hasCall, v.gotCall)
 		})
 	}
+}
+
+func TestCopySmallFileTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &CopySmallFileTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockCopySmallFileTask_Run(t *testing.T) {
+	task := &mockCopySmallFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
 }
