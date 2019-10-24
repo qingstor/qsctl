@@ -78,3 +78,66 @@ func TestMockBucketListTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+
+func TestRemoveBucketForceTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			m := &mockRemoveBucketForceTask{}
+			m.SetPool(pool)
+			task := &RemoveBucketForceTask{removeBucketForceTaskRequirement: m}
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
+}
+
+func TestRemoveBucketForceTask_TriggerFault(t *testing.T) {
+	err := errors.New("trigger fault")
+	x := &RemoveBucketForceTask{}
+	x.TriggerFault(err)
+
+	assert.Equal(t, true, x.ValidateFault())
+	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+}
+
+func TestMockRemoveBucketForceTask_Run(t *testing.T) {
+	task := &mockRemoveBucketForceTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}

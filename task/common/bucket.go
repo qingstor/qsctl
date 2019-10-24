@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *BucketCreateTask) run() {
@@ -17,6 +18,7 @@ func (t *BucketCreateTask) run() {
 }
 
 func (t *BucketDeleteTask) run() {
+	log.Debugf("Task <%s> for Bucket <%s> started.", "BucketDeleteTask", t.GetBucketName())
 	err := t.GetDestinationService().Delete(t.GetBucketName())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
@@ -44,4 +46,24 @@ func (t *BucketListTask) run() {
 	}
 	t.SetBucketList(buckets)
 	log.Debugf("Task <%s> in zone <%s> finished.", "BucketListTask", t.GetZone())
+}
+
+func (t *RemoveBucketForceTask) new() {
+	oc := make(chan *typ.Object)
+	t.SetObjectChannel(oc)
+	// done to notify get object from channel has done
+	done := false
+	t.SetDone(&done)
+	// set recursive for list async task to list recursively
+	t.SetRecursive(true)
+
+	t.SetScheduler(types.NewScheduler(NewObjectDeleteScheduledTask))
+
+	t.AddTODOs(
+		NewObjectListAsyncTask,
+		NewObjectDeleteIterateTask,
+		NewWaitTask,
+		NewAbortMultipartTask,
+		NewBucketDeleteTask,
+	)
 }

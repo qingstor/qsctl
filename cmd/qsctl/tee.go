@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yunify/qsctl/v2/constants"
 
+	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-var (
-	teeExpectSize int64
-	teeMaxMemory  int64
-)
+var teeInput struct {
+	ExpectSize string
+	MaxMemory  string
+}
 
 // TeeCommand will handle tee command.
 var TeeCommand = &cobra.Command{
@@ -28,19 +28,19 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 	PreRunE: validateTeeFlag,
 }
 
-func teeRun(_ *cobra.Command, args []string) (err error) {
+func teeRun(_ *cobra.Command, _ []string) (err error) {
 	return nil
 }
 
 func initTeeFlag() {
-	TeeCommand.PersistentFlags().StringVar(&expectSize,
-		"expect-size",
+	TeeCommand.PersistentFlags().StringVar(&teeInput.ExpectSize,
+		constants.ExpectSizeFlag,
 		"",
 		"expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)",
 	)
-	TeeCommand.PersistentFlags().StringVar(&maximumMemoryContent,
+	TeeCommand.PersistentFlags().StringVar(&teeInput.MaxMemory,
 		constants.MaximumMemoryContentFlag,
 		"",
 		"maximum content loaded in memory\n"+
@@ -49,15 +49,18 @@ func initTeeFlag() {
 }
 
 func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
-	if expectSize != "" {
-		teeExpectSize, err = utils.ParseByteSize(expectSize)
+	// TODO: parse should be moved into teeParse func
+	if teeInput.ExpectSize != "" {
+		teeExpectSize, err := utils.ParseByteSize(teeInput.ExpectSize)
+		_ = teeExpectSize
 		if err != nil {
 			return err
 		}
 	}
 
-	if maximumMemoryContent != "" {
-		teeMaxMemory, err = utils.ParseByteSize(maximumMemoryContent)
+	if teeInput.MaxMemory != "" {
+		teeMaxMemory, err := utils.ParseByteSize(teeInput.MaxMemory)
+		_ = teeMaxMemory
 		if err != nil {
 			return err
 		}

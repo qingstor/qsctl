@@ -19,7 +19,11 @@ func NewRemoveBucketTask(fn func(*RemoveBucketTask)) *RemoveBucketTask {
 		return t
 	}
 
-	// TODO: check force flag, if true, do rm -r, then delete bucket
+	// check force flag, if true, do rm -r, then delete bucket
+	if t.GetForce() {
+		t.AddTODOs(common.NewRemoveBucketForceTask)
+		return t
+	}
 	t.AddTODOs(common.NewBucketDeleteTask)
 	return t
 }
