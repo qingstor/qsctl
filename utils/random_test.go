@@ -25,13 +25,17 @@ func BenchmarkRandbo(b *testing.B) {
 	b.SetBytes(toCopy)
 	r := NewRand()
 	for i := 0; i < b.N; i++ {
-		io.CopyN(ioutil.Discard, r, toCopy)
+		if _, err := io.CopyN(ioutil.Discard, r, toCopy); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
 func BenchmarkCrypto(b *testing.B) {
 	b.SetBytes(toCopy)
 	for i := 0; i < b.N; i++ {
-		io.CopyN(ioutil.Discard, rand.Reader, toCopy)
+		if _, err := io.CopyN(ioutil.Discard, rand.Reader, toCopy); err != nil {
+			b.Fatal(err)
+		}
 	}
 }

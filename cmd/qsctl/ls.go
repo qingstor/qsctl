@@ -28,7 +28,7 @@ var LsCommand = &cobra.Command{
 	Long:  `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`,
 	Example: utils.AlignPrintWithColon(
 		"List buckets: qsctl ls",
-		"List bucket's all objects: qsctl ls qs://bucket-name -r",
+		"List bucket's all objects: qsctl ls qs://bucket-name -R",
 		"List objects with prefix: qsctl ls qs://bucket-name/prefix",
 		"List objects by long format: qsctl ls qs://bucket-name -l",
 	),

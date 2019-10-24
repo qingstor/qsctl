@@ -184,3 +184,71 @@ func (t *BucketListTask) TriggerFault(err error) {
 func NewBucketListTask(task types.Todoist) navvy.Task {
 	return &BucketListTask{task.(bucketListTaskRequirement)}
 }
+
+// removeBucketForceTaskRequirement is the requirement for execute RemoveBucketForceTask.
+type removeBucketForceTaskRequirement interface {
+	navvy.Task
+	types.PoolGetter
+
+	// Inherited value
+	types.BucketNameGetter
+	types.DestinationPathGetter
+	types.DestinationServiceGetter
+	types.DestinationStorageGetter
+}
+
+// mockRemoveBucketForceTask is the mock task for RemoveBucketForceTask.
+type mockRemoveBucketForceTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.BucketName
+	types.DestinationPath
+	types.DestinationService
+	types.DestinationStorage
+}
+
+func (t *mockRemoveBucketForceTask) Run() {
+	panic("mockRemoveBucketForceTask should not be run.")
+}
+
+// RemoveBucketForceTask will remove a bucket force.
+type RemoveBucketForceTask struct {
+	removeBucketForceTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Todo
+
+	// Runtime value
+	types.Done
+	types.ObjectChannel
+	types.Recursive
+	types.Scheduler
+}
+
+// Run implement navvy.Task
+func (t *RemoveBucketForceTask) Run() {
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t)
+}
+
+func (t *RemoveBucketForceTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task RemoveBucketForce failed: {%w}", err))
+}
+
+// NewRemoveBucketForceTask will create a RemoveBucketForceTask and fetch inherited data from RemoveBucketTask.
+func NewRemoveBucketForceTask(task types.Todoist) navvy.Task {
+	t := &RemoveBucketForceTask{
+		removeBucketForceTaskRequirement: task.(removeBucketForceTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}

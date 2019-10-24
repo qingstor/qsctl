@@ -31,7 +31,6 @@ func (t *CopyFileTask) new() {
 	} else {
 		t.AddTODOs(NewCopySmallFileTask)
 	}
-	return
 }
 
 // newCopySmallFileTask will create a new small file task.
@@ -42,7 +41,6 @@ func (t *CopySmallFileTask) new() {
 		common.NewFileMD5SumTask,
 		common.NewFileUploadTask,
 	)
-	return
 }
 
 // newCopyLargeFileTask will create a new Task.
@@ -65,7 +63,6 @@ func (t *CopyLargeFileTask) new() {
 		common.NewWaitTask,
 		common.NewMultipartCompleteTask,
 	)
-	return
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -89,5 +86,4 @@ func (t *CopyPartialFileTask) new() {
 		common.NewFileMD5SumTask,
 		common.NewMultipartFileUploadTask,
 	)
-	return
 }

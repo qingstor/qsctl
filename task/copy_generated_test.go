@@ -77,3 +77,18 @@ func TestMockCopyTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestCopyTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &CopyTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}

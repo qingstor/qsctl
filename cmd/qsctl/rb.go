@@ -46,10 +46,24 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 			return
 		}
 
-		err := utils.ParseAtStorageInput(t, args[0])
+		if err := utils.ParseAtServiceInput(t); err != nil {
+			t.TriggerFault(err)
+			return
+		}
+
+		_, bucketName, _, err := utils.ParseQsPath(args[0])
 		if err != nil {
 			t.TriggerFault(err)
 			return
+		}
+		t.SetBucketName(bucketName)
+
+		// only rb -f use storage
+		if t.GetForce() {
+			if err := utils.ParseAtStorageInput(t, args[0]); err != nil {
+				t.TriggerFault(err)
+				return
+			}
 		}
 	})
 

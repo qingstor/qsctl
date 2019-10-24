@@ -77,3 +77,18 @@ func TestMockMakeBucketTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestMakeBucketTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &MakeBucketTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}

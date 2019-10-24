@@ -77,3 +77,18 @@ func TestMockListTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestListTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &ListTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}

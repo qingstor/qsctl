@@ -1,4 +1,13 @@
 {
+  "AbortMultipart": {
+    "type": "required",
+    "path": "common/multipart",
+    "description": "abort all multipart uploads in a bucket",
+    "inherited_value": [
+      "BucketName",
+      "DestinationStorage"
+    ]
+  },
   "BucketCreate": {
     "type": "required",
     "path": "common/bucket",
@@ -390,6 +399,24 @@
       "DestinationType",
       "Force",
       "Pool"
+    ]
+  },
+  "RemoveBucketForce": {
+    "type": "dependent",
+    "path": "common/bucket",
+    "depend": "RemoveBucket",
+    "description": "remove a bucket force",
+    "inherited_value": [
+      "BucketName",
+      "DestinationPath",
+      "DestinationService",
+      "DestinationStorage"
+    ],
+    "runtime_value": [
+      "Done",
+      "ObjectChannel",
+      "Recursive",
+      "Scheduler"
     ]
   },
   "RemoveDir": {

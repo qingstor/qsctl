@@ -16,6 +16,61 @@ var _ types.Pool
 var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
+// abortMultipartTaskRequirement is the requirement for execute AbortMultipartTask.
+type abortMultipartTaskRequirement interface {
+	navvy.Task
+	types.Todoist
+	types.PoolGetter
+	types.FaultSetter
+	types.FaultValidator
+	types.IDGetter
+
+	// Inherited value
+	types.BucketNameGetter
+	types.DestinationStorageGetter
+	// Runtime value
+}
+
+// mockAbortMultipartTask is the mock task for AbortMultipartTask.
+type mockAbortMultipartTask struct {
+	types.Todo
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.BucketName
+	types.DestinationStorage
+	// Runtime value
+}
+
+func (t *mockAbortMultipartTask) Run() {
+	panic("mockAbortMultipartTask should not be run.")
+}
+
+// AbortMultipartTask will abort all multipart uploads in a bucket.
+type AbortMultipartTask struct {
+	abortMultipartTaskRequirement
+}
+
+// Run implement navvy.Task.
+func (t *AbortMultipartTask) Run() {
+	t.run()
+	if t.ValidateFault() {
+		return
+	}
+	utils.SubmitNextTask(t.abortMultipartTaskRequirement)
+}
+
+func (t *AbortMultipartTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task AbortMultipart failed: {%w}", err))
+}
+
+// NewAbortMultipartTask will create a new AbortMultipartTask.
+func NewAbortMultipartTask(task types.Todoist) navvy.Task {
+	return &AbortMultipartTask{task.(abortMultipartTaskRequirement)}
+}
+
 // multipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
 type multipartCompleteTaskRequirement interface {
 	navvy.Task

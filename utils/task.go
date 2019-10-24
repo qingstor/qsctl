@@ -59,9 +59,8 @@ func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string, err error) {
 	// qs-path includes three part: "qs://" prefix, bucket name and object key.
 	// "qs://" prefix could be emit.
-	if strings.HasPrefix(p, "qs://") {
-		p = p[5:]
-	}
+	p = strings.TrimPrefix(p, "qs://")
+
 	s := strings.SplitN(p, "/", 2)
 
 	// Only have bucket name or object key is "/"
