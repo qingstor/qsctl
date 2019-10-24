@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/Xuanwo/storage/services/qingstor"
-	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -10,14 +8,10 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 )
 
+// register available flag vars here
 var (
-	// register available flag vars here
-	bench                bool
-	expectSize           string
-	maximumMemoryContent string
-)
-
-var (
+	// bench will be set if bench flag was set
+	bench bool
 	// configPath will be set if config flag was set
 	configPath string
 )
@@ -117,17 +111,4 @@ func initGlobalFlag() {
 		false, "enable benchmark or not")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
-}
-
-// NewQingStorService will create a new qingstor service.
-func NewQingStorService() (*qingstor.Service, error) {
-	srv := qingstor.New()
-	err := srv.Init(
-		typ.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
-		typ.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
-		typ.WithHost(viper.GetString(constants.ConfigHost)),
-		typ.WithPort(viper.GetInt(constants.ConfigPort)),
-		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
-	)
-	return srv, err
 }

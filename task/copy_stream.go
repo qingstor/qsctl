@@ -40,7 +40,6 @@ func (t *CopyStreamTask) new() {
 		common.NewWaitTask,
 		common.NewMultipartCompleteTask,
 	)
-	return
 }
 
 // NewCopyPartialStreamTask will create a new Task.
@@ -75,5 +74,4 @@ func (t *CopyPartialStreamTask) new() {
 		common.NewStreamMD5SumTask,
 		common.NewMultipartStreamUploadTask,
 	)
-	return
 }
