@@ -1,5 +1,11 @@
 # qsctl
 
+[![Build Status](https://travis-ci.org/yunify/qsctl.svg?branch=master)](https://travis-ci.org/yunify/qsctl)
+[![GoDoc](https://godoc.org/github.com/yunify/qsctl?status.svg)](https://godoc.org/github.com/yunify/qsctl)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yunify/qsctl)](https://goreportcard.com/report/github.com/yunify/qsctl)
+[![codecov](https://codecov.io/gh/yunify/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/yunify/qsctl)
+[![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/yunify/qsctl/blob/master/LICENSE)
+
 qsctl is intended to be an advanced command line tool for QingStor, it provides
 powerful unix-like commands to let you manage QingStor resources just like files
 on local machine. Unix-like commands contains: cp, ls, mb, mv, rm, rb, and sync.
