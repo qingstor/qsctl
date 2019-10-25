@@ -20,7 +20,7 @@ qsctl 是 QingStor 对象存储的高级命令行工具，它提供了强大的�
 
 ### 手动配置
 
-配置文件默认位于 `~/.qingstor/config.yaml`，也可以通过参数来手动 `-c /path/to/config`。
+配置文件默认位于 `~/.qingstor/config.yaml`，也可以通过参数来手动指定 `-c /path/to/config`。
 
 ```yaml
 access_key_id: 'ACCESS_KEY_ID_EXAMPLE'
