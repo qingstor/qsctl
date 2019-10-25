@@ -18,6 +18,7 @@ after_success:
 
 before_deploy:
   - make release
+
 deploy:
   provider: releases
   api_key: $API_KEY
@@ -27,4 +28,3 @@ deploy:
   draft: true
   on:
     tags: true
-    condition: $TRAVIS_GO_VERSION = 1.13
