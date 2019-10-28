@@ -14,5 +14,14 @@ const (
 	ConfigSecretAccessKey = "secret_access_key"
 
 	// Runtime config.
-	ConfigZone = "zone"
+	// ConfigZone = "zone"
+)
+
+// Default config values.
+const (
+	DefaultHost              = "qingstor.com"
+	DefaultPort              = "443"
+	DefaultProtocol          = "https"
+	DefaultConnectionRetries = 3
+	DefaultLogLevel          = "info"
 )
