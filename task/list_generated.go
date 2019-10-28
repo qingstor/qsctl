@@ -72,7 +72,7 @@ func (t *ListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task List failed: {%w}", err))
 }
 
-// NewListTask will create a ListTask and fetch inherited data from Task.
+// NewListTask will create a ListTask and fetch inherited data from parent task.
 func NewListTask(task navvy.Task) navvy.Task {
 	t := &ListTask{
 		listTaskRequirement: task.(listTaskRequirement),

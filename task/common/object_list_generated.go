@@ -67,7 +67,7 @@ func (t *ObjectListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectList failed: {%w}", err))
 }
 
-// NewObjectListTask will create a ObjectListTask and fetch inherited data from Task.
+// NewObjectListTask will create a ObjectListTask and fetch inherited data from parent task.
 func NewObjectListTask(task navvy.Task) navvy.Task {
 	t := &ObjectListTask{
 		objectListTaskRequirement: task.(objectListTaskRequirement),
@@ -130,7 +130,7 @@ func (t *ObjectListAsyncTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectListAsync failed: {%w}", err))
 }
 
-// NewObjectListAsyncTask will create a ObjectListAsyncTask and fetch inherited data from Task.
+// NewObjectListAsyncTask will create a ObjectListAsyncTask and fetch inherited data from parent task.
 func NewObjectListAsyncTask(task navvy.Task) navvy.Task {
 	t := &ObjectListAsyncTask{
 		objectListAsyncTaskRequirement: task.(objectListAsyncTaskRequirement),

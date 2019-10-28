@@ -44,8 +44,10 @@ func TestCopyTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &CopyTask{}
-			task.SetPool(pool)
+
+			m := &mockCopyTask{}
+			m.SetPool(pool)
+			task := &CopyTask{copyTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockCopyTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestCopyTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &CopyTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

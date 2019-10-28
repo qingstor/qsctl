@@ -44,8 +44,10 @@ func TestDoneSchedulerTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &DoneSchedulerTask{}
-			task.SetPool(pool)
+
+			m := &mockDoneSchedulerTask{}
+			m.SetPool(pool)
+			task := &DoneSchedulerTask{doneSchedulerTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockDoneSchedulerTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestDoneSchedulerTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &DoneSchedulerTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

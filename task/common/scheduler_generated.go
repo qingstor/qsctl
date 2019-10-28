@@ -59,7 +59,7 @@ func (t *DoneSchedulerTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DoneScheduler failed: {%w}", err))
 }
 
-// NewDoneSchedulerTask will create a DoneSchedulerTask and fetch inherited data from Task.
+// NewDoneSchedulerTask will create a DoneSchedulerTask and fetch inherited data from parent task.
 func NewDoneSchedulerTask(task navvy.Task) navvy.Task {
 	t := &DoneSchedulerTask{
 		doneSchedulerTaskRequirement: task.(doneSchedulerTaskRequirement),

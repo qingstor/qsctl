@@ -71,7 +71,7 @@ func (t *FileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileUpload failed: {%w}", err))
 }
 
-// NewFileUploadTask will create a FileUploadTask and fetch inherited data from Task.
+// NewFileUploadTask will create a FileUploadTask and fetch inherited data from parent task.
 func NewFileUploadTask(task navvy.Task) navvy.Task {
 	t := &FileUploadTask{
 		fileUploadTaskRequirement: task.(fileUploadTaskRequirement),

@@ -44,8 +44,10 @@ func TestObjectPresignTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ObjectPresignTask{}
-			task.SetPool(pool)
+
+			m := &mockObjectPresignTask{}
+			m.SetPool(pool)
+			task := &ObjectPresignTask{objectPresignTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockObjectPresignTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestObjectPresignTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ObjectPresignTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

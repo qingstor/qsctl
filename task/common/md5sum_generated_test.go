@@ -44,8 +44,10 @@ func TestFileMD5SumTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &FileMD5SumTask{}
-			task.SetPool(pool)
+
+			m := &mockFileMD5SumTask{}
+			m.SetPool(pool)
+			task := &FileMD5SumTask{fileMD5SumTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -80,21 +82,6 @@ func TestMockFileMD5SumTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestFileMD5SumTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &FileMD5SumTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewStreamMD5SumTask(t *testing.T) {
 	m := &mockStreamMD5SumTask{}
@@ -126,8 +113,10 @@ func TestStreamMD5SumTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &StreamMD5SumTask{}
-			task.SetPool(pool)
+
+			m := &mockStreamMD5SumTask{}
+			m.SetPool(pool)
+			task := &StreamMD5SumTask{streamMD5SumTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -161,19 +150,4 @@ func TestMockStreamMD5SumTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestStreamMD5SumTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &StreamMD5SumTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

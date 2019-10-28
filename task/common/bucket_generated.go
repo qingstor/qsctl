@@ -65,7 +65,7 @@ func (t *BucketCreateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketCreate failed: {%w}", err))
 }
 
-// NewBucketCreateTask will create a BucketCreateTask and fetch inherited data from Task.
+// NewBucketCreateTask will create a BucketCreateTask and fetch inherited data from parent task.
 func NewBucketCreateTask(task navvy.Task) navvy.Task {
 	t := &BucketCreateTask{
 		bucketCreateTaskRequirement: task.(bucketCreateTaskRequirement),
@@ -124,7 +124,7 @@ func (t *BucketDeleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketDelete failed: {%w}", err))
 }
 
-// NewBucketDeleteTask will create a BucketDeleteTask and fetch inherited data from Task.
+// NewBucketDeleteTask will create a BucketDeleteTask and fetch inherited data from parent task.
 func NewBucketDeleteTask(task navvy.Task) navvy.Task {
 	t := &BucketDeleteTask{
 		bucketDeleteTaskRequirement: task.(bucketDeleteTaskRequirement),
@@ -184,7 +184,7 @@ func (t *BucketListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketList failed: {%w}", err))
 }
 
-// NewBucketListTask will create a BucketListTask and fetch inherited data from Task.
+// NewBucketListTask will create a BucketListTask and fetch inherited data from parent task.
 func NewBucketListTask(task navvy.Task) navvy.Task {
 	t := &BucketListTask{
 		bucketListTaskRequirement: task.(bucketListTaskRequirement),
@@ -197,7 +197,6 @@ func NewBucketListTask(task navvy.Task) navvy.Task {
 // removeBucketForceTaskRequirement is the requirement for execute RemoveBucketForceTask.
 type removeBucketForceTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.BucketNameGetter
@@ -251,7 +250,7 @@ func (t *RemoveBucketForceTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveBucketForce failed: {%w}", err))
 }
 
-// NewRemoveBucketForceTask will create a RemoveBucketForceTask and fetch inherited data from RemoveBucketTask.
+// NewRemoveBucketForceTask will create a RemoveBucketForceTask and fetch inherited data from parent task.
 func NewRemoveBucketForceTask(task navvy.Task) navvy.Task {
 	t := &RemoveBucketForceTask{
 		removeBucketForceTaskRequirement: task.(removeBucketForceTaskRequirement),

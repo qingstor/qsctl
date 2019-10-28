@@ -64,7 +64,7 @@ func (t *StatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Stat failed: {%w}", err))
 }
 
-// NewStatTask will create a StatTask and fetch inherited data from Task.
+// NewStatTask will create a StatTask and fetch inherited data from parent task.
 func NewStatTask(task navvy.Task) navvy.Task {
 	t := &StatTask{
 		statTaskRequirement: task.(statTaskRequirement),

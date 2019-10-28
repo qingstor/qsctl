@@ -969,6 +969,39 @@ func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
 }
 
+type Path struct {
+	valid bool
+	v     string
+}
+
+type PathGetter interface {
+	GetPath() string
+}
+
+func (o *Path) GetPath() string {
+	if !o.valid {
+		panic("Path value is not valid")
+	}
+	return o.v
+}
+
+type PathSetter interface {
+	SetPath(string)
+}
+
+func (o *Path) SetPath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type PathValidator interface {
+	ValidatePath() bool
+}
+
+func (o *Path) ValidatePath() bool {
+	return o.valid
+}
+
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1167,6 +1200,39 @@ func (o *SegmentID) ValidateSegmentID() bool {
 	return o.valid
 }
 
+type Service struct {
+	valid bool
+	v     storage.Servicer
+}
+
+type ServiceGetter interface {
+	GetService() storage.Servicer
+}
+
+func (o *Service) GetService() storage.Servicer {
+	if !o.valid {
+		panic("Service value is not valid")
+	}
+	return o.v
+}
+
+type ServiceSetter interface {
+	SetService(storage.Servicer)
+}
+
+func (o *Service) SetService(v storage.Servicer) {
+	o.v = v
+	o.valid = true
+}
+
+type ServiceValidator interface {
+	ValidateService() bool
+}
+
+func (o *Service) ValidateService() bool {
+	return o.valid
+}
+
 type Size struct {
 	valid bool
 	v     int64
@@ -1332,6 +1398,39 @@ func (o *SourceType) ValidateSourceType() bool {
 	return o.valid
 }
 
+type Storage struct {
+	valid bool
+	v     storage.Storager
+}
+
+type StorageGetter interface {
+	GetStorage() storage.Storager
+}
+
+func (o *Storage) GetStorage() storage.Storager {
+	if !o.valid {
+		panic("Storage value is not valid")
+	}
+	return o.v
+}
+
+type StorageSetter interface {
+	SetStorage(storage.Storager)
+}
+
+func (o *Storage) SetStorage(v storage.Storager) {
+	o.v = v
+	o.valid = true
+}
+
+type StorageValidator interface {
+	ValidateStorage() bool
+}
+
+func (o *Storage) ValidateStorage() bool {
+	return o.valid
+}
+
 type TotalSize struct {
 	valid bool
 	v     int64
@@ -1362,6 +1461,39 @@ type TotalSizeValidator interface {
 }
 
 func (o *TotalSize) ValidateTotalSize() bool {
+	return o.valid
+}
+
+type Type struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type TypeGetter interface {
+	GetType() types.ObjectType
+}
+
+func (o *Type) GetType() types.ObjectType {
+	if !o.valid {
+		panic("Type value is not valid")
+	}
+	return o.v
+}
+
+type TypeSetter interface {
+	SetType(types.ObjectType)
+}
+
+func (o *Type) SetType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type TypeValidator interface {
+	ValidateType() bool
+}
+
+func (o *Type) ValidateType() bool {
 	return o.valid
 }
 

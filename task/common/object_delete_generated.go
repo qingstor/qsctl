@@ -63,7 +63,7 @@ func (t *ObjectDeleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDelete failed: {%w}", err))
 }
 
-// NewObjectDeleteTask will create a ObjectDeleteTask and fetch inherited data from Task.
+// NewObjectDeleteTask will create a ObjectDeleteTask and fetch inherited data from parent task.
 func NewObjectDeleteTask(task navvy.Task) navvy.Task {
 	t := &ObjectDeleteTask{
 		objectDeleteTaskRequirement: task.(objectDeleteTaskRequirement),
@@ -120,7 +120,7 @@ func (t *ObjectDeleteIterateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDeleteIterate failed: {%w}", err))
 }
 
-// NewObjectDeleteIterateTask will create a ObjectDeleteIterateTask and fetch inherited data from Task.
+// NewObjectDeleteIterateTask will create a ObjectDeleteIterateTask and fetch inherited data from parent task.
 func NewObjectDeleteIterateTask(task navvy.Task) navvy.Task {
 	t := &ObjectDeleteIterateTask{
 		objectDeleteIterateTaskRequirement: task.(objectDeleteIterateTaskRequirement),
@@ -133,7 +133,6 @@ func NewObjectDeleteIterateTask(task navvy.Task) navvy.Task {
 // objectDeleteScheduledTaskRequirement is the requirement for execute ObjectDeleteScheduledTask.
 type objectDeleteScheduledTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationStorageGetter
@@ -183,7 +182,7 @@ func (t *ObjectDeleteScheduledTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDeleteScheduled failed: {%w}", err))
 }
 
-// NewObjectDeleteScheduledTask will create a ObjectDeleteScheduledTask and fetch inherited data from RemoveDirTask.
+// NewObjectDeleteScheduledTask will create a ObjectDeleteScheduledTask and fetch inherited data from parent task.
 func NewObjectDeleteScheduledTask(task navvy.Task) navvy.Task {
 	t := &ObjectDeleteScheduledTask{
 		objectDeleteScheduledTaskRequirement: task.(objectDeleteScheduledTaskRequirement),
@@ -196,7 +195,6 @@ func NewObjectDeleteScheduledTask(task navvy.Task) navvy.Task {
 // removeDirTaskRequirement is the requirement for execute RemoveDirTask.
 type removeDirTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -246,7 +244,7 @@ func (t *RemoveDirTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveDir failed: {%w}", err))
 }
 
-// NewRemoveDirTask will create a RemoveDirTask and fetch inherited data from RemoveObjectTask.
+// NewRemoveDirTask will create a RemoveDirTask and fetch inherited data from parent task.
 func NewRemoveDirTask(task navvy.Task) navvy.Task {
 	t := &RemoveDirTask{
 		removeDirTaskRequirement: task.(removeDirTaskRequirement),

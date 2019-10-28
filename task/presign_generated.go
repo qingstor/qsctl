@@ -66,7 +66,7 @@ func (t *PresignTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Presign failed: {%w}", err))
 }
 
-// NewPresignTask will create a PresignTask and fetch inherited data from Task.
+// NewPresignTask will create a PresignTask and fetch inherited data from parent task.
 func NewPresignTask(task navvy.Task) navvy.Task {
 	t := &PresignTask{
 		presignTaskRequirement: task.(presignTaskRequirement),

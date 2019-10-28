@@ -19,6 +19,13 @@ type copyTaskRequirement interface {
 	navvy.Task
 
 	// Inherited value
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+	types.DestinationTypeGetter
+	types.PoolGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
+	types.SourceTypeGetter
 
 	// Mutable value
 }
@@ -30,6 +37,13 @@ type mockCopyTask struct {
 	types.ID
 
 	// Inherited value
+	types.DestinationPath
+	types.DestinationStorage
+	types.DestinationType
+	types.Pool
+	types.SourcePath
+	types.SourceStorage
+	types.SourceType
 
 	// Mutable value
 }
@@ -48,13 +62,7 @@ type CopyTask struct {
 	types.Scheduler
 
 	// Runtime value
-	types.DestinationPath
-	types.DestinationStorage
-	types.DestinationType
-	types.Pool
-	types.SourcePath
-	types.SourceStorage
-	types.SourceType
+	types.Scheduler
 }
 
 // Run implement navvy.Task
@@ -66,7 +74,7 @@ func (t *CopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Copy failed: {%w}", err))
 }
 
-// NewCopyTask will create a CopyTask and fetch inherited data from Task.
+// NewCopyTask will create a CopyTask and fetch inherited data from parent task.
 func NewCopyTask(task navvy.Task) navvy.Task {
 	t := &CopyTask{
 		copyTaskRequirement: task.(copyTaskRequirement),

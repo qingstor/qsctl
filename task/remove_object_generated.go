@@ -64,7 +64,7 @@ func (t *RemoveObjectTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveObject failed: {%w}", err))
 }
 
-// NewRemoveObjectTask will create a RemoveObjectTask and fetch inherited data from Task.
+// NewRemoveObjectTask will create a RemoveObjectTask and fetch inherited data from parent task.
 func NewRemoveObjectTask(task navvy.Task) navvy.Task {
 	t := &RemoveObjectTask{
 		removeObjectTaskRequirement: task.(removeObjectTaskRequirement),

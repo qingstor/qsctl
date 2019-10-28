@@ -17,7 +17,6 @@ var _ = uuid.New()
 // copyFileTaskRequirement is the requirement for execute CopyFileTask.
 type copyFileTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -69,7 +68,7 @@ func (t *CopyFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
 
-// NewCopyFileTask will create a CopyFileTask and fetch inherited data from CopyTask.
+// NewCopyFileTask will create a CopyFileTask and fetch inherited data from parent task.
 func NewCopyFileTask(task navvy.Task) navvy.Task {
 	t := &CopyFileTask{
 		copyFileTaskRequirement: task.(copyFileTaskRequirement),
@@ -82,7 +81,6 @@ func NewCopyFileTask(task navvy.Task) navvy.Task {
 // copyLargeFileTaskRequirement is the requirement for execute CopyLargeFileTask.
 type copyLargeFileTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -138,7 +136,7 @@ func (t *CopyLargeFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
 
-// NewCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from CopyFileTask.
+// NewCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from parent task.
 func NewCopyLargeFileTask(task navvy.Task) navvy.Task {
 	t := &CopyLargeFileTask{
 		copyLargeFileTaskRequirement: task.(copyLargeFileTaskRequirement),
@@ -151,7 +149,6 @@ func NewCopyLargeFileTask(task navvy.Task) navvy.Task {
 // copyPartialFileTaskRequirement is the requirement for execute CopyPartialFileTask.
 type copyPartialFileTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.CurrentOffsetGetter
@@ -213,7 +210,7 @@ func (t *CopyPartialFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
 
-// NewCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from CopyLargeFileTask.
+// NewCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from parent task.
 func NewCopyPartialFileTask(task navvy.Task) navvy.Task {
 	t := &CopyPartialFileTask{
 		copyPartialFileTaskRequirement: task.(copyPartialFileTaskRequirement),
@@ -226,7 +223,6 @@ func NewCopyPartialFileTask(task navvy.Task) navvy.Task {
 // copySmallFileTaskRequirement is the requirement for execute CopySmallFileTask.
 type copySmallFileTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -282,7 +278,7 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
 
-// NewCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from CopyFileTask.
+// NewCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from parent task.
 func NewCopySmallFileTask(task navvy.Task) navvy.Task {
 	t := &CopySmallFileTask{
 		copySmallFileTaskRequirement: task.(copySmallFileTaskRequirement),

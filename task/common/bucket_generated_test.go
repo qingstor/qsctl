@@ -44,8 +44,10 @@ func TestBucketCreateTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &BucketCreateTask{}
-			task.SetPool(pool)
+
+			m := &mockBucketCreateTask{}
+			m.SetPool(pool)
+			task := &BucketCreateTask{bucketCreateTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -80,21 +82,6 @@ func TestMockBucketCreateTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestBucketCreateTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &BucketCreateTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewBucketDeleteTask(t *testing.T) {
 	m := &mockBucketDeleteTask{}
@@ -126,8 +113,10 @@ func TestBucketDeleteTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &BucketDeleteTask{}
-			task.SetPool(pool)
+
+			m := &mockBucketDeleteTask{}
+			m.SetPool(pool)
+			task := &BucketDeleteTask{bucketDeleteTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -162,21 +151,6 @@ func TestMockBucketDeleteTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestBucketDeleteTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &BucketDeleteTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewBucketListTask(t *testing.T) {
 	m := &mockBucketListTask{}
@@ -208,8 +182,10 @@ func TestBucketListTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &BucketListTask{}
-			task.SetPool(pool)
+
+			m := &mockBucketListTask{}
+			m.SetPool(pool)
+			task := &BucketListTask{bucketListTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -244,21 +220,6 @@ func TestMockBucketListTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestBucketListTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &BucketListTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewRemoveBucketForceTask(t *testing.T) {
 	m := &mockRemoveBucketForceTask{}
@@ -290,6 +251,7 @@ func TestRemoveBucketForceTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockRemoveBucketForceTask{}
 			m.SetPool(pool)
 			task := &RemoveBucketForceTask{removeBucketForceTaskRequirement: m}

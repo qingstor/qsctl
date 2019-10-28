@@ -44,8 +44,10 @@ func TestAbortMultipartTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &AbortMultipartTask{}
-			task.SetPool(pool)
+
+			m := &mockAbortMultipartTask{}
+			m.SetPool(pool)
+			task := &AbortMultipartTask{abortMultipartTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -80,21 +82,6 @@ func TestMockAbortMultipartTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestAbortMultipartTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &AbortMultipartTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewMultipartCompleteTask(t *testing.T) {
 	m := &mockMultipartCompleteTask{}
@@ -126,8 +113,10 @@ func TestMultipartCompleteTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &MultipartCompleteTask{}
-			task.SetPool(pool)
+
+			m := &mockMultipartCompleteTask{}
+			m.SetPool(pool)
+			task := &MultipartCompleteTask{multipartCompleteTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -162,21 +151,6 @@ func TestMockMultipartCompleteTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestMultipartCompleteTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &MultipartCompleteTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewMultipartFileUploadTask(t *testing.T) {
 	m := &mockMultipartFileUploadTask{}
@@ -208,8 +182,10 @@ func TestMultipartFileUploadTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &MultipartFileUploadTask{}
-			task.SetPool(pool)
+
+			m := &mockMultipartFileUploadTask{}
+			m.SetPool(pool)
+			task := &MultipartFileUploadTask{multipartFileUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -244,21 +220,6 @@ func TestMockMultipartFileUploadTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestMultipartFileUploadTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &MultipartFileUploadTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewMultipartInitTask(t *testing.T) {
 	m := &mockMultipartInitTask{}
@@ -290,8 +251,10 @@ func TestMultipartInitTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &MultipartInitTask{}
-			task.SetPool(pool)
+
+			m := &mockMultipartInitTask{}
+			m.SetPool(pool)
+			task := &MultipartInitTask{multipartInitTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -326,21 +289,6 @@ func TestMockMultipartInitTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestMultipartInitTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &MultipartInitTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewMultipartStreamUploadTask(t *testing.T) {
 	m := &mockMultipartStreamUploadTask{}
@@ -372,8 +320,10 @@ func TestMultipartStreamUploadTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &MultipartStreamUploadTask{}
-			task.SetPool(pool)
+
+			m := &mockMultipartStreamUploadTask{}
+			m.SetPool(pool)
+			task := &MultipartStreamUploadTask{multipartStreamUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -407,19 +357,4 @@ func TestMockMultipartStreamUploadTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestMultipartStreamUploadTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &MultipartStreamUploadTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

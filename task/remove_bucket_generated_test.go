@@ -44,8 +44,10 @@ func TestRemoveBucketTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &RemoveBucketTask{}
-			task.SetPool(pool)
+
+			m := &mockRemoveBucketTask{}
+			m.SetPool(pool)
+			task := &RemoveBucketTask{removeBucketTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockRemoveBucketTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestRemoveBucketTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &RemoveBucketTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

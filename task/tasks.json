@@ -38,7 +38,7 @@
   "Copy": {
     "path": "copy",
     "description": "the root copy task",
-    "runtime_value": [
+    "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
       "DestinationType",
@@ -46,11 +46,13 @@
       "SourcePath",
       "SourceStorage",
       "SourceType"
+    ],
+    "runtime_value": [
+      "Scheduler"
     ]
   },
   "CopyFile": {
     "path": "copy_file",
-    "depend": "Copy",
     "description": "copy a file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -64,7 +66,6 @@
   },
   "CopyLargeFile": {
     "path": "copy_file",
-    "depend": "CopyFile",
     "description": "copy a large file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -81,7 +82,6 @@
   },
   "CopyPartialFile": {
     "path": "copy_file",
-    "depend": "CopyLargeFile",
     "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
     "inherited_value": [
       "CurrentOffset",
@@ -101,7 +101,6 @@
   },
   "CopyPartialStream": {
     "path": "copy_stream",
-    "depend": "CopyStream",
     "description": "copy a partial stream to DestinationStorage",
     "inherited_value": [
       "BytesPool",
@@ -122,7 +121,6 @@
   },
   "CopySmallFile": {
     "path": "copy_file",
-    "depend": "CopyFile",
     "description": "copy a small file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -139,7 +137,6 @@
   },
   "CopyStream": {
     "path": "copy_stream",
-    "depend": "Copy",
     "description": "copy a stream to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -279,7 +276,6 @@
   },
   "ObjectDeleteScheduled": {
     "path": "common/object_delete",
-    "depend": "RemoveDir",
     "description": "will delete remote objects with object channel",
     "inherited_value": [
       "DestinationStorage",
@@ -362,7 +358,6 @@
   },
   "RemoveBucketForce": {
     "path": "common/bucket",
-    "depend": "RemoveBucket",
     "description": "remove a bucket force",
     "inherited_value": [
       "BucketName",
@@ -378,7 +373,6 @@
   },
   "RemoveDir": {
     "path": "common/object_delete",
-    "depend": "RemoveObject",
     "description": "will delete a dir recursively",
     "inherited_value": [
       "DestinationPath",

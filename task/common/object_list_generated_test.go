@@ -44,8 +44,10 @@ func TestObjectListTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ObjectListTask{}
-			task.SetPool(pool)
+
+			m := &mockObjectListTask{}
+			m.SetPool(pool)
+			task := &ObjectListTask{objectListTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -80,21 +82,6 @@ func TestMockObjectListTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestObjectListTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ObjectListTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewObjectListAsyncTask(t *testing.T) {
 	m := &mockObjectListAsyncTask{}
@@ -126,8 +113,10 @@ func TestObjectListAsyncTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ObjectListAsyncTask{}
-			task.SetPool(pool)
+
+			m := &mockObjectListAsyncTask{}
+			m.SetPool(pool)
+			task := &ObjectListAsyncTask{objectListAsyncTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -161,19 +150,4 @@ func TestMockObjectListAsyncTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestObjectListAsyncTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ObjectListAsyncTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

@@ -44,8 +44,10 @@ func TestObjectDeleteTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ObjectDeleteTask{}
-			task.SetPool(pool)
+
+			m := &mockObjectDeleteTask{}
+			m.SetPool(pool)
+			task := &ObjectDeleteTask{objectDeleteTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -80,21 +82,6 @@ func TestMockObjectDeleteTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestObjectDeleteTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ObjectDeleteTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewObjectDeleteIterateTask(t *testing.T) {
 	m := &mockObjectDeleteIterateTask{}
@@ -126,8 +113,10 @@ func TestObjectDeleteIterateTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ObjectDeleteIterateTask{}
-			task.SetPool(pool)
+
+			m := &mockObjectDeleteIterateTask{}
+			m.SetPool(pool)
+			task := &ObjectDeleteIterateTask{objectDeleteIterateTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -162,21 +151,6 @@ func TestMockObjectDeleteIterateTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
-func TestObjectDeleteIterateTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ObjectDeleteIterateTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
 
 func TestNewObjectDeleteScheduledTask(t *testing.T) {
 	m := &mockObjectDeleteScheduledTask{}
@@ -208,6 +182,7 @@ func TestObjectDeleteScheduledTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockObjectDeleteScheduledTask{}
 			m.SetPool(pool)
 			task := &ObjectDeleteScheduledTask{objectDeleteScheduledTaskRequirement: m}
@@ -276,6 +251,7 @@ func TestRemoveDirTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockRemoveDirTask{}
 			m.SetPool(pool)
 			task := &RemoveDirTask{removeDirTaskRequirement: m}

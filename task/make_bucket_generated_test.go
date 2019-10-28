@@ -44,8 +44,10 @@ func TestMakeBucketTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &MakeBucketTask{}
-			task.SetPool(pool)
+
+			m := &mockMakeBucketTask{}
+			m.SetPool(pool)
+			task := &MakeBucketTask{makeBucketTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockMakeBucketTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestMakeBucketTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &MakeBucketTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

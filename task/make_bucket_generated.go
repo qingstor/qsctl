@@ -63,7 +63,7 @@ func (t *MakeBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
 }
 
-// NewMakeBucketTask will create a MakeBucketTask and fetch inherited data from Task.
+// NewMakeBucketTask will create a MakeBucketTask and fetch inherited data from parent task.
 func NewMakeBucketTask(task navvy.Task) navvy.Task {
 	t := &MakeBucketTask{
 		makeBucketTaskRequirement: task.(makeBucketTaskRequirement),

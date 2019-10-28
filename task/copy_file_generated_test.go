@@ -44,6 +44,7 @@ func TestCopyFileTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopyFileTask{}
 			m.SetPool(pool)
 			task := &CopyFileTask{copyFileTaskRequirement: m}
@@ -112,6 +113,7 @@ func TestCopyLargeFileTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopyLargeFileTask{}
 			m.SetPool(pool)
 			task := &CopyLargeFileTask{copyLargeFileTaskRequirement: m}
@@ -180,6 +182,7 @@ func TestCopyPartialFileTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopyPartialFileTask{}
 			m.SetPool(pool)
 			task := &CopyPartialFileTask{copyPartialFileTaskRequirement: m}
@@ -248,6 +251,7 @@ func TestCopySmallFileTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopySmallFileTask{}
 			m.SetPool(pool)
 			task := &CopySmallFileTask{copySmallFileTaskRequirement: m}

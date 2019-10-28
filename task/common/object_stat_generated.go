@@ -64,7 +64,7 @@ func (t *ObjectStatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 
-// NewObjectStatTask will create a ObjectStatTask and fetch inherited data from Task.
+// NewObjectStatTask will create a ObjectStatTask and fetch inherited data from parent task.
 func NewObjectStatTask(task navvy.Task) navvy.Task {
 	t := &ObjectStatTask{
 		objectStatTaskRequirement: task.(objectStatTaskRequirement),

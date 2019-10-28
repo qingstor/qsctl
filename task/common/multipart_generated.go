@@ -63,7 +63,7 @@ func (t *AbortMultipartTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task AbortMultipart failed: {%w}", err))
 }
 
-// NewAbortMultipartTask will create a AbortMultipartTask and fetch inherited data from Task.
+// NewAbortMultipartTask will create a AbortMultipartTask and fetch inherited data from parent task.
 func NewAbortMultipartTask(task navvy.Task) navvy.Task {
 	t := &AbortMultipartTask{
 		abortMultipartTaskRequirement: task.(abortMultipartTaskRequirement),
@@ -124,7 +124,7 @@ func (t *MultipartCompleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartComplete failed: {%w}", err))
 }
 
-// NewMultipartCompleteTask will create a MultipartCompleteTask and fetch inherited data from Task.
+// NewMultipartCompleteTask will create a MultipartCompleteTask and fetch inherited data from parent task.
 func NewMultipartCompleteTask(task navvy.Task) navvy.Task {
 	t := &MultipartCompleteTask{
 		multipartCompleteTaskRequirement: task.(multipartCompleteTaskRequirement),
@@ -195,7 +195,7 @@ func (t *MultipartFileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartFileUpload failed: {%w}", err))
 }
 
-// NewMultipartFileUploadTask will create a MultipartFileUploadTask and fetch inherited data from Task.
+// NewMultipartFileUploadTask will create a MultipartFileUploadTask and fetch inherited data from parent task.
 func NewMultipartFileUploadTask(task navvy.Task) navvy.Task {
 	t := &MultipartFileUploadTask{
 		multipartFileUploadTaskRequirement: task.(multipartFileUploadTaskRequirement),
@@ -259,7 +259,7 @@ func (t *MultipartInitTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartInit failed: {%w}", err))
 }
 
-// NewMultipartInitTask will create a MultipartInitTask and fetch inherited data from Task.
+// NewMultipartInitTask will create a MultipartInitTask and fetch inherited data from parent task.
 func NewMultipartInitTask(task navvy.Task) navvy.Task {
 	t := &MultipartInitTask{
 		multipartInitTaskRequirement: task.(multipartInitTaskRequirement),
@@ -328,7 +328,7 @@ func (t *MultipartStreamUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartStreamUpload failed: {%w}", err))
 }
 
-// NewMultipartStreamUploadTask will create a MultipartStreamUploadTask and fetch inherited data from Task.
+// NewMultipartStreamUploadTask will create a MultipartStreamUploadTask and fetch inherited data from parent task.
 func NewMultipartStreamUploadTask(task navvy.Task) navvy.Task {
 	t := &MultipartStreamUploadTask{
 		multipartStreamUploadTaskRequirement: task.(multipartStreamUploadTaskRequirement),

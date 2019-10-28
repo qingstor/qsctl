@@ -66,7 +66,7 @@ func (t *RemoveBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveBucket failed: {%w}", err))
 }
 
-// NewRemoveBucketTask will create a RemoveBucketTask and fetch inherited data from Task.
+// NewRemoveBucketTask will create a RemoveBucketTask and fetch inherited data from parent task.
 func NewRemoveBucketTask(task navvy.Task) navvy.Task {
 	t := &RemoveBucketTask{
 		removeBucketTaskRequirement: task.(removeBucketTaskRequirement),

@@ -17,6 +17,7 @@ var copyTaskConstructor = map[typ.ObjectType]types.TaskFunc{
 func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 	t := &CopyTask{}
 
+	// TODO: add copy task's parent task.
 	pool := navvy.NewPool(10)
 	t.SetPool(pool)
 

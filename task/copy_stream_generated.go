@@ -17,7 +17,6 @@ var _ = uuid.New()
 // copyPartialStreamTaskRequirement is the requirement for execute CopyPartialStreamTask.
 type copyPartialStreamTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.BytesPoolGetter
@@ -80,7 +79,7 @@ func (t *CopyPartialStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
 
-// NewCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from CopyStreamTask.
+// NewCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from parent task.
 func NewCopyPartialStreamTask(task navvy.Task) navvy.Task {
 	t := &CopyPartialStreamTask{
 		copyPartialStreamTaskRequirement: task.(copyPartialStreamTaskRequirement),
@@ -93,7 +92,6 @@ func NewCopyPartialStreamTask(task navvy.Task) navvy.Task {
 // copyStreamTaskRequirement is the requirement for execute CopyStreamTask.
 type copyStreamTaskRequirement interface {
 	navvy.Task
-	types.PoolGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -149,7 +147,7 @@ func (t *CopyStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
 
-// NewCopyStreamTask will create a CopyStreamTask and fetch inherited data from CopyTask.
+// NewCopyStreamTask will create a CopyStreamTask and fetch inherited data from parent task.
 func NewCopyStreamTask(task navvy.Task) navvy.Task {
 	t := &CopyStreamTask{
 		copyStreamTaskRequirement: task.(copyStreamTaskRequirement),

@@ -44,6 +44,7 @@ func TestCopyPartialStreamTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopyPartialStreamTask{}
 			m.SetPool(pool)
 			task := &CopyPartialStreamTask{copyPartialStreamTaskRequirement: m}
@@ -112,6 +113,7 @@ func TestCopyStreamTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
+
 			m := &mockCopyStreamTask{}
 			m.SetPool(pool)
 			task := &CopyStreamTask{copyStreamTaskRequirement: m}

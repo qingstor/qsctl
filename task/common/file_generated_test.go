@@ -44,8 +44,10 @@ func TestFileUploadTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &FileUploadTask{}
-			task.SetPool(pool)
+
+			m := &mockFileUploadTask{}
+			m.SetPool(pool)
+			task := &FileUploadTask{fileUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockFileUploadTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestFileUploadTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &FileUploadTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

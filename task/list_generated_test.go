@@ -44,8 +44,10 @@ func TestListTask_GeneratedRun(t *testing.T) {
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
-			task := &ListTask{}
-			task.SetPool(pool)
+
+			m := &mockListTask{}
+			m.SetPool(pool)
+			task := &ListTask{listTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -79,19 +81,4 @@ func TestMockListTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
-}
-func TestListTask_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &ListTask{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
 }

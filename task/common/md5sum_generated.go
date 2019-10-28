@@ -69,7 +69,7 @@ func (t *FileMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
-// NewFileMD5SumTask will create a FileMD5SumTask and fetch inherited data from Task.
+// NewFileMD5SumTask will create a FileMD5SumTask and fetch inherited data from parent task.
 func NewFileMD5SumTask(task navvy.Task) navvy.Task {
 	t := &FileMD5SumTask{
 		fileMD5SumTaskRequirement: task.(fileMD5SumTaskRequirement),
@@ -127,7 +127,7 @@ func (t *StreamMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 
-// NewStreamMD5SumTask will create a StreamMD5SumTask and fetch inherited data from Task.
+// NewStreamMD5SumTask will create a StreamMD5SumTask and fetch inherited data from parent task.
 func NewStreamMD5SumTask(task navvy.Task) navvy.Task {
 	t := &StreamMD5SumTask{
 		streamMD5SumTaskRequirement: task.(streamMD5SumTaskRequirement),

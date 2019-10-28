@@ -20,7 +20,6 @@ import (
 type task struct {
 	Name           string   `json:"-"`
 	Path           string   `json:"path"`
-	Depend         string   `json:"depend,omitempty"`
 	Description    string   `json:"description"`
 	InheritedValue []string `json:"inherited_value,omitempty"`
 	MutableValue   []string `json:"mutable_value,omitempty"`
@@ -204,9 +203,6 @@ var requirementTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 // {{ .Name | lowerFirst }}TaskRequirement is the requirement for execute {{ .Name }}Task.
 type {{ .Name | lowerFirst }}TaskRequirement interface {
 	navvy.Task
-{{- if .Depend }}
-	types.PoolGetter
-{{- end }}
 
 	// Inherited value
 {{- range $k, $v := .InheritedValue }}
@@ -268,7 +264,7 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
-// New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
+// New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from parent task.
 func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 	t := &{{ .Name }}Task{
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
@@ -311,14 +307,9 @@ func Test{{ .Name }}Task_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			{{- if .Depend }}
 			m := &mock{{ .Name }}Task{}
 			m.SetPool(pool)
 			task := &{{ .Name }}Task{ {{ .Name | lowerFirst }}TaskRequirement: m}
-			{{- else }}
-			task := &{{ .Name }}Task{}
-			task.SetPool(pool)
-			{{- end }}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -353,22 +344,4 @@ func TestMock{{ .Name }}Task_Run(t *testing.T) {
 		task.Run()
 	})
 }
-
-{{- if not .Depend }}
-func Test{{ .Name }}Task_Wait(t *testing.T) {
-	pool := navvy.NewPool(10)
-	task := &{{ .Name }}Task{}
-	{
-		assert.Panics(t, func() {
-			task.Wait()
-		})
-	}
-	{
-		task.SetPool(pool)
-		assert.NotPanics(t, func() {
-			task.Wait()
-		})
-	}
-}
-{{- end }}
 `))
