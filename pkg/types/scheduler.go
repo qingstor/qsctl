@@ -6,18 +6,20 @@ import (
 	"github.com/Xuanwo/navvy"
 )
 
+// TaskFunc will be used create a new task.
+type TaskFunc func(navvy.Task) navvy.Task
+
 // schedulable is the task that can be used in RealScheduler.
 type schedulable interface {
-	navvy.Task
-
 	IDGetter
 	FaultValidator
 	FaultGetter
-	PoolGetter
 }
 
 type scheduler interface {
-	New(Todoist)
+	Sync(fn TaskFunc, task navvy.Task)
+	Async(fn TaskFunc, task navvy.Task)
+
 	Done(string)
 	Wait()
 	Errors() []error
@@ -29,38 +31,47 @@ type RealScheduler struct {
 	meta map[string]schedulable
 	wg   *sync.WaitGroup
 	errs []error
+	pool *navvy.Pool
 
-	fn TodoFunc
+	lock sync.Mutex
 }
 
 // NewScheduler will create a new RealScheduler.
-func NewScheduler(fn TodoFunc) *RealScheduler {
+func NewScheduler(pool *navvy.Pool) *RealScheduler {
 	return &RealScheduler{
 		meta: make(map[string]schedulable),
 		wg:   &sync.WaitGroup{},
-		fn:   fn,
+		pool: pool,
 	}
 }
 
 // New will create a new task.
-func (s *RealScheduler) New(t Todoist) {
-	x := s.fn(t)
-	v := x.(schedulable)
+func (s *RealScheduler) Sync(fn TaskFunc, task navvy.Task) {
+	s.Wait()
+	s.Async(fn, task)
+}
 
-	s.meta[v.GetID()] = v
-	s.wg.Add(1)
+// New will create a new task.
+func (s *RealScheduler) Async(fn TaskFunc, task navvy.Task) {
+	v := fn(task)
+	s.pool.Submit(v)
 
-	go v.GetPool().Submit(x)
+	sch := v.(schedulable)
+	s.lock.Lock()
+	s.meta[v.(IDGetter).GetID()] = sch
+	s.lock.Unlock()
 }
 
 // Done will mark a task as done.
 func (s *RealScheduler) Done(taskID string) {
+	s.lock.Lock()
 	t := s.meta[taskID]
 	if t.ValidateFault() {
 		s.errs = append(s.errs, t.GetFault())
 	}
-
 	delete(s.meta, taskID)
+	s.lock.Unlock()
+
 	s.wg.Done()
 }
 
@@ -71,6 +82,8 @@ func (s *RealScheduler) Wait() {
 
 // Errors will return all errors.
 func (s *RealScheduler) Errors() []error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	return s.errs
 }
 
@@ -88,6 +101,16 @@ func NewMockScheduler(fn TodoFunc) *MockScheduler {
 
 // New implements scheduler.New
 func (m MockScheduler) New(Todoist) {
+	m.wg.Add(1)
+}
+
+// New will create a new task.
+func (m *MockScheduler) Sync(fn TaskFunc, task navvy.Task) {
+	m.wg.Add(1)
+}
+
+// New will create a new task.
+func (m *MockScheduler) Async(fn TaskFunc, task navvy.Task) {
 	m.wg.Add(1)
 }
 

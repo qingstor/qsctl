@@ -1068,6 +1068,39 @@ func (o *Recursive) ValidateRecursive() bool {
 	return o.valid
 }
 
+type ScheduleFunc struct {
+	valid bool
+	v     TaskFunc
+}
+
+type ScheduleFuncGetter interface {
+	GetScheduleFunc() TaskFunc
+}
+
+func (o *ScheduleFunc) GetScheduleFunc() TaskFunc {
+	if !o.valid {
+		panic("ScheduleFunc value is not valid")
+	}
+	return o.v
+}
+
+type ScheduleFuncSetter interface {
+	SetScheduleFunc(TaskFunc)
+}
+
+func (o *ScheduleFunc) SetScheduleFunc(v TaskFunc) {
+	o.v = v
+	o.valid = true
+}
+
+type ScheduleFuncValidator interface {
+	ValidateScheduleFunc() bool
+}
+
+func (o *ScheduleFunc) ValidateScheduleFunc() bool {
+	return o.valid
+}
+
 type Scheduler struct {
 	valid bool
 	v     scheduler
