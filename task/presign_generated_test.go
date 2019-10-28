@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewPresignTask(t *testing.T) {
+	m := &mockPresignTask{}
+	task := NewPresignTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestPresignTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -63,12 +67,11 @@ func TestPresignTask_GeneratedRun(t *testing.T) {
 }
 
 func TestPresignTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &PresignTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockPresignTask{}
+	task := &PresignTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.presignTaskRequirement.ValidateFault())
 }
 
 func TestMockPresignTask_Run(t *testing.T) {

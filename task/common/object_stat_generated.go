@@ -8,28 +8,21 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // objectStatTaskRequirement is the requirement for execute ObjectStatTask.
 type objectStatTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	// Runtime value
-	types.ObjectSetter
+
+	// Mutable value
 }
 
 // mockObjectStatTask is the mock task for ObjectStatTask.
@@ -42,8 +35,8 @@ type mockObjectStatTask struct {
 	// Inherited value
 	types.DestinationPath
 	types.DestinationStorage
-	// Runtime value
-	types.Object
+
+	// Mutable value
 }
 
 func (t *mockObjectStatTask) Run() {
@@ -53,22 +46,26 @@ func (t *mockObjectStatTask) Run() {
 // ObjectStatTask will stat a remote object by request headObject.
 type ObjectStatTask struct {
 	objectStatTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+	types.Object
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *ObjectStatTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.objectStatTaskRequirement)
 }
 
 func (t *ObjectStatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 
-// NewObjectStatTask will create a new ObjectStatTask.
-func NewObjectStatTask(task types.Todoist) navvy.Task {
-	return &ObjectStatTask{task.(objectStatTaskRequirement)}
+// Wait will wait until ObjectStatTask has been finished
+func (t *ObjectStatTask) Wait() {
+	t.GetPool().Wait()
 }

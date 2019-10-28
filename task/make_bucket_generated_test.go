@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewMakeBucketTask(t *testing.T) {
+	m := &mockMakeBucketTask{}
+	task := NewMakeBucketTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestMakeBucketTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -63,12 +67,11 @@ func TestMakeBucketTask_GeneratedRun(t *testing.T) {
 }
 
 func TestMakeBucketTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &MakeBucketTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockMakeBucketTask{}
+	task := &MakeBucketTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.makeBucketTaskRequirement.ValidateFault())
 }
 
 func TestMockMakeBucketTask_Run(t *testing.T) {

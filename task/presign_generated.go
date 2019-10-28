@@ -8,12 +8,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // presignTaskRequirement is the requirement for execute PresignTask.
@@ -21,6 +19,8 @@ type presignTaskRequirement interface {
 	navvy.Task
 
 	// Inherited value
+
+	// Mutable value
 }
 
 // mockPresignTask is the mock task for PresignTask.
@@ -31,6 +31,8 @@ type mockPresignTask struct {
 	types.ID
 
 	// Inherited value
+
+	// Mutable value
 }
 
 func (t *mockPresignTask) Run() {
@@ -44,7 +46,7 @@ type PresignTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.BucketName
@@ -58,10 +60,7 @@ type PresignTask struct {
 
 // Run implement navvy.Task
 func (t *PresignTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *PresignTask) TriggerFault(err error) {

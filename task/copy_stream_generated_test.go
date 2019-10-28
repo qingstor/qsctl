@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewCopyPartialStreamTask(t *testing.T) {
+	m := &mockCopyPartialStreamTask{}
+	task := NewCopyPartialStreamTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestCopyPartialStreamTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -64,12 +68,11 @@ func TestCopyPartialStreamTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyPartialStreamTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyPartialStreamTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyPartialStreamTask{}
+	task := &CopyPartialStreamTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyPartialStreamTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyPartialStreamTask_Run(t *testing.T) {
@@ -77,6 +80,12 @@ func TestMockCopyPartialStreamTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+
+func TestNewCopyStreamTask(t *testing.T) {
+	m := &mockCopyStreamTask{}
+	task := NewCopyStreamTask(m)
+	assert.NotNil(t, task)
 }
 
 func TestCopyStreamTask_GeneratedRun(t *testing.T) {
@@ -127,12 +136,11 @@ func TestCopyStreamTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyStreamTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyStreamTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyStreamTask{}
+	task := &CopyStreamTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyStreamTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyStreamTask_Run(t *testing.T) {

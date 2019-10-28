@@ -1,6 +1,5 @@
 {
   "AbortMultipart": {
-    "type": "required",
     "path": "common/multipart",
     "description": "abort all multipart uploads in a bucket",
     "inherited_value": [
@@ -9,7 +8,6 @@
     ]
   },
   "BucketCreate": {
-    "type": "required",
     "path": "common/bucket",
     "description": "send put request to create a bucket",
     "inherited_value": [
@@ -19,7 +17,6 @@
     ]
   },
   "BucketDelete": {
-    "type": "required",
     "path": "common/bucket",
     "description": "send delete request to delete a bucket",
     "inherited_value": [
@@ -28,7 +25,6 @@
     ]
   },
   "BucketList": {
-    "type": "required",
     "path": "common/bucket",
     "description": "send get request to get bucket list",
     "inherited_value": [
@@ -40,7 +36,6 @@
     ]
   },
   "Copy": {
-    "type": "dependent",
     "path": "copy",
     "description": "the root copy task",
     "runtime_value": [
@@ -54,7 +49,6 @@
     ]
   },
   "CopyFile": {
-    "type": "dependent",
     "path": "copy_file",
     "depend": "Copy",
     "description": "copy a file to DestinationStorage",
@@ -69,7 +63,6 @@
     ]
   },
   "CopyLargeFile": {
-    "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
     "description": "copy a large file to DestinationStorage",
@@ -83,12 +76,10 @@
     "runtime_value": [
       "CurrentOffset",
       "PartSize",
-      "Scheduler",
       "SegmentID"
     ]
   },
   "CopyPartialFile": {
-    "type": "dependent",
     "path": "copy_file",
     "depend": "CopyLargeFile",
     "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
@@ -97,7 +88,6 @@
       "DestinationPath",
       "DestinationStorage",
       "PartSize",
-      "Scheduler",
       "SegmentID",
       "SourcePath",
       "SourceStorage",
@@ -110,7 +100,6 @@
     ]
   },
   "CopyPartialStream": {
-    "type": "dependent",
     "path": "copy_stream",
     "depend": "CopyStream",
     "description": "copy a partial stream to DestinationStorage",
@@ -120,7 +109,6 @@
       "DestinationPath",
       "DestinationStorage",
       "PartSize",
-      "Scheduler",
       "SegmentID",
       "SourcePath",
       "SourceStorage"
@@ -133,7 +121,6 @@
     ]
   },
   "CopySmallFile": {
-    "type": "dependent",
     "path": "copy_file",
     "depend": "CopyFile",
     "description": "copy a small file to DestinationStorage",
@@ -151,7 +138,6 @@
     ]
   },
   "CopyStream": {
-    "type": "dependent",
     "path": "copy_stream",
     "depend": "Copy",
     "description": "copy a stream to DestinationStorage",
@@ -165,21 +151,15 @@
       "BytesPool",
       "CurrentOffset",
       "PartSize",
-      "Scheduler",
       "SegmentID",
       "TotalSize"
     ]
   },
   "DoneScheduler": {
-    "type": "required",
     "path": "common/scheduler",
-    "description": "done scheduler manually",
-    "inherited_value": [
-      "Scheduler"
-    ]
+    "description": "done scheduler manually"
   },
   "FileMD5Sum": {
-    "type": "required",
     "path": "common/md5sum",
     "description": "get file's md5 sum",
     "inherited_value": [
@@ -188,12 +168,11 @@
       "SourcePath",
       "SourceStorage"
     ],
-    "runtime_value": [
+    "mutable_value": [
       "MD5Sum"
     ]
   },
   "FileUpload": {
-    "type": "required",
     "path": "common/file",
     "description": "upload file as an object",
     "inherited_value": [
@@ -206,7 +185,6 @@
     ]
   },
   "List": {
-    "type": "dependent",
     "path": "list",
     "description": "the root list task",
     "runtime_value": [
@@ -226,7 +204,6 @@
     ]
   },
   "MakeBucket": {
-    "type": "dependent",
     "path": "make_bucket",
     "description": "make new bucket with given key",
     "runtime_value": [
@@ -237,7 +214,6 @@
     ]
   },
   "MultipartComplete": {
-    "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
@@ -247,7 +223,6 @@
     ]
   },
   "MultipartFileUpload": {
-    "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via file",
     "inherited_value": [
@@ -255,7 +230,6 @@
       "DestinationStorage",
       "MD5Sum",
       "Offset",
-      "Scheduler",
       "SegmentID",
       "Size",
       "SourcePath",
@@ -263,14 +237,12 @@
     ]
   },
   "MultipartInit": {
-    "type": "required",
     "path": "common/multipart",
     "description": "init a multipart upload",
     "inherited_value": [
       "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
-      "Scheduler",
       "TotalSize"
     ],
     "runtime_value": [
@@ -278,7 +250,6 @@
     ]
   },
   "MultipartStreamUpload": {
-    "type": "required",
     "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
@@ -287,13 +258,11 @@
       "DestinationStorage",
       "MD5Sum",
       "Offset",
-      "Scheduler",
       "SegmentID",
       "Size"
     ]
   },
   "ObjectDelete": {
-    "type": "required",
     "path": "common/object_delete",
     "description": "will delete a remote object with specific key",
     "inherited_value": [
@@ -302,31 +271,26 @@
     ]
   },
   "ObjectDeleteIterate": {
-    "type": "required",
     "path": "common/object_delete",
     "description": "delete a dir with rm -r",
     "inherited_value": [
-      "Done",
-      "Scheduler"
+      "Done"
     ]
   },
   "ObjectDeleteScheduled": {
-    "type": "dependent",
     "path": "common/object_delete",
     "depend": "RemoveDir",
     "description": "will delete remote objects with object channel",
     "inherited_value": [
       "DestinationStorage",
       "Done",
-      "ObjectChannel",
-      "Scheduler"
+      "ObjectChannel"
     ],
     "runtime_value": [
       "DestinationPath"
     ]
   },
   "ObjectList": {
-    "type": "required",
     "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
@@ -337,7 +301,6 @@
     ]
   },
   "ObjectListAsync": {
-    "type": "required",
     "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
@@ -348,7 +311,6 @@
     ]
   },
   "ObjectPresign": {
-    "type": "required",
     "path": "common/object_presign",
     "description": "will presign a remote object and return the signed url",
     "inherited_value": [
@@ -362,7 +324,6 @@
     ]
   },
   "ObjectStat": {
-    "type": "required",
     "path": "common/object_stat",
     "description": "stat a remote object by request headObject",
     "inherited_value": [
@@ -374,7 +335,6 @@
     ]
   },
   "Presign": {
-    "type": "dependent",
     "path": "presign",
     "description": "will handle presign tasks",
     "runtime_value": [
@@ -388,7 +348,6 @@
     ]
   },
   "RemoveBucket": {
-    "type": "dependent",
     "path": "remove_bucket",
     "description": "remove a bucket",
     "runtime_value": [
@@ -402,7 +361,6 @@
     ]
   },
   "RemoveBucketForce": {
-    "type": "dependent",
     "path": "common/bucket",
     "depend": "RemoveBucket",
     "description": "remove a bucket force",
@@ -415,12 +373,10 @@
     "runtime_value": [
       "Done",
       "ObjectChannel",
-      "Recursive",
-      "Scheduler"
+      "Recursive"
     ]
   },
   "RemoveDir": {
-    "type": "dependent",
     "path": "common/object_delete",
     "depend": "RemoveObject",
     "description": "will delete a dir recursively",
@@ -431,12 +387,10 @@
     "runtime_value": [
       "Done",
       "ObjectChannel",
-      "Recursive",
-      "Scheduler"
+      "Recursive"
     ]
   },
   "RemoveObject": {
-    "type": "dependent",
     "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
@@ -448,7 +402,6 @@
     ]
   },
   "Stat": {
-    "type": "dependent",
     "path": "stat",
     "description": "will stat a remote object",
     "runtime_value": [
@@ -460,7 +413,6 @@
     ]
   },
   "StreamMD5Sum": {
-    "type": "required",
     "path": "common/md5sum",
     "description": "get stream's md5 sum",
     "inherited_value": [
@@ -468,14 +420,6 @@
     ],
     "runtime_value": [
       "MD5Sum"
-    ]
-  },
-  "Wait": {
-    "type": "required",
-    "path": "common/wait",
-    "description": "wait until parent task finished",
-    "inherited_value": [
-      "Scheduler"
     ]
   }
 }

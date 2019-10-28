@@ -8,22 +8,15 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // fileUploadTaskRequirement is the requirement for execute FileUploadTask.
 type fileUploadTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -32,7 +25,8 @@ type fileUploadTaskRequirement interface {
 	types.SizeGetter
 	types.SourcePathGetter
 	types.SourceStorageGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockFileUploadTask is the mock task for FileUploadTask.
@@ -49,7 +43,8 @@ type mockFileUploadTask struct {
 	types.Size
 	types.SourcePath
 	types.SourceStorage
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockFileUploadTask) Run() {
@@ -59,22 +54,25 @@ func (t *mockFileUploadTask) Run() {
 // FileUploadTask will upload file as an object.
 type FileUploadTask struct {
 	fileUploadTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *FileUploadTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.fileUploadTaskRequirement)
 }
 
 func (t *FileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileUpload failed: {%w}", err))
 }
 
-// NewFileUploadTask will create a new FileUploadTask.
-func NewFileUploadTask(task types.Todoist) navvy.Task {
-	return &FileUploadTask{task.(fileUploadTaskRequirement)}
+// Wait will wait until FileUploadTask has been finished
+func (t *FileUploadTask) Wait() {
+	t.GetPool().Wait()
 }

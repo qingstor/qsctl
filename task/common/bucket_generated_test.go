@@ -9,17 +9,61 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 
 func TestNewBucketCreateTask(t *testing.T) {
 	m := &mockBucketCreateTask{}
 	task := NewBucketCreateTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestBucketCreateTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &BucketCreateTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestBucketCreateTask_TriggerFault(t *testing.T) {
@@ -36,11 +80,72 @@ func TestMockBucketCreateTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestBucketCreateTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &BucketCreateTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
 
 func TestNewBucketDeleteTask(t *testing.T) {
 	m := &mockBucketDeleteTask{}
 	task := NewBucketDeleteTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestBucketDeleteTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &BucketDeleteTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestBucketDeleteTask_TriggerFault(t *testing.T) {
@@ -57,11 +162,72 @@ func TestMockBucketDeleteTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestBucketDeleteTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &BucketDeleteTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
 
 func TestNewBucketListTask(t *testing.T) {
 	m := &mockBucketListTask{}
 	task := NewBucketListTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestBucketListTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &BucketListTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestBucketListTask_TriggerFault(t *testing.T) {
@@ -77,6 +243,27 @@ func TestMockBucketListTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+func TestBucketListTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &BucketListTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
+
+func TestNewRemoveBucketForceTask(t *testing.T) {
+	m := &mockRemoveBucketForceTask{}
+	task := NewRemoveBucketForceTask(m)
+	assert.NotNil(t, task)
 }
 
 func TestRemoveBucketForceTask_GeneratedRun(t *testing.T) {
@@ -127,12 +314,11 @@ func TestRemoveBucketForceTask_GeneratedRun(t *testing.T) {
 }
 
 func TestRemoveBucketForceTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &RemoveBucketForceTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockRemoveBucketForceTask{}
+	task := &RemoveBucketForceTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.removeBucketForceTaskRequirement.ValidateFault())
 }
 
 func TestMockRemoveBucketForceTask_Run(t *testing.T) {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // CalculatePartSize will calculate the object's part size.
@@ -27,19 +26,4 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 		break
 	}
 	return
-}
-
-// SubmitNextTask will fetch next todo and submit to pool async.
-func SubmitNextTask(t types.Tasker) {
-	fn := t.NextTODO()
-	if fn == nil {
-		return
-	}
-
-	pool := t.GetPool()
-	if pool.Free() > 0 {
-		pool.Submit(fn(t))
-		return
-	}
-	go pool.Submit(fn(t))
 }

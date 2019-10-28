@@ -8,29 +8,23 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // objectListTaskRequirement is the requirement for execute ObjectListTask.
 type objectListTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
 	types.ObjectChannelGetter
 	types.RecursiveGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockObjectListTask is the mock task for ObjectListTask.
@@ -45,7 +39,8 @@ type mockObjectListTask struct {
 	types.DestinationStorage
 	types.ObjectChannel
 	types.Recursive
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockObjectListTask) Run() {
@@ -55,41 +50,40 @@ func (t *mockObjectListTask) Run() {
 // ObjectListTask will list objects.
 type ObjectListTask struct {
 	objectListTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *ObjectListTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.objectListTaskRequirement)
 }
 
 func (t *ObjectListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectList failed: {%w}", err))
 }
 
-// NewObjectListTask will create a new ObjectListTask.
-func NewObjectListTask(task types.Todoist) navvy.Task {
-	return &ObjectListTask{task.(objectListTaskRequirement)}
+// Wait will wait until ObjectListTask has been finished
+func (t *ObjectListTask) Wait() {
+	t.GetPool().Wait()
 }
 
 // objectListAsyncTaskRequirement is the requirement for execute ObjectListAsyncTask.
 type objectListAsyncTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
 	types.ObjectChannelGetter
 	types.RecursiveGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockObjectListAsyncTask is the mock task for ObjectListAsyncTask.
@@ -104,7 +98,8 @@ type mockObjectListAsyncTask struct {
 	types.DestinationStorage
 	types.ObjectChannel
 	types.Recursive
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockObjectListAsyncTask) Run() {
@@ -114,22 +109,25 @@ func (t *mockObjectListAsyncTask) Run() {
 // ObjectListAsyncTask will list objects.
 type ObjectListAsyncTask struct {
 	objectListAsyncTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *ObjectListAsyncTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.objectListAsyncTaskRequirement)
 }
 
 func (t *ObjectListAsyncTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectListAsync failed: {%w}", err))
 }
 
-// NewObjectListAsyncTask will create a new ObjectListAsyncTask.
-func NewObjectListAsyncTask(task types.Todoist) navvy.Task {
-	return &ObjectListAsyncTask{task.(objectListAsyncTaskRequirement)}
+// Wait will wait until ObjectListAsyncTask has been finished
+func (t *ObjectListAsyncTask) Wait() {
+	t.GetPool().Wait()
 }

@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewCopyTask(t *testing.T) {
+	m := &mockCopyTask{}
+	task := NewCopyTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestCopyTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -63,12 +67,11 @@ func TestCopyTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyTask{}
+	task := &CopyTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyTask_Run(t *testing.T) {

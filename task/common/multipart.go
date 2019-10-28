@@ -25,7 +25,6 @@ func (t *MultipartInitTask) run() {
 		if *t.GetCurrentOffset() == t.GetTotalSize() {
 			break
 		}
-
 		t.GetScheduler().New(t.multipartInitTaskRequirement)
 	}
 

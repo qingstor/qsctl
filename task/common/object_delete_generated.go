@@ -8,27 +8,21 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // objectDeleteTaskRequirement is the requirement for execute ObjectDeleteTask.
 type objectDeleteTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockObjectDeleteTask is the mock task for ObjectDeleteTask.
@@ -41,7 +35,8 @@ type mockObjectDeleteTask struct {
 	// Inherited value
 	types.DestinationPath
 	types.DestinationStorage
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockObjectDeleteTask) Run() {
@@ -51,39 +46,37 @@ func (t *mockObjectDeleteTask) Run() {
 // ObjectDeleteTask will will delete a remote object with specific key.
 type ObjectDeleteTask struct {
 	objectDeleteTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *ObjectDeleteTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.objectDeleteTaskRequirement)
 }
 
 func (t *ObjectDeleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDelete failed: {%w}", err))
 }
 
-// NewObjectDeleteTask will create a new ObjectDeleteTask.
-func NewObjectDeleteTask(task types.Todoist) navvy.Task {
-	return &ObjectDeleteTask{task.(objectDeleteTaskRequirement)}
+// Wait will wait until ObjectDeleteTask has been finished
+func (t *ObjectDeleteTask) Wait() {
+	t.GetPool().Wait()
 }
 
 // objectDeleteIterateTaskRequirement is the requirement for execute ObjectDeleteIterateTask.
 type objectDeleteIterateTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
 	types.DoneGetter
-	types.SchedulerGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockObjectDeleteIterateTask is the mock task for ObjectDeleteIterateTask.
@@ -95,8 +88,8 @@ type mockObjectDeleteIterateTask struct {
 
 	// Inherited value
 	types.Done
-	types.Scheduler
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockObjectDeleteIterateTask) Run() {
@@ -106,24 +99,27 @@ func (t *mockObjectDeleteIterateTask) Run() {
 // ObjectDeleteIterateTask will delete a dir with rm -r.
 type ObjectDeleteIterateTask struct {
 	objectDeleteIterateTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *ObjectDeleteIterateTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.objectDeleteIterateTaskRequirement)
 }
 
 func (t *ObjectDeleteIterateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDeleteIterate failed: {%w}", err))
 }
 
-// NewObjectDeleteIterateTask will create a new ObjectDeleteIterateTask.
-func NewObjectDeleteIterateTask(task types.Todoist) navvy.Task {
-	return &ObjectDeleteIterateTask{task.(objectDeleteIterateTaskRequirement)}
+// Wait will wait until ObjectDeleteIterateTask has been finished
+func (t *ObjectDeleteIterateTask) Wait() {
+	t.GetPool().Wait()
 }
 
 // objectDeleteScheduledTaskRequirement is the requirement for execute ObjectDeleteScheduledTask.
@@ -135,7 +131,8 @@ type objectDeleteScheduledTaskRequirement interface {
 	types.DestinationStorageGetter
 	types.DoneGetter
 	types.ObjectChannelGetter
-	types.SchedulerGetter
+
+	// Mutable value
 }
 
 // mockObjectDeleteScheduledTask is the mock task for ObjectDeleteScheduledTask.
@@ -149,7 +146,8 @@ type mockObjectDeleteScheduledTask struct {
 	types.DestinationStorage
 	types.Done
 	types.ObjectChannel
-	types.Scheduler
+
+	// Mutable value
 }
 
 func (t *mockObjectDeleteScheduledTask) Run() {
@@ -163,7 +161,7 @@ type ObjectDeleteScheduledTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.DestinationPath
@@ -171,10 +169,7 @@ type ObjectDeleteScheduledTask struct {
 
 // Run implement navvy.Task
 func (t *ObjectDeleteScheduledTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *ObjectDeleteScheduledTask) TriggerFault(err error) {
@@ -182,7 +177,7 @@ func (t *ObjectDeleteScheduledTask) TriggerFault(err error) {
 }
 
 // NewObjectDeleteScheduledTask will create a ObjectDeleteScheduledTask and fetch inherited data from RemoveDirTask.
-func NewObjectDeleteScheduledTask(task types.Todoist) navvy.Task {
+func NewObjectDeleteScheduledTask(task navvy.Task) navvy.Task {
 	t := &ObjectDeleteScheduledTask{
 		objectDeleteScheduledTaskRequirement: task.(objectDeleteScheduledTaskRequirement),
 	}
@@ -199,6 +194,8 @@ type removeDirTaskRequirement interface {
 	// Inherited value
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
+
+	// Mutable value
 }
 
 // mockRemoveDirTask is the mock task for RemoveDirTask.
@@ -211,6 +208,8 @@ type mockRemoveDirTask struct {
 	// Inherited value
 	types.DestinationPath
 	types.DestinationStorage
+
+	// Mutable value
 }
 
 func (t *mockRemoveDirTask) Run() {
@@ -224,21 +223,17 @@ type RemoveDirTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.Done
 	types.ObjectChannel
 	types.Recursive
-	types.Scheduler
 }
 
 // Run implement navvy.Task
 func (t *RemoveDirTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *RemoveDirTask) TriggerFault(err error) {
@@ -246,7 +241,7 @@ func (t *RemoveDirTask) TriggerFault(err error) {
 }
 
 // NewRemoveDirTask will create a RemoveDirTask and fetch inherited data from RemoveObjectTask.
-func NewRemoveDirTask(task types.Todoist) navvy.Task {
+func NewRemoveDirTask(task navvy.Task) navvy.Task {
 	t := &RemoveDirTask{
 		removeDirTaskRequirement: task.(removeDirTaskRequirement),
 	}

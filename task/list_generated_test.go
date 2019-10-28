@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewListTask(t *testing.T) {
+	m := &mockListTask{}
+	task := NewListTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestListTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -63,12 +67,11 @@ func TestListTask_GeneratedRun(t *testing.T) {
 }
 
 func TestListTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &ListTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockListTask{}
+	task := &ListTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.listTaskRequirement.ValidateFault())
 }
 
 func TestMockListTask_Run(t *testing.T) {

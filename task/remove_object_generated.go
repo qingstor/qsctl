@@ -8,12 +8,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // removeObjectTaskRequirement is the requirement for execute RemoveObjectTask.
@@ -21,6 +19,8 @@ type removeObjectTaskRequirement interface {
 	navvy.Task
 
 	// Inherited value
+
+	// Mutable value
 }
 
 // mockRemoveObjectTask is the mock task for RemoveObjectTask.
@@ -31,6 +31,8 @@ type mockRemoveObjectTask struct {
 	types.ID
 
 	// Inherited value
+
+	// Mutable value
 }
 
 func (t *mockRemoveObjectTask) Run() {
@@ -44,7 +46,7 @@ type RemoveObjectTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.DestinationPath
@@ -56,10 +58,7 @@ type RemoveObjectTask struct {
 
 // Run implement navvy.Task
 func (t *RemoveObjectTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *RemoveObjectTask) TriggerFault(err error) {

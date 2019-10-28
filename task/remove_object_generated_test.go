@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewRemoveObjectTask(t *testing.T) {
+	m := &mockRemoveObjectTask{}
+	task := NewRemoveObjectTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestRemoveObjectTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -63,12 +67,11 @@ func TestRemoveObjectTask_GeneratedRun(t *testing.T) {
 }
 
 func TestRemoveObjectTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &RemoveObjectTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockRemoveObjectTask{}
+	task := &RemoveObjectTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.removeObjectTaskRequirement.ValidateFault())
 }
 
 func TestMockRemoveObjectTask_Run(t *testing.T) {

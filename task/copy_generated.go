@@ -8,12 +8,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // copyTaskRequirement is the requirement for execute CopyTask.
@@ -21,6 +19,8 @@ type copyTaskRequirement interface {
 	navvy.Task
 
 	// Inherited value
+
+	// Mutable value
 }
 
 // mockCopyTask is the mock task for CopyTask.
@@ -31,6 +31,8 @@ type mockCopyTask struct {
 	types.ID
 
 	// Inherited value
+
+	// Mutable value
 }
 
 func (t *mockCopyTask) Run() {
@@ -44,7 +46,7 @@ type CopyTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.DestinationPath
@@ -58,10 +60,7 @@ type CopyTask struct {
 
 // Run implement navvy.Task
 func (t *CopyTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *CopyTask) TriggerFault(err error) {

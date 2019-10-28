@@ -8,26 +8,19 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // doneSchedulerTaskRequirement is the requirement for execute DoneSchedulerTask.
 type doneSchedulerTaskRequirement interface {
 	navvy.Task
-	types.Todoist
-	types.PoolGetter
-	types.FaultSetter
-	types.FaultValidator
-	types.IDGetter
 
 	// Inherited value
-	types.SchedulerGetter
-	// Runtime value
+
+	// Mutable value
 }
 
 // mockDoneSchedulerTask is the mock task for DoneSchedulerTask.
@@ -38,8 +31,8 @@ type mockDoneSchedulerTask struct {
 	types.ID
 
 	// Inherited value
-	types.Scheduler
-	// Runtime value
+
+	// Mutable value
 }
 
 func (t *mockDoneSchedulerTask) Run() {
@@ -49,22 +42,25 @@ func (t *mockDoneSchedulerTask) Run() {
 // DoneSchedulerTask will done scheduler manually.
 type DoneSchedulerTask struct {
 	doneSchedulerTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
 }
 
-// Run implement navvy.Task.
+// Run implement navvy.Task
 func (t *DoneSchedulerTask) Run() {
 	t.run()
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t.doneSchedulerTaskRequirement)
 }
 
 func (t *DoneSchedulerTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DoneScheduler failed: {%w}", err))
 }
 
-// NewDoneSchedulerTask will create a new DoneSchedulerTask.
-func NewDoneSchedulerTask(task types.Todoist) navvy.Task {
-	return &DoneSchedulerTask{task.(doneSchedulerTaskRequirement)}
+// Wait will wait until DoneSchedulerTask has been finished
+func (t *DoneSchedulerTask) Wait() {
+	t.GetPool().Wait()
 }

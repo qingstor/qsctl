@@ -9,17 +9,61 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 
 func TestNewDoneSchedulerTask(t *testing.T) {
 	m := &mockDoneSchedulerTask{}
 	task := NewDoneSchedulerTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestDoneSchedulerTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &DoneSchedulerTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestDoneSchedulerTask_TriggerFault(t *testing.T) {
@@ -35,4 +79,19 @@ func TestMockDoneSchedulerTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+func TestDoneSchedulerTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &DoneSchedulerTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
 }

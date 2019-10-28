@@ -9,17 +9,61 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 
 func TestNewObjectListTask(t *testing.T) {
 	m := &mockObjectListTask{}
 	task := NewObjectListTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestObjectListTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &ObjectListTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestObjectListTask_TriggerFault(t *testing.T) {
@@ -36,11 +80,72 @@ func TestMockObjectListTask_Run(t *testing.T) {
 		task.Run()
 	})
 }
+func TestObjectListTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &ObjectListTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
+}
 
 func TestNewObjectListAsyncTask(t *testing.T) {
 	m := &mockObjectListAsyncTask{}
 	task := NewObjectListAsyncTask(m)
 	assert.NotNil(t, task)
+}
+
+func TestObjectListAsyncTask_GeneratedRun(t *testing.T) {
+	cases := []struct {
+		name     string
+		hasFault bool
+		hasCall  bool
+		gotCall  bool
+	}{
+		{
+			"has fault",
+			true,
+			false,
+			false,
+		},
+		{
+			"no fault",
+			false,
+			true,
+			false,
+		},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			pool := navvy.NewPool(10)
+			task := &ObjectListAsyncTask{}
+			task.SetPool(pool)
+
+			err := errors.New("test error")
+			if v.hasFault {
+				task.SetFault(err)
+			}
+			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+				x := utils.NewCallbackTask(func() {
+					v.gotCall = true
+				})
+				return x
+			})
+
+			task.Run()
+			pool.Wait()
+
+			assert.Equal(t, v.hasCall, v.gotCall)
+		})
+	}
 }
 
 func TestObjectListAsyncTask_TriggerFault(t *testing.T) {
@@ -56,4 +161,19 @@ func TestMockObjectListAsyncTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+func TestObjectListAsyncTask_Wait(t *testing.T) {
+	pool := navvy.NewPool(10)
+	task := &ObjectListAsyncTask{}
+	{
+		assert.Panics(t, func() {
+			task.Wait()
+		})
+	}
+	{
+		task.SetPool(pool)
+		assert.NotPanics(t, func() {
+			task.Wait()
+		})
+	}
 }

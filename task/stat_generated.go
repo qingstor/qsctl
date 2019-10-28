@@ -8,12 +8,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
 var _ = uuid.New()
 
 // statTaskRequirement is the requirement for execute StatTask.
@@ -21,6 +19,8 @@ type statTaskRequirement interface {
 	navvy.Task
 
 	// Inherited value
+
+	// Mutable value
 }
 
 // mockStatTask is the mock task for StatTask.
@@ -31,6 +31,8 @@ type mockStatTask struct {
 	types.ID
 
 	// Inherited value
+
+	// Mutable value
 }
 
 func (t *mockStatTask) Run() {
@@ -44,7 +46,7 @@ type StatTask struct {
 	// Predefined runtime value
 	types.Fault
 	types.ID
-	types.Todo
+	types.Scheduler
 
 	// Runtime value
 	types.DestinationPath
@@ -56,10 +58,7 @@ type StatTask struct {
 
 // Run implement navvy.Task
 func (t *StatTask) Run() {
-	if t.ValidateFault() {
-		return
-	}
-	utils.SubmitNextTask(t)
+	t.run()
 }
 
 func (t *StatTask) TriggerFault(err error) {

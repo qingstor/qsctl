@@ -9,12 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
 )
 
 var _ navvy.Pool
 var _ types.Pool
-var _ = utils.SubmitNextTask
+
+func TestNewCopyFileTask(t *testing.T) {
+	m := &mockCopyFileTask{}
+	task := NewCopyFileTask(m)
+	assert.NotNil(t, task)
+}
 
 func TestCopyFileTask_GeneratedRun(t *testing.T) {
 	cases := []struct {
@@ -64,12 +68,11 @@ func TestCopyFileTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyFileTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyFileTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyFileTask{}
+	task := &CopyFileTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyFileTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyFileTask_Run(t *testing.T) {
@@ -77,6 +80,12 @@ func TestMockCopyFileTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+
+func TestNewCopyLargeFileTask(t *testing.T) {
+	m := &mockCopyLargeFileTask{}
+	task := NewCopyLargeFileTask(m)
+	assert.NotNil(t, task)
 }
 
 func TestCopyLargeFileTask_GeneratedRun(t *testing.T) {
@@ -127,12 +136,11 @@ func TestCopyLargeFileTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyLargeFileTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyLargeFileTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyLargeFileTask{}
+	task := &CopyLargeFileTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyLargeFileTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyLargeFileTask_Run(t *testing.T) {
@@ -140,6 +148,12 @@ func TestMockCopyLargeFileTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+
+func TestNewCopyPartialFileTask(t *testing.T) {
+	m := &mockCopyPartialFileTask{}
+	task := NewCopyPartialFileTask(m)
+	assert.NotNil(t, task)
 }
 
 func TestCopyPartialFileTask_GeneratedRun(t *testing.T) {
@@ -190,12 +204,11 @@ func TestCopyPartialFileTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopyPartialFileTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopyPartialFileTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopyPartialFileTask{}
+	task := &CopyPartialFileTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copyPartialFileTaskRequirement.ValidateFault())
 }
 
 func TestMockCopyPartialFileTask_Run(t *testing.T) {
@@ -203,6 +216,12 @@ func TestMockCopyPartialFileTask_Run(t *testing.T) {
 	assert.Panics(t, func() {
 		task.Run()
 	})
+}
+
+func TestNewCopySmallFileTask(t *testing.T) {
+	m := &mockCopySmallFileTask{}
+	task := NewCopySmallFileTask(m)
+	assert.NotNil(t, task)
 }
 
 func TestCopySmallFileTask_GeneratedRun(t *testing.T) {
@@ -253,12 +272,11 @@ func TestCopySmallFileTask_GeneratedRun(t *testing.T) {
 }
 
 func TestCopySmallFileTask_TriggerFault(t *testing.T) {
-	err := errors.New("trigger fault")
-	x := &CopySmallFileTask{}
-	x.TriggerFault(err)
-
-	assert.Equal(t, true, x.ValidateFault())
-	assert.Equal(t, true, errors.Is(x.GetFault(), err))
+	m := &mockCopySmallFileTask{}
+	task := &CopySmallFileTask{m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.copySmallFileTaskRequirement.ValidateFault())
 }
 
 func TestMockCopySmallFileTask_Run(t *testing.T) {
