@@ -29,7 +29,6 @@ type objectListTaskRequirement interface {
 
 // mockObjectListTask is the mock task for ObjectListTask.
 type mockObjectListTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -68,9 +67,14 @@ func (t *ObjectListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectList failed: {%w}", err))
 }
 
-// Wait will wait until ObjectListTask has been finished
-func (t *ObjectListTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectListTask will create a ObjectListTask and fetch inherited data from Task.
+func NewObjectListTask(task navvy.Task) navvy.Task {
+	t := &ObjectListTask{
+		objectListTaskRequirement: task.(objectListTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // objectListAsyncTaskRequirement is the requirement for execute ObjectListAsyncTask.
@@ -88,7 +92,6 @@ type objectListAsyncTaskRequirement interface {
 
 // mockObjectListAsyncTask is the mock task for ObjectListAsyncTask.
 type mockObjectListAsyncTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -127,7 +130,12 @@ func (t *ObjectListAsyncTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectListAsync failed: {%w}", err))
 }
 
-// Wait will wait until ObjectListAsyncTask has been finished
-func (t *ObjectListAsyncTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectListAsyncTask will create a ObjectListAsyncTask and fetch inherited data from Task.
+func NewObjectListAsyncTask(task navvy.Task) navvy.Task {
+	t := &ObjectListAsyncTask{
+		objectListAsyncTaskRequirement: task.(objectListAsyncTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

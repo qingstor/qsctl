@@ -16,7 +16,7 @@ func TestNewRemoveObjectTask(t *testing.T) {
 	tests := []struct {
 		name string
 		fn   func(*RemoveObjectTask)
-		want types.TodoFunc
+		want types.TaskFunc
 		err  error
 	}{
 		{

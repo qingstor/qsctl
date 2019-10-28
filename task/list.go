@@ -10,7 +10,7 @@ import (
 	"github.com/yunify/qsctl/v2/task/common"
 )
 
-var listTaskConstructor = map[constants.ListType]types.TodoFunc{
+var listTaskConstructor = map[constants.ListType]types.TaskFunc{
 	constants.ListTypeBucket: common.NewBucketListTask,
 	constants.ListTypeKey:    common.NewObjectListTask,
 }

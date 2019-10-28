@@ -8,7 +8,7 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-var copyTaskConstructor = map[typ.ObjectType]types.TodoFunc{
+var copyTaskConstructor = map[typ.ObjectType]types.TaskFunc{
 	typ.ObjectTypeStream: NewCopyStreamTask,
 	typ.ObjectTypeFile:   NewCopyFileTask,
 }
@@ -29,6 +29,6 @@ func NewCopyTask(fn func(*CopyTask)) *CopyTask {
 	if todo == nil {
 		panic("invalid todo func")
 	}
-	t.AddTODOs(todo)
+	t.GetScheduler().Sync(todo, t)
 	return t
 }

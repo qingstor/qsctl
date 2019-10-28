@@ -25,7 +25,6 @@ type doneSchedulerTaskRequirement interface {
 
 // mockDoneSchedulerTask is the mock task for DoneSchedulerTask.
 type mockDoneSchedulerTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -60,7 +59,12 @@ func (t *DoneSchedulerTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DoneScheduler failed: {%w}", err))
 }
 
-// Wait will wait until DoneSchedulerTask has been finished
-func (t *DoneSchedulerTask) Wait() {
-	t.GetPool().Wait()
+// NewDoneSchedulerTask will create a DoneSchedulerTask and fetch inherited data from Task.
+func NewDoneSchedulerTask(task navvy.Task) navvy.Task {
+	t := &DoneSchedulerTask{
+		doneSchedulerTaskRequirement: task.(doneSchedulerTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

@@ -25,7 +25,6 @@ type removeBucketTaskRequirement interface {
 
 // mockRemoveBucketTask is the mock task for RemoveBucketTask.
 type mockRemoveBucketTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -67,7 +66,12 @@ func (t *RemoveBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveBucket failed: {%w}", err))
 }
 
-// Wait will wait until RemoveBucketTask has been finished
-func (t *RemoveBucketTask) Wait() {
-	t.GetPool().Wait()
+// NewRemoveBucketTask will create a RemoveBucketTask and fetch inherited data from Task.
+func NewRemoveBucketTask(task navvy.Task) navvy.Task {
+	t := &RemoveBucketTask{
+		removeBucketTaskRequirement: task.(removeBucketTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

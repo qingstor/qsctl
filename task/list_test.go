@@ -14,7 +14,7 @@ import (
 func TestNewListTask(t *testing.T) {
 	cases := []struct {
 		listType         constants.ListType
-		expectedTodoFunc types.TodoFunc
+		expectedTodoFunc types.TaskFunc
 		wantPanic        bool
 	}{
 		{constants.ListTypeBucket, common.NewBucketListTask, false},

@@ -25,7 +25,6 @@ type makeBucketTaskRequirement interface {
 
 // mockMakeBucketTask is the mock task for MakeBucketTask.
 type mockMakeBucketTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -64,7 +63,12 @@ func (t *MakeBucketTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
 }
 
-// Wait will wait until MakeBucketTask has been finished
-func (t *MakeBucketTask) Wait() {
-	t.GetPool().Wait()
+// NewMakeBucketTask will create a MakeBucketTask and fetch inherited data from Task.
+func NewMakeBucketTask(task navvy.Task) navvy.Task {
+	t := &MakeBucketTask{
+		makeBucketTaskRequirement: task.(makeBucketTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

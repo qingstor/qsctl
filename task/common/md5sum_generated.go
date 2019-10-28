@@ -30,7 +30,6 @@ type fileMD5SumTaskRequirement interface {
 
 // mockFileMD5SumTask is the mock task for FileMD5SumTask.
 type mockFileMD5SumTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -70,9 +69,14 @@ func (t *FileMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
-// Wait will wait until FileMD5SumTask has been finished
-func (t *FileMD5SumTask) Wait() {
-	t.GetPool().Wait()
+// NewFileMD5SumTask will create a FileMD5SumTask and fetch inherited data from Task.
+func NewFileMD5SumTask(task navvy.Task) navvy.Task {
+	t := &FileMD5SumTask{
+		fileMD5SumTaskRequirement: task.(fileMD5SumTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // streamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
@@ -87,7 +91,6 @@ type streamMD5SumTaskRequirement interface {
 
 // mockStreamMD5SumTask is the mock task for StreamMD5SumTask.
 type mockStreamMD5SumTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -124,7 +127,12 @@ func (t *StreamMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 
-// Wait will wait until StreamMD5SumTask has been finished
-func (t *StreamMD5SumTask) Wait() {
-	t.GetPool().Wait()
+// NewStreamMD5SumTask will create a StreamMD5SumTask and fetch inherited data from Task.
+func NewStreamMD5SumTask(task navvy.Task) navvy.Task {
+	t := &StreamMD5SumTask{
+		streamMD5SumTaskRequirement: task.(streamMD5SumTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

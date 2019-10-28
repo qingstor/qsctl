@@ -25,7 +25,6 @@ type copyTaskRequirement interface {
 
 // mockCopyTask is the mock task for CopyTask.
 type mockCopyTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -67,7 +66,12 @@ func (t *CopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Copy failed: {%w}", err))
 }
 
-// Wait will wait until CopyTask has been finished
-func (t *CopyTask) Wait() {
-	t.GetPool().Wait()
+// NewCopyTask will create a CopyTask and fetch inherited data from Task.
+func NewCopyTask(task navvy.Task) navvy.Task {
+	t := &CopyTask{
+		copyTaskRequirement: task.(copyTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

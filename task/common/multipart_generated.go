@@ -27,7 +27,6 @@ type abortMultipartTaskRequirement interface {
 
 // mockAbortMultipartTask is the mock task for AbortMultipartTask.
 type mockAbortMultipartTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -64,9 +63,14 @@ func (t *AbortMultipartTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task AbortMultipart failed: {%w}", err))
 }
 
-// Wait will wait until AbortMultipartTask has been finished
-func (t *AbortMultipartTask) Wait() {
-	t.GetPool().Wait()
+// NewAbortMultipartTask will create a AbortMultipartTask and fetch inherited data from Task.
+func NewAbortMultipartTask(task navvy.Task) navvy.Task {
+	t := &AbortMultipartTask{
+		abortMultipartTaskRequirement: task.(abortMultipartTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // multipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
@@ -83,7 +87,6 @@ type multipartCompleteTaskRequirement interface {
 
 // mockMultipartCompleteTask is the mock task for MultipartCompleteTask.
 type mockMultipartCompleteTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -121,9 +124,14 @@ func (t *MultipartCompleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartComplete failed: {%w}", err))
 }
 
-// Wait will wait until MultipartCompleteTask has been finished
-func (t *MultipartCompleteTask) Wait() {
-	t.GetPool().Wait()
+// NewMultipartCompleteTask will create a MultipartCompleteTask and fetch inherited data from Task.
+func NewMultipartCompleteTask(task navvy.Task) navvy.Task {
+	t := &MultipartCompleteTask{
+		multipartCompleteTaskRequirement: task.(multipartCompleteTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // multipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
@@ -145,7 +153,6 @@ type multipartFileUploadTaskRequirement interface {
 
 // mockMultipartFileUploadTask is the mock task for MultipartFileUploadTask.
 type mockMultipartFileUploadTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -188,9 +195,14 @@ func (t *MultipartFileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartFileUpload failed: {%w}", err))
 }
 
-// Wait will wait until MultipartFileUploadTask has been finished
-func (t *MultipartFileUploadTask) Wait() {
-	t.GetPool().Wait()
+// NewMultipartFileUploadTask will create a MultipartFileUploadTask and fetch inherited data from Task.
+func NewMultipartFileUploadTask(task navvy.Task) navvy.Task {
+	t := &MultipartFileUploadTask{
+		multipartFileUploadTaskRequirement: task.(multipartFileUploadTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // multipartInitTaskRequirement is the requirement for execute MultipartInitTask.
@@ -208,7 +220,6 @@ type multipartInitTaskRequirement interface {
 
 // mockMultipartInitTask is the mock task for MultipartInitTask.
 type mockMultipartInitTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -248,9 +259,14 @@ func (t *MultipartInitTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartInit failed: {%w}", err))
 }
 
-// Wait will wait until MultipartInitTask has been finished
-func (t *MultipartInitTask) Wait() {
-	t.GetPool().Wait()
+// NewMultipartInitTask will create a MultipartInitTask and fetch inherited data from Task.
+func NewMultipartInitTask(task navvy.Task) navvy.Task {
+	t := &MultipartInitTask{
+		multipartInitTaskRequirement: task.(multipartInitTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // multipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
@@ -271,7 +287,6 @@ type multipartStreamUploadTaskRequirement interface {
 
 // mockMultipartStreamUploadTask is the mock task for MultipartStreamUploadTask.
 type mockMultipartStreamUploadTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -313,7 +328,12 @@ func (t *MultipartStreamUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task MultipartStreamUpload failed: {%w}", err))
 }
 
-// Wait will wait until MultipartStreamUploadTask has been finished
-func (t *MultipartStreamUploadTask) Wait() {
-	t.GetPool().Wait()
+// NewMultipartStreamUploadTask will create a MultipartStreamUploadTask and fetch inherited data from Task.
+func NewMultipartStreamUploadTask(task navvy.Task) navvy.Task {
+	t := &MultipartStreamUploadTask{
+		multipartStreamUploadTaskRequirement: task.(multipartStreamUploadTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

@@ -30,7 +30,6 @@ type copyFileTaskRequirement interface {
 
 // mockCopyFileTask is the mock task for CopyFileTask.
 type mockCopyFileTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -97,7 +96,6 @@ type copyLargeFileTaskRequirement interface {
 
 // mockCopyLargeFileTask is the mock task for CopyLargeFileTask.
 type mockCopyLargeFileTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -170,7 +168,6 @@ type copyPartialFileTaskRequirement interface {
 
 // mockCopyPartialFileTask is the mock task for CopyPartialFileTask.
 type mockCopyPartialFileTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -243,7 +240,6 @@ type copySmallFileTaskRequirement interface {
 
 // mockCopySmallFileTask is the mock task for CopySmallFileTask.
 type mockCopySmallFileTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID

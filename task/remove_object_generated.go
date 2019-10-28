@@ -25,7 +25,6 @@ type removeObjectTaskRequirement interface {
 
 // mockRemoveObjectTask is the mock task for RemoveObjectTask.
 type mockRemoveObjectTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -65,7 +64,12 @@ func (t *RemoveObjectTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task RemoveObject failed: {%w}", err))
 }
 
-// Wait will wait until RemoveObjectTask has been finished
-func (t *RemoveObjectTask) Wait() {
-	t.GetPool().Wait()
+// NewRemoveObjectTask will create a RemoveObjectTask and fetch inherited data from Task.
+func NewRemoveObjectTask(task navvy.Task) navvy.Task {
+	t := &RemoveObjectTask{
+		removeObjectTaskRequirement: task.(removeObjectTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

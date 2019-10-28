@@ -19,7 +19,7 @@ import (
 func TestRemoveDirTask_New(t *testing.T) {
 	cases := []struct {
 		name     string
-		nextFunc types.TodoFunc
+		nextFunc types.TaskFunc
 		err      error
 	}{
 		{
@@ -131,7 +131,7 @@ func TestObjectDeleteScheduledTask_New(t *testing.T) {
 
 	cases := []struct {
 		name            string
-		nextFunc        types.TodoFunc
+		nextFunc        types.TaskFunc
 		done            bool
 		destinationPath string
 	}{

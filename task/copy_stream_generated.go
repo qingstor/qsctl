@@ -34,7 +34,6 @@ type copyPartialStreamTaskRequirement interface {
 
 // mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
 type mockCopyPartialStreamTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -107,7 +106,6 @@ type copyStreamTaskRequirement interface {
 
 // mockCopyStreamTask is the mock task for CopyStreamTask.
 type mockCopyStreamTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID

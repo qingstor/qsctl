@@ -27,7 +27,6 @@ type objectStatTaskRequirement interface {
 
 // mockObjectStatTask is the mock task for ObjectStatTask.
 type mockObjectStatTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -65,7 +64,12 @@ func (t *ObjectStatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
 }
 
-// Wait will wait until ObjectStatTask has been finished
-func (t *ObjectStatTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectStatTask will create a ObjectStatTask and fetch inherited data from Task.
+func NewObjectStatTask(task navvy.Task) navvy.Task {
+	t := &ObjectStatTask{
+		objectStatTaskRequirement: task.(objectStatTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

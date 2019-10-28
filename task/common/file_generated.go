@@ -31,7 +31,6 @@ type fileUploadTaskRequirement interface {
 
 // mockFileUploadTask is the mock task for FileUploadTask.
 type mockFileUploadTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -72,7 +71,12 @@ func (t *FileUploadTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileUpload failed: {%w}", err))
 }
 
-// Wait will wait until FileUploadTask has been finished
-func (t *FileUploadTask) Wait() {
-	t.GetPool().Wait()
+// NewFileUploadTask will create a FileUploadTask and fetch inherited data from Task.
+func NewFileUploadTask(task navvy.Task) navvy.Task {
+	t := &FileUploadTask{
+		fileUploadTaskRequirement: task.(fileUploadTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

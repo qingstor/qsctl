@@ -29,7 +29,7 @@ func TestCopyFileTask_new(t *testing.T) {
 	tests := []struct {
 		name string
 		size int64
-		fn   types.TodoFunc
+		fn   types.TaskFunc
 	}{
 		{
 			"small file",

@@ -51,12 +51,12 @@ func TestBucketCreateTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -133,12 +133,12 @@ func TestBucketDeleteTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -215,12 +215,12 @@ func TestBucketListTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -298,12 +298,12 @@ func TestRemoveBucketForceTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()

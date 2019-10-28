@@ -93,14 +93,14 @@ type MockScheduler struct {
 }
 
 // NewMockScheduler will create a new mock RealScheduler.
-func NewMockScheduler(fn TodoFunc) *MockScheduler {
+func NewMockScheduler(fn TaskFunc) *MockScheduler {
 	return &MockScheduler{
 		wg: &sync.WaitGroup{},
 	}
 }
 
 // New implements scheduler.New
-func (m MockScheduler) New(Todoist) {
+func (m MockScheduler) New(taskFunc TaskFunc) {
 	m.wg.Add(1)
 }
 

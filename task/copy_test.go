@@ -12,7 +12,7 @@ import (
 func TestNewCopyTask(t *testing.T) {
 	cases := []struct {
 		inputType        typ.ObjectType
-		expectedTodoFunc types.TodoFunc
+		expectedTodoFunc types.TaskFunc
 	}{
 		{typ.ObjectTypeFile, NewCopyFileTask},
 		{typ.ObjectTypeStream, NewCopyStreamTask},

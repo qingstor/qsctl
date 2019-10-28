@@ -25,7 +25,6 @@ type listTaskRequirement interface {
 
 // mockListTask is the mock task for ListTask.
 type mockListTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -73,7 +72,12 @@ func (t *ListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task List failed: {%w}", err))
 }
 
-// Wait will wait until ListTask has been finished
-func (t *ListTask) Wait() {
-	t.GetPool().Wait()
+// NewListTask will create a ListTask and fetch inherited data from Task.
+func NewListTask(task navvy.Task) navvy.Task {
+	t := &ListTask{
+		listTaskRequirement: task.(listTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

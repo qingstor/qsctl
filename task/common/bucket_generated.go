@@ -28,7 +28,6 @@ type bucketCreateTaskRequirement interface {
 
 // mockBucketCreateTask is the mock task for BucketCreateTask.
 type mockBucketCreateTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -66,9 +65,14 @@ func (t *BucketCreateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketCreate failed: {%w}", err))
 }
 
-// Wait will wait until BucketCreateTask has been finished
-func (t *BucketCreateTask) Wait() {
-	t.GetPool().Wait()
+// NewBucketCreateTask will create a BucketCreateTask and fetch inherited data from Task.
+func NewBucketCreateTask(task navvy.Task) navvy.Task {
+	t := &BucketCreateTask{
+		bucketCreateTaskRequirement: task.(bucketCreateTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // bucketDeleteTaskRequirement is the requirement for execute BucketDeleteTask.
@@ -84,7 +88,6 @@ type bucketDeleteTaskRequirement interface {
 
 // mockBucketDeleteTask is the mock task for BucketDeleteTask.
 type mockBucketDeleteTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -121,9 +124,14 @@ func (t *BucketDeleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketDelete failed: {%w}", err))
 }
 
-// Wait will wait until BucketDeleteTask has been finished
-func (t *BucketDeleteTask) Wait() {
-	t.GetPool().Wait()
+// NewBucketDeleteTask will create a BucketDeleteTask and fetch inherited data from Task.
+func NewBucketDeleteTask(task navvy.Task) navvy.Task {
+	t := &BucketDeleteTask{
+		bucketDeleteTaskRequirement: task.(bucketDeleteTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // bucketListTaskRequirement is the requirement for execute BucketListTask.
@@ -139,7 +147,6 @@ type bucketListTaskRequirement interface {
 
 // mockBucketListTask is the mock task for BucketListTask.
 type mockBucketListTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -177,9 +184,14 @@ func (t *BucketListTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task BucketList failed: {%w}", err))
 }
 
-// Wait will wait until BucketListTask has been finished
-func (t *BucketListTask) Wait() {
-	t.GetPool().Wait()
+// NewBucketListTask will create a BucketListTask and fetch inherited data from Task.
+func NewBucketListTask(task navvy.Task) navvy.Task {
+	t := &BucketListTask{
+		bucketListTaskRequirement: task.(bucketListTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // removeBucketForceTaskRequirement is the requirement for execute RemoveBucketForceTask.
@@ -198,7 +210,6 @@ type removeBucketForceTaskRequirement interface {
 
 // mockRemoveBucketForceTask is the mock task for RemoveBucketForceTask.
 type mockRemoveBucketForceTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID

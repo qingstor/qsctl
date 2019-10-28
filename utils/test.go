@@ -22,7 +22,6 @@ type EmptyTask struct {
 	types.ID
 	types.Fault
 	types.Pool
-	types.Todo
 }
 
 // Run implement navvy.Task interface.
@@ -41,7 +40,6 @@ type CallbackTask struct {
 	types.ID
 	types.Fault
 	types.Pool
-	types.Todo
 
 	fn func()
 }

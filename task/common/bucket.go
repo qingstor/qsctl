@@ -59,11 +59,8 @@ func (t *RemoveBucketForceTask) new() {
 
 	t.SetScheduler(types.NewScheduler(NewObjectDeleteScheduledTask))
 
-	t.AddTODOs(
-		NewObjectListAsyncTask,
-		NewObjectDeleteIterateTask,
-		NewWaitTask,
-		NewAbortMultipartTask,
-		NewBucketDeleteTask,
-	)
+	t.GetScheduler().Sync(NewObjectListAsyncTask, t)
+	t.GetScheduler().Sync(NewObjectDeleteIterateTask, t)
+	t.GetScheduler().Sync(NewAbortMultipartTask, t)
+	t.GetScheduler().Sync(NewBucketDeleteTask, t)
 }

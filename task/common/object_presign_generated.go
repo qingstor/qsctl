@@ -29,7 +29,6 @@ type objectPresignTaskRequirement interface {
 
 // mockObjectPresignTask is the mock task for ObjectPresignTask.
 type mockObjectPresignTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -69,7 +68,12 @@ func (t *ObjectPresignTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectPresign failed: {%w}", err))
 }
 
-// Wait will wait until ObjectPresignTask has been finished
-func (t *ObjectPresignTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectPresignTask will create a ObjectPresignTask and fetch inherited data from Task.
+func NewObjectPresignTask(task navvy.Task) navvy.Task {
+	t := &ObjectPresignTask{
+		objectPresignTaskRequirement: task.(objectPresignTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

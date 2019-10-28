@@ -163,7 +163,7 @@ func TestBucketListTask_run(t *testing.T) {
 func TestRemoveBucketForceTask_new(t *testing.T) {
 	cases := []struct {
 		name     string
-		nextFunc types.TodoFunc
+		nextFunc types.TaskFunc
 	}{
 		{
 			name:     "ok",

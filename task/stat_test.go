@@ -14,7 +14,7 @@ import (
 func TestNewStatTask(t *testing.T) {
 	cases := []struct {
 		input            string
-		expectedTodoFunc types.TodoFunc
+		expectedTodoFunc types.TaskFunc
 		expectErr        error
 	}{
 		{"qs://test-bucket/obj", common.NewObjectStatTask, nil},

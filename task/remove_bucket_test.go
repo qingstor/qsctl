@@ -16,7 +16,7 @@ func TestNewRemoveBucketTask(t *testing.T) {
 	cases := []struct {
 		input            string
 		force            bool
-		expectedTodoFunc types.TodoFunc
+		expectedTodoFunc types.TaskFunc
 		expectErr        error
 	}{
 		{"qs://test-bucket/obj", false, common.NewBucketDeleteTask, nil},

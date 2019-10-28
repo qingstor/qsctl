@@ -223,7 +223,6 @@ type {{ .Name | lowerFirst }}TaskRequirement interface {
 var mockTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 // mock{{ .Name }}Task is the mock task for {{ .Name }}Task.
 type mock{{ .Name }}Task struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -269,7 +268,6 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
-{{- if .Depend }}
 // New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from {{ .Depend }}Task.
 func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 	t := &{{ .Name }}Task{
@@ -279,12 +277,6 @@ func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 	t.new()
 	return t
 }
-{{- else }}
-// Wait will wait until {{ .Name }}Task has been finished
-func (t *{{ .Name }}Task) Wait() {
-	t.GetPool().Wait()
-}
-{{- end }}
 `))
 
 var taskTestTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
@@ -332,12 +324,12 @@ func Test{{ .Name }}Task_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()

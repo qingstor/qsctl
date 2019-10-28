@@ -25,7 +25,6 @@ type statTaskRequirement interface {
 
 // mockStatTask is the mock task for StatTask.
 type mockStatTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -65,7 +64,12 @@ func (t *StatTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task Stat failed: {%w}", err))
 }
 
-// Wait will wait until StatTask has been finished
-func (t *StatTask) Wait() {
-	t.GetPool().Wait()
+// NewStatTask will create a StatTask and fetch inherited data from Task.
+func NewStatTask(task navvy.Task) navvy.Task {
+	t := &StatTask{
+		statTaskRequirement: task.(statTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }

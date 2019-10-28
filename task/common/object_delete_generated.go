@@ -27,7 +27,6 @@ type objectDeleteTaskRequirement interface {
 
 // mockObjectDeleteTask is the mock task for ObjectDeleteTask.
 type mockObjectDeleteTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -64,9 +63,14 @@ func (t *ObjectDeleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDelete failed: {%w}", err))
 }
 
-// Wait will wait until ObjectDeleteTask has been finished
-func (t *ObjectDeleteTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectDeleteTask will create a ObjectDeleteTask and fetch inherited data from Task.
+func NewObjectDeleteTask(task navvy.Task) navvy.Task {
+	t := &ObjectDeleteTask{
+		objectDeleteTaskRequirement: task.(objectDeleteTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // objectDeleteIterateTaskRequirement is the requirement for execute ObjectDeleteIterateTask.
@@ -81,7 +85,6 @@ type objectDeleteIterateTaskRequirement interface {
 
 // mockObjectDeleteIterateTask is the mock task for ObjectDeleteIterateTask.
 type mockObjectDeleteIterateTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -117,9 +120,14 @@ func (t *ObjectDeleteIterateTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ObjectDeleteIterate failed: {%w}", err))
 }
 
-// Wait will wait until ObjectDeleteIterateTask has been finished
-func (t *ObjectDeleteIterateTask) Wait() {
-	t.GetPool().Wait()
+// NewObjectDeleteIterateTask will create a ObjectDeleteIterateTask and fetch inherited data from Task.
+func NewObjectDeleteIterateTask(task navvy.Task) navvy.Task {
+	t := &ObjectDeleteIterateTask{
+		objectDeleteIterateTaskRequirement: task.(objectDeleteIterateTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
 }
 
 // objectDeleteScheduledTaskRequirement is the requirement for execute ObjectDeleteScheduledTask.
@@ -137,7 +145,6 @@ type objectDeleteScheduledTaskRequirement interface {
 
 // mockObjectDeleteScheduledTask is the mock task for ObjectDeleteScheduledTask.
 type mockObjectDeleteScheduledTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID
@@ -200,7 +207,6 @@ type removeDirTaskRequirement interface {
 
 // mockRemoveDirTask is the mock task for RemoveDirTask.
 type mockRemoveDirTask struct {
-	types.Todo
 	types.Pool
 	types.Fault
 	types.ID

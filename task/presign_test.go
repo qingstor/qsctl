@@ -13,7 +13,7 @@ import (
 func TestNewPresignTask(t *testing.T) {
 	cases := []struct {
 		input            string
-		expectedTodoFunc types.TodoFunc
+		expectedTodoFunc types.TaskFunc
 	}{
 		{"qs://test-bucket/yyyyy", common.NewObjectPresignTask},
 	}

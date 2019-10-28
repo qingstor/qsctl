@@ -51,12 +51,12 @@ func TestAbortMultipartTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -133,12 +133,12 @@ func TestMultipartCompleteTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -215,12 +215,12 @@ func TestMultipartFileUploadTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -297,12 +297,12 @@ func TestMultipartInitTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -379,12 +379,12 @@ func TestMultipartStreamUploadTask_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.AddTODOs(func(todoist types.Todoist) navvy.Task {
+			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			})
+			}, task)
 
 			task.Run()
 			pool.Wait()
