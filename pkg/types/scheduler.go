@@ -58,7 +58,7 @@ func (s *RealScheduler) Async(task navvy.Task, fn TaskFunc) {
 
 	sch := v.(schedulable)
 	s.lock.Lock()
-	s.meta[v.(IDGetter).GetID()] = sch
+	s.meta[sch.GetID()] = sch
 	s.lock.Unlock()
 }
 

@@ -225,6 +225,8 @@ func new{{ .Name }}Task(task navvy.Task) *{{ .Name }}Task {
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -236,67 +238,12 @@ func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 `))
 
 var taskTestTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
-func TestNew{{ .Name }}Task(t *testing.T) {
-	m := &mock{{ .Name }}Task{}
-	task := New{{ .Name }}Task(m)
-	assert.NotNil(t, task)
-}
-
-func Test{{ .Name }}Task_Run(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mock{{ .Name }}Task{}
-			m.SetPool(pool)
-			task := &{{ .Name }}Task{ {{ .Name | lowerFirst }}TaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(task, 
-				func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
-				})
-				return x
-			})
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
 func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
 	m := &mock{{ .Name }}Task{}
-	task := &{{ .Name }}Task{m}
+	task := &{{ .Name }}Task{ {{ .Name | lowerFirst }}TaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.{{ .Name | lowerFirst }}TaskRequirement.ValidateFault())
+	assert.True(t, task.ValidateFault())
 }
 
 func TestMock{{ .Name }}Task_Run(t *testing.T) {

@@ -84,7 +84,7 @@ func (t *SegmentCompleteTask) run() {
 }
 func (t *SegmentAbortAllTask) new() {}
 func (t *SegmentAbortAllTask) run() {
-	log.Debugf("Task <%s> for Bucket <%s> started.", "AbortMultipartTask")
+	log.Debugf("Task <%s> for Bucket started.", "AbortMultipartTask")
 	it := t.GetStorage().ListSegments("")
 
 	for {
@@ -102,5 +102,5 @@ func (t *SegmentAbortAllTask) run() {
 		}
 	}
 
-	log.Debugf("Task <%s> for Bucket <%s> finished.", "AbortMultipartTask")
+	log.Debugf("Task <%s> for Bucket finished.", "AbortMultipartTask")
 }

@@ -2,7 +2,7 @@ package task
 
 import (
 	"bytes"
-	"fmt"
+	"io"
 	"io/ioutil"
 	"sync"
 	"testing"
@@ -63,9 +63,6 @@ func TestCopyFileTask_new(t *testing.T) {
 			task.new()
 
 			assert.Equal(t, v.size, task.GetTotalSize())
-			assert.Equal(t,
-				fmt.Sprintf("%v", v.fn),
-				fmt.Sprintf("%v", task.NextTODO()))
 		})
 	}
 }
@@ -96,7 +93,6 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 	assert.Equal(t, int64(constants.DefaultPartSize), tt.GetPartSize())
 	assert.NotNil(t, tt.GetScheduler())
 	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
-	assert.NotNil(t, tt.NextTODO())
 }
 
 func TestCopyPartialFileTask_run(t *testing.T) {
@@ -135,10 +131,6 @@ func TestCopyPartialFileTask_run(t *testing.T) {
 
 	currentOffset := int64(0)
 	x.SetCurrentOffset(&currentOffset)
-
-	sche := types.NewMockScheduler(nil)
-	sche.New(nil)
-	x.SetScheduler(sche)
 
 	task := NewCopyPartialFileTask(x)
 	task.Run()
@@ -193,13 +185,11 @@ func TestCopyStreamTask_run(t *testing.T) {
 
 	pool := navvy.NewPool(10)
 
-	x := NewCopyTask(func(task *CopyTask) {
-		task.SetSourceType(typ.ObjectTypeStream)
-		task.SetDestinationStorage(store)
-		task.SetDestinationPath(key)
-		task.SetSourcePath("-")
-		task.SetPool(pool)
-	})
+	x := &mockCopyStreamTask{}
+	x.SetDestinationStorage(store)
+	x.SetDestinationPath(key)
+	x.SetSourcePath("-")
+	x.SetPool(pool)
 
 	task := NewCopyStreamTask(x)
 
@@ -209,7 +199,6 @@ func TestCopyStreamTask_run(t *testing.T) {
 	assert.NotNil(t, tt.GetScheduler())
 	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
 	assert.Equal(t, int64(-1), tt.GetTotalSize())
-	assert.NotNil(t, tt.NextTODO())
 }
 
 func TestCopyPartialStreamTask_run(t *testing.T) {
@@ -250,10 +239,6 @@ func TestCopyPartialStreamTask_run(t *testing.T) {
 			return bytes.NewBuffer(make([]byte, 0, x.GetPartSize()))
 		},
 	})
-
-	sche := types.NewMockScheduler(nil)
-	sche.New(nil)
-	x.SetScheduler(sche)
 
 	currentOffset := int64(0)
 	x.SetCurrentOffset(&currentOffset)

@@ -76,6 +76,8 @@ func newCopyFileTask(task navvy.Task) *CopyFileTask {
 		copyFileTaskRequirement: task.(copyFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -152,6 +154,8 @@ func newCopyLargeFileTask(task navvy.Task) *CopyLargeFileTask {
 		copyLargeFileTaskRequirement: task.(copyLargeFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -233,6 +237,8 @@ func newCopyPartialFileTask(task navvy.Task) *CopyPartialFileTask {
 		copyPartialFileTaskRequirement: task.(copyPartialFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -315,6 +321,8 @@ func newCopyPartialStreamTask(task navvy.Task) *CopyPartialStreamTask {
 		copyPartialStreamTaskRequirement: task.(copyPartialStreamTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -390,6 +398,8 @@ func newCopySmallFileTask(task navvy.Task) *CopySmallFileTask {
 		copySmallFileTaskRequirement: task.(copySmallFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -466,6 +476,8 @@ func newCopyStreamTask(task navvy.Task) *CopyStreamTask {
 		copyStreamTaskRequirement: task.(copyStreamTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -534,6 +546,8 @@ func newCreateStorageTask(task navvy.Task) *CreateStorageTask {
 		createStorageTaskRequirement: task.(createStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -603,6 +617,8 @@ func newDeleteDirTask(task navvy.Task) *DeleteDirTask {
 		deleteDirTaskRequirement: task.(deleteDirTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -669,6 +685,8 @@ func newDeleteFileTask(task navvy.Task) *DeleteFileTask {
 		deleteFileTaskRequirement: task.(deleteFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -735,6 +753,8 @@ func newDeleteStorageTask(task navvy.Task) *DeleteStorageTask {
 		deleteStorageTaskRequirement: task.(deleteStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -802,6 +822,8 @@ func newDeleteStorageForceTask(task navvy.Task) *DeleteStorageForceTask {
 		deleteStorageForceTaskRequirement: task.(deleteStorageForceTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -876,6 +898,8 @@ func newFileCopyTask(task navvy.Task) *FileCopyTask {
 		fileCopyTaskRequirement: task.(fileCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -948,6 +972,8 @@ func newFileMD5SumTask(task navvy.Task) *FileMD5SumTask {
 		fileMD5SumTaskRequirement: task.(fileMD5SumTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1020,6 +1046,8 @@ func newIterateFileTask(task navvy.Task) *IterateFileTask {
 		iterateFileTaskRequirement: task.(iterateFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1090,6 +1118,8 @@ func newListFileTask(task navvy.Task) *ListFileTask {
 		listFileTaskRequirement: task.(listFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1157,6 +1187,8 @@ func newListStorageTask(task navvy.Task) *ListStorageTask {
 		listStorageTaskRequirement: task.(listStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1226,6 +1258,8 @@ func newReachFileTask(task navvy.Task) *ReachFileTask {
 		reachFileTaskRequirement: task.(reachFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1292,6 +1326,8 @@ func newSegmentAbortAllTask(task navvy.Task) *SegmentAbortAllTask {
 		segmentAbortAllTaskRequirement: task.(segmentAbortAllTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1360,6 +1396,8 @@ func newSegmentCompleteTask(task navvy.Task) *SegmentCompleteTask {
 		segmentCompleteTaskRequirement: task.(segmentCompleteTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1438,6 +1476,8 @@ func newSegmentFileCopyTask(task navvy.Task) *SegmentFileCopyTask {
 		segmentFileCopyTaskRequirement: task.(segmentFileCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1511,6 +1551,8 @@ func newSegmentInitTask(task navvy.Task) *SegmentInitTask {
 		segmentInitTaskRequirement: task.(segmentInitTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1587,6 +1629,8 @@ func newSegmentStreamCopyTask(task navvy.Task) *SegmentStreamCopyTask {
 		segmentStreamCopyTaskRequirement: task.(segmentStreamCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1654,6 +1698,8 @@ func newStatFileTask(task navvy.Task) *StatFileTask {
 		statFileTaskRequirement: task.(statFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1719,6 +1765,8 @@ func newStreamMD5SumTask(task navvy.Task) *StreamMD5SumTask {
 		streamMD5SumTaskRequirement: task.(streamMD5SumTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
+	t.SetScheduler(types.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }

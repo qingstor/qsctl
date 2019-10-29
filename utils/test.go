@@ -1,15 +1,8 @@
 package utils
 
 import (
-	"bytes"
-	"crypto/md5"
-	"io"
-	"math/rand"
-
 	"github.com/c2h5oh/datasize"
 	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -30,9 +23,11 @@ func (t *EmptyTask) Run() {
 
 // NewCallbackTask will create a new callback test.
 func NewCallbackTask(fn func()) *CallbackTask {
-	return &CallbackTask{
+	t := &CallbackTask{
 		fn: fn,
 	}
+	t.SetID(uuid.New().String())
+	return t
 }
 
 // CallbackTask is the callback task.
@@ -47,21 +42,4 @@ type CallbackTask struct {
 // Run implement navvy.Task interface.
 func (t *CallbackTask) Run() {
 	t.fn()
-}
-
-// GenerateTestStream will generate a test stream.
-func GenerateTestStream() (buf *bytes.Buffer, size int64, md5sum []byte) {
-	buf = bytes.NewBuffer(nil)
-	size = rand.Int63n(maxTestSize)
-
-	r := NewRand()
-	h := md5.New()
-	w := io.MultiWriter(buf, h)
-
-	_, err := io.CopyN(w, r, size)
-	if err != nil {
-		log.Fatal(err)
-	}
-	md5sum = h.Sum(nil)
-	return
 }
