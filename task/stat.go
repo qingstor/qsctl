@@ -5,8 +5,8 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
-func (t *StatTask) new() {}
-func (t *StatTask) run() {
+func (t *StatFileTask) new() {}
+func (t *StatFileTask) run() {
 	om, err := t.GetStorage().Stat(t.GetPath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))

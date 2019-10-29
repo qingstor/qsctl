@@ -220,14 +220,18 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
-// New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from parent task.
-func New{{ .Name }}Task(task navvy.Task) navvy.Task {
+func new{{ .Name }}Task(task navvy.Task) *{{ .Name }}Task {
 	t := &{{ .Name }}Task{
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
+}
+
+// New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from parent task.
+func New{{ .Name }}Task(task navvy.Task) navvy.Task {
+	return new{{ .Name }}Task(task)
 }
 `))
 

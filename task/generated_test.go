@@ -14,76 +14,6 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
-func TestNewCopyTask(t *testing.T) {
-	m := &mockCopyTask{}
-	task := NewCopyTask(m)
-	assert.NotNil(t, task)
-}
-
-func TestCopyTask_Run(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mockCopyTask{}
-			m.SetPool(pool)
-			task := &CopyTask{copyTaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(task,
-				func(todoist types.TaskFunc) navvy.Task {
-					x := utils.NewCallbackTask(func() {
-						v.gotCall = true
-					})
-					return x
-				})
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
-func TestCopyTask_TriggerFault(t *testing.T) {
-	m := &mockCopyTask{}
-	task := &CopyTask{m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.copyTaskRequirement.ValidateFault())
-}
-
-func TestMockCopyTask_Run(t *testing.T) {
-	task := &mockCopyTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
 func TestNewCopyFileTask(t *testing.T) {
 	m := &mockCopyFileTask{}
 	task := NewCopyFileTask(m)
@@ -1204,13 +1134,13 @@ func TestMockListStorageTask_Run(t *testing.T) {
 	})
 }
 
-func TestNewReachTask(t *testing.T) {
-	m := &mockReachTask{}
-	task := NewReachTask(m)
+func TestNewReachFileTask(t *testing.T) {
+	m := &mockReachFileTask{}
+	task := NewReachFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestReachTask_Run(t *testing.T) {
+func TestReachFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1235,9 +1165,9 @@ func TestReachTask_Run(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockReachTask{}
+			m := &mockReachFileTask{}
 			m.SetPool(pool)
-			task := &ReachTask{reachTaskRequirement: m}
+			task := &ReachFileTask{reachFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -1259,16 +1189,16 @@ func TestReachTask_Run(t *testing.T) {
 	}
 }
 
-func TestReachTask_TriggerFault(t *testing.T) {
-	m := &mockReachTask{}
-	task := &ReachTask{m}
+func TestReachFileTask_TriggerFault(t *testing.T) {
+	m := &mockReachFileTask{}
+	task := &ReachFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.reachTaskRequirement.ValidateFault())
+	assert.True(t, task.reachFileTaskRequirement.ValidateFault())
 }
 
-func TestMockReachTask_Run(t *testing.T) {
-	task := &mockReachTask{}
+func TestMockReachFileTask_Run(t *testing.T) {
+	task := &mockReachFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
@@ -1624,13 +1554,13 @@ func TestMockSegmentStreamCopyTask_Run(t *testing.T) {
 	})
 }
 
-func TestNewStatTask(t *testing.T) {
-	m := &mockStatTask{}
-	task := NewStatTask(m)
+func TestNewStatFileTask(t *testing.T) {
+	m := &mockStatFileTask{}
+	task := NewStatFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestStatTask_Run(t *testing.T) {
+func TestStatFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1655,9 +1585,9 @@ func TestStatTask_Run(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockStatTask{}
+			m := &mockStatFileTask{}
 			m.SetPool(pool)
-			task := &StatTask{statTaskRequirement: m}
+			task := &StatFileTask{statFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
@@ -1679,16 +1609,16 @@ func TestStatTask_Run(t *testing.T) {
 	}
 }
 
-func TestStatTask_TriggerFault(t *testing.T) {
-	m := &mockStatTask{}
-	task := &StatTask{m}
+func TestStatFileTask_TriggerFault(t *testing.T) {
+	m := &mockStatFileTask{}
+	task := &StatFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.statTaskRequirement.ValidateFault())
+	assert.True(t, task.statFileTaskRequirement.ValidateFault())
 }
 
-func TestMockStatTask_Run(t *testing.T) {
-	task := &mockStatTask{}
+func TestMockStatFileTask_Run(t *testing.T) {
+	task := &mockStatFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})

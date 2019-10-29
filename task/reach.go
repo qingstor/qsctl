@@ -7,8 +7,8 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
-func (t *ReachTask) new() {}
-func (t *ReachTask) run() {
+func (t *ReachFileTask) new() {}
+func (t *ReachFileTask) run() {
 	url, err := t.GetStorage().Reach(t.GetPath(), typ.WithExpire(t.GetExpire()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))

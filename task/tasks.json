@@ -1,15 +1,4 @@
 {
-  "Copy": {
-    "description": "copy task will execute copy between two storager",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "SourcePath",
-      "SourceStorage",
-      "SourceType"
-    ]
-  },
   "CopyFile": {
     "description": "copy a file between two storager",
     "inherited_value": [
@@ -183,7 +172,8 @@
       "Storage"
     ],
     "runtime_value": [
-      "ObjectChannel"
+      "ObjectChannel",
+      "Path"
     ]
   },
   "ListFile": {
@@ -205,7 +195,7 @@
       "BucketList"
     ]
   },
-  "Reach": {
+  "ReachFile": {
     "description": "will reach a remote object and return the signed url",
     "inherited_value": [
       "Expire",
@@ -269,7 +259,7 @@
       "Size"
     ]
   },
-  "Stat": {
+  "StatFile": {
     "description": "stat a remote object by request headObject",
     "inherited_value": [
       "Path",

@@ -11,6 +11,7 @@ import (
 )
 
 func (t *FileMD5SumTask) new() {}
+
 func (t *FileMD5SumTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 
@@ -32,6 +33,7 @@ func (t *FileMD5SumTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 }
 func (t *StreamMD5SumTask) new() {}
+
 func (t *StreamMD5SumTask) run() {
 	log.Debugf("Task <%s> for Stream started.", "StreamMD5SumTask")
 

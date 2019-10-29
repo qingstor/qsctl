@@ -12,19 +12,6 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-func (t *CopyTask) run() {
-	switch t.GetSourceType() {
-	case typ.ObjectTypeStream:
-		t.GetScheduler().Sync(t, NewCopyStreamTask)
-	case typ.ObjectTypeFile:
-		t.GetScheduler().Sync(t, NewCopyFileTask)
-	default:
-		panic("not supported object type")
-	}
-}
-
-func (t *CopyTask) new() {}
-
 func (t *CopyFileTask) new() {
 	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
@@ -49,7 +36,6 @@ func (t *CopyFileTask) run() {
 	}
 }
 
-// newCopySmallFileTask will create a new small file task.
 func (t *CopySmallFileTask) new() {
 	t.SetOffset(0)
 	t.SetSize(t.GetTotalSize())

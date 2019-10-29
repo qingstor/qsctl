@@ -51,8 +51,10 @@ func (t *IterateFileTask) new() {
 func (t *IterateFileTask) run() {
 	t.GetScheduler().Async(t, NewListFileTask)
 
-	// TODO: find a way to handle data race.
 	for o := range t.GetObjectChannel() {
-		t.GetScheduler().Async(t, t.GetScheduleFunc())
+		x := newIterateFileTask(t)
+		x.SetPath(o.Name)
+
+		t.GetScheduler().Async(x, t.GetScheduleFunc())
 	}
 }
