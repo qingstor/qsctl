@@ -1,4 +1,4 @@
-package common
+package task
 
 import (
 	typ "github.com/Xuanwo/storage/types"

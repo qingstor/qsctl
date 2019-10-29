@@ -1,6 +1,5 @@
 {
   "BucketList": "[]string",
-  "BucketName": "string",
   "ByteSize": "string",
   "BytesPool": "*sync.Pool",
   "Content": "*bytes.Buffer",
@@ -42,6 +41,7 @@
   "SourceStorage": "storage.Storager",
   "SourceType": "types.ObjectType",
   "Storage": "storage.Storager",
+  "StorageName": "string",
   "TotalSize": "int64",
   "Type": "types.ObjectType",
   "URL": "string",

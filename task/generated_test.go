@@ -14,13 +14,13 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewAbortMultipartTask(t *testing.T) {
+	m := &mockAbortMultipartTask{}
+	task := NewAbortMultipartTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestAbortMultipartTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -45,20 +45,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockAbortMultipartTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &AbortMultipartTask{abortMultipartTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -68,28 +69,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestAbortMultipartTask_TriggerFault(t *testing.T) {
+	m := &mockAbortMultipartTask{}
+	task := &AbortMultipartTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.abortMultipartTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockAbortMultipartTask_Run(t *testing.T) {
+	task := &mockAbortMultipartTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewBucketCreateTask(t *testing.T) {
+	m := &mockBucketCreateTask{}
+	task := NewBucketCreateTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestBucketCreateTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -114,20 +115,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockBucketCreateTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &BucketCreateTask{bucketCreateTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -137,28 +139,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestBucketCreateTask_TriggerFault(t *testing.T) {
+	m := &mockBucketCreateTask{}
+	task := &BucketCreateTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.bucketCreateTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockBucketCreateTask_Run(t *testing.T) {
+	task := &mockBucketCreateTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewBucketListTask(t *testing.T) {
+	m := &mockBucketListTask{}
+	task := NewBucketListTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestBucketListTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -183,20 +185,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockBucketListTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &BucketListTask{bucketListTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -206,28 +209,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestBucketListTask_TriggerFault(t *testing.T) {
+	m := &mockBucketListTask{}
+	task := &BucketListTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.bucketListTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockBucketListTask_Run(t *testing.T) {
+	task := &mockBucketListTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyTask(t *testing.T) {
+	m := &mockCopyTask{}
+	task := NewCopyTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -252,20 +255,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyTask{copyTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -275,28 +279,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyTask_TriggerFault(t *testing.T) {
+	m := &mockCopyTask{}
+	task := &CopyTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyTask_Run(t *testing.T) {
+	task := &mockCopyTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyFileTask(t *testing.T) {
+	m := &mockCopyFileTask{}
+	task := NewCopyFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -321,20 +325,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyFileTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyFileTask{copyFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -344,28 +349,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyFileTask_TriggerFault(t *testing.T) {
+	m := &mockCopyFileTask{}
+	task := &CopyFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyFileTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyFileTask_Run(t *testing.T) {
+	task := &mockCopyFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyLargeFileTask(t *testing.T) {
+	m := &mockCopyLargeFileTask{}
+	task := NewCopyLargeFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyLargeFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -390,20 +395,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyLargeFileTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyLargeFileTask{copyLargeFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -413,28 +419,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyLargeFileTask_TriggerFault(t *testing.T) {
+	m := &mockCopyLargeFileTask{}
+	task := &CopyLargeFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyLargeFileTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyLargeFileTask_Run(t *testing.T) {
+	task := &mockCopyLargeFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyPartialFileTask(t *testing.T) {
+	m := &mockCopyPartialFileTask{}
+	task := NewCopyPartialFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyPartialFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -459,20 +465,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyPartialFileTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyPartialFileTask{copyPartialFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -482,28 +489,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyPartialFileTask_TriggerFault(t *testing.T) {
+	m := &mockCopyPartialFileTask{}
+	task := &CopyPartialFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyPartialFileTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyPartialFileTask_Run(t *testing.T) {
+	task := &mockCopyPartialFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyPartialStreamTask(t *testing.T) {
+	m := &mockCopyPartialStreamTask{}
+	task := NewCopyPartialStreamTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyPartialStreamTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -528,20 +535,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyPartialStreamTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyPartialStreamTask{copyPartialStreamTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -551,28 +559,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyPartialStreamTask_TriggerFault(t *testing.T) {
+	m := &mockCopyPartialStreamTask{}
+	task := &CopyPartialStreamTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyPartialStreamTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyPartialStreamTask_Run(t *testing.T) {
+	task := &mockCopyPartialStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopySmallFileTask(t *testing.T) {
+	m := &mockCopySmallFileTask{}
+	task := NewCopySmallFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopySmallFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -597,20 +605,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopySmallFileTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopySmallFileTask{copySmallFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -620,28 +629,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopySmallFileTask_TriggerFault(t *testing.T) {
+	m := &mockCopySmallFileTask{}
+	task := &CopySmallFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copySmallFileTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopySmallFileTask_Run(t *testing.T) {
+	task := &mockCopySmallFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewCopyStreamTask(t *testing.T) {
+	m := &mockCopyStreamTask{}
+	task := NewCopyStreamTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestCopyStreamTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -666,20 +675,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockCopyStreamTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &CopyStreamTask{copyStreamTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -689,28 +699,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestCopyStreamTask_TriggerFault(t *testing.T) {
+	m := &mockCopyStreamTask{}
+	task := &CopyStreamTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.copyStreamTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockCopyStreamTask_Run(t *testing.T) {
+	task := &mockCopyStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewDeleteDirTask(t *testing.T) {
+	m := &mockDeleteDirTask{}
+	task := NewDeleteDirTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestDeleteDirTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -735,20 +745,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockDeleteDirTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &DeleteDirTask{deleteDirTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -758,28 +769,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestDeleteDirTask_TriggerFault(t *testing.T) {
+	m := &mockDeleteDirTask{}
+	task := &DeleteDirTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.deleteDirTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockDeleteDirTask_Run(t *testing.T) {
+	task := &mockDeleteDirTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewDeleteFileTask(t *testing.T) {
+	m := &mockDeleteFileTask{}
+	task := NewDeleteFileTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestDeleteFileTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -804,20 +815,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockDeleteFileTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &DeleteFileTask{deleteFileTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -827,28 +839,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestDeleteFileTask_TriggerFault(t *testing.T) {
+	m := &mockDeleteFileTask{}
+	task := &DeleteFileTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.deleteFileTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockDeleteFileTask_Run(t *testing.T) {
+	task := &mockDeleteFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewDeleteStorageTask(t *testing.T) {
+	m := &mockDeleteStorageTask{}
+	task := NewDeleteStorageTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestDeleteStorageTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -873,20 +885,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockDeleteStorageTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &DeleteStorageTask{deleteStorageTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -896,28 +909,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestDeleteStorageTask_TriggerFault(t *testing.T) {
+	m := &mockDeleteStorageTask{}
+	task := &DeleteStorageTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.deleteStorageTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockDeleteStorageTask_Run(t *testing.T) {
+	task := &mockDeleteStorageTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewDeleteStorageForceTask(t *testing.T) {
+	m := &mockDeleteStorageForceTask{}
+	task := NewDeleteStorageForceTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestDeleteStorageForceTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -942,20 +955,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockDeleteStorageForceTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &DeleteStorageForceTask{deleteStorageForceTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -965,28 +979,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestDeleteStorageForceTask_TriggerFault(t *testing.T) {
+	m := &mockDeleteStorageForceTask{}
+	task := &DeleteStorageForceTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.deleteStorageForceTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockDeleteStorageForceTask_Run(t *testing.T) {
+	task := &mockDeleteStorageForceTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewFileMD5SumTask(t *testing.T) {
+	m := &mockFileMD5SumTask{}
+	task := NewFileMD5SumTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestFileMD5SumTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1011,20 +1025,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockFileMD5SumTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &FileMD5SumTask{fileMD5SumTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1034,28 +1049,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestFileMD5SumTask_TriggerFault(t *testing.T) {
+	m := &mockFileMD5SumTask{}
+	task := &FileMD5SumTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.fileMD5SumTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockFileMD5SumTask_Run(t *testing.T) {
+	task := &mockFileMD5SumTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewFileUploadTask(t *testing.T) {
+	m := &mockFileUploadTask{}
+	task := NewFileUploadTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestFileUploadTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1080,20 +1095,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockFileUploadTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &FileUploadTask{fileUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1103,28 +1119,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestFileUploadTask_TriggerFault(t *testing.T) {
+	m := &mockFileUploadTask{}
+	task := &FileUploadTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.fileUploadTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockFileUploadTask_Run(t *testing.T) {
+	task := &mockFileUploadTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewListTask(t *testing.T) {
+	m := &mockListTask{}
+	task := NewListTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestListTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1149,20 +1165,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockListTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &ListTask{listTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1172,28 +1189,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestListTask_TriggerFault(t *testing.T) {
+	m := &mockListTask{}
+	task := &ListTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.listTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockListTask_Run(t *testing.T) {
+	task := &mockListTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewMakeBucketTask(t *testing.T) {
+	m := &mockMakeBucketTask{}
+	task := NewMakeBucketTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestMakeBucketTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1218,20 +1235,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockMakeBucketTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &MakeBucketTask{makeBucketTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1241,28 +1259,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestMakeBucketTask_TriggerFault(t *testing.T) {
+	m := &mockMakeBucketTask{}
+	task := &MakeBucketTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.makeBucketTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockMakeBucketTask_Run(t *testing.T) {
+	task := &mockMakeBucketTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewMultipartCompleteTask(t *testing.T) {
+	m := &mockMultipartCompleteTask{}
+	task := NewMultipartCompleteTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestMultipartCompleteTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1287,20 +1305,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockMultipartCompleteTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &MultipartCompleteTask{multipartCompleteTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1310,28 +1329,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestMultipartCompleteTask_TriggerFault(t *testing.T) {
+	m := &mockMultipartCompleteTask{}
+	task := &MultipartCompleteTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.multipartCompleteTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockMultipartCompleteTask_Run(t *testing.T) {
+	task := &mockMultipartCompleteTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewMultipartFileUploadTask(t *testing.T) {
+	m := &mockMultipartFileUploadTask{}
+	task := NewMultipartFileUploadTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestMultipartFileUploadTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1356,20 +1375,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockMultipartFileUploadTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &MultipartFileUploadTask{multipartFileUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1379,28 +1399,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestMultipartFileUploadTask_TriggerFault(t *testing.T) {
+	m := &mockMultipartFileUploadTask{}
+	task := &MultipartFileUploadTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.multipartFileUploadTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockMultipartFileUploadTask_Run(t *testing.T) {
+	task := &mockMultipartFileUploadTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewMultipartInitTask(t *testing.T) {
+	m := &mockMultipartInitTask{}
+	task := NewMultipartInitTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestMultipartInitTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1425,20 +1445,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockMultipartInitTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &MultipartInitTask{multipartInitTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1448,28 +1469,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestMultipartInitTask_TriggerFault(t *testing.T) {
+	m := &mockMultipartInitTask{}
+	task := &MultipartInitTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.multipartInitTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockMultipartInitTask_Run(t *testing.T) {
+	task := &mockMultipartInitTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewMultipartStreamUploadTask(t *testing.T) {
+	m := &mockMultipartStreamUploadTask{}
+	task := NewMultipartStreamUploadTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestMultipartStreamUploadTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1494,20 +1515,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockMultipartStreamUploadTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &MultipartStreamUploadTask{multipartStreamUploadTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1517,28 +1539,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestMultipartStreamUploadTask_TriggerFault(t *testing.T) {
+	m := &mockMultipartStreamUploadTask{}
+	task := &MultipartStreamUploadTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.multipartStreamUploadTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockMultipartStreamUploadTask_Run(t *testing.T) {
+	task := &mockMultipartStreamUploadTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewObjectListTask(t *testing.T) {
+	m := &mockObjectListTask{}
+	task := NewObjectListTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestObjectListTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1563,20 +1585,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockObjectListTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &ObjectListTask{objectListTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1586,28 +1609,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestObjectListTask_TriggerFault(t *testing.T) {
+	m := &mockObjectListTask{}
+	task := &ObjectListTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.objectListTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockObjectListTask_Run(t *testing.T) {
+	task := &mockObjectListTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewObjectListAsyncTask(t *testing.T) {
+	m := &mockObjectListAsyncTask{}
+	task := NewObjectListAsyncTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestObjectListAsyncTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1632,20 +1655,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockObjectListAsyncTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &ObjectListAsyncTask{objectListAsyncTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1655,28 +1679,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestObjectListAsyncTask_TriggerFault(t *testing.T) {
+	m := &mockObjectListAsyncTask{}
+	task := &ObjectListAsyncTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.objectListAsyncTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockObjectListAsyncTask_Run(t *testing.T) {
+	task := &mockObjectListAsyncTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewObjectPresignTask(t *testing.T) {
+	m := &mockObjectPresignTask{}
+	task := NewObjectPresignTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestObjectPresignTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1701,20 +1725,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockObjectPresignTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &ObjectPresignTask{objectPresignTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1724,28 +1749,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestObjectPresignTask_TriggerFault(t *testing.T) {
+	m := &mockObjectPresignTask{}
+	task := &ObjectPresignTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.objectPresignTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockObjectPresignTask_Run(t *testing.T) {
+	task := &mockObjectPresignTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewObjectStatTask(t *testing.T) {
+	m := &mockObjectStatTask{}
+	task := NewObjectStatTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestObjectStatTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1770,20 +1795,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockObjectStatTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &ObjectStatTask{objectStatTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1793,28 +1819,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestObjectStatTask_TriggerFault(t *testing.T) {
+	m := &mockObjectStatTask{}
+	task := &ObjectStatTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.objectStatTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockObjectStatTask_Run(t *testing.T) {
+	task := &mockObjectStatTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewPresignTask(t *testing.T) {
+	m := &mockPresignTask{}
+	task := NewPresignTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestPresignTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1839,20 +1865,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockPresignTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &PresignTask{presignTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1862,28 +1889,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestPresignTask_TriggerFault(t *testing.T) {
+	m := &mockPresignTask{}
+	task := &PresignTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.presignTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockPresignTask_Run(t *testing.T) {
+	task := &mockPresignTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewStatTask(t *testing.T) {
+	m := &mockStatTask{}
+	task := NewStatTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestStatTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1908,20 +1935,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockStatTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &StatTask{statTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -1931,28 +1959,28 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestStatTask_TriggerFault(t *testing.T) {
+	m := &mockStatTask{}
+	task := &StatTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.statTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockStatTask_Run(t *testing.T) {
+	task := &mockStatTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
+func TestNewStreamMD5SumTask(t *testing.T) {
+	m := &mockStreamMD5SumTask{}
+	task := NewStreamMD5SumTask(m)
 	assert.NotNil(t, task)
 }
 
-func TestTask_GeneratedRun(t *testing.T) {
+func TestStreamMD5SumTask_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -1977,20 +2005,21 @@ func TestTask_GeneratedRun(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			pool := navvy.NewPool(10)
 
-			m := &mockTask{}
+			m := &mockStreamMD5SumTask{}
 			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
+			task := &StreamMD5SumTask{streamMD5SumTaskRequirement: m}
 
 			err := errors.New("test error")
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
+			task.GetScheduler.Sync(task,
+				func(todoist types.TaskFunc) navvy.Task {
+					x := utils.NewCallbackTask(func() {
+						v.gotCall = true
+					})
+					return x
 				})
-				return x
-			}, task)
 
 			task.Run()
 			pool.Wait()
@@ -2000,292 +2029,16 @@ func TestTask_GeneratedRun(t *testing.T) {
 	}
 }
 
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
+func TestStreamMD5SumTask_TriggerFault(t *testing.T) {
+	m := &mockStreamMD5SumTask{}
+	task := &StreamMD5SumTask{m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
+	assert.True(t, task.streamMD5SumTaskRequirement.ValidateFault())
 }
 
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
-	assert.NotNil(t, task)
-}
-
-func TestTask_GeneratedRun(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mockTask{}
-			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
-				})
-				return x
-			}, task)
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
-}
-
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
-	assert.NotNil(t, task)
-}
-
-func TestTask_GeneratedRun(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mockTask{}
-			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
-				})
-				return x
-			}, task)
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
-}
-
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
-	assert.NotNil(t, task)
-}
-
-func TestTask_GeneratedRun(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mockTask{}
-			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
-				})
-				return x
-			}, task)
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
-}
-
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestNewTask(t *testing.T) {
-	m := &mockTask{}
-	task := NewTask(m)
-	assert.NotNil(t, task)
-}
-
-func TestTask_GeneratedRun(t *testing.T) {
-	cases := []struct {
-		name     string
-		hasFault bool
-		hasCall  bool
-		gotCall  bool
-	}{
-		{
-			"has fault",
-			true,
-			false,
-			false,
-		},
-		{
-			"no fault",
-			false,
-			true,
-			false,
-		},
-	}
-
-	for _, v := range cases {
-		t.Run(v.name, func(t *testing.T) {
-			pool := navvy.NewPool(10)
-
-			m := &mockTask{}
-			m.SetPool(pool)
-			task := &Task{TaskRequirement: m}
-
-			err := errors.New("test error")
-			if v.hasFault {
-				task.SetFault(err)
-			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
-				x := utils.NewCallbackTask(func() {
-					v.gotCall = true
-				})
-				return x
-			}, task)
-
-			task.Run()
-			pool.Wait()
-
-			assert.Equal(t, v.hasCall, v.gotCall)
-		})
-	}
-}
-
-func TestTask_TriggerFault(t *testing.T) {
-	m := &mockTask{}
-	task := &Task{m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.TaskRequirement.ValidateFault())
-}
-
-func TestMockTask_Run(t *testing.T) {
-	task := &mockTask{}
+func TestMockStreamMD5SumTask_Run(t *testing.T) {
+	task := &mockStreamMD5SumTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})

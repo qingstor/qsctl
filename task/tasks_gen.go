@@ -94,6 +94,7 @@ func main() {
 
 	for _, taskName := range taskNames {
 		v := tasks[taskName]
+		v.Name = taskName
 
 		// Write task.
 		err = requirementTmpl.Execute(taskFile, v)
@@ -237,7 +238,7 @@ func TestNew{{ .Name }}Task(t *testing.T) {
 	assert.NotNil(t, task)
 }
 
-func Test{{ .Name }}Task_GeneratedRun(t *testing.T) {
+func Test{{ .Name }}Task_Run(t *testing.T) {
 	cases := []struct {
 		name     string
 		hasFault bool
@@ -270,12 +271,13 @@ func Test{{ .Name }}Task_GeneratedRun(t *testing.T) {
 			if v.hasFault {
 				task.SetFault(err)
 			}
-			task.GetScheduler.Sync(func(todoist types.TaskFunc) navvy.Task {
+			task.GetScheduler.Sync(task, 
+				func(todoist types.TaskFunc) navvy.Task {
 				x := utils.NewCallbackTask(func() {
 					v.gotCall = true
 				})
 				return x
-			}, task)
+			})
 
 			task.Run()
 			pool.Wait()

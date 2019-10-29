@@ -14,13 +14,6 @@
       "Zone"
     ]
   },
-  "BucketDelete": {
-    "description": "send delete request to delete a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationService"
-    ]
-  },
   "BucketList": {
     "description": "send get request to get bucket list",
     "inherited_value": [
@@ -32,7 +25,7 @@
     ]
   },
   "Copy": {
-    "description": "the root copy task",
+    "description": "copy task will execute copy between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -43,7 +36,7 @@
     ]
   },
   "CopyFile": {
-    "description": "copy a file to DestinationStorage",
+    "description": "copy a file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -55,7 +48,7 @@
     ]
   },
   "CopyLargeFile": {
-    "description": "copy a large file to DestinationStorage",
+    "description": "copy a large file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -71,7 +64,7 @@
     ]
   },
   "CopyPartialFile": {
-    "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
+    "description": "copy a partial file to between two storager",
     "inherited_value": [
       "CurrentOffset",
       "DestinationPath",
@@ -89,7 +82,7 @@
     ]
   },
   "CopyPartialStream": {
-    "description": "copy a partial stream to DestinationStorage",
+    "description": "copy a partial stream between two storager",
     "inherited_value": [
       "BytesPool",
       "CurrentOffset",
@@ -108,7 +101,7 @@
     ]
   },
   "CopySmallFile": {
-    "description": "copy a small file to DestinationStorage",
+    "description": "copy a small file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -123,7 +116,7 @@
     ]
   },
   "CopyStream": {
-    "description": "copy a stream to DestinationStorage",
+    "description": "copy a stream between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -134,8 +127,45 @@
       "BytesPool",
       "CurrentOffset",
       "PartSize",
+      "ScheduleFunc",
       "SegmentID",
       "TotalSize"
+    ]
+  },
+  "DeleteDir": {
+    "description": "will delete a dir recursively",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "ObjectChannel",
+      "Recursive",
+      "ScheduleFunc"
+    ]
+  },
+  "DeleteFile": {
+    "description": "will delete a file from storage",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ]
+  },
+  "DeleteStorage": {
+    "description": "delete a storage",
+    "inherited_value": [
+      "Service",
+      "StorageName"
+    ]
+  },
+  "DeleteStorageForce": {
+    "description": "remove a bucket force",
+    "inherited_value": [
+      "Service",
+      "StorageName"
+    ],
+    "runtime_value": [
+      "ObjectChannel"
     ]
   },
   "FileMD5Sum": {
@@ -233,30 +263,6 @@
       "Size"
     ]
   },
-  "ObjectDelete": {
-    "description": "will delete a remote object with specific key",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
-    ]
-  },
-  "ObjectDeleteIterate": {
-    "description": "delete a dir with rm -r",
-    "inherited_value": [
-      "Done"
-    ]
-  },
-  "ObjectDeleteScheduled": {
-    "description": "will delete remote objects with object channel",
-    "inherited_value": [
-      "DestinationStorage",
-      "Done",
-      "ObjectChannel"
-    ],
-    "runtime_value": [
-      "DestinationPath"
-    ]
-  },
   "ObjectList": {
     "description": "list objects",
     "inherited_value": [
@@ -307,54 +313,6 @@
       "Expire",
       "Pool",
       "URL"
-    ]
-  },
-  "RemoveBucket": {
-    "description": "remove a bucket",
-    "runtime_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage",
-      "DestinationType",
-      "Force",
-      "Pool"
-    ]
-  },
-  "RemoveBucketForce": {
-    "description": "remove a bucket force",
-    "inherited_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage"
-    ],
-    "runtime_value": [
-      "Done",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "RemoveDir": {
-    "description": "will delete a dir recursively",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
-    ],
-    "runtime_value": [
-      "Done",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "RemoveObject": {
-    "description": "will remove object",
-    "runtime_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Pool",
-      "Recursive"
     ]
   },
   "Stat": {

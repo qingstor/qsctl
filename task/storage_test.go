@@ -1,4 +1,4 @@
-package common
+package task
 
 import (
 	"errors"
@@ -11,6 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/utils"
 
 	"github.com/yunify/qsctl/v2/pkg/mock"
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -179,5 +180,30 @@ func TestRemoveBucketForceTask_new(t *testing.T) {
 		assert.Equal(t,
 			fmt.Sprintf("%v", tt.nextFunc),
 			fmt.Sprintf("%v", task.NextTODO()))
+	}
+}
+
+func TestNewMakeBucketTask(t *testing.T) {
+	cases := []struct {
+		input            string
+		expectedTodoFunc types.TaskFunc
+		expectErr        error
+	}{
+		{"qs://test-bucket", NewBucketCreateTask, nil},
+		{"test-bucket", NewBucketCreateTask, nil},
+	}
+
+	for _, v := range cases {
+		pt := NewMakeBucketTask(func(task *MakeBucketTask) {
+			_, bucketName, _, err := utils.ParseQsPath(v.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			task.SetBucketName(bucketName)
+		})
+
+		assert.Equal(t,
+			fmt.Sprintf("%v", v.expectedTodoFunc),
+			fmt.Sprintf("%v", pt.Todo.NextTODO()))
 	}
 }

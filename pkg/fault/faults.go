@@ -84,7 +84,7 @@ func (f *StorageBucketInitFailed) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewStorageBucketInitFailed(err error, bucketName string, zone string) error {
+func NewStorageBucketInitFailed(err error, bucketName, zone string) error {
 	f := &StorageBucketInitFailed{}
 	f.SetFault(err)
 	f.SetBucketName(bucketName)

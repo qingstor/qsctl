@@ -45,39 +45,6 @@ func (o *BucketList) ValidateBucketList() bool {
 	return o.valid
 }
 
-type BucketName struct {
-	valid bool
-	v     string
-}
-
-type BucketNameGetter interface {
-	GetBucketName() string
-}
-
-func (o *BucketName) GetBucketName() string {
-	if !o.valid {
-		panic("BucketName value is not valid")
-	}
-	return o.v
-}
-
-type BucketNameSetter interface {
-	SetBucketName(string)
-}
-
-func (o *BucketName) SetBucketName(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type BucketNameValidator interface {
-	ValidateBucketName() bool
-}
-
-func (o *BucketName) ValidateBucketName() bool {
-	return o.valid
-}
-
 type ByteSize struct {
 	valid bool
 	v     string
@@ -1428,6 +1395,39 @@ type StorageValidator interface {
 }
 
 func (o *Storage) ValidateStorage() bool {
+	return o.valid
+}
+
+type StorageName struct {
+	valid bool
+	v     string
+}
+
+type StorageNameGetter interface {
+	GetStorageName() string
+}
+
+func (o *StorageName) GetStorageName() string {
+	if !o.valid {
+		panic("StorageName value is not valid")
+	}
+	return o.v
+}
+
+type StorageNameSetter interface {
+	SetStorageName(string)
+}
+
+func (o *StorageName) SetStorageName(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type StorageNameValidator interface {
+	ValidateStorageName() bool
+}
+
+func (o *StorageName) ValidateStorageName() bool {
 	return o.valid
 }
 

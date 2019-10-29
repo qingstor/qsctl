@@ -17,8 +17,8 @@ type schedulable interface {
 }
 
 type scheduler interface {
-	Sync(fn TaskFunc, task navvy.Task)
-	Async(fn TaskFunc, task navvy.Task)
+	Sync(task navvy.Task, fn TaskFunc)
+	Async(task navvy.Task, fn TaskFunc)
 
 	Done(string)
 	Wait()
@@ -46,13 +46,13 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 }
 
 // New will create a new task.
-func (s *RealScheduler) Sync(fn TaskFunc, task navvy.Task) {
+func (s *RealScheduler) Sync(task navvy.Task, fn TaskFunc) {
 	s.Wait()
-	s.Async(fn, task)
+	s.Async(task, fn)
 }
 
 // New will create a new task.
-func (s *RealScheduler) Async(fn TaskFunc, task navvy.Task) {
+func (s *RealScheduler) Async(task navvy.Task, fn TaskFunc) {
 	v := fn(task)
 	s.pool.Submit(v)
 
@@ -105,12 +105,12 @@ func (m MockScheduler) New(taskFunc TaskFunc) {
 }
 
 // New will create a new task.
-func (m *MockScheduler) Sync(fn TaskFunc, task navvy.Task) {
+func (m *MockScheduler) Sync(task navvy.Task, fn TaskFunc) {
 	m.wg.Add(1)
 }
 
 // New will create a new task.
-func (m *MockScheduler) Async(fn TaskFunc, task navvy.Task) {
+func (m *MockScheduler) Async(task navvy.Task, fn TaskFunc) {
 	m.wg.Add(1)
 }
 

@@ -1,4 +1,4 @@
-package common
+package task
 
 import (
 	"errors"
@@ -175,5 +175,50 @@ func TestObjectDeleteScheduledTask_New(t *testing.T) {
 		} else {
 			assert.Equal(t, task.GetDestinationPath(), tt.destinationPath)
 		}
+	}
+}
+func TestNewRemoveObjectTask(t *testing.T) {
+	removeObjectErr := errors.New("remove-object-err")
+	tests := []struct {
+		name string
+		fn   func(*RemoveObjectTask)
+		want types.TaskFunc
+		err  error
+	}{
+		{
+			name: "obj",
+			fn:   func(task *RemoveObjectTask) { task.SetRecursive(false) },
+			want: NewObjectDeleteTask,
+			err:  nil,
+		},
+		{
+			name: "dir",
+			fn:   func(task *RemoveObjectTask) { task.SetRecursive(true) },
+			want: NewRemoveDirTask,
+			err:  nil,
+		},
+		{
+			name: "err",
+			fn: func(task *RemoveObjectTask) {
+				task.SetRecursive(true)
+				task.SetFault(removeObjectErr)
+			},
+			want: nil,
+			err:  removeObjectErr,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewRemoveObjectTask(tt.fn)
+			assert.Equal(t,
+				fmt.Sprintf("%v", tt.want),
+				fmt.Sprintf("%v", got.NextTODO()))
+
+			if tt.err != nil {
+				assert.Equal(t, true, errors.Is(got.GetFault(), tt.err))
+			} else {
+				assert.Equal(t, false, got.ValidateFault())
+			}
+		})
 	}
 }
