@@ -128,6 +128,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
 var _ navvy.Pool
@@ -220,12 +221,13 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
-func new{{ .Name }}Task(task navvy.Task) *{{ .Name }}Task {
+// New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
+func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
 	t := &{{ .Name }}Task{
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -233,7 +235,7 @@ func new{{ .Name }}Task(task navvy.Task) *{{ .Name }}Task {
 
 // New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from parent task.
 func New{{ .Name }}Task(task navvy.Task) navvy.Task {
-	return new{{ .Name }}Task(task)
+	return New{{ .Name }}(task)
 }
 `))
 

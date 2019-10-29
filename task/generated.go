@@ -7,6 +7,7 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
 
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -71,12 +72,13 @@ func (t *CopyFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
 
-func newCopyFileTask(task navvy.Task) *CopyFileTask {
+// NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
+func NewCopyFile(task navvy.Task) *CopyFileTask {
 	t := &CopyFileTask{
 		copyFileTaskRequirement: task.(copyFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -84,7 +86,7 @@ func newCopyFileTask(task navvy.Task) *CopyFileTask {
 
 // NewCopyFileTask will create a CopyFileTask and fetch inherited data from parent task.
 func NewCopyFileTask(task navvy.Task) navvy.Task {
-	return newCopyFileTask(task)
+	return NewCopyFile(task)
 }
 
 // copyLargeFileTaskRequirement is the requirement for execute CopyLargeFileTask.
@@ -149,12 +151,13 @@ func (t *CopyLargeFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
 
-func newCopyLargeFileTask(task navvy.Task) *CopyLargeFileTask {
+// NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
+func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
 	t := &CopyLargeFileTask{
 		copyLargeFileTaskRequirement: task.(copyLargeFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -162,7 +165,7 @@ func newCopyLargeFileTask(task navvy.Task) *CopyLargeFileTask {
 
 // NewCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from parent task.
 func NewCopyLargeFileTask(task navvy.Task) navvy.Task {
-	return newCopyLargeFileTask(task)
+	return NewCopyLargeFile(task)
 }
 
 // copyPartialFileTaskRequirement is the requirement for execute CopyPartialFileTask.
@@ -232,12 +235,13 @@ func (t *CopyPartialFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
 
-func newCopyPartialFileTask(task navvy.Task) *CopyPartialFileTask {
+// NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
+func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
 	t := &CopyPartialFileTask{
 		copyPartialFileTaskRequirement: task.(copyPartialFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -245,7 +249,7 @@ func newCopyPartialFileTask(task navvy.Task) *CopyPartialFileTask {
 
 // NewCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from parent task.
 func NewCopyPartialFileTask(task navvy.Task) navvy.Task {
-	return newCopyPartialFileTask(task)
+	return NewCopyPartialFile(task)
 }
 
 // copyPartialStreamTaskRequirement is the requirement for execute CopyPartialStreamTask.
@@ -316,12 +320,13 @@ func (t *CopyPartialStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
 
-func newCopyPartialStreamTask(task navvy.Task) *CopyPartialStreamTask {
+// NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
+func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
 	t := &CopyPartialStreamTask{
 		copyPartialStreamTaskRequirement: task.(copyPartialStreamTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -329,7 +334,7 @@ func newCopyPartialStreamTask(task navvy.Task) *CopyPartialStreamTask {
 
 // NewCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from parent task.
 func NewCopyPartialStreamTask(task navvy.Task) navvy.Task {
-	return newCopyPartialStreamTask(task)
+	return NewCopyPartialStream(task)
 }
 
 // copySmallFileTaskRequirement is the requirement for execute CopySmallFileTask.
@@ -393,12 +398,13 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
 
-func newCopySmallFileTask(task navvy.Task) *CopySmallFileTask {
+// NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
+func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
 	t := &CopySmallFileTask{
 		copySmallFileTaskRequirement: task.(copySmallFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -406,7 +412,7 @@ func newCopySmallFileTask(task navvy.Task) *CopySmallFileTask {
 
 // NewCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from parent task.
 func NewCopySmallFileTask(task navvy.Task) navvy.Task {
-	return newCopySmallFileTask(task)
+	return NewCopySmallFile(task)
 }
 
 // copyStreamTaskRequirement is the requirement for execute CopyStreamTask.
@@ -471,12 +477,13 @@ func (t *CopyStreamTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
 
-func newCopyStreamTask(task navvy.Task) *CopyStreamTask {
+// NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
+func NewCopyStream(task navvy.Task) *CopyStreamTask {
 	t := &CopyStreamTask{
 		copyStreamTaskRequirement: task.(copyStreamTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -484,7 +491,7 @@ func newCopyStreamTask(task navvy.Task) *CopyStreamTask {
 
 // NewCopyStreamTask will create a CopyStreamTask and fetch inherited data from parent task.
 func NewCopyStreamTask(task navvy.Task) navvy.Task {
-	return newCopyStreamTask(task)
+	return NewCopyStream(task)
 }
 
 // createStorageTaskRequirement is the requirement for execute CreateStorageTask.
@@ -541,12 +548,13 @@ func (t *CreateStorageTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task CreateStorage failed: {%w}", err))
 }
 
-func newCreateStorageTask(task navvy.Task) *CreateStorageTask {
+// NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
+func NewCreateStorage(task navvy.Task) *CreateStorageTask {
 	t := &CreateStorageTask{
 		createStorageTaskRequirement: task.(createStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -554,7 +562,7 @@ func newCreateStorageTask(task navvy.Task) *CreateStorageTask {
 
 // NewCreateStorageTask will create a CreateStorageTask and fetch inherited data from parent task.
 func NewCreateStorageTask(task navvy.Task) navvy.Task {
-	return newCreateStorageTask(task)
+	return NewCreateStorage(task)
 }
 
 // deleteDirTaskRequirement is the requirement for execute DeleteDirTask.
@@ -612,12 +620,13 @@ func (t *DeleteDirTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DeleteDir failed: {%w}", err))
 }
 
-func newDeleteDirTask(task navvy.Task) *DeleteDirTask {
+// NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
+func NewDeleteDir(task navvy.Task) *DeleteDirTask {
 	t := &DeleteDirTask{
 		deleteDirTaskRequirement: task.(deleteDirTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -625,7 +634,7 @@ func newDeleteDirTask(task navvy.Task) *DeleteDirTask {
 
 // NewDeleteDirTask will create a DeleteDirTask and fetch inherited data from parent task.
 func NewDeleteDirTask(task navvy.Task) navvy.Task {
-	return newDeleteDirTask(task)
+	return NewDeleteDir(task)
 }
 
 // deleteFileTaskRequirement is the requirement for execute DeleteFileTask.
@@ -680,12 +689,13 @@ func (t *DeleteFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DeleteFile failed: {%w}", err))
 }
 
-func newDeleteFileTask(task navvy.Task) *DeleteFileTask {
+// NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
+func NewDeleteFile(task navvy.Task) *DeleteFileTask {
 	t := &DeleteFileTask{
 		deleteFileTaskRequirement: task.(deleteFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -693,7 +703,7 @@ func newDeleteFileTask(task navvy.Task) *DeleteFileTask {
 
 // NewDeleteFileTask will create a DeleteFileTask and fetch inherited data from parent task.
 func NewDeleteFileTask(task navvy.Task) navvy.Task {
-	return newDeleteFileTask(task)
+	return NewDeleteFile(task)
 }
 
 // deleteStorageTaskRequirement is the requirement for execute DeleteStorageTask.
@@ -748,12 +758,13 @@ func (t *DeleteStorageTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DeleteStorage failed: {%w}", err))
 }
 
-func newDeleteStorageTask(task navvy.Task) *DeleteStorageTask {
+// NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
+func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
 	t := &DeleteStorageTask{
 		deleteStorageTaskRequirement: task.(deleteStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -761,7 +772,7 @@ func newDeleteStorageTask(task navvy.Task) *DeleteStorageTask {
 
 // NewDeleteStorageTask will create a DeleteStorageTask and fetch inherited data from parent task.
 func NewDeleteStorageTask(task navvy.Task) navvy.Task {
-	return newDeleteStorageTask(task)
+	return NewDeleteStorage(task)
 }
 
 // deleteStorageForceTaskRequirement is the requirement for execute DeleteStorageForceTask.
@@ -817,12 +828,13 @@ func (t *DeleteStorageForceTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task DeleteStorageForce failed: {%w}", err))
 }
 
-func newDeleteStorageForceTask(task navvy.Task) *DeleteStorageForceTask {
+// NewDeleteStorageForce will create a DeleteStorageForceTask struct and fetch inherited data from parent task.
+func NewDeleteStorageForce(task navvy.Task) *DeleteStorageForceTask {
 	t := &DeleteStorageForceTask{
 		deleteStorageForceTaskRequirement: task.(deleteStorageForceTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -830,7 +842,7 @@ func newDeleteStorageForceTask(task navvy.Task) *DeleteStorageForceTask {
 
 // NewDeleteStorageForceTask will create a DeleteStorageForceTask and fetch inherited data from parent task.
 func NewDeleteStorageForceTask(task navvy.Task) navvy.Task {
-	return newDeleteStorageForceTask(task)
+	return NewDeleteStorageForce(task)
 }
 
 // fileCopyTaskRequirement is the requirement for execute FileCopyTask.
@@ -893,12 +905,13 @@ func (t *FileCopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileCopy failed: {%w}", err))
 }
 
-func newFileCopyTask(task navvy.Task) *FileCopyTask {
+// NewFileCopy will create a FileCopyTask struct and fetch inherited data from parent task.
+func NewFileCopy(task navvy.Task) *FileCopyTask {
 	t := &FileCopyTask{
 		fileCopyTaskRequirement: task.(fileCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -906,7 +919,7 @@ func newFileCopyTask(task navvy.Task) *FileCopyTask {
 
 // NewFileCopyTask will create a FileCopyTask and fetch inherited data from parent task.
 func NewFileCopyTask(task navvy.Task) navvy.Task {
-	return newFileCopyTask(task)
+	return NewFileCopy(task)
 }
 
 // fileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
@@ -967,12 +980,13 @@ func (t *FileMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
-func newFileMD5SumTask(task navvy.Task) *FileMD5SumTask {
+// NewFileMD5Sum will create a FileMD5SumTask struct and fetch inherited data from parent task.
+func NewFileMD5Sum(task navvy.Task) *FileMD5SumTask {
 	t := &FileMD5SumTask{
 		fileMD5SumTaskRequirement: task.(fileMD5SumTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -980,7 +994,7 @@ func newFileMD5SumTask(task navvy.Task) *FileMD5SumTask {
 
 // NewFileMD5SumTask will create a FileMD5SumTask and fetch inherited data from parent task.
 func NewFileMD5SumTask(task navvy.Task) navvy.Task {
-	return newFileMD5SumTask(task)
+	return NewFileMD5Sum(task)
 }
 
 // iterateFileTaskRequirement is the requirement for execute IterateFileTask.
@@ -1041,12 +1055,13 @@ func (t *IterateFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task IterateFile failed: {%w}", err))
 }
 
-func newIterateFileTask(task navvy.Task) *IterateFileTask {
+// NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
+func NewIterateFile(task navvy.Task) *IterateFileTask {
 	t := &IterateFileTask{
 		iterateFileTaskRequirement: task.(iterateFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1054,7 +1069,7 @@ func newIterateFileTask(task navvy.Task) *IterateFileTask {
 
 // NewIterateFileTask will create a IterateFileTask and fetch inherited data from parent task.
 func NewIterateFileTask(task navvy.Task) navvy.Task {
-	return newIterateFileTask(task)
+	return NewIterateFile(task)
 }
 
 // listFileTaskRequirement is the requirement for execute ListFileTask.
@@ -1113,12 +1128,13 @@ func (t *ListFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
-func newListFileTask(task navvy.Task) *ListFileTask {
+// NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
+func NewListFile(task navvy.Task) *ListFileTask {
 	t := &ListFileTask{
 		listFileTaskRequirement: task.(listFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1126,7 +1142,7 @@ func newListFileTask(task navvy.Task) *ListFileTask {
 
 // NewListFileTask will create a ListFileTask and fetch inherited data from parent task.
 func NewListFileTask(task navvy.Task) navvy.Task {
-	return newListFileTask(task)
+	return NewListFile(task)
 }
 
 // listStorageTaskRequirement is the requirement for execute ListStorageTask.
@@ -1182,12 +1198,13 @@ func (t *ListStorageTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ListStorage failed: {%w}", err))
 }
 
-func newListStorageTask(task navvy.Task) *ListStorageTask {
+// NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
+func NewListStorage(task navvy.Task) *ListStorageTask {
 	t := &ListStorageTask{
 		listStorageTaskRequirement: task.(listStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1195,7 +1212,7 @@ func newListStorageTask(task navvy.Task) *ListStorageTask {
 
 // NewListStorageTask will create a ListStorageTask and fetch inherited data from parent task.
 func NewListStorageTask(task navvy.Task) navvy.Task {
-	return newListStorageTask(task)
+	return NewListStorage(task)
 }
 
 // reachFileTaskRequirement is the requirement for execute ReachFileTask.
@@ -1253,12 +1270,13 @@ func (t *ReachFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task ReachFile failed: {%w}", err))
 }
 
-func newReachFileTask(task navvy.Task) *ReachFileTask {
+// NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
+func NewReachFile(task navvy.Task) *ReachFileTask {
 	t := &ReachFileTask{
 		reachFileTaskRequirement: task.(reachFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1266,7 +1284,7 @@ func newReachFileTask(task navvy.Task) *ReachFileTask {
 
 // NewReachFileTask will create a ReachFileTask and fetch inherited data from parent task.
 func NewReachFileTask(task navvy.Task) navvy.Task {
-	return newReachFileTask(task)
+	return NewReachFile(task)
 }
 
 // segmentAbortAllTaskRequirement is the requirement for execute SegmentAbortAllTask.
@@ -1321,12 +1339,13 @@ func (t *SegmentAbortAllTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task SegmentAbortAll failed: {%w}", err))
 }
 
-func newSegmentAbortAllTask(task navvy.Task) *SegmentAbortAllTask {
+// NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
+func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
 	t := &SegmentAbortAllTask{
 		segmentAbortAllTaskRequirement: task.(segmentAbortAllTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1334,7 +1353,7 @@ func newSegmentAbortAllTask(task navvy.Task) *SegmentAbortAllTask {
 
 // NewSegmentAbortAllTask will create a SegmentAbortAllTask and fetch inherited data from parent task.
 func NewSegmentAbortAllTask(task navvy.Task) navvy.Task {
-	return newSegmentAbortAllTask(task)
+	return NewSegmentAbortAll(task)
 }
 
 // segmentCompleteTaskRequirement is the requirement for execute SegmentCompleteTask.
@@ -1391,12 +1410,13 @@ func (t *SegmentCompleteTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task SegmentComplete failed: {%w}", err))
 }
 
-func newSegmentCompleteTask(task navvy.Task) *SegmentCompleteTask {
+// NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
+func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
 	t := &SegmentCompleteTask{
 		segmentCompleteTaskRequirement: task.(segmentCompleteTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1404,7 +1424,7 @@ func newSegmentCompleteTask(task navvy.Task) *SegmentCompleteTask {
 
 // NewSegmentCompleteTask will create a SegmentCompleteTask and fetch inherited data from parent task.
 func NewSegmentCompleteTask(task navvy.Task) navvy.Task {
-	return newSegmentCompleteTask(task)
+	return NewSegmentComplete(task)
 }
 
 // segmentFileCopyTaskRequirement is the requirement for execute SegmentFileCopyTask.
@@ -1471,12 +1491,13 @@ func (t *SegmentFileCopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task SegmentFileCopy failed: {%w}", err))
 }
 
-func newSegmentFileCopyTask(task navvy.Task) *SegmentFileCopyTask {
+// NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
+func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
 	t := &SegmentFileCopyTask{
 		segmentFileCopyTaskRequirement: task.(segmentFileCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1484,7 +1505,7 @@ func newSegmentFileCopyTask(task navvy.Task) *SegmentFileCopyTask {
 
 // NewSegmentFileCopyTask will create a SegmentFileCopyTask and fetch inherited data from parent task.
 func NewSegmentFileCopyTask(task navvy.Task) navvy.Task {
-	return newSegmentFileCopyTask(task)
+	return NewSegmentFileCopy(task)
 }
 
 // segmentInitTaskRequirement is the requirement for execute SegmentInitTask.
@@ -1546,12 +1567,13 @@ func (t *SegmentInitTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task SegmentInit failed: {%w}", err))
 }
 
-func newSegmentInitTask(task navvy.Task) *SegmentInitTask {
+// NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
+func NewSegmentInit(task navvy.Task) *SegmentInitTask {
 	t := &SegmentInitTask{
 		segmentInitTaskRequirement: task.(segmentInitTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1559,7 +1581,7 @@ func newSegmentInitTask(task navvy.Task) *SegmentInitTask {
 
 // NewSegmentInitTask will create a SegmentInitTask and fetch inherited data from parent task.
 func NewSegmentInitTask(task navvy.Task) navvy.Task {
-	return newSegmentInitTask(task)
+	return NewSegmentInit(task)
 }
 
 // segmentStreamCopyTaskRequirement is the requirement for execute SegmentStreamCopyTask.
@@ -1624,12 +1646,13 @@ func (t *SegmentStreamCopyTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task SegmentStreamCopy failed: {%w}", err))
 }
 
-func newSegmentStreamCopyTask(task navvy.Task) *SegmentStreamCopyTask {
+// NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
+func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
 	t := &SegmentStreamCopyTask{
 		segmentStreamCopyTaskRequirement: task.(segmentStreamCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1637,7 +1660,7 @@ func newSegmentStreamCopyTask(task navvy.Task) *SegmentStreamCopyTask {
 
 // NewSegmentStreamCopyTask will create a SegmentStreamCopyTask and fetch inherited data from parent task.
 func NewSegmentStreamCopyTask(task navvy.Task) navvy.Task {
-	return newSegmentStreamCopyTask(task)
+	return NewSegmentStreamCopy(task)
 }
 
 // statFileTaskRequirement is the requirement for execute StatFileTask.
@@ -1693,12 +1716,13 @@ func (t *StatFileTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task StatFile failed: {%w}", err))
 }
 
-func newStatFileTask(task navvy.Task) *StatFileTask {
+// NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
+func NewStatFile(task navvy.Task) *StatFileTask {
 	t := &StatFileTask{
 		statFileTaskRequirement: task.(statFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1706,7 +1730,7 @@ func newStatFileTask(task navvy.Task) *StatFileTask {
 
 // NewStatFileTask will create a StatFileTask and fetch inherited data from parent task.
 func NewStatFileTask(task navvy.Task) navvy.Task {
-	return newStatFileTask(task)
+	return NewStatFile(task)
 }
 
 // streamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
@@ -1760,12 +1784,13 @@ func (t *StreamMD5SumTask) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 
-func newStreamMD5SumTask(task navvy.Task) *StreamMD5SumTask {
+// NewStreamMD5Sum will create a StreamMD5SumTask struct and fetch inherited data from parent task.
+func NewStreamMD5Sum(task navvy.Task) *StreamMD5SumTask {
 	t := &StreamMD5SumTask{
 		streamMD5SumTaskRequirement: task.(streamMD5SumTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(types.NewScheduler(t.GetPool()))
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
@@ -1773,5 +1798,5 @@ func newStreamMD5SumTask(task navvy.Task) *StreamMD5SumTask {
 
 // NewStreamMD5SumTask will create a StreamMD5SumTask and fetch inherited data from parent task.
 func NewStreamMD5SumTask(task navvy.Task) navvy.Task {
-	return newStreamMD5SumTask(task)
+	return NewStreamMD5Sum(task)
 }

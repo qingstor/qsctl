@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -44,28 +45,16 @@ func initCpFlag() {
 	)
 }
 
-func cpParse(t *task.CopyTask, args []string) (err error) {
-	// Parse flags.
-	return nil
-}
-
 func cpRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewCopyTask(func(t *task.CopyTask) {
-		err = cpParse(t, args)
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	rootTask := &taskutils.BetweenStorageTask{}
+	err = utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
+	if err != nil {
+		return
+	}
 
-		err = utils.ParseBetweenStorageInput(t, args[0], args[1])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-	})
+	t := task.NewCopyFile(rootTask)
 
 	t.Run()
-	t.Wait()
 	if t.ValidateFault() {
 		return t.GetFault()
 	}

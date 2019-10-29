@@ -10,6 +10,7 @@ import (
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
 type BucketList struct {
@@ -1070,14 +1071,14 @@ func (o *Recursive) ValidateRecursive() bool {
 
 type ScheduleFunc struct {
 	valid bool
-	v     TaskFunc
+	v     schedule.TaskFunc
 }
 
 type ScheduleFuncGetter interface {
-	GetScheduleFunc() TaskFunc
+	GetScheduleFunc() schedule.TaskFunc
 }
 
-func (o *ScheduleFunc) GetScheduleFunc() TaskFunc {
+func (o *ScheduleFunc) GetScheduleFunc() schedule.TaskFunc {
 	if !o.valid {
 		panic("ScheduleFunc value is not valid")
 	}
@@ -1085,10 +1086,10 @@ func (o *ScheduleFunc) GetScheduleFunc() TaskFunc {
 }
 
 type ScheduleFuncSetter interface {
-	SetScheduleFunc(TaskFunc)
+	SetScheduleFunc(schedule.TaskFunc)
 }
 
-func (o *ScheduleFunc) SetScheduleFunc(v TaskFunc) {
+func (o *ScheduleFunc) SetScheduleFunc(v schedule.TaskFunc) {
 	o.v = v
 	o.valid = true
 }
@@ -1103,14 +1104,14 @@ func (o *ScheduleFunc) ValidateScheduleFunc() bool {
 
 type Scheduler struct {
 	valid bool
-	v     scheduler
+	v     schedule.Scheduler
 }
 
 type SchedulerGetter interface {
-	GetScheduler() scheduler
+	GetScheduler() schedule.Scheduler
 }
 
-func (o *Scheduler) GetScheduler() scheduler {
+func (o *Scheduler) GetScheduler() schedule.Scheduler {
 	if !o.valid {
 		panic("Scheduler value is not valid")
 	}
@@ -1118,10 +1119,10 @@ func (o *Scheduler) GetScheduler() scheduler {
 }
 
 type SchedulerSetter interface {
-	SetScheduler(scheduler)
+	SetScheduler(schedule.Scheduler)
 }
 
-func (o *Scheduler) SetScheduler(v scheduler) {
+func (o *Scheduler) SetScheduler(v schedule.Scheduler) {
 	o.v = v
 	o.valid = true
 }

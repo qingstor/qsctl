@@ -1,10 +1,7 @@
 package task
 
 import (
-	"bytes"
-	"io"
-	"io/ioutil"
-	"sync"
+	"fmt"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -12,9 +9,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/mock"
-	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func TestCopyFileTask_new(t *testing.T) {
@@ -28,17 +26,10 @@ func TestCopyFileTask_new(t *testing.T) {
 	tests := []struct {
 		name string
 		size int64
-		fn   types.TaskFunc
 	}{
 		{
-			"small file",
+			"normal",
 			constants.MaximumAutoMultipartSize - 1,
-			NewCopySmallFileTask,
-		},
-		{
-			"large file",
-			constants.MaximumAutoMultipartSize + 1,
-			NewCopyLargeFileTask,
 		},
 	}
 
@@ -65,6 +56,61 @@ func TestCopyFileTask_new(t *testing.T) {
 			assert.Equal(t, v.size, task.GetTotalSize())
 		})
 	}
+}
+
+func TestCopyFileTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tests := []struct {
+		name string
+		size int64
+		fn   schedule.TaskFunc
+	}{
+		{
+			"large file",
+			constants.MaximumAutoMultipartSize + 1,
+			NewCopyLargeFileTask,
+		},
+		{
+			"small file",
+			constants.MaximumAutoMultipartSize - 1,
+			NewCopySmallFileTask,
+		},
+	}
+	for _, v := range tests {
+		m := &mockCopyFileTask{}
+		task := &CopyFileTask{copyFileTaskRequirement: m}
+		task.SetTotalSize(v.size)
+
+		sch := mock.NewMockScheduler(ctrl)
+		sch.EXPECT().Sync(gomock.Any(), gomock.Any()).Do(func(inputTask navvy.Task, inputFn schedule.TaskFunc) {
+			assert.Equal(t, task, inputTask)
+			assert.Equal(t, fmt.Sprint(v.fn), fmt.Sprint(inputFn))
+		})
+		task.SetScheduler(sch)
+
+		task.Run()
+	}
+}
+
+func TestCopyLargeFileTask_new(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := &mockCopyLargeFileTask{}
+	m.SetPool(navvy.NewPool(10))
+	m.SetTotalSize(1024)
+
+	task := NewCopyLargeFile(m)
+
+	assert.True(t, task.ValidateCurrentOffset())
+	assert.Equal(t, int64(0), *task.GetCurrentOffset())
+	assert.True(t, task.ValidateScheduleFunc())
+	assert.Equal(t,
+		fmt.Sprint(schedule.TaskFunc(NewCopyPartialFileTask)),
+		fmt.Sprint(task.GetScheduleFunc()))
+	assert.True(t, task.ValidatePartSize())
 }
 
 func TestCopyLargeFileTask_run(t *testing.T) {
@@ -95,87 +141,6 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
 }
 
-func TestCopyPartialFileTask_run(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	name := uuid.New().String()
-	key := uuid.New().String()
-	segmentID := uuid.New().String()
-	size := int64(1234)
-	buf := bytes.NewReader([]byte("Hello, World"))
-
-	srcStore := mock.NewMockStorager(ctrl)
-	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
-		assert.Equal(t, name, inputPath)
-		return ioutil.NopCloser(buf), nil
-	}).AnyTimes()
-	dstStore := mock.NewMockStorager(ctrl)
-	dstStore.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, segmentID, inputPath)
-		assert.Equal(t, int64(0), inputOffset)
-		assert.Equal(t, size, inputSize)
-	})
-
-	pool := navvy.NewPool(10)
-
-	x := &mockCopyPartialFileTask{}
-	x.SetPool(pool)
-	x.SetSourcePath(name)
-	x.SetSourceStorage(srcStore)
-	x.SetDestinationPath(key)
-	x.SetDestinationStorage(dstStore)
-	x.SetPartSize(64 * 1024 * 1024)
-	x.SetTotalSize(size)
-	x.SetSegmentID(segmentID)
-
-	currentOffset := int64(0)
-	x.SetCurrentOffset(&currentOffset)
-
-	task := NewCopyPartialFileTask(x)
-	task.Run()
-	pool.Wait()
-}
-
-func TestCopySmallFileTask_run(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	name := uuid.New().String()
-	key := uuid.New().String()
-	size := int64(1234)
-	buf := bytes.NewReader([]byte("Hello, World"))
-
-	srcStore := mock.NewMockStorager(ctrl)
-	srcStore.EXPECT().Read(gomock.Any()).DoAndReturn(func(inputPath string) (r io.ReadCloser, err error) {
-		assert.Equal(t, name, inputPath)
-		return ioutil.NopCloser(buf), nil
-	})
-	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
-		assert.Equal(t, name, inputPath)
-		return ioutil.NopCloser(buf), nil
-	})
-	dstStore := mock.NewMockStorager(ctrl)
-	dstStore.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, _ io.ReadCloser, option ...*typ.Pair) {
-		assert.Equal(t, key, inputPath)
-		assert.Equal(t, size, option[0].Value.(int64))
-	})
-
-	pool := navvy.NewPool(10)
-
-	x := &mockCopySmallFileTask{}
-	x.SetPool(pool)
-	x.SetSourcePath(name)
-	x.SetSourceStorage(srcStore)
-	x.SetDestinationPath(key)
-	x.SetDestinationStorage(dstStore)
-	x.SetTotalSize(size)
-
-	task := NewCopySmallFileTask(x)
-	task.Run()
-	pool.Wait()
-}
-
 func TestCopyStreamTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -199,51 +164,4 @@ func TestCopyStreamTask_run(t *testing.T) {
 	assert.NotNil(t, tt.GetScheduler())
 	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
 	assert.Equal(t, int64(-1), tt.GetTotalSize())
-}
-
-func TestCopyPartialStreamTask_run(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	key := uuid.New().String()
-	localPath := "-"
-	segmentID := uuid.New().String()
-	buf := bytes.NewReader([]byte("Hello, world!"))
-
-	srcStore := mock.NewMockStorager(ctrl)
-	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(inputPath string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
-		assert.Equal(t, localPath, inputPath)
-		assert.Equal(t, int64(constants.DefaultPartSize), pairs[0].Value.(int64))
-		return ioutil.NopCloser(buf), nil
-	})
-
-	dstStore := mock.NewMockStorager(ctrl)
-	dstStore.EXPECT().WriteSegment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(inputPath string, inputOffset, inputSize int64, _ io.ReadCloser) {
-		assert.Equal(t, segmentID, inputPath)
-		assert.Equal(t, int64(0), inputOffset)
-		assert.Equal(t, int64(13), inputSize)
-	})
-
-	pool := navvy.NewPool(10)
-
-	x := &mockCopyPartialStreamTask{}
-	x.SetPool(pool)
-	x.SetSourcePath(localPath)
-	x.SetSourceStorage(srcStore)
-	x.SetDestinationPath(key)
-	x.SetDestinationStorage(dstStore)
-	x.SetPartSize(constants.DefaultPartSize)
-	x.SetSegmentID(segmentID)
-	x.SetBytesPool(&sync.Pool{
-		New: func() interface{} {
-			return bytes.NewBuffer(make([]byte, 0, x.GetPartSize()))
-		},
-	})
-
-	currentOffset := int64(0)
-	x.SetCurrentOffset(&currentOffset)
-
-	task := NewCopyPartialStreamTask(x)
-	task.Run()
-	pool.Wait()
 }

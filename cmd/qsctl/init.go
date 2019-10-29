@@ -27,13 +27,13 @@ func init() {
 	initGlobalFlag()
 	// init flags for every single cmd
 	initCpFlag()
-	initLsFlag()
-	initMbFlag()
-	initPresignFlag()
-	initRbFlag()
-	initRmFlag()
-	initStatFlag()
-	initTeeFlag()
+	// initLsFlag()
+	// initMbFlag()
+	// initPresignFlag()
+	// initRbFlag()
+	// initRmFlag()
+	// initStatFlag()
+	// initTeeFlag()
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
@@ -43,13 +43,13 @@ func init() {
 	// add sub-command to rootCmd
 	rootCmd.AddCommand(CatCommand)
 	rootCmd.AddCommand(CpCommand)
-	rootCmd.AddCommand(LsCommand)
-	rootCmd.AddCommand(MbCommand)
-	rootCmd.AddCommand(PresignCommand)
-	rootCmd.AddCommand(RbCommand)
-	rootCmd.AddCommand(RmCommand)
-	rootCmd.AddCommand(StatCommand)
-	rootCmd.AddCommand(TeeCommand)
+	// rootCmd.AddCommand(LsCommand)
+	// rootCmd.AddCommand(MbCommand)
+	// rootCmd.AddCommand(PresignCommand)
+	// rootCmd.AddCommand(RbCommand)
+	// rootCmd.AddCommand(RmCommand)
+	// rootCmd.AddCommand(StatCommand)
+	// rootCmd.AddCommand(TeeCommand)
 }
 
 func initConfig() (err error) {

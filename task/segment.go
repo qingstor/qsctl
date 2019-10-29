@@ -37,8 +37,6 @@ func (t *SegmentFileCopyTask) new() {}
 func (t *SegmentFileCopyTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetSourcePath(), t.GetOffset())
 
-	defer t.GetScheduler().Done(t.GetID())
-
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
@@ -58,8 +56,6 @@ func (t *SegmentFileCopyTask) run() {
 func (t *SegmentStreamCopyTask) new() {}
 func (t *SegmentStreamCopyTask) run() {
 	log.Debugf("Task <%s> for Stream at Offset <%d> started.", "MultipartStreamUploadTask", t.GetOffset())
-
-	defer t.GetScheduler().Done(t.GetID())
 
 	// TODO: Add checksum support
 	err := t.GetDestinationStorage().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))

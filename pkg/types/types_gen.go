@@ -66,6 +66,7 @@ import (
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
 {{- range $k, $v := .Data }}

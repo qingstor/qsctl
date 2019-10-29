@@ -40,6 +40,7 @@ generate:
 	@go generate task/tasks_gen.go
 	@mockgen -package mock -destination pkg/mock/storager.go github.com/Xuanwo/storage Storager,Servicer
 	@mockgen -package mock -destination pkg/mock/io.go io ReadCloser
+	@mockgen -package mock -destination pkg/mock/scheduler.go github.com/yunify/qsctl/v2/pkg/schedule Scheduler
 	@echo "Done"
 
 build: tidy generate check
