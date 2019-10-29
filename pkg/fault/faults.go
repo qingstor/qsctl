@@ -72,22 +72,22 @@ func NewReadableSizeFormatInvalid(err error, byteSize string) error {
 
 type StorageBucketInitFailed struct {
 	types.Fault
-	types.BucketName
+	types.StorageName
 	types.Zone
 }
 
 func (f *StorageBucketInitFailed) Error() string {
-	return fmt.Sprintf(`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetBucketName(), f.GetZone(), f.GetFault())
+	return fmt.Sprintf(`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetStorageName(), f.GetZone(), f.GetFault())
 }
 
 func (f *StorageBucketInitFailed) Unwrap() error {
 	return f.GetFault()
 }
 
-func NewStorageBucketInitFailed(err error, bucketName, zone string) error {
+func NewStorageBucketInitFailed(err error, storageName string, zone string) error {
 	f := &StorageBucketInitFailed{}
 	f.SetFault(err)
-	f.SetBucketName(bucketName)
+	f.SetStorageName(storageName)
 	f.SetZone(zone)
 
 	return f

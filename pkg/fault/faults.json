@@ -19,10 +19,10 @@
   },
   "StorageBucketInitFailed": {
     "value": [
-      "BucketName",
+      "StorageName",
       "Zone"
     ],
-    "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetBucketName(), f.GetZone(), f.GetFault()"
+    "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetStorageName(), f.GetZone(), f.GetFault()"
   },
   "StorageObjectNoPermission": {
     "value": [

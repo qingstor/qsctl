@@ -15,31 +15,7 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-func TestNewStatTask(t *testing.T) {
-	cases := []struct {
-		input            string
-		expectedTodoFunc types.TaskFunc
-		expectErr        error
-	}{
-		{"qs://test-bucket/obj", NewObjectStatTask, nil},
-		// this test case is for PseudoDir, which will return error in the near future
-		// {"qs://test-bucket/obj/", NewObjectStatTask, nil},
-	}
-
-	for _, v := range cases {
-		pt := NewStatTask(func(task *StatTask) {
-			_, _, _, err := utils.ParseQsPath(v.input)
-			if err != nil {
-				t.Fatal(err)
-			}
-		})
-
-		assert.Equal(t,
-			fmt.Sprintf("%v", v.expectedTodoFunc),
-			fmt.Sprintf("%v", pt.Todo.NextTODO()))
-	}
-}
-func TestObjectStatTask_Run(t *testing.T) {
+func TestObjectStatTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

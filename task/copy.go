@@ -57,7 +57,7 @@ func (t *CopySmallFileTask) new() {
 
 func (t *CopySmallFileTask) run() {
 	t.GetScheduler().Sync(t, NewFileMD5SumTask)
-	t.GetScheduler().Sync(t, NewFileUploadTask)
+	t.GetScheduler().Sync(t, NewFileCopyTask)
 }
 
 // newCopyLargeFileTask will create a new Task.
@@ -77,8 +77,8 @@ func (t *CopyLargeFileTask) new() {
 }
 
 func (t *CopyLargeFileTask) run() {
-	t.GetScheduler().Async(t, NewMultipartInitTask)
-	t.GetScheduler().Sync(t, NewMultipartCompleteTask)
+	t.GetScheduler().Async(t, NewSegmentInitTask)
+	t.GetScheduler().Sync(t, NewSegmentCompleteTask)
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -101,7 +101,7 @@ func (t *CopyPartialFileTask) new() {
 
 func (t *CopyPartialFileTask) run() {
 	t.GetScheduler().Sync(t, NewFileMD5SumTask)
-	t.GetScheduler().Async(t, NewMultipartFileUploadTask)
+	t.GetScheduler().Async(t, NewSegmentFileCopyTask)
 }
 
 // NewCopyStreamTask will create a copy stream task.
@@ -127,8 +127,8 @@ func (t *CopyStreamTask) new() {
 }
 
 func (t *CopyStreamTask) run() {
-	t.GetScheduler().Async(t, NewMultipartInitTask)
-	t.GetScheduler().Sync(t, NewMultipartCompleteTask)
+	t.GetScheduler().Async(t, NewSegmentInitTask)
+	t.GetScheduler().Sync(t, NewSegmentCompleteTask)
 }
 
 // NewCopyPartialStreamTask will create a new Task.
@@ -162,5 +162,5 @@ func (t *CopyPartialStreamTask) new() {
 
 func (t *CopyPartialStreamTask) run() {
 	t.GetScheduler().Sync(t, NewStreamMD5SumTask)
-	t.GetScheduler().Sync(t, NewMultipartStreamUploadTask)
+	t.GetScheduler().Sync(t, NewSegmentStreamCopyTask)
 }

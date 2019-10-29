@@ -11,7 +11,8 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
-func (t *MultipartInitTask) run() {
+func (t *SegmentInitTask) new() {}
+func (t *SegmentInitTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetDestinationPath())
 
 	id, err := t.GetDestinationStorage().InitSegment(t.GetDestinationPath())
@@ -25,13 +26,15 @@ func (t *MultipartInitTask) run() {
 		if *t.GetCurrentOffset() == t.GetTotalSize() {
 			break
 		}
-		t.GetScheduler().New(t.multipartInitTaskRequirement)
+
+		// TODO: rethink the logic here.
+		t.GetScheduler().Async(t.segmentInitTaskRequirement, t.GetScheduleFunc())
 	}
 
 	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetDestinationPath())
 }
-
-func (t *MultipartFileUploadTask) run() {
+func (t *SegmentFileCopyTask) new() {}
+func (t *SegmentFileCopyTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetSourcePath(), t.GetOffset())
 
 	defer t.GetScheduler().Done(t.GetID())
@@ -52,8 +55,8 @@ func (t *MultipartFileUploadTask) run() {
 
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetSourcePath(), t.GetOffset())
 }
-
-func (t *MultipartStreamUploadTask) run() {
+func (t *SegmentStreamCopyTask) new() {}
+func (t *SegmentStreamCopyTask) run() {
 	log.Debugf("Task <%s> for Stream at Offset <%d> started.", "MultipartStreamUploadTask", t.GetOffset())
 
 	defer t.GetScheduler().Done(t.GetID())
@@ -67,22 +70,22 @@ func (t *MultipartStreamUploadTask) run() {
 
 	log.Debugf("Task <%s> for Stream at Offset <%d> finished.", "MultipartStreamUploadTask", t.GetOffset())
 }
+func (t *SegmentCompleteTask) new() {}
+func (t *SegmentCompleteTask) run() {
+	log.Debugf("Task <%s> for Object <%s> started.", "MultipartCompleteTask", t.GetPath())
 
-func (t *MultipartCompleteTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "MultipartCompleteTask", t.GetDestinationPath())
-
-	err := t.GetDestinationStorage().CompleteSegment(t.GetSegmentID())
+	err := t.GetStorage().CompleteSegment(t.GetSegmentID())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartCompleteTask", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartCompleteTask", t.GetPath())
 }
-
-func (t *AbortMultipartTask) run() {
-	log.Debugf("Task <%s> for Bucket <%s> started.", "AbortMultipartTask", t.GetBucketName())
-	it := t.GetDestinationStorage().ListSegments("")
+func (t *SegmentAbortAllTask) new() {}
+func (t *SegmentAbortAllTask) run() {
+	log.Debugf("Task <%s> for Bucket <%s> started.", "AbortMultipartTask")
+	it := t.GetStorage().ListSegments("")
 
 	for {
 		o, err := it.Next()
@@ -93,11 +96,11 @@ func (t *AbortMultipartTask) run() {
 			t.TriggerFault(fault.NewUnhandled(err))
 			return
 		}
-		if err := t.GetDestinationStorage().AbortSegment(o.ID); err != nil {
+		if err := t.GetStorage().AbortSegment(o.ID); err != nil {
 			t.TriggerFault(fault.NewUnhandled(err))
 			return
 		}
 	}
 
-	log.Debugf("Task <%s> for Bucket <%s> finished.", "AbortMultipartTask", t.GetBucketName())
+	log.Debugf("Task <%s> for Bucket <%s> finished.", "AbortMultipartTask")
 }

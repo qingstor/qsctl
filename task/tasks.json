@@ -1,29 +1,4 @@
 {
-  "AbortMultipart": {
-    "description": "abort all multipart uploads in a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationStorage"
-    ]
-  },
-  "BucketCreate": {
-    "description": "send put request to create a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationService",
-      "Zone"
-    ]
-  },
-  "BucketList": {
-    "description": "send get request to get bucket list",
-    "inherited_value": [
-      "DestinationService",
-      "Zone"
-    ],
-    "runtime_value": [
-      "BucketList"
-    ]
-  },
   "Copy": {
     "description": "copy task will execute copy between two storager",
     "inherited_value": [
@@ -132,6 +107,14 @@
       "TotalSize"
     ]
   },
+  "CreateStorage": {
+    "description": "create a storage",
+    "inherited_value": [
+      "Service",
+      "StorageName",
+      "Zone"
+    ]
+  },
   "DeleteDir": {
     "description": "will delete a dir recursively",
     "inherited_value": [
@@ -168,6 +151,17 @@
       "ObjectChannel"
     ]
   },
+  "FileCopy": {
+    "description": "execute a file copy operation between towo storager",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
+      "MD5Sum",
+      "Size",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
   "FileMD5Sum": {
     "description": "get file's md5 sum",
     "inherited_value": [
@@ -180,54 +174,65 @@
       "MD5Sum"
     ]
   },
-  "FileUpload": {
-    "description": "upload file as an object",
+  "IterateFile": {
+    "description": "iterate file and execute operations on it",
     "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "MD5Sum",
-      "Size",
-      "SourcePath",
-      "SourceStorage"
-    ]
-  },
-  "List": {
-    "description": "the root list task",
-    "runtime_value": [
-      "BucketList",
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage",
-      "DestinationType",
-      "HumanReadable",
-      "ListType",
-      "LongFormat",
-      "ObjectChannel",
-      "Pool",
+      "Path",
       "Recursive",
-      "Zone"
-    ]
-  },
-  "MakeBucket": {
-    "description": "make new bucket with given key",
+      "ScheduleFunc",
+      "Storage"
+    ],
     "runtime_value": [
-      "BucketName",
-      "DestinationService",
-      "Pool",
-      "Zone"
+      "ObjectChannel"
     ]
   },
-  "MultipartComplete": {
-    "description": "upload a multipart via stream",
+  "ListFile": {
+    "description": "list files",
     "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SegmentID"
+      "ObjectChannel",
+      "Path",
+      "Recursive",
+      "Storage"
     ]
   },
-  "MultipartFileUpload": {
-    "description": "upload a multipart via file",
+  "ListStorage": {
+    "description": "send get request to get bucket list",
+    "inherited_value": [
+      "Service",
+      "Zone"
+    ],
+    "runtime_value": [
+      "BucketList"
+    ]
+  },
+  "Reach": {
+    "description": "will reach a remote object and return the signed url",
+    "inherited_value": [
+      "Expire",
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "URL"
+    ]
+  },
+  "SegmentAbortAll": {
+    "description": "abort all multipart uploads in a bucket",
+    "inherited_value": [
+      "Storage",
+      "StorageName"
+    ]
+  },
+  "SegmentComplete": {
+    "description": "complete a segment",
+    "inherited_value": [
+      "Path",
+      "SegmentID",
+      "Storage"
+    ]
+  },
+  "SegmentFileCopy": {
+    "description": "copy a segment file",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -239,20 +244,21 @@
       "SourceStorage"
     ]
   },
-  "MultipartInit": {
-    "description": "init a multipart upload",
+  "SegmentInit": {
+    "description": "init a segment upload",
     "inherited_value": [
       "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
+      "ScheduleFunc",
       "TotalSize"
     ],
     "runtime_value": [
       "SegmentID"
     ]
   },
-  "MultipartStreamUpload": {
-    "description": "upload a multipart via stream",
+  "SegmentStreamCopy": {
+    "description": "copy a segment stream",
     "inherited_value": [
       "Content",
       "DestinationPath",
@@ -263,66 +269,14 @@
       "Size"
     ]
   },
-  "ObjectList": {
-    "description": "list objects",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "ObjectListAsync": {
-    "description": "list objects",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "ObjectPresign": {
-    "description": "will presign a remote object and return the signed url",
-    "inherited_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationStorage",
-      "Expire"
-    ],
-    "runtime_value": [
-      "URL"
-    ]
-  },
-  "ObjectStat": {
+  "Stat": {
     "description": "stat a remote object by request headObject",
     "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
+      "Path",
+      "Storage"
     ],
     "runtime_value": [
       "Object"
-    ]
-  },
-  "Presign": {
-    "description": "will handle presign tasks",
-    "runtime_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Expire",
-      "Pool",
-      "URL"
-    ]
-  },
-  "Stat": {
-    "description": "will stat a remote object",
-    "runtime_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Object",
-      "Pool"
     ]
   },
   "StreamMD5Sum": {

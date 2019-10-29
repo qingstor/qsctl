@@ -1,12 +1,10 @@
 package task
 
 import (
-	"github.com/Xuanwo/navvy"
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *DeleteDirTask) new() {
@@ -23,7 +21,8 @@ func (t *DeleteDirTask) run() {
 	log.Debugf("Task <%s> for path <%s> started",
 		"DeleteDir", t.GetPath())
 
-	t.GetScheduler().Sync(t, NewFileIteratorTask)
+	// TODO: check logic here
+	t.GetScheduler().Sync(t, NewIterateFileTask)
 
 	log.Debugf("Task <%s> for path <%s> finished",
 		"DeleteDir", t.GetPath())
@@ -42,4 +41,36 @@ func (t *DeleteFileTask) run() {
 
 	log.Debugf("Task <%s> for path <%s> finished",
 		"DeleteFile", t.GetPath())
+}
+
+func (t *DeleteStorageTask) new() {
+}
+
+func (t *DeleteStorageTask) run() {
+	log.Debugf("Task <%s> for storage <%s> started",
+		"DeleteStorage", t.GetStorageName())
+
+	err := t.GetService().Delete(t.GetStorageName())
+	if err != nil {
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
+	}
+
+	log.Debugf("Task <%s> for storage <%s> finished",
+		"DeleteStorage", t.GetStorageName())
+}
+
+func (t *DeleteStorageForceTask) new() {
+
+}
+
+func (t *DeleteStorageForceTask) run() {
+	log.Debugf("Task <%s> for storage <%s> started",
+		"DeleteStorageForce", t.GetStorageName())
+
+	// TODO: delete all dir, delete all segments
+	t.GetScheduler().Sync(t, NewDeleteStorageTask)
+
+	log.Debugf("Task <%s> for storage <%s> finished",
+		"DeleteStorageForce", t.GetStorageName())
 }

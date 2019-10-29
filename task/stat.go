@@ -1,27 +1,17 @@
 package task
 
 import (
-	"github.com/Xuanwo/navvy"
+	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
-// NewStatTask will create a stat task.
-func NewStatTask(fn func(*StatTask)) *StatTask {
-	t := &StatTask{}
-
-	pool := navvy.NewPool(10)
-	t.SetPool(pool)
-
-	fn(t)
-	t.AddTODOs(NewObjectStatTask)
-	return t
-}
-func (t *ObjectStatTask) run() {
-	om, err := t.GetDestinationStorage().Stat(t.GetDestinationPath())
+func (t *StatTask) new() {}
+func (t *StatTask) run() {
+	om, err := t.GetStorage().Stat(t.GetPath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetObject(om)
-	log.Debugf("Task <%s> for Key <%s> finished.", "StatObjectTask", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Key <%s> finished.", "StatObjectTask", t.GetPath())
 }

@@ -7,8 +7,9 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
-func (t *FileUploadTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "FileUploadTask", t.GetDestinationPath())
+func (t *FileCopyTask) new() {}
+func (t *FileCopyTask) run() {
+	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileCopy", t.GetSourcePath(), t.GetDestinationPath())
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
 	if err != nil {
@@ -20,8 +21,9 @@ func (t *FileUploadTask) run() {
 	// TODO: add checksum support
 	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, typ.WithSize(t.GetSize()))
 	if err != nil {
-		panic(err)
+		t.TriggerFault(fault.NewUnhandled(err))
+		return
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "FileUploadTask", t.GetDestinationPath())
+	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileUpload", t.GetSourcePath(), t.GetDestinationPath())
 }

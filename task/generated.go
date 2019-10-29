@@ -14,195 +14,6 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
-// abortMultipartTaskRequirement is the requirement for execute AbortMultipartTask.
-type abortMultipartTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.BucketNameGetter
-	types.DestinationStorageGetter
-
-	// Mutable value
-}
-
-// mockAbortMultipartTask is the mock task for AbortMultipartTask.
-type mockAbortMultipartTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.BucketName
-	types.DestinationStorage
-
-	// Mutable value
-}
-
-func (t *mockAbortMultipartTask) Run() {
-	panic("mockAbortMultipartTask should not be run.")
-}
-
-// AbortMultipartTask will abort all multipart uploads in a bucket.
-type AbortMultipartTask struct {
-	abortMultipartTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *AbortMultipartTask) Run() {
-	t.run()
-}
-
-func (t *AbortMultipartTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task AbortMultipart failed: {%w}", err))
-}
-
-// NewAbortMultipartTask will create a AbortMultipartTask and fetch inherited data from parent task.
-func NewAbortMultipartTask(task navvy.Task) navvy.Task {
-	t := &AbortMultipartTask{
-		abortMultipartTaskRequirement: task.(abortMultipartTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// bucketCreateTaskRequirement is the requirement for execute BucketCreateTask.
-type bucketCreateTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.BucketNameGetter
-	types.DestinationServiceGetter
-	types.ZoneGetter
-
-	// Mutable value
-}
-
-// mockBucketCreateTask is the mock task for BucketCreateTask.
-type mockBucketCreateTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.BucketName
-	types.DestinationService
-	types.Zone
-
-	// Mutable value
-}
-
-func (t *mockBucketCreateTask) Run() {
-	panic("mockBucketCreateTask should not be run.")
-}
-
-// BucketCreateTask will send put request to create a bucket.
-type BucketCreateTask struct {
-	bucketCreateTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *BucketCreateTask) Run() {
-	t.run()
-}
-
-func (t *BucketCreateTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task BucketCreate failed: {%w}", err))
-}
-
-// NewBucketCreateTask will create a BucketCreateTask and fetch inherited data from parent task.
-func NewBucketCreateTask(task navvy.Task) navvy.Task {
-	t := &BucketCreateTask{
-		bucketCreateTaskRequirement: task.(bucketCreateTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// bucketListTaskRequirement is the requirement for execute BucketListTask.
-type bucketListTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.DestinationServiceGetter
-	types.ZoneGetter
-
-	// Mutable value
-}
-
-// mockBucketListTask is the mock task for BucketListTask.
-type mockBucketListTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.DestinationService
-	types.Zone
-
-	// Mutable value
-}
-
-func (t *mockBucketListTask) Run() {
-	panic("mockBucketListTask should not be run.")
-}
-
-// BucketListTask will send get request to get bucket list.
-type BucketListTask struct {
-	bucketListTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.BucketList
-}
-
-// Run implement navvy.Task
-func (t *BucketListTask) Run() {
-	t.run()
-}
-
-func (t *BucketListTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task BucketList failed: {%w}", err))
-}
-
-// NewBucketListTask will create a BucketListTask and fetch inherited data from parent task.
-func NewBucketListTask(task navvy.Task) navvy.Task {
-	t := &BucketListTask{
-		bucketListTaskRequirement: task.(bucketListTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
 // copyTaskRequirement is the requirement for execute CopyTask.
 type copyTaskRequirement interface {
 	navvy.Task
@@ -710,6 +521,70 @@ func NewCopyStreamTask(task navvy.Task) navvy.Task {
 	return t
 }
 
+// createStorageTaskRequirement is the requirement for execute CreateStorageTask.
+type createStorageTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+
+	// Inherited value
+	types.ServiceGetter
+	types.StorageNameGetter
+	types.ZoneGetter
+
+	// Mutable value
+}
+
+// mockCreateStorageTask is the mock task for CreateStorageTask.
+type mockCreateStorageTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.Service
+	types.StorageName
+	types.Zone
+
+	// Mutable value
+}
+
+func (t *mockCreateStorageTask) Run() {
+	panic("mockCreateStorageTask should not be run.")
+}
+
+// CreateStorageTask will create a storage.
+type CreateStorageTask struct {
+	createStorageTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *CreateStorageTask) Run() {
+	t.run()
+}
+
+func (t *CreateStorageTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task CreateStorage failed: {%w}", err))
+}
+
+// NewCreateStorageTask will create a CreateStorageTask and fetch inherited data from parent task.
+func NewCreateStorageTask(task navvy.Task) navvy.Task {
+	t := &CreateStorageTask{
+		createStorageTaskRequirement: task.(createStorageTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}
+
 // deleteDirTaskRequirement is the requirement for execute DeleteDirTask.
 type deleteDirTaskRequirement interface {
 	navvy.Task
@@ -962,6 +837,76 @@ func NewDeleteStorageForceTask(task navvy.Task) navvy.Task {
 	return t
 }
 
+// fileCopyTaskRequirement is the requirement for execute FileCopyTask.
+type fileCopyTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+
+	// Inherited value
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+	types.MD5SumGetter
+	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
+
+	// Mutable value
+}
+
+// mockFileCopyTask is the mock task for FileCopyTask.
+type mockFileCopyTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.DestinationPath
+	types.DestinationStorage
+	types.MD5Sum
+	types.Size
+	types.SourcePath
+	types.SourceStorage
+
+	// Mutable value
+}
+
+func (t *mockFileCopyTask) Run() {
+	panic("mockFileCopyTask should not be run.")
+}
+
+// FileCopyTask will execute a file copy operation between towo storager.
+type FileCopyTask struct {
+	fileCopyTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *FileCopyTask) Run() {
+	t.run()
+}
+
+func (t *FileCopyTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task FileCopy failed: {%w}", err))
+}
+
+// NewFileCopyTask will create a FileCopyTask and fetch inherited data from parent task.
+func NewFileCopyTask(task navvy.Task) navvy.Task {
+	t := &FileCopyTask{
+		fileCopyTaskRequirement: task.(fileCopyTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}
+
 // fileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
 type fileMD5SumTaskRequirement interface {
 	navvy.Task
@@ -1030,48 +975,111 @@ func NewFileMD5SumTask(task navvy.Task) navvy.Task {
 	return t
 }
 
-// fileUploadTaskRequirement is the requirement for execute FileUploadTask.
-type fileUploadTaskRequirement interface {
+// iterateFileTaskRequirement is the requirement for execute IterateFileTask.
+type iterateFileTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
 	types.PoolGetter
 
 	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
+	types.PathGetter
+	types.RecursiveGetter
+	types.ScheduleFuncGetter
+	types.StorageGetter
 
 	// Mutable value
 }
 
-// mockFileUploadTask is the mock task for FileUploadTask.
-type mockFileUploadTask struct {
+// mockIterateFileTask is the mock task for IterateFileTask.
+type mockIterateFileTask struct {
 	types.Pool
 	types.Fault
 	types.ID
 
 	// Inherited value
-	types.DestinationPath
-	types.DestinationStorage
-	types.MD5Sum
-	types.Size
-	types.SourcePath
-	types.SourceStorage
+	types.Path
+	types.Recursive
+	types.ScheduleFunc
+	types.Storage
 
 	// Mutable value
 }
 
-func (t *mockFileUploadTask) Run() {
-	panic("mockFileUploadTask should not be run.")
+func (t *mockIterateFileTask) Run() {
+	panic("mockIterateFileTask should not be run.")
 }
 
-// FileUploadTask will upload file as an object.
-type FileUploadTask struct {
-	fileUploadTaskRequirement
+// IterateFileTask will iterate file and execute operations on it.
+type IterateFileTask struct {
+	iterateFileTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+	types.ObjectChannel
+}
+
+// Run implement navvy.Task
+func (t *IterateFileTask) Run() {
+	t.run()
+}
+
+func (t *IterateFileTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task IterateFile failed: {%w}", err))
+}
+
+// NewIterateFileTask will create a IterateFileTask and fetch inherited data from parent task.
+func NewIterateFileTask(task navvy.Task) navvy.Task {
+	t := &IterateFileTask{
+		iterateFileTaskRequirement: task.(iterateFileTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}
+
+// listFileTaskRequirement is the requirement for execute ListFileTask.
+type listFileTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+
+	// Inherited value
+	types.ObjectChannelGetter
+	types.PathGetter
+	types.RecursiveGetter
+	types.StorageGetter
+
+	// Mutable value
+}
+
+// mockListFileTask is the mock task for ListFileTask.
+type mockListFileTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.ObjectChannel
+	types.Path
+	types.Recursive
+	types.Storage
+
+	// Mutable value
+}
+
+func (t *mockListFileTask) Run() {
+	panic("mockListFileTask should not be run.")
+}
+
+// ListFileTask will list files.
+type ListFileTask struct {
+	listFileTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1082,54 +1090,58 @@ type FileUploadTask struct {
 }
 
 // Run implement navvy.Task
-func (t *FileUploadTask) Run() {
+func (t *ListFileTask) Run() {
 	t.run()
 }
 
-func (t *FileUploadTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task FileUpload failed: {%w}", err))
+func (t *ListFileTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
-// NewFileUploadTask will create a FileUploadTask and fetch inherited data from parent task.
-func NewFileUploadTask(task navvy.Task) navvy.Task {
-	t := &FileUploadTask{
-		fileUploadTaskRequirement: task.(fileUploadTaskRequirement),
+// NewListFileTask will create a ListFileTask and fetch inherited data from parent task.
+func NewListFileTask(task navvy.Task) navvy.Task {
+	t := &ListFileTask{
+		listFileTaskRequirement: task.(listFileTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// listTaskRequirement is the requirement for execute ListTask.
-type listTaskRequirement interface {
+// listStorageTaskRequirement is the requirement for execute ListStorageTask.
+type listStorageTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
 	types.PoolGetter
 
 	// Inherited value
+	types.ServiceGetter
+	types.ZoneGetter
 
 	// Mutable value
 }
 
-// mockListTask is the mock task for ListTask.
-type mockListTask struct {
+// mockListStorageTask is the mock task for ListStorageTask.
+type mockListStorageTask struct {
 	types.Pool
 	types.Fault
 	types.ID
 
 	// Inherited value
+	types.Service
+	types.Zone
 
 	// Mutable value
 }
 
-func (t *mockListTask) Run() {
-	panic("mockListTask should not be run.")
+func (t *mockListStorageTask) Run() {
+	panic("mockListStorageTask should not be run.")
 }
 
-// ListTask will the root list task.
-type ListTask struct {
-	listTaskRequirement
+// ListStorageTask will send get request to get bucket list.
+type ListStorageTask struct {
+	listStorageTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1138,69 +1150,63 @@ type ListTask struct {
 
 	// Runtime value
 	types.BucketList
-	types.BucketName
-	types.DestinationPath
-	types.DestinationService
-	types.DestinationStorage
-	types.DestinationType
-	types.HumanReadable
-	types.ListType
-	types.LongFormat
-	types.ObjectChannel
-	types.Pool
-	types.Recursive
-	types.Zone
 }
 
 // Run implement navvy.Task
-func (t *ListTask) Run() {
+func (t *ListStorageTask) Run() {
 	t.run()
 }
 
-func (t *ListTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task List failed: {%w}", err))
+func (t *ListStorageTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task ListStorage failed: {%w}", err))
 }
 
-// NewListTask will create a ListTask and fetch inherited data from parent task.
-func NewListTask(task navvy.Task) navvy.Task {
-	t := &ListTask{
-		listTaskRequirement: task.(listTaskRequirement),
+// NewListStorageTask will create a ListStorageTask and fetch inherited data from parent task.
+func NewListStorageTask(task navvy.Task) navvy.Task {
+	t := &ListStorageTask{
+		listStorageTaskRequirement: task.(listStorageTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// makeBucketTaskRequirement is the requirement for execute MakeBucketTask.
-type makeBucketTaskRequirement interface {
+// reachTaskRequirement is the requirement for execute ReachTask.
+type reachTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
 	types.PoolGetter
 
 	// Inherited value
+	types.ExpireGetter
+	types.PathGetter
+	types.StorageGetter
 
 	// Mutable value
 }
 
-// mockMakeBucketTask is the mock task for MakeBucketTask.
-type mockMakeBucketTask struct {
+// mockReachTask is the mock task for ReachTask.
+type mockReachTask struct {
 	types.Pool
 	types.Fault
 	types.ID
 
 	// Inherited value
+	types.Expire
+	types.Path
+	types.Storage
 
 	// Mutable value
 }
 
-func (t *mockMakeBucketTask) Run() {
-	panic("mockMakeBucketTask should not be run.")
+func (t *mockReachTask) Run() {
+	panic("mockReachTask should not be run.")
 }
 
-// MakeBucketTask will make new bucket with given key.
-type MakeBucketTask struct {
-	makeBucketTaskRequirement
+// ReachTask will will reach a remote object and return the signed url.
+type ReachTask struct {
+	reachTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1208,67 +1214,126 @@ type MakeBucketTask struct {
 	types.Scheduler
 
 	// Runtime value
-	types.BucketName
-	types.DestinationService
-	types.Pool
-	types.Zone
+	types.URL
 }
 
 // Run implement navvy.Task
-func (t *MakeBucketTask) Run() {
+func (t *ReachTask) Run() {
 	t.run()
 }
 
-func (t *MakeBucketTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task MakeBucket failed: {%w}", err))
+func (t *ReachTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task Reach failed: {%w}", err))
 }
 
-// NewMakeBucketTask will create a MakeBucketTask and fetch inherited data from parent task.
-func NewMakeBucketTask(task navvy.Task) navvy.Task {
-	t := &MakeBucketTask{
-		makeBucketTaskRequirement: task.(makeBucketTaskRequirement),
+// NewReachTask will create a ReachTask and fetch inherited data from parent task.
+func NewReachTask(task navvy.Task) navvy.Task {
+	t := &ReachTask{
+		reachTaskRequirement: task.(reachTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// multipartCompleteTaskRequirement is the requirement for execute MultipartCompleteTask.
-type multipartCompleteTaskRequirement interface {
+// segmentAbortAllTaskRequirement is the requirement for execute SegmentAbortAllTask.
+type segmentAbortAllTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
 	types.PoolGetter
 
 	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
+	types.StorageGetter
+	types.StorageNameGetter
+
+	// Mutable value
+}
+
+// mockSegmentAbortAllTask is the mock task for SegmentAbortAllTask.
+type mockSegmentAbortAllTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited value
+	types.Storage
+	types.StorageName
+
+	// Mutable value
+}
+
+func (t *mockSegmentAbortAllTask) Run() {
+	panic("mockSegmentAbortAllTask should not be run.")
+}
+
+// SegmentAbortAllTask will abort all multipart uploads in a bucket.
+type SegmentAbortAllTask struct {
+	segmentAbortAllTaskRequirement
+
+	// Predefined runtime value
+	types.Fault
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *SegmentAbortAllTask) Run() {
+	t.run()
+}
+
+func (t *SegmentAbortAllTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task SegmentAbortAll failed: {%w}", err))
+}
+
+// NewSegmentAbortAllTask will create a SegmentAbortAllTask and fetch inherited data from parent task.
+func NewSegmentAbortAllTask(task navvy.Task) navvy.Task {
+	t := &SegmentAbortAllTask{
+		segmentAbortAllTaskRequirement: task.(segmentAbortAllTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.new()
+	return t
+}
+
+// segmentCompleteTaskRequirement is the requirement for execute SegmentCompleteTask.
+type segmentCompleteTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+
+	// Inherited value
+	types.PathGetter
 	types.SegmentIDGetter
+	types.StorageGetter
 
 	// Mutable value
 }
 
-// mockMultipartCompleteTask is the mock task for MultipartCompleteTask.
-type mockMultipartCompleteTask struct {
+// mockSegmentCompleteTask is the mock task for SegmentCompleteTask.
+type mockSegmentCompleteTask struct {
 	types.Pool
 	types.Fault
 	types.ID
 
 	// Inherited value
-	types.DestinationPath
-	types.DestinationStorage
+	types.Path
 	types.SegmentID
+	types.Storage
 
 	// Mutable value
 }
 
-func (t *mockMultipartCompleteTask) Run() {
-	panic("mockMultipartCompleteTask should not be run.")
+func (t *mockSegmentCompleteTask) Run() {
+	panic("mockSegmentCompleteTask should not be run.")
 }
 
-// MultipartCompleteTask will upload a multipart via stream.
-type MultipartCompleteTask struct {
-	multipartCompleteTaskRequirement
+// SegmentCompleteTask will complete a segment.
+type SegmentCompleteTask struct {
+	segmentCompleteTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1279,26 +1344,26 @@ type MultipartCompleteTask struct {
 }
 
 // Run implement navvy.Task
-func (t *MultipartCompleteTask) Run() {
+func (t *SegmentCompleteTask) Run() {
 	t.run()
 }
 
-func (t *MultipartCompleteTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task MultipartComplete failed: {%w}", err))
+func (t *SegmentCompleteTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task SegmentComplete failed: {%w}", err))
 }
 
-// NewMultipartCompleteTask will create a MultipartCompleteTask and fetch inherited data from parent task.
-func NewMultipartCompleteTask(task navvy.Task) navvy.Task {
-	t := &MultipartCompleteTask{
-		multipartCompleteTaskRequirement: task.(multipartCompleteTaskRequirement),
+// NewSegmentCompleteTask will create a SegmentCompleteTask and fetch inherited data from parent task.
+func NewSegmentCompleteTask(task navvy.Task) navvy.Task {
+	t := &SegmentCompleteTask{
+		segmentCompleteTaskRequirement: task.(segmentCompleteTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// multipartFileUploadTaskRequirement is the requirement for execute MultipartFileUploadTask.
-type multipartFileUploadTaskRequirement interface {
+// segmentFileCopyTaskRequirement is the requirement for execute SegmentFileCopyTask.
+type segmentFileCopyTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
@@ -1317,8 +1382,8 @@ type multipartFileUploadTaskRequirement interface {
 	// Mutable value
 }
 
-// mockMultipartFileUploadTask is the mock task for MultipartFileUploadTask.
-type mockMultipartFileUploadTask struct {
+// mockSegmentFileCopyTask is the mock task for SegmentFileCopyTask.
+type mockSegmentFileCopyTask struct {
 	types.Pool
 	types.Fault
 	types.ID
@@ -1336,13 +1401,13 @@ type mockMultipartFileUploadTask struct {
 	// Mutable value
 }
 
-func (t *mockMultipartFileUploadTask) Run() {
-	panic("mockMultipartFileUploadTask should not be run.")
+func (t *mockSegmentFileCopyTask) Run() {
+	panic("mockSegmentFileCopyTask should not be run.")
 }
 
-// MultipartFileUploadTask will upload a multipart via file.
-type MultipartFileUploadTask struct {
-	multipartFileUploadTaskRequirement
+// SegmentFileCopyTask will copy a segment file.
+type SegmentFileCopyTask struct {
+	segmentFileCopyTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1353,26 +1418,26 @@ type MultipartFileUploadTask struct {
 }
 
 // Run implement navvy.Task
-func (t *MultipartFileUploadTask) Run() {
+func (t *SegmentFileCopyTask) Run() {
 	t.run()
 }
 
-func (t *MultipartFileUploadTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task MultipartFileUpload failed: {%w}", err))
+func (t *SegmentFileCopyTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task SegmentFileCopy failed: {%w}", err))
 }
 
-// NewMultipartFileUploadTask will create a MultipartFileUploadTask and fetch inherited data from parent task.
-func NewMultipartFileUploadTask(task navvy.Task) navvy.Task {
-	t := &MultipartFileUploadTask{
-		multipartFileUploadTaskRequirement: task.(multipartFileUploadTaskRequirement),
+// NewSegmentFileCopyTask will create a SegmentFileCopyTask and fetch inherited data from parent task.
+func NewSegmentFileCopyTask(task navvy.Task) navvy.Task {
+	t := &SegmentFileCopyTask{
+		segmentFileCopyTaskRequirement: task.(segmentFileCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// multipartInitTaskRequirement is the requirement for execute MultipartInitTask.
-type multipartInitTaskRequirement interface {
+// segmentInitTaskRequirement is the requirement for execute SegmentInitTask.
+type segmentInitTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
@@ -1382,13 +1447,14 @@ type multipartInitTaskRequirement interface {
 	types.CurrentOffsetGetter
 	types.DestinationPathGetter
 	types.DestinationStorageGetter
+	types.ScheduleFuncGetter
 	types.TotalSizeGetter
 
 	// Mutable value
 }
 
-// mockMultipartInitTask is the mock task for MultipartInitTask.
-type mockMultipartInitTask struct {
+// mockSegmentInitTask is the mock task for SegmentInitTask.
+type mockSegmentInitTask struct {
 	types.Pool
 	types.Fault
 	types.ID
@@ -1397,18 +1463,19 @@ type mockMultipartInitTask struct {
 	types.CurrentOffset
 	types.DestinationPath
 	types.DestinationStorage
+	types.ScheduleFunc
 	types.TotalSize
 
 	// Mutable value
 }
 
-func (t *mockMultipartInitTask) Run() {
-	panic("mockMultipartInitTask should not be run.")
+func (t *mockSegmentInitTask) Run() {
+	panic("mockSegmentInitTask should not be run.")
 }
 
-// MultipartInitTask will init a multipart upload.
-type MultipartInitTask struct {
-	multipartInitTaskRequirement
+// SegmentInitTask will init a segment upload.
+type SegmentInitTask struct {
+	segmentInitTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1420,26 +1487,26 @@ type MultipartInitTask struct {
 }
 
 // Run implement navvy.Task
-func (t *MultipartInitTask) Run() {
+func (t *SegmentInitTask) Run() {
 	t.run()
 }
 
-func (t *MultipartInitTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task MultipartInit failed: {%w}", err))
+func (t *SegmentInitTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task SegmentInit failed: {%w}", err))
 }
 
-// NewMultipartInitTask will create a MultipartInitTask and fetch inherited data from parent task.
-func NewMultipartInitTask(task navvy.Task) navvy.Task {
-	t := &MultipartInitTask{
-		multipartInitTaskRequirement: task.(multipartInitTaskRequirement),
+// NewSegmentInitTask will create a SegmentInitTask and fetch inherited data from parent task.
+func NewSegmentInitTask(task navvy.Task) navvy.Task {
+	t := &SegmentInitTask{
+		segmentInitTaskRequirement: task.(segmentInitTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
 	return t
 }
 
-// multipartStreamUploadTaskRequirement is the requirement for execute MultipartStreamUploadTask.
-type multipartStreamUploadTaskRequirement interface {
+// segmentStreamCopyTaskRequirement is the requirement for execute SegmentStreamCopyTask.
+type segmentStreamCopyTaskRequirement interface {
 	navvy.Task
 
 	// Predefined inherited value
@@ -1457,8 +1524,8 @@ type multipartStreamUploadTaskRequirement interface {
 	// Mutable value
 }
 
-// mockMultipartStreamUploadTask is the mock task for MultipartStreamUploadTask.
-type mockMultipartStreamUploadTask struct {
+// mockSegmentStreamCopyTask is the mock task for SegmentStreamCopyTask.
+type mockSegmentStreamCopyTask struct {
 	types.Pool
 	types.Fault
 	types.ID
@@ -1475,13 +1542,13 @@ type mockMultipartStreamUploadTask struct {
 	// Mutable value
 }
 
-func (t *mockMultipartStreamUploadTask) Run() {
-	panic("mockMultipartStreamUploadTask should not be run.")
+func (t *mockSegmentStreamCopyTask) Run() {
+	panic("mockSegmentStreamCopyTask should not be run.")
 }
 
-// MultipartStreamUploadTask will upload a multipart via stream.
-type MultipartStreamUploadTask struct {
-	multipartStreamUploadTaskRequirement
+// SegmentStreamCopyTask will copy a segment stream.
+type SegmentStreamCopyTask struct {
+	segmentStreamCopyTaskRequirement
 
 	// Predefined runtime value
 	types.Fault
@@ -1492,345 +1559,18 @@ type MultipartStreamUploadTask struct {
 }
 
 // Run implement navvy.Task
-func (t *MultipartStreamUploadTask) Run() {
+func (t *SegmentStreamCopyTask) Run() {
 	t.run()
 }
 
-func (t *MultipartStreamUploadTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task MultipartStreamUpload failed: {%w}", err))
+func (t *SegmentStreamCopyTask) TriggerFault(err error) {
+	t.SetFault(fmt.Errorf("Task SegmentStreamCopy failed: {%w}", err))
 }
 
-// NewMultipartStreamUploadTask will create a MultipartStreamUploadTask and fetch inherited data from parent task.
-func NewMultipartStreamUploadTask(task navvy.Task) navvy.Task {
-	t := &MultipartStreamUploadTask{
-		multipartStreamUploadTaskRequirement: task.(multipartStreamUploadTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// objectListTaskRequirement is the requirement for execute ObjectListTask.
-type objectListTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.ObjectChannelGetter
-	types.RecursiveGetter
-
-	// Mutable value
-}
-
-// mockObjectListTask is the mock task for ObjectListTask.
-type mockObjectListTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.DestinationPath
-	types.DestinationStorage
-	types.ObjectChannel
-	types.Recursive
-
-	// Mutable value
-}
-
-func (t *mockObjectListTask) Run() {
-	panic("mockObjectListTask should not be run.")
-}
-
-// ObjectListTask will list objects.
-type ObjectListTask struct {
-	objectListTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *ObjectListTask) Run() {
-	t.run()
-}
-
-func (t *ObjectListTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ObjectList failed: {%w}", err))
-}
-
-// NewObjectListTask will create a ObjectListTask and fetch inherited data from parent task.
-func NewObjectListTask(task navvy.Task) navvy.Task {
-	t := &ObjectListTask{
-		objectListTaskRequirement: task.(objectListTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// objectListAsyncTaskRequirement is the requirement for execute ObjectListAsyncTask.
-type objectListAsyncTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.ObjectChannelGetter
-	types.RecursiveGetter
-
-	// Mutable value
-}
-
-// mockObjectListAsyncTask is the mock task for ObjectListAsyncTask.
-type mockObjectListAsyncTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.DestinationPath
-	types.DestinationStorage
-	types.ObjectChannel
-	types.Recursive
-
-	// Mutable value
-}
-
-func (t *mockObjectListAsyncTask) Run() {
-	panic("mockObjectListAsyncTask should not be run.")
-}
-
-// ObjectListAsyncTask will list objects.
-type ObjectListAsyncTask struct {
-	objectListAsyncTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *ObjectListAsyncTask) Run() {
-	t.run()
-}
-
-func (t *ObjectListAsyncTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ObjectListAsync failed: {%w}", err))
-}
-
-// NewObjectListAsyncTask will create a ObjectListAsyncTask and fetch inherited data from parent task.
-func NewObjectListAsyncTask(task navvy.Task) navvy.Task {
-	t := &ObjectListAsyncTask{
-		objectListAsyncTaskRequirement: task.(objectListAsyncTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// objectPresignTaskRequirement is the requirement for execute ObjectPresignTask.
-type objectPresignTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.BucketNameGetter
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.ExpireGetter
-
-	// Mutable value
-}
-
-// mockObjectPresignTask is the mock task for ObjectPresignTask.
-type mockObjectPresignTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.BucketName
-	types.DestinationPath
-	types.DestinationStorage
-	types.Expire
-
-	// Mutable value
-}
-
-func (t *mockObjectPresignTask) Run() {
-	panic("mockObjectPresignTask should not be run.")
-}
-
-// ObjectPresignTask will will presign a remote object and return the signed url.
-type ObjectPresignTask struct {
-	objectPresignTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.URL
-}
-
-// Run implement navvy.Task
-func (t *ObjectPresignTask) Run() {
-	t.run()
-}
-
-func (t *ObjectPresignTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ObjectPresign failed: {%w}", err))
-}
-
-// NewObjectPresignTask will create a ObjectPresignTask and fetch inherited data from parent task.
-func NewObjectPresignTask(task navvy.Task) navvy.Task {
-	t := &ObjectPresignTask{
-		objectPresignTaskRequirement: task.(objectPresignTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// objectStatTaskRequirement is the requirement for execute ObjectStatTask.
-type objectStatTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-
-	// Mutable value
-}
-
-// mockObjectStatTask is the mock task for ObjectStatTask.
-type mockObjectStatTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-	types.DestinationPath
-	types.DestinationStorage
-
-	// Mutable value
-}
-
-func (t *mockObjectStatTask) Run() {
-	panic("mockObjectStatTask should not be run.")
-}
-
-// ObjectStatTask will stat a remote object by request headObject.
-type ObjectStatTask struct {
-	objectStatTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.Object
-}
-
-// Run implement navvy.Task
-func (t *ObjectStatTask) Run() {
-	t.run()
-}
-
-func (t *ObjectStatTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ObjectStat failed: {%w}", err))
-}
-
-// NewObjectStatTask will create a ObjectStatTask and fetch inherited data from parent task.
-func NewObjectStatTask(task navvy.Task) navvy.Task {
-	t := &ObjectStatTask{
-		objectStatTaskRequirement: task.(objectStatTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.new()
-	return t
-}
-
-// presignTaskRequirement is the requirement for execute PresignTask.
-type presignTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-
-	// Inherited value
-
-	// Mutable value
-}
-
-// mockPresignTask is the mock task for PresignTask.
-type mockPresignTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited value
-
-	// Mutable value
-}
-
-func (t *mockPresignTask) Run() {
-	panic("mockPresignTask should not be run.")
-}
-
-// PresignTask will will handle presign tasks.
-type PresignTask struct {
-	presignTaskRequirement
-
-	// Predefined runtime value
-	types.Fault
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.BucketName
-	types.DestinationPath
-	types.DestinationStorage
-	types.DestinationType
-	types.Expire
-	types.Pool
-	types.URL
-}
-
-// Run implement navvy.Task
-func (t *PresignTask) Run() {
-	t.run()
-}
-
-func (t *PresignTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task Presign failed: {%w}", err))
-}
-
-// NewPresignTask will create a PresignTask and fetch inherited data from parent task.
-func NewPresignTask(task navvy.Task) navvy.Task {
-	t := &PresignTask{
-		presignTaskRequirement: task.(presignTaskRequirement),
+// NewSegmentStreamCopyTask will create a SegmentStreamCopyTask and fetch inherited data from parent task.
+func NewSegmentStreamCopyTask(task navvy.Task) navvy.Task {
+	t := &SegmentStreamCopyTask{
+		segmentStreamCopyTaskRequirement: task.(segmentStreamCopyTaskRequirement),
 	}
 	t.SetID(uuid.New().String())
 	t.new()
@@ -1845,6 +1585,8 @@ type statTaskRequirement interface {
 	types.PoolGetter
 
 	// Inherited value
+	types.PathGetter
+	types.StorageGetter
 
 	// Mutable value
 }
@@ -1856,6 +1598,8 @@ type mockStatTask struct {
 	types.ID
 
 	// Inherited value
+	types.Path
+	types.Storage
 
 	// Mutable value
 }
@@ -1864,7 +1608,7 @@ func (t *mockStatTask) Run() {
 	panic("mockStatTask should not be run.")
 }
 
-// StatTask will will stat a remote object.
+// StatTask will stat a remote object by request headObject.
 type StatTask struct {
 	statTaskRequirement
 
@@ -1874,11 +1618,7 @@ type StatTask struct {
 	types.Scheduler
 
 	// Runtime value
-	types.DestinationPath
-	types.DestinationStorage
-	types.DestinationType
 	types.Object
-	types.Pool
 }
 
 // Run implement navvy.Task

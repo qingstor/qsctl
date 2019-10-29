@@ -16,7 +16,7 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-func TestFileMD5SumTask_Run(t *testing.T) {
+func TestFileMD5SumTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -45,7 +45,7 @@ func TestFileMD5SumTask_Run(t *testing.T) {
 	assert.Equal(t, x.GetMD5Sum(), md5sum[:])
 }
 
-func TestStreamMD5SumTask_Run(t *testing.T) {
+func TestStreamMD5SumTask_run(t *testing.T) {
 	x := &mockStreamMD5SumTask{}
 
 	buf, _, md5sum := utils.GenerateTestStream()

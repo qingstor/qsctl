@@ -17,26 +17,6 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func TestNewCopyTask(t *testing.T) {
-	cases := []struct {
-		inputType        typ.ObjectType
-		expectedTodoFunc types.TaskFunc
-	}{
-		{typ.ObjectTypeFile, NewCopyFileTask},
-		{typ.ObjectTypeStream, NewCopyStreamTask},
-	}
-
-	for _, v := range cases {
-		pt := NewCopyTask(func(task *CopyTask) {
-			task.SetSourceType(v.inputType)
-		})
-
-		assert.Equal(t,
-			fmt.Sprintf("%v", v.expectedTodoFunc),
-			fmt.Sprintf("%v", pt.Todo.NextTODO()))
-	}
-
-}
 func TestCopyFileTask_new(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -90,7 +70,7 @@ func TestCopyFileTask_new(t *testing.T) {
 	}
 }
 
-func TestCopyLargeFileTask_Run(t *testing.T) {
+func TestCopyLargeFileTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -119,7 +99,7 @@ func TestCopyLargeFileTask_Run(t *testing.T) {
 	assert.NotNil(t, tt.NextTODO())
 }
 
-func TestCopyPartialFileTask_Run(t *testing.T) {
+func TestCopyPartialFileTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -165,7 +145,7 @@ func TestCopyPartialFileTask_Run(t *testing.T) {
 	pool.Wait()
 }
 
-func TestCopySmallFileTask_Run(t *testing.T) {
+func TestCopySmallFileTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -204,7 +184,7 @@ func TestCopySmallFileTask_Run(t *testing.T) {
 	pool.Wait()
 }
 
-func TestCopyStreamTask_Run(t *testing.T) {
+func TestCopyStreamTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -232,7 +212,7 @@ func TestCopyStreamTask_Run(t *testing.T) {
 	assert.NotNil(t, tt.NextTODO())
 }
 
-func TestCopyPartialStreamTask_Run(t *testing.T) {
+func TestCopyPartialStreamTask_run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
