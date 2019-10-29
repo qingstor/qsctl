@@ -5,7 +5,6 @@ import (
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/task/common"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -25,11 +24,13 @@ func (t *CopyFileTask) new() {
 		return
 	}
 	t.SetTotalSize(size)
+}
 
-	if size >= constants.MaximumAutoMultipartSize {
-		t.AddTODOs(NewCopyLargeFileTask)
+func (t *CopyFileTask) run() {
+	if t.GetTotalSize() >= constants.MaximumAutoMultipartSize {
+		t.GetScheduler().Sync(NewCopyLargeFileTask, t)
 	} else {
-		t.AddTODOs(NewCopySmallFileTask)
+		t.GetScheduler().Sync(NewCopySmallFileTask, t)
 	}
 }
 
@@ -37,10 +38,11 @@ func (t *CopyFileTask) new() {
 func (t *CopySmallFileTask) new() {
 	t.SetOffset(0)
 	t.SetSize(t.GetTotalSize())
-	t.AddTODOs(
-		common.NewFileMD5SumTask,
-		common.NewFileUploadTask,
-	)
+}
+
+func (t *CopySmallFileTask) run() {
+	t.GetScheduler().Sync(common.NewFileMD5SumTask, t)
+	t.GetScheduler().Sync(common.NewFileUploadTask, t)
 }
 
 // newCopyLargeFileTask will create a new Task.
@@ -53,16 +55,15 @@ func (t *CopyLargeFileTask) new() {
 	}
 	t.SetPartSize(partSize)
 
-	t.SetScheduler(types.NewScheduler(NewCopyPartialFileTask))
+	t.SetScheduleFunc(NewCopyPartialFileTask)
 
 	currentOffset := int64(0)
 	t.SetCurrentOffset(&currentOffset)
+}
 
-	t.AddTODOs(
-		common.NewMultipartInitTask,
-		common.NewWaitTask,
-		common.NewMultipartCompleteTask,
-	)
+func (t *CopyLargeFileTask) run() {
+	t.GetScheduler().Async(common.NewMultipartInitTask, t)
+	t.GetScheduler().Sync(common.NewMultipartCompleteTask, t)
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -81,9 +82,9 @@ func (t *CopyPartialFileTask) new() {
 		t.SetSize(partSize)
 	}
 	atomic.AddInt64(t.GetCurrentOffset(), t.GetSize())
+}
 
-	t.AddTODOs(
-		common.NewFileMD5SumTask,
-		common.NewMultipartFileUploadTask,
-	)
+func (t *CopyPartialFileTask) run() {
+	t.GetScheduler().Sync(common.NewFileMD5SumTask, t)
+	t.GetScheduler().Async(common.NewMultipartFileUploadTask, t)
 }

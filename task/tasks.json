@@ -1,6 +1,5 @@
 {
   "AbortMultipart": {
-    "path": "common/multipart",
     "description": "abort all multipart uploads in a bucket",
     "inherited_value": [
       "BucketName",
@@ -8,7 +7,6 @@
     ]
   },
   "BucketCreate": {
-    "path": "common/bucket",
     "description": "send put request to create a bucket",
     "inherited_value": [
       "BucketName",
@@ -17,7 +15,6 @@
     ]
   },
   "BucketDelete": {
-    "path": "common/bucket",
     "description": "send delete request to delete a bucket",
     "inherited_value": [
       "BucketName",
@@ -25,7 +22,6 @@
     ]
   },
   "BucketList": {
-    "path": "common/bucket",
     "description": "send get request to get bucket list",
     "inherited_value": [
       "DestinationService",
@@ -36,23 +32,17 @@
     ]
   },
   "Copy": {
-    "path": "copy",
     "description": "the root copy task",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
       "DestinationType",
-      "Pool",
       "SourcePath",
       "SourceStorage",
       "SourceType"
-    ],
-    "runtime_value": [
-      "Scheduler"
     ]
   },
   "CopyFile": {
-    "path": "copy_file",
     "description": "copy a file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -65,7 +55,6 @@
     ]
   },
   "CopyLargeFile": {
-    "path": "copy_file",
     "description": "copy a large file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -77,11 +66,11 @@
     "runtime_value": [
       "CurrentOffset",
       "PartSize",
+      "ScheduleFunc",
       "SegmentID"
     ]
   },
   "CopyPartialFile": {
-    "path": "copy_file",
     "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
     "inherited_value": [
       "CurrentOffset",
@@ -100,7 +89,6 @@
     ]
   },
   "CopyPartialStream": {
-    "path": "copy_stream",
     "description": "copy a partial stream to DestinationStorage",
     "inherited_value": [
       "BytesPool",
@@ -120,7 +108,6 @@
     ]
   },
   "CopySmallFile": {
-    "path": "copy_file",
     "description": "copy a small file to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -136,7 +123,6 @@
     ]
   },
   "CopyStream": {
-    "path": "copy_stream",
     "description": "copy a stream to DestinationStorage",
     "inherited_value": [
       "DestinationPath",
@@ -152,12 +138,7 @@
       "TotalSize"
     ]
   },
-  "DoneScheduler": {
-    "path": "common/scheduler",
-    "description": "done scheduler manually"
-  },
   "FileMD5Sum": {
-    "path": "common/md5sum",
     "description": "get file's md5 sum",
     "inherited_value": [
       "Offset",
@@ -170,7 +151,6 @@
     ]
   },
   "FileUpload": {
-    "path": "common/file",
     "description": "upload file as an object",
     "inherited_value": [
       "DestinationPath",
@@ -182,7 +162,6 @@
     ]
   },
   "List": {
-    "path": "list",
     "description": "the root list task",
     "runtime_value": [
       "BucketList",
@@ -201,7 +180,6 @@
     ]
   },
   "MakeBucket": {
-    "path": "make_bucket",
     "description": "make new bucket with given key",
     "runtime_value": [
       "BucketName",
@@ -211,7 +189,6 @@
     ]
   },
   "MultipartComplete": {
-    "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
       "DestinationPath",
@@ -220,7 +197,6 @@
     ]
   },
   "MultipartFileUpload": {
-    "path": "common/multipart",
     "description": "upload a multipart via file",
     "inherited_value": [
       "DestinationPath",
@@ -234,7 +210,6 @@
     ]
   },
   "MultipartInit": {
-    "path": "common/multipart",
     "description": "init a multipart upload",
     "inherited_value": [
       "CurrentOffset",
@@ -247,7 +222,6 @@
     ]
   },
   "MultipartStreamUpload": {
-    "path": "common/multipart",
     "description": "upload a multipart via stream",
     "inherited_value": [
       "Content",
@@ -260,7 +234,6 @@
     ]
   },
   "ObjectDelete": {
-    "path": "common/object_delete",
     "description": "will delete a remote object with specific key",
     "inherited_value": [
       "DestinationPath",
@@ -268,14 +241,12 @@
     ]
   },
   "ObjectDeleteIterate": {
-    "path": "common/object_delete",
     "description": "delete a dir with rm -r",
     "inherited_value": [
       "Done"
     ]
   },
   "ObjectDeleteScheduled": {
-    "path": "common/object_delete",
     "description": "will delete remote objects with object channel",
     "inherited_value": [
       "DestinationStorage",
@@ -287,7 +258,6 @@
     ]
   },
   "ObjectList": {
-    "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
       "DestinationPath",
@@ -297,7 +267,6 @@
     ]
   },
   "ObjectListAsync": {
-    "path": "common/object_list",
     "description": "list objects",
     "inherited_value": [
       "DestinationPath",
@@ -307,7 +276,6 @@
     ]
   },
   "ObjectPresign": {
-    "path": "common/object_presign",
     "description": "will presign a remote object and return the signed url",
     "inherited_value": [
       "BucketName",
@@ -320,7 +288,6 @@
     ]
   },
   "ObjectStat": {
-    "path": "common/object_stat",
     "description": "stat a remote object by request headObject",
     "inherited_value": [
       "DestinationPath",
@@ -331,7 +298,6 @@
     ]
   },
   "Presign": {
-    "path": "presign",
     "description": "will handle presign tasks",
     "runtime_value": [
       "BucketName",
@@ -344,7 +310,6 @@
     ]
   },
   "RemoveBucket": {
-    "path": "remove_bucket",
     "description": "remove a bucket",
     "runtime_value": [
       "BucketName",
@@ -357,7 +322,6 @@
     ]
   },
   "RemoveBucketForce": {
-    "path": "common/bucket",
     "description": "remove a bucket force",
     "inherited_value": [
       "BucketName",
@@ -372,7 +336,6 @@
     ]
   },
   "RemoveDir": {
-    "path": "common/object_delete",
     "description": "will delete a dir recursively",
     "inherited_value": [
       "DestinationPath",
@@ -385,7 +348,6 @@
     ]
   },
   "RemoveObject": {
-    "path": "remove_object",
     "description": "will remove object",
     "runtime_value": [
       "DestinationPath",
@@ -396,7 +358,6 @@
     ]
   },
   "Stat": {
-    "path": "stat",
     "description": "will stat a remote object",
     "runtime_value": [
       "DestinationPath",
@@ -407,7 +368,6 @@
     ]
   },
   "StreamMD5Sum": {
-    "path": "common/md5sum",
     "description": "get stream's md5 sum",
     "inherited_value": [
       "Content"
