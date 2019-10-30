@@ -88,6 +88,7 @@ func TestCopyFileTask_run(t *testing.T) {
 			assert.Equal(t, task, inputTask)
 			assert.Equal(t, fmt.Sprint(v.fn), fmt.Sprint(inputFn))
 		})
+		sch.EXPECT().Wait().Do(func() {})
 		task.SetScheduler(sch)
 
 		task.Run()
