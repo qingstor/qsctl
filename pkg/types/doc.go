@@ -1,3 +1,3 @@
 package types
 
-//go:generate go run ../../internal/cmd/generator/types.go
+//go:generate go run ../../internal/cmd/generator/types

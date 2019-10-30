@@ -1,3 +1,3 @@
 package fault
 
-//go:generate go run ../../internal/cmd/generator/faults.go
+//go:generate go run ../../internal/cmd/generator/faults

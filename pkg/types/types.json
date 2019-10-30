@@ -9,7 +9,7 @@
   "DestinationService": "storage.Servicer",
   "DestinationStorage": "storage.Storager",
   "DestinationType": "types.ObjectType",
-  "Done": "*bool",
+  "Done": "bool",
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
   "Expire": "int",

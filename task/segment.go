@@ -13,29 +13,34 @@ import (
 
 func (t *SegmentInitTask) new() {}
 func (t *SegmentInitTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "MultipartInitTask", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Object <%s> started.", "SegmentInitTask", t.GetPath())
 
-	id, err := t.GetDestinationStorage().InitSegment(t.GetDestinationPath())
+	id, err := t.GetStorage().InitSegment(t.GetPath())
 	if err != nil {
 		t.TriggerFault(fault.NewUnhandled(err))
 		return
 	}
 	t.SetSegmentID(id)
 
+	offset := int64(0)
 	for {
-		if *t.GetCurrentOffset() == t.GetTotalSize() {
+		x := newSegmentShim(t.segmentInitTaskRequirement)
+		x.SetDone(false)
+		x.SetOffset(offset)
+
+		t.GetScheduler().Async(x, t.GetScheduleFunc())
+
+		offset += x.GetSize()
+		if x.GetDone() {
 			break
 		}
-
-		// TODO: rethink the logic here.
-		t.GetScheduler().Async(t.segmentInitTaskRequirement, t.GetScheduleFunc())
 	}
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartInitTask", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Object <%s> finished.", "SegmentInitTask", t.GetPath())
 }
+
 func (t *SegmentFileCopyTask) new() {}
 func (t *SegmentFileCopyTask) run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "MultipartFileUploadTask", t.GetSourcePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "SegmentFileUploadTask", t.GetSourcePath(), t.GetOffset())
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
@@ -51,11 +56,11 @@ func (t *SegmentFileCopyTask) run() {
 		return
 	}
 
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "MultipartFileUploadTask", t.GetSourcePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "SegmentFileUploadTask", t.GetSourcePath(), t.GetOffset())
 }
 func (t *SegmentStreamCopyTask) new() {}
 func (t *SegmentStreamCopyTask) run() {
-	log.Debugf("Task <%s> for Stream at Offset <%d> started.", "MultipartStreamUploadTask", t.GetOffset())
+	log.Debugf("Task <%s> for Stream at Offset <%d> started.", "SegmentStreamUploadTask", t.GetOffset())
 
 	// TODO: Add checksum support
 	err := t.GetDestinationStorage().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
@@ -64,11 +69,11 @@ func (t *SegmentStreamCopyTask) run() {
 		return
 	}
 
-	log.Debugf("Task <%s> for Stream at Offset <%d> finished.", "MultipartStreamUploadTask", t.GetOffset())
+	log.Debugf("Task <%s> for Stream at Offset <%d> finished.", "SegmentStreamUploadTask", t.GetOffset())
 }
 func (t *SegmentCompleteTask) new() {}
 func (t *SegmentCompleteTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "MultipartCompleteTask", t.GetPath())
+	log.Debugf("Task <%s> for Object <%s> started.", "SegmentCompleteTask", t.GetPath())
 
 	err := t.GetStorage().CompleteSegment(t.GetSegmentID())
 	if err != nil {
@@ -76,11 +81,11 @@ func (t *SegmentCompleteTask) run() {
 		return
 	}
 
-	log.Debugf("Task <%s> for Object <%s> finished.", "MultipartCompleteTask", t.GetPath())
+	log.Debugf("Task <%s> for Object <%s> finished.", "SegmentCompleteTask", t.GetPath())
 }
 func (t *SegmentAbortAllTask) new() {}
 func (t *SegmentAbortAllTask) run() {
-	log.Debugf("Task <%s> for Bucket started.", "AbortMultipartTask")
+	log.Debugf("Task <%s> for Bucket started.", "AbortSegmentTask")
 	it := t.GetStorage().ListSegments("")
 
 	for {
@@ -98,5 +103,5 @@ func (t *SegmentAbortAllTask) run() {
 		}
 	}
 
-	log.Debugf("Task <%s> for Bucket finished.", "AbortMultipartTask")
+	log.Debugf("Task <%s> for Bucket finished.", "AbortSegmentTask")
 }

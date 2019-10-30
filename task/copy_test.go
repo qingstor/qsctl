@@ -104,8 +104,6 @@ func TestCopyLargeFileTask_new(t *testing.T) {
 
 	task := NewCopyLargeFile(m)
 
-	assert.True(t, task.ValidateCurrentOffset())
-	assert.Equal(t, int64(0), *task.GetCurrentOffset())
 	assert.True(t, task.ValidateScheduleFunc())
 	assert.Equal(t,
 		fmt.Sprint(schedule.TaskFunc(NewCopyPartialFileTask)),
@@ -138,7 +136,6 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 	tt := task.(*CopyLargeFileTask)
 	assert.Equal(t, int64(constants.DefaultPartSize), tt.GetPartSize())
 	assert.NotNil(t, tt.GetScheduler())
-	assert.Equal(t, int64(0), *tt.GetCurrentOffset())
 }
 
 func TestCopyStreamTask_run(t *testing.T) {

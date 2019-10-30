@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io"
 	"sync"
-	"sync/atomic"
 
 	typ "github.com/Xuanwo/storage/types"
+	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/utils"
@@ -57,37 +57,37 @@ func (t *CopyLargeFileTask) new() {
 	t.SetPartSize(partSize)
 
 	t.SetScheduleFunc(NewCopyPartialFileTask)
-
-	currentOffset := int64(0)
-	t.SetCurrentOffset(&currentOffset)
 }
 
 func (t *CopyLargeFileTask) run() {
-	t.GetScheduler().Async(t, NewSegmentInitTask)
-	t.GetScheduler().Sync(t, NewSegmentCompleteTask)
+	x := newCopyLargeFileShim(t)
+	utils.ChooseDestinationStorage(x, t)
+
+	t.GetScheduler().Sync(x, NewSegmentInitTask)
+	t.GetScheduler().Sync(x, NewSegmentCompleteTask)
 }
 
 // NewCopyPartialFileTask will create a new Task.
 func (t *CopyPartialFileTask) new() {
+	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())
+
 	totalSize := t.GetTotalSize()
 	partSize := t.GetPartSize()
+	offset := t.GetOffset()
 
-	// Set part number and update current part number.
-	currentOffset := t.GetCurrentOffset()
-
-	// Set size and update offset.
-	t.SetOffset(*currentOffset)
-	if totalSize < *currentOffset+partSize {
-		t.SetSize(totalSize - *currentOffset)
+	if totalSize < offset+partSize {
+		t.SetSize(totalSize - offset)
+		t.SetDone(true)
 	} else {
 		t.SetSize(partSize)
 	}
-	atomic.AddInt64(t.GetCurrentOffset(), t.GetSize())
+
+	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())
 }
 
 func (t *CopyPartialFileTask) run() {
 	t.GetScheduler().Sync(t, NewFileMD5SumTask)
-	t.GetScheduler().Async(t, NewSegmentFileCopyTask)
+	t.GetScheduler().Sync(t, NewSegmentFileCopyTask)
 }
 
 // NewCopyStreamTask will create a copy stream task.
@@ -119,6 +119,8 @@ func (t *CopyStreamTask) run() {
 
 // NewCopyPartialStreamTask will create a new Task.
 func (t *CopyPartialStreamTask) new() {
+	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialStream", t.GetDestinationPath())
+
 	// Set size and update offset.
 	partSize := t.GetPartSize()
 
@@ -135,15 +137,13 @@ func (t *CopyPartialStreamTask) new() {
 		return
 	}
 
-	t.SetOffset(*t.GetCurrentOffset())
 	t.SetSize(n)
 	t.SetContent(b)
 	if n < partSize {
-		// Set current offset to -1 to mark the stream has been drain out.
-		atomic.StoreInt64(t.GetCurrentOffset(), -1)
-	} else {
-		atomic.AddInt64(t.GetCurrentOffset(), t.GetSize())
+		t.SetDone(true)
 	}
+
+	log.Debugf("Task <%s> for Object <%s> finished.", "CopyPartialStream", t.GetDestinationPath())
 }
 
 func (t *CopyPartialStreamTask) run() {

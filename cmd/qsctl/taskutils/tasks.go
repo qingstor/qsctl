@@ -20,6 +20,7 @@ type AtStorageTask struct {
 // BetweenStorageTask is the root task for tasks operate between two storager.
 type BetweenStorageTask struct {
 	navvy.Task
+	types.Pool
 
 	types.SourcePath
 	types.SourceStorage
@@ -27,4 +28,10 @@ type BetweenStorageTask struct {
 	types.DestinationPath
 	types.DestinationStorage
 	types.DestinationType
+}
+
+func NewBetweenStorageTask(poolSize int) *BetweenStorageTask {
+	t := &BetweenStorageTask{}
+	t.SetPool(navvy.NewPool(poolSize))
+	return t
 }

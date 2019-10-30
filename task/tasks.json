@@ -21,7 +21,6 @@
       "TotalSize"
     ],
     "runtime_value": [
-      "CurrentOffset",
       "PartSize",
       "ScheduleFunc",
       "SegmentID"
@@ -30,26 +29,28 @@
   "CopyPartialFile": {
     "description": "copy a partial file to between two storager",
     "inherited_value": [
-      "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
+      "Offset",
       "PartSize",
       "SegmentID",
+      "Size",
       "SourcePath",
       "SourceStorage",
       "TotalSize"
     ],
+    "mutable_value": [
+      "Size",
+      "Done"
+    ],
     "runtime_value": [
-      "MD5Sum",
-      "Offset",
-      "Size"
+      "MD5Sum"
     ]
   },
   "CopyPartialStream": {
     "description": "copy a partial stream between two storager",
     "inherited_value": [
       "BytesPool",
-      "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
       "PartSize",
@@ -57,11 +58,13 @@
       "SourcePath",
       "SourceStorage"
     ],
+    "mutable_value": [
+      "Size",
+      "Done"
+    ],
     "runtime_value": [
       "Content",
-      "MD5Sum",
-      "Offset",
-      "Size"
+      "MD5Sum"
     ]
   },
   "CopySmallFile": {
@@ -163,6 +166,15 @@
       "MD5Sum"
     ]
   },
+  "FileShim": {
+    "description": "a shim for file operation",
+    "inherited_value": [
+      "Storage"
+    ],
+    "runtime_value": [
+      "Path"
+    ]
+  },
   "IterateFile": {
     "description": "iterate file and execute operations on it",
     "inherited_value": [
@@ -237,14 +249,30 @@
   "SegmentInit": {
     "description": "init a segment upload",
     "inherited_value": [
-      "CurrentOffset",
+      "Path",
+      "ScheduleFunc",
+      "Storage",
+      "TotalSize"
+    ],
+    "mutable_value": [
+      "SegmentID"
+    ]
+  },
+  "SegmentShim": {
+    "description": "a shim for segment operation",
+    "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
-      "ScheduleFunc",
+      "PartSize",
+      "SegmentID",
+      "SourcePath",
+      "SourceStorage",
       "TotalSize"
     ],
     "runtime_value": [
-      "SegmentID"
+      "Done",
+      "Offset",
+      "Size"
     ]
   },
   "SegmentStreamCopy": {

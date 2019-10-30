@@ -345,14 +345,14 @@ func (o *DestinationType) ValidateDestinationType() bool {
 
 type Done struct {
 	valid bool
-	v     *bool
+	v     bool
 }
 
 type DoneGetter interface {
-	GetDone() *bool
+	GetDone() bool
 }
 
-func (o *Done) GetDone() *bool {
+func (o *Done) GetDone() bool {
 	if !o.valid {
 		panic("Done value is not valid")
 	}
@@ -360,10 +360,10 @@ func (o *Done) GetDone() *bool {
 }
 
 type DoneSetter interface {
-	SetDone(*bool)
+	SetDone(bool)
 }
 
-func (o *Done) SetDone(v *bool) {
+func (o *Done) SetDone(v bool) {
 	o.v = v
 	o.valid = true
 }

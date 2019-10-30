@@ -237,3 +237,25 @@ func NewQingStorService() (*qingstor.Service, error) {
 	)
 	return srv, err
 }
+
+func ChooseDestinationStorage(x interface {
+	types.PathSetter
+	types.StorageSetter
+}, y interface {
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+}) {
+	x.SetPath(y.GetDestinationPath())
+	x.SetStorage(y.GetDestinationStorage())
+}
+
+func ChooseSourceStorage(x interface {
+	types.PathSetter
+	types.StorageSetter
+}, y interface {
+	types.SourcePathGetter
+	types.SourceStorageGetter
+}) {
+	x.SetPath(y.GetSourcePath())
+	x.SetStorage(y.GetSourceStorage())
+}

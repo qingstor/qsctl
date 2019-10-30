@@ -46,7 +46,7 @@ func initCpFlag() {
 }
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
-	rootTask := &taskutils.BetweenStorageTask{}
+	rootTask := taskutils.NewBetweenStorageTask(10)
 	err = utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -58,5 +58,6 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.ValidateFault() {
 		return t.GetFault()
 	}
+	t.GetPool().Wait()
 	return
 }
