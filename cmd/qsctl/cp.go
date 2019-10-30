@@ -55,7 +55,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	t := task.NewCopyFile(rootTask)
 
 	t.Run()
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 	t.GetPool().Wait()

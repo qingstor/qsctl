@@ -3,15 +3,14 @@ package task
 import (
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *ReachFileTask) new() {}
 func (t *ReachFileTask) run() {
 	url, err := t.GetStorage().Reach(t.GetPath(), typ.WithExpire(t.GetExpire()))
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 	t.SetURL(url)

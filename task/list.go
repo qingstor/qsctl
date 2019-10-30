@@ -6,8 +6,7 @@ import (
 	"github.com/Xuanwo/storage/pkg/iterator"
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *ListFileTask) new() {
@@ -34,7 +33,7 @@ func (t *ListFileTask) run() {
 			break
 		}
 		if err != nil {
-			t.TriggerFault(fault.NewUnhandled(err))
+			t.TriggerFault(types.NewErrUnhandled(err))
 			return
 		}
 		t.GetObjectChannel() <- o

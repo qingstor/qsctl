@@ -10,6 +10,7 @@ import (
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
@@ -477,14 +478,14 @@ func (o *Expire) ValidateExpire() bool {
 
 type Fault struct {
 	valid bool
-	v     error
+	v     *fault.Fault
 }
 
 type FaultGetter interface {
-	GetFault() error
+	GetFault() *fault.Fault
 }
 
-func (o *Fault) GetFault() error {
+func (o *Fault) GetFault() *fault.Fault {
 	if !o.valid {
 		panic("Fault value is not valid")
 	}
@@ -492,10 +493,10 @@ func (o *Fault) GetFault() error {
 }
 
 type FaultSetter interface {
-	SetFault(error)
+	SetFault(*fault.Fault)
 }
 
-func (o *Fault) SetFault(v error) {
+func (o *Fault) SetFault(v *fault.Fault) {
 	o.v = v
 	o.valid = true
 }

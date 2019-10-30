@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -44,10 +43,10 @@ func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrLocalFileNotExist(err, p))
 	}
 	if err != nil {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrUnhandled(err))
 	}
 	if fi.IsDir() {
 		return typ.ObjectTypeDir, nil

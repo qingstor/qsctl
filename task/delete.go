@@ -3,8 +3,7 @@ package task
 import (
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *DeleteDirTask) new() {
@@ -35,7 +34,7 @@ func (t *DeleteFileTask) run() {
 		"DeleteFile", t.GetPath())
 
 	if err := t.GetStorage().Delete(t.GetPath()); err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 
@@ -52,7 +51,7 @@ func (t *DeleteStorageTask) run() {
 
 	err := t.GetService().Delete(t.GetStorageName())
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 

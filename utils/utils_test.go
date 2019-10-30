@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func TestCalculatePartSize(t *testing.T) {
@@ -21,7 +21,7 @@ func TestCalculatePartSize(t *testing.T) {
 		{"10G", 10 * 1024 * 1024 * 1024, constants.DefaultPartSize, nil},
 		{"2TB", 2 * 1024 * 1024 * 1024 * 1024, constants.DefaultPartSize << 1, nil},
 		{"10TB", 10 * 1024 * 1024 * 1024 * 1024, 1099511628, nil},
-		{"100TB", 101 * 1024 * 1024 * 1024 * 1024, 0, fmt.Errorf("calculate part size failed: {%w}", fault.NewLocalFileTooLarge(nil, 101*1024*1024*1024*1024))},
+		{"100TB", 101 * 1024 * 1024 * 1024 * 1024, 0, fmt.Errorf("calculate part size failed: {%w}", types.NewErrLocalFileTooLarge(nil, 101*1024*1024*1024*1024))},
 	}
 
 	for _, v := range cases {

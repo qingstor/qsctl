@@ -6,8 +6,7 @@ import (
 	"strings"
 
 	"github.com/c2h5oh/datasize"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // ErrReadableSizeFormat will return when size format not the same with expected.
@@ -18,7 +17,7 @@ func ParseByteSize(s string) (int64, error) {
 	var v datasize.ByteSize
 	err := v.UnmarshalText([]byte(s))
 	if err != nil {
-		return 0, fault.NewUserInputByteSizeInvalid(err, s)
+		return 0, types.NewErrUserInputByteSizeInvalid(err, s)
 	}
 	return int64(v), nil
 }
@@ -30,7 +29,7 @@ func UnixReadableSize(hrSize string) (string, error) {
 	if len(parts) < 2 || // no space
 		!strings.ContainsRune(parts[1], 'B') || // second part does not contain 'B'
 		len(parts[0]) < 1 { // no first part
-		return "", fault.NewReadableSizeFormatInvalid(ErrReadableSizeFormat, hrSize)
+		return "", types.NewErrReadableSizeFormatInvalid(ErrReadableSizeFormat, hrSize)
 	}
 	return fmt.Sprintf("%s%c", parts[0], parts[1][0]), nil
 }

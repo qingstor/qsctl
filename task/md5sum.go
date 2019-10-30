@@ -6,8 +6,7 @@ import (
 
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *FileMD5SumTask) new() {}
@@ -17,7 +16,7 @@ func (t *FileMD5SumTask) run() {
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 	defer r.Close()
@@ -25,7 +24,7 @@ func (t *FileMD5SumTask) run() {
 	h := md5.New()
 	_, err = io.Copy(h, r)
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 

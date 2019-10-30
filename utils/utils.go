@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 // CalculatePartSize will calculate the object's part size.
@@ -12,7 +12,7 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize
 
 	if size > constants.MaximumObjectSize {
-		return 0, fmt.Errorf("calculate part size failed: {%w}", fault.NewLocalFileTooLarge(nil, size))
+		return 0, fmt.Errorf("calculate part size failed: {%w}", types.NewErrLocalFileTooLarge(nil, size))
 	}
 
 	for size/partSize >= int64(constants.MaximumMultipartNumber) {

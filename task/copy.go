@@ -8,21 +8,21 @@ import (
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 func (t *CopyFileTask) new() {
 	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 
 	size, ok := o.GetSize()
 	if !ok {
 		// TODO: return size not get error.
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 	t.SetTotalSize(size)
@@ -51,7 +51,7 @@ func (t *CopyLargeFileTask) new() {
 	// Init part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 	t.SetPartSize(partSize)
@@ -126,14 +126,14 @@ func (t *CopyPartialStreamTask) new() {
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(partSize))
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 
 	b := t.GetBytesPool().Get().(*bytes.Buffer)
 	n, err := io.Copy(b, r)
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 

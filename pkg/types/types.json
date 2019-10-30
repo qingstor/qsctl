@@ -13,7 +13,7 @@
   "EnableBenchmark": "bool",
   "ExpectSize": "int64",
   "Expire": "int",
-  "Fault": "error",
+  "Fault": "*fault.Fault",
   "Force": "bool",
   "HumanReadable": "bool",
   "ID": "string",

@@ -21,6 +21,7 @@ type copyFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -38,10 +39,10 @@ type mockCopyFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.DestinationPath
-	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
+	types.DestinationPath
+	types.DestinationStorage
 }
 
 func (t *mockCopyFileTask) Run() {
@@ -53,7 +54,6 @@ type CopyFileTask struct {
 	copyFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -68,7 +68,7 @@ func (t *CopyFileTask) Run() {
 }
 
 func (t *CopyFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopyFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
@@ -94,6 +94,7 @@ type copyFileShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -132,6 +133,7 @@ type copyLargeFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -150,11 +152,11 @@ type mockCopyLargeFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
+	types.DestinationPath
 }
 
 func (t *mockCopyLargeFileTask) Run() {
@@ -166,7 +168,6 @@ type CopyLargeFileTask struct {
 	copyLargeFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -183,7 +184,7 @@ func (t *CopyLargeFileTask) Run() {
 }
 
 func (t *CopyLargeFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
@@ -209,6 +210,7 @@ type copyLargeFileShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -252,6 +254,7 @@ type copyPartialFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -276,16 +279,16 @@ type mockCopyPartialFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.DestinationStorage
-	types.Offset
-	types.Size
-	types.SourcePath
-	types.Done
-	types.DestinationPath
-	types.PartSize
-	types.SegmentID
 	types.SourceStorage
 	types.TotalSize
+	types.SegmentID
+	types.Size
+	types.SourcePath
+	types.PartSize
+	types.Done
+	types.DestinationPath
+	types.DestinationStorage
+	types.Offset
 }
 
 func (t *mockCopyPartialFileTask) Run() {
@@ -297,7 +300,6 @@ type CopyPartialFileTask struct {
 	copyPartialFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -312,7 +314,7 @@ func (t *CopyPartialFileTask) Run() {
 }
 
 func (t *CopyPartialFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
@@ -338,6 +340,7 @@ type copyPartialFileShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -383,6 +386,7 @@ type copyPartialStreamTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.BytesPoolGetter
@@ -405,15 +409,15 @@ type mockCopyPartialStreamTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.BytesPool
 	types.DestinationPath
-	types.SegmentID
-	types.Size
-	types.Done
 	types.DestinationStorage
-	types.PartSize
+	types.Done
 	types.SourcePath
 	types.SourceStorage
+	types.Size
+	types.BytesPool
+	types.PartSize
+	types.SegmentID
 }
 
 func (t *mockCopyPartialStreamTask) Run() {
@@ -425,7 +429,6 @@ type CopyPartialStreamTask struct {
 	copyPartialStreamTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -441,7 +444,7 @@ func (t *CopyPartialStreamTask) Run() {
 }
 
 func (t *CopyPartialStreamTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
@@ -467,6 +470,7 @@ type copyPartialStreamShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.BytesPoolGetter
@@ -512,6 +516,7 @@ type copySmallFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -530,11 +535,11 @@ type mockCopySmallFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.TotalSize
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
+	types.TotalSize
 }
 
 func (t *mockCopySmallFileTask) Run() {
@@ -546,7 +551,6 @@ type CopySmallFileTask struct {
 	copySmallFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -563,7 +567,7 @@ func (t *CopySmallFileTask) Run() {
 }
 
 func (t *CopySmallFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
@@ -589,6 +593,7 @@ type copySmallFileShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -632,6 +637,7 @@ type copyStreamTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -664,7 +670,6 @@ type CopyStreamTask struct {
 	copyStreamTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -684,7 +689,7 @@ func (t *CopyStreamTask) Run() {
 }
 
 func (t *CopyStreamTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CopyStream failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
@@ -710,6 +715,7 @@ type copyStreamShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -758,6 +764,7 @@ type createStorageTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ServiceGetter
@@ -788,7 +795,6 @@ type CreateStorageTask struct {
 	createStorageTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -802,7 +808,7 @@ func (t *CreateStorageTask) Run() {
 }
 
 func (t *CreateStorageTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task CreateStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
@@ -828,6 +834,7 @@ type deleteDirTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -843,8 +850,8 @@ type mockDeleteDirTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Storage
 	types.Path
+	types.Storage
 }
 
 func (t *mockDeleteDirTask) Run() {
@@ -856,7 +863,6 @@ type DeleteDirTask struct {
 	deleteDirTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -873,7 +879,7 @@ func (t *DeleteDirTask) Run() {
 }
 
 func (t *DeleteDirTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task DeleteDir failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
@@ -899,6 +905,7 @@ type deleteFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -927,7 +934,6 @@ type DeleteFileTask struct {
 	deleteFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -941,7 +947,7 @@ func (t *DeleteFileTask) Run() {
 }
 
 func (t *DeleteFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task DeleteFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
@@ -967,6 +973,7 @@ type deleteStorageTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ServiceGetter
@@ -982,8 +989,8 @@ type mockDeleteStorageTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Service
 	types.StorageName
+	types.Service
 }
 
 func (t *mockDeleteStorageTask) Run() {
@@ -995,7 +1002,6 @@ type DeleteStorageTask struct {
 	deleteStorageTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1009,7 +1015,7 @@ func (t *DeleteStorageTask) Run() {
 }
 
 func (t *DeleteStorageTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task DeleteStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
@@ -1035,6 +1041,7 @@ type deleteStorageForceTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ServiceGetter
@@ -1063,7 +1070,6 @@ type DeleteStorageForceTask struct {
 	deleteStorageForceTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1078,7 +1084,7 @@ func (t *DeleteStorageForceTask) Run() {
 }
 
 func (t *DeleteStorageForceTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task DeleteStorageForce failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewDeleteStorageForce will create a DeleteStorageForceTask struct and fetch inherited data from parent task.
@@ -1104,6 +1110,7 @@ type fileCopyTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -1123,12 +1130,12 @@ type mockFileCopyTask struct {
 	types.ID
 
 	// Inherited and mutable values.
+	types.Size
 	types.SourcePath
 	types.SourceStorage
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
-	types.Size
 }
 
 func (t *mockFileCopyTask) Run() {
@@ -1140,7 +1147,6 @@ type FileCopyTask struct {
 	fileCopyTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1154,7 +1160,7 @@ func (t *FileCopyTask) Run() {
 }
 
 func (t *FileCopyTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task FileCopy failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewFileCopy will create a FileCopyTask struct and fetch inherited data from parent task.
@@ -1180,6 +1186,7 @@ type fileCopyShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -1218,6 +1225,7 @@ type fileMD5SumTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.OffsetGetter
@@ -1252,7 +1260,6 @@ type FileMD5SumTask struct {
 	fileMD5SumTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1266,7 +1273,7 @@ func (t *FileMD5SumTask) Run() {
 }
 
 func (t *FileMD5SumTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewFileMD5Sum will create a FileMD5SumTask struct and fetch inherited data from parent task.
@@ -1292,6 +1299,7 @@ type fileShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.StorageGetter
@@ -1324,6 +1332,7 @@ type iterateFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -1356,7 +1365,6 @@ type IterateFileTask struct {
 	iterateFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1372,7 +1380,7 @@ func (t *IterateFileTask) Run() {
 }
 
 func (t *IterateFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task IterateFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
@@ -1398,6 +1406,7 @@ type listFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ObjectChannelGetter
@@ -1430,7 +1439,6 @@ type ListFileTask struct {
 	listFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1444,7 +1452,7 @@ func (t *ListFileTask) Run() {
 }
 
 func (t *ListFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
@@ -1470,6 +1478,7 @@ type listStorageTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ServiceGetter
@@ -1485,8 +1494,8 @@ type mockListStorageTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Service
 	types.Zone
+	types.Service
 }
 
 func (t *mockListStorageTask) Run() {
@@ -1498,7 +1507,6 @@ type ListStorageTask struct {
 	listStorageTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1513,7 +1521,7 @@ func (t *ListStorageTask) Run() {
 }
 
 func (t *ListStorageTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ListStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
@@ -1539,6 +1547,7 @@ type reachFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ExpireGetter
@@ -1569,7 +1578,6 @@ type ReachFileTask struct {
 	reachFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1584,7 +1592,7 @@ func (t *ReachFileTask) Run() {
 }
 
 func (t *ReachFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task ReachFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
@@ -1610,6 +1618,7 @@ type segmentAbortAllTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.StorageGetter
@@ -1638,7 +1647,6 @@ type SegmentAbortAllTask struct {
 	segmentAbortAllTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1652,7 +1660,7 @@ func (t *SegmentAbortAllTask) Run() {
 }
 
 func (t *SegmentAbortAllTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task SegmentAbortAll failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
@@ -1678,6 +1686,7 @@ type segmentCompleteTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -1694,9 +1703,9 @@ type mockSegmentCompleteTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Storage
 	types.Path
 	types.SegmentID
+	types.Storage
 }
 
 func (t *mockSegmentCompleteTask) Run() {
@@ -1708,7 +1717,6 @@ type SegmentCompleteTask struct {
 	segmentCompleteTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1722,7 +1730,7 @@ func (t *SegmentCompleteTask) Run() {
 }
 
 func (t *SegmentCompleteTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task SegmentComplete failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
@@ -1748,6 +1756,7 @@ type segmentFileCopyTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -1769,14 +1778,14 @@ type mockSegmentFileCopyTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Size
-	types.SourcePath
-	types.SourceStorage
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
+	types.Size
+	types.SourcePath
+	types.SourceStorage
 }
 
 func (t *mockSegmentFileCopyTask) Run() {
@@ -1788,7 +1797,6 @@ type SegmentFileCopyTask struct {
 	segmentFileCopyTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1802,7 +1810,7 @@ func (t *SegmentFileCopyTask) Run() {
 }
 
 func (t *SegmentFileCopyTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task SegmentFileCopy failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
@@ -1828,6 +1836,7 @@ type segmentFileCopyShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -1868,6 +1877,7 @@ type segmentInitTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -1902,7 +1912,6 @@ type SegmentInitTask struct {
 	segmentInitTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -1916,7 +1925,7 @@ func (t *SegmentInitTask) Run() {
 }
 
 func (t *SegmentInitTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task SegmentInit failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
@@ -1942,6 +1951,7 @@ type segmentShimTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.DestinationPathGetter
@@ -1982,6 +1992,7 @@ type segmentStreamCopyTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ContentGetter
@@ -2002,13 +2013,13 @@ type mockSegmentStreamCopyTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.SegmentID
 	types.Size
 	types.Content
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
 	types.Offset
+	types.SegmentID
 }
 
 func (t *mockSegmentStreamCopyTask) Run() {
@@ -2020,7 +2031,6 @@ type SegmentStreamCopyTask struct {
 	segmentStreamCopyTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -2034,7 +2044,7 @@ func (t *SegmentStreamCopyTask) Run() {
 }
 
 func (t *SegmentStreamCopyTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task SegmentStreamCopy failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
@@ -2060,6 +2070,7 @@ type statFileTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.PathGetter
@@ -2075,8 +2086,8 @@ type mockStatFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Storage
 	types.Path
+	types.Storage
 }
 
 func (t *mockStatFileTask) Run() {
@@ -2088,7 +2099,6 @@ type StatFileTask struct {
 	statFileTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -2103,7 +2113,7 @@ func (t *StatFileTask) Run() {
 }
 
 func (t *StatFileTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task StatFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
@@ -2129,6 +2139,7 @@ type streamMD5SumTaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 	types.ContentGetter
@@ -2155,7 +2166,6 @@ type StreamMD5SumTask struct {
 	streamMD5SumTaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -2170,7 +2180,7 @@ func (t *StreamMD5SumTask) Run() {
 }
 
 func (t *StreamMD5SumTask) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // NewStreamMD5Sum will create a StreamMD5SumTask struct and fetch inherited data from parent task.

@@ -3,8 +3,7 @@ package task
 import (
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *FileCopyTask) new() {}
@@ -13,7 +12,7 @@ func (t *FileCopyTask) run() {
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 	defer r.Close()
@@ -21,7 +20,7 @@ func (t *FileCopyTask) run() {
 	// TODO: add checksum support
 	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, typ.WithSize(t.GetSize()))
 	if err != nil {
-		t.TriggerFault(fault.NewUnhandled(err))
+		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 

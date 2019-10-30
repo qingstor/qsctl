@@ -2,6 +2,7 @@ package taskutils
 
 import (
 	"github.com/Xuanwo/navvy"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -21,6 +22,7 @@ type AtStorageTask struct {
 type BetweenStorageTask struct {
 	navvy.Task
 	types.Pool
+	types.Fault
 
 	types.SourcePath
 	types.SourceStorage
@@ -33,5 +35,6 @@ type BetweenStorageTask struct {
 func NewBetweenStorageTask(poolSize int) *BetweenStorageTask {
 	t := &BetweenStorageTask{}
 	t.SetPool(navvy.NewPool(poolSize))
+	t.SetFault(fault.New())
 	return t
 }

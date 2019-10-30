@@ -46,20 +46,6 @@ func (mr *MockSchedulerMockRecorder) Async(arg0, arg1 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Async", reflect.TypeOf((*MockScheduler)(nil).Async), arg0, arg1)
 }
 
-// Errors mocks base method
-func (m *MockScheduler) Errors() []error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Errors")
-	ret0, _ := ret[0].([]error)
-	return ret0
-}
-
-// Errors indicates an expected call of Errors
-func (mr *MockSchedulerMockRecorder) Errors() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Errors", reflect.TypeOf((*MockScheduler)(nil).Errors))
-}
-
 // Sync mocks base method
 func (m *MockScheduler) Sync(arg0 navvy.Task, arg1 schedule.TaskFunc) {
 	m.ctrl.T.Helper()

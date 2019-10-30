@@ -218,6 +218,7 @@ type {{ .Name | lowerFirst }}TaskRequirement interface {
 
 	// Predefined inherited value
 	types.PoolGetter
+	types.FaultGetter
 
 	// Inherited value
 {{- range $k, $v := .InheritedValue }}
@@ -255,7 +256,6 @@ type {{ .Name }}Task struct {
 	{{ .Name | lowerFirst }}TaskRequirement
 
 	// Predefined runtime value
-	types.Fault
 	types.ID
 	types.Scheduler
 
@@ -272,7 +272,7 @@ func (t *{{ .Name }}Task) Run() {
 }
 
 func (t *{{ .Name }}Task) TriggerFault(err error) {
-	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
 }
 
 // New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
@@ -323,7 +323,7 @@ func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
 	task := &{{ .Name }}Task{ {{ .Name | lowerFirst }}TaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
-	assert.True(t, task.ValidateFault())
+	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMock{{ .Name }}Task_Run(t *testing.T) {
