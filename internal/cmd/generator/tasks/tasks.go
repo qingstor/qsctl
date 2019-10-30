@@ -47,6 +47,8 @@ var funcs = template.FuncMap{
 		for x := range a {
 			o = append(o, x)
 		}
+
+		sort.Strings(o)
 		return o
 	},
 }
