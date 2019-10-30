@@ -1,7 +1,4 @@
 // The following directive is necessary to make the package coherent:
-
-// +build ignore
-
 // This program generates types, It can be invoked by running
 // go generate
 package main
@@ -21,7 +18,6 @@ type fault struct {
 	Message string   `json:"message"`
 }
 
-//go:generate go run faults_gen.go
 func main() {
 	const filePath = "faults.go"
 

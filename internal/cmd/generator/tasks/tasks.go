@@ -1,17 +1,16 @@
 // The following directive is necessary to make the package coherent:
-
-// +build ignore
-
 // This program generates types, It can be invoked by running
 // go generate
 package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"sort"
+	"strings"
 	"text/template"
 )
 
@@ -33,9 +32,11 @@ var funcs = template.FuncMap{
 		}
 		return string(s[0]+'a'-'A') + s[1:]
 	},
+	"endwith": func(x, y string) bool {
+		return strings.HasSuffix(x, y)
+	},
 }
 
-//go:generate go run tasks_gen.go
 func main() {
 	data, err := ioutil.ReadFile("tasks.json")
 	if err != nil {
@@ -66,6 +67,28 @@ func main() {
 	err = ioutil.WriteFile("tasks.json", data, 0664)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Add shims for storage.
+	shimTasks := make(map[string]*task)
+	for k, v := range tasks {
+		if strings.HasSuffix(k, "Shim") {
+			continue
+		}
+		if !strings.Contains(strings.Join(v.InheritedValue, " "), "DestinationStorage") || !strings.Contains(strings.Join(v.InheritedValue, " "), "SourceStorage") {
+			continue
+		}
+
+		t := *v
+		t.Name += "Shim"
+		t.Description = fmt.Sprintf("Storage shim task for %s", v.Name)
+		t.MutableValue = append(t.MutableValue, t.RuntimeValue...)
+		t.RuntimeValue = []string{"Path", "Storage"}
+		shimTasks[t.Name] = &t
+	}
+	for k, v := range shimTasks {
+		v := v
+		tasks[k] = v
 	}
 
 	taskFile, err := os.Create("generated.go")
@@ -101,9 +124,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = mockTmpl.Execute(taskFile, v)
-		if err != nil {
-			log.Fatal(err)
+		if !strings.HasSuffix(taskName, "Shim") {
+			err = mockTmpl.Execute(taskFile, v)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 		err = taskTmpl.Execute(taskFile, v)
 		if err != nil {
@@ -111,9 +136,11 @@ func main() {
 		}
 
 		// Write test.
-		err = taskTestTmpl.Execute(testFile, v)
-		if err != nil {
-			log.Fatal(err)
+		if !strings.HasSuffix(taskName, "Shim") {
+			err = taskTestTmpl.Execute(testFile, v)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
@@ -201,10 +228,12 @@ var taskTmpl = template.Must(template.New("").Funcs(funcs).Parse(`
 type {{ .Name }}Task struct {
 	{{ .Name | lowerFirst }}TaskRequirement
 
+	{{- if endwith .Name "Shim" | not }}
 	// Predefined runtime value
 	types.Fault
 	types.ID
 	types.Scheduler
+	{{- end }}
 
 	// Runtime value
 {{- range $k, $v := .RuntimeValue }}
@@ -214,29 +243,43 @@ type {{ .Name }}Task struct {
 
 // Run implement navvy.Task
 func (t *{{ .Name }}Task) Run() {
+	{{- if endwith .Name "Shim" | not }}
 	t.run()
+	{{- end }}
 }
 
+{{- if endwith .Name "Shim" | not }}
 func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.SetFault(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
+{{- end }}
 
+{{- if endwith .Name "Shim" | not }}
 // New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
 func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
+{{- else }}
+// new{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
+func new{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
+{{- end }}
 	t := &{{ .Name }}Task{
 		{{ .Name | lowerFirst }}TaskRequirement: task.({{ .Name | lowerFirst }}TaskRequirement),
 	}
+	
+	{{- if endwith .Name "Shim" | not }}
 	t.SetID(uuid.New().String())
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
+	{{- end }}
 	return t
 }
 
+{{- if endwith .Name "Shim" | not }}
 // New{{ .Name }}Task will create a {{ .Name }}Task and fetch inherited data from parent task.
 func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 	return New{{ .Name }}(task)
 }
+{{- end }}
 `))
 
 var taskTestTmpl = template.Must(template.New("").Funcs(funcs).Parse(`

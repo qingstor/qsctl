@@ -1,7 +1,4 @@
 // The following directive is necessary to make the package coherent:
-
-// +build ignore
-
 // This program generates types, It can be invoked by running
 // go generate
 package main
@@ -14,7 +11,6 @@ import (
 	"text/template"
 )
 
-//go:generate go run types_gen.go
 func main() {
 	const filePath = "types.go"
 
