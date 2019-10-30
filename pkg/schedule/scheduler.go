@@ -50,10 +50,7 @@ func (t *task) Run() {
 // RealScheduler will hold the task's sub tasks.
 type RealScheduler struct {
 	wg   *sync.WaitGroup
-	errs []error
 	pool *navvy.Pool
-
-	lock sync.Mutex
 }
 
 // NewScheduler will create a new RealScheduler.
