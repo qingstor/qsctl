@@ -8,6 +8,7 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -16,6 +17,7 @@ var _ types.Pool
 
 func TestCopyFileTask_TriggerFault(t *testing.T) {
 	m := &mockCopyFileTask{}
+	m.SetFault(fault.New())
 	task := &CopyFileTask{copyFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -31,6 +33,7 @@ func TestMockCopyFileTask_Run(t *testing.T) {
 
 func TestCopyLargeFileTask_TriggerFault(t *testing.T) {
 	m := &mockCopyLargeFileTask{}
+	m.SetFault(fault.New())
 	task := &CopyLargeFileTask{copyLargeFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -46,6 +49,7 @@ func TestMockCopyLargeFileTask_Run(t *testing.T) {
 
 func TestCopyPartialFileTask_TriggerFault(t *testing.T) {
 	m := &mockCopyPartialFileTask{}
+	m.SetFault(fault.New())
 	task := &CopyPartialFileTask{copyPartialFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -61,6 +65,7 @@ func TestMockCopyPartialFileTask_Run(t *testing.T) {
 
 func TestCopyPartialStreamTask_TriggerFault(t *testing.T) {
 	m := &mockCopyPartialStreamTask{}
+	m.SetFault(fault.New())
 	task := &CopyPartialStreamTask{copyPartialStreamTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -76,6 +81,7 @@ func TestMockCopyPartialStreamTask_Run(t *testing.T) {
 
 func TestCopySmallFileTask_TriggerFault(t *testing.T) {
 	m := &mockCopySmallFileTask{}
+	m.SetFault(fault.New())
 	task := &CopySmallFileTask{copySmallFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -91,6 +97,7 @@ func TestMockCopySmallFileTask_Run(t *testing.T) {
 
 func TestCopyStreamTask_TriggerFault(t *testing.T) {
 	m := &mockCopyStreamTask{}
+	m.SetFault(fault.New())
 	task := &CopyStreamTask{copyStreamTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -106,6 +113,7 @@ func TestMockCopyStreamTask_Run(t *testing.T) {
 
 func TestCreateStorageTask_TriggerFault(t *testing.T) {
 	m := &mockCreateStorageTask{}
+	m.SetFault(fault.New())
 	task := &CreateStorageTask{createStorageTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -121,6 +129,7 @@ func TestMockCreateStorageTask_Run(t *testing.T) {
 
 func TestDeleteDirTask_TriggerFault(t *testing.T) {
 	m := &mockDeleteDirTask{}
+	m.SetFault(fault.New())
 	task := &DeleteDirTask{deleteDirTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -136,6 +145,7 @@ func TestMockDeleteDirTask_Run(t *testing.T) {
 
 func TestDeleteFileTask_TriggerFault(t *testing.T) {
 	m := &mockDeleteFileTask{}
+	m.SetFault(fault.New())
 	task := &DeleteFileTask{deleteFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -151,6 +161,7 @@ func TestMockDeleteFileTask_Run(t *testing.T) {
 
 func TestDeleteStorageTask_TriggerFault(t *testing.T) {
 	m := &mockDeleteStorageTask{}
+	m.SetFault(fault.New())
 	task := &DeleteStorageTask{deleteStorageTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -166,6 +177,7 @@ func TestMockDeleteStorageTask_Run(t *testing.T) {
 
 func TestDeleteStorageForceTask_TriggerFault(t *testing.T) {
 	m := &mockDeleteStorageForceTask{}
+	m.SetFault(fault.New())
 	task := &DeleteStorageForceTask{deleteStorageForceTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -181,6 +193,7 @@ func TestMockDeleteStorageForceTask_Run(t *testing.T) {
 
 func TestFileCopyTask_TriggerFault(t *testing.T) {
 	m := &mockFileCopyTask{}
+	m.SetFault(fault.New())
 	task := &FileCopyTask{fileCopyTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -196,6 +209,7 @@ func TestMockFileCopyTask_Run(t *testing.T) {
 
 func TestFileMD5SumTask_TriggerFault(t *testing.T) {
 	m := &mockFileMD5SumTask{}
+	m.SetFault(fault.New())
 	task := &FileMD5SumTask{fileMD5SumTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -211,6 +225,7 @@ func TestMockFileMD5SumTask_Run(t *testing.T) {
 
 func TestIterateFileTask_TriggerFault(t *testing.T) {
 	m := &mockIterateFileTask{}
+	m.SetFault(fault.New())
 	task := &IterateFileTask{iterateFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -226,6 +241,7 @@ func TestMockIterateFileTask_Run(t *testing.T) {
 
 func TestListFileTask_TriggerFault(t *testing.T) {
 	m := &mockListFileTask{}
+	m.SetFault(fault.New())
 	task := &ListFileTask{listFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -241,6 +257,7 @@ func TestMockListFileTask_Run(t *testing.T) {
 
 func TestListStorageTask_TriggerFault(t *testing.T) {
 	m := &mockListStorageTask{}
+	m.SetFault(fault.New())
 	task := &ListStorageTask{listStorageTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -256,6 +273,7 @@ func TestMockListStorageTask_Run(t *testing.T) {
 
 func TestReachFileTask_TriggerFault(t *testing.T) {
 	m := &mockReachFileTask{}
+	m.SetFault(fault.New())
 	task := &ReachFileTask{reachFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -271,6 +289,7 @@ func TestMockReachFileTask_Run(t *testing.T) {
 
 func TestSegmentAbortAllTask_TriggerFault(t *testing.T) {
 	m := &mockSegmentAbortAllTask{}
+	m.SetFault(fault.New())
 	task := &SegmentAbortAllTask{segmentAbortAllTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -286,6 +305,7 @@ func TestMockSegmentAbortAllTask_Run(t *testing.T) {
 
 func TestSegmentCompleteTask_TriggerFault(t *testing.T) {
 	m := &mockSegmentCompleteTask{}
+	m.SetFault(fault.New())
 	task := &SegmentCompleteTask{segmentCompleteTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -301,6 +321,7 @@ func TestMockSegmentCompleteTask_Run(t *testing.T) {
 
 func TestSegmentFileCopyTask_TriggerFault(t *testing.T) {
 	m := &mockSegmentFileCopyTask{}
+	m.SetFault(fault.New())
 	task := &SegmentFileCopyTask{segmentFileCopyTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -316,6 +337,7 @@ func TestMockSegmentFileCopyTask_Run(t *testing.T) {
 
 func TestSegmentInitTask_TriggerFault(t *testing.T) {
 	m := &mockSegmentInitTask{}
+	m.SetFault(fault.New())
 	task := &SegmentInitTask{segmentInitTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -331,6 +353,7 @@ func TestMockSegmentInitTask_Run(t *testing.T) {
 
 func TestSegmentStreamCopyTask_TriggerFault(t *testing.T) {
 	m := &mockSegmentStreamCopyTask{}
+	m.SetFault(fault.New())
 	task := &SegmentStreamCopyTask{segmentStreamCopyTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -346,6 +369,7 @@ func TestMockSegmentStreamCopyTask_Run(t *testing.T) {
 
 func TestStatFileTask_TriggerFault(t *testing.T) {
 	m := &mockStatFileTask{}
+	m.SetFault(fault.New())
 	task := &StatFileTask{statFileTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -361,6 +385,7 @@ func TestMockStatFileTask_Run(t *testing.T) {
 
 func TestStreamMD5SumTask_TriggerFault(t *testing.T) {
 	m := &mockStreamMD5SumTask{}
+	m.SetFault(fault.New())
 	task := &StreamMD5SumTask{streamMD5SumTaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)

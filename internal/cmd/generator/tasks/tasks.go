@@ -205,6 +205,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 var _ navvy.Pool
@@ -320,6 +321,7 @@ func new{{ .Name }}(task navvy.Task) *{{ $name }}Task {
 var taskTestTmpl = template.Must(template.New("taskTest").Funcs(funcs).Parse(`
 func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
 	m := &mock{{ .Name }}Task{}
+	m.SetFault(fault.New())
 	task := &{{ .Name }}Task{ {{ .Name | lowerFirst }}TaskRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)

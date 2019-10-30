@@ -39,10 +39,10 @@ type mockCopyFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.SourcePath
-	types.SourceStorage
 	types.DestinationPath
 	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
 }
 
 func (t *mockCopyFileTask) Run() {
@@ -152,11 +152,11 @@ type mockCopyLargeFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
+	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
-	types.DestinationPath
 }
 
 func (t *mockCopyLargeFileTask) Run() {
@@ -279,16 +279,16 @@ type mockCopyPartialFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.SourceStorage
-	types.TotalSize
-	types.SegmentID
-	types.Size
-	types.SourcePath
 	types.PartSize
+	types.SegmentID
 	types.Done
 	types.DestinationPath
-	types.DestinationStorage
 	types.Offset
+	types.SourcePath
+	types.SourceStorage
+	types.TotalSize
+	types.DestinationStorage
+	types.Size
 }
 
 func (t *mockCopyPartialFileTask) Run() {
@@ -409,15 +409,15 @@ type mockCopyPartialStreamTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.DestinationPath
-	types.DestinationStorage
-	types.Done
 	types.SourcePath
 	types.SourceStorage
-	types.Size
+	types.Done
 	types.BytesPool
+	types.DestinationStorage
 	types.PartSize
 	types.SegmentID
+	types.Size
+	types.DestinationPath
 }
 
 func (t *mockCopyPartialStreamTask) Run() {
@@ -535,11 +535,11 @@ type mockCopySmallFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
+	types.DestinationPath
 }
 
 func (t *mockCopySmallFileTask) Run() {
@@ -989,8 +989,8 @@ type mockDeleteStorageTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.StorageName
 	types.Service
+	types.StorageName
 }
 
 func (t *mockDeleteStorageTask) Run() {
@@ -1057,8 +1057,8 @@ type mockDeleteStorageForceTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Service
 	types.StorageName
+	types.Service
 }
 
 func (t *mockDeleteStorageForceTask) Run() {
@@ -1130,12 +1130,12 @@ type mockFileCopyTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Size
-	types.SourcePath
 	types.SourceStorage
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
+	types.Size
+	types.SourcePath
 }
 
 func (t *mockFileCopyTask) Run() {
@@ -1350,10 +1350,10 @@ type mockIterateFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
+	types.Storage
 	types.Path
 	types.Recursive
 	types.ScheduleFunc
-	types.Storage
 }
 
 func (t *mockIterateFileTask) Run() {
@@ -1564,9 +1564,9 @@ type mockReachFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
+	types.Storage
 	types.Expire
 	types.Path
-	types.Storage
 }
 
 func (t *mockReachFileTask) Run() {
@@ -1778,14 +1778,14 @@ type mockSegmentFileCopyTask struct {
 	types.ID
 
 	// Inherited and mutable values.
+	types.Size
+	types.SourcePath
+	types.SourceStorage
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
-	types.Size
-	types.SourcePath
-	types.SourceStorage
 }
 
 func (t *mockSegmentFileCopyTask) Run() {
