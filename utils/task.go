@@ -237,6 +237,7 @@ func NewQingStorService() (*qingstor.Service, error) {
 	return srv, err
 }
 
+// ChooseDestinationStorage will choose the destination storage to fill.
 func ChooseDestinationStorage(x interface {
 	types.PathSetter
 	types.StorageSetter
@@ -248,6 +249,7 @@ func ChooseDestinationStorage(x interface {
 	x.SetStorage(y.GetDestinationStorage())
 }
 
+// ChooseSourceStorage will choose the source storage to fill.
 func ChooseSourceStorage(x interface {
 	types.PathSetter
 	types.StorageSetter

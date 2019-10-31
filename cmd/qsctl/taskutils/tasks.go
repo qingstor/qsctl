@@ -32,6 +32,7 @@ type BetweenStorageTask struct {
 	types.DestinationType
 }
 
+// NewBetweenStorageTask will create a new between storage task.
 func NewBetweenStorageTask(poolSize int) *BetweenStorageTask {
 	t := &BetweenStorageTask{}
 	t.SetPool(navvy.NewPool(poolSize))
