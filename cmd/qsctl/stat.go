@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -10,6 +8,7 @@ import (
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -33,18 +32,15 @@ var StatCommand = &cobra.Command{
 }
 
 func statRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewStatTask(func(t *task.StatTask) {
-		err := utils.ParseAtStorageInput(t, args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-	})
+	rootTask := taskutils.NewAtStorageTask(10)
+	err = utils.ParseAtStorageInput(rootTask, args[0])
+	if err != nil {
+		return
+	}
 
+	t := task.NewStatFile(rootTask)
 	t.Run()
-	t.Wait()
-
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
@@ -89,7 +85,7 @@ func statFormat(input string, om *typ.Object) string {
 	return input
 }
 
-func statOutput(t *task.StatTask, format string) {
+func statOutput(t *task.StatFileTask, format string) {
 	// if format string was set, print result as format string
 	if format != "" {
 		fmt.Println(statFormat(format, t.GetObject()))

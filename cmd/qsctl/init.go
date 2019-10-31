@@ -32,8 +32,8 @@ func init() {
 	initPresignFlag()
 	initRbFlag()
 	initRmFlag()
-	// initStatFlag()
-	// initTeeFlag()
+	initStatFlag()
+	initTeeFlag()
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
@@ -48,8 +48,8 @@ func init() {
 	rootCmd.AddCommand(PresignCommand)
 	rootCmd.AddCommand(RbCommand)
 	rootCmd.AddCommand(RmCommand)
-	// rootCmd.AddCommand(StatCommand)
-	// rootCmd.AddCommand(TeeCommand)
+	rootCmd.AddCommand(StatCommand)
+	rootCmd.AddCommand(TeeCommand)
 }
 
 func initConfig() (err error) {
