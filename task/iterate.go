@@ -13,9 +13,9 @@ func (t *IterateFileTask) run() {
 	t.GetScheduler().Async(NewListFileTask(t))
 
 	for o := range t.GetObjectChannel() {
-		x := NewFileShim(t)
+		x := t.GetPathScheduleFunc()(t)
 		x.SetPath(o.Name)
 
-		t.GetScheduler().Async(t.GetScheduleFunc()(x))
+		t.GetScheduler().Async(x)
 	}
 }

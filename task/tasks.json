@@ -161,21 +161,12 @@
       "ObjectChannel"
     ]
   },
-  "FileShim": {
-    "description": "a shim for file operation",
-    "inherited_value": [
-      "Storage"
-    ],
-    "runtime_value": [
-      "Path"
-    ]
-  },
   "IterateFile": {
     "description": "iterate file and execute operations on it",
     "inherited_value": [
       "Path",
+      "PathScheduleFunc",
       "Recursive",
-      "ScheduleFunc",
       "Storage"
     ],
     "runtime_value": [
@@ -268,29 +259,12 @@
     "description": "init a segment upload",
     "inherited_value": [
       "Path",
-      "ScheduleFunc",
+      "SegmentScheduleFunc",
       "Storage",
       "TotalSize"
     ],
     "mutable_value": [
       "SegmentID"
-    ]
-  },
-  "SegmentShim": {
-    "description": "a shim for segment operation",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "PartSize",
-      "SegmentID",
-      "SourcePath",
-      "SourceStorage",
-      "TotalSize"
-    ],
-    "runtime_value": [
-      "Done",
-      "Offset",
-      "Size"
     ]
   },
   "SegmentStreamCopy": {

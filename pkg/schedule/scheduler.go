@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/Xuanwo/navvy"
-	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 // TaskFunc will be used create a new task.
@@ -19,20 +18,12 @@ type Scheduler interface {
 	Wait()
 }
 
-// Schedulable is the task that can be used in RealScheduler.
-type Schedulable interface {
-	navvy.Task
-
-	GetID() string
-	GetFault() *fault.Fault
-}
-
 type task struct {
 	s *RealScheduler
-	t Schedulable
+	t navvy.Task
 }
 
-func newTask(s *RealScheduler, t Schedulable) *task {
+func newTask(s *RealScheduler, t navvy.Task) *task {
 	return &task{
 		s: s,
 		t: t,
@@ -69,14 +60,8 @@ func (s *RealScheduler) Sync(task navvy.Task) {
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
-	// Don't submit to pool if task has an error.
-	t := task.(Schedulable)
-	if t.GetFault().HasError() {
-		return
-	}
-
 	s.wg.Add(1)
-	s.pool.Submit(newTask(s, t))
+	s.pool.Submit(newTask(s, task))
 }
 
 // Wait will wait until a task finished.
