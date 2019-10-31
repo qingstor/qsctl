@@ -31,7 +31,7 @@ func init() {
 	initMbFlag()
 	initPresignFlag()
 	initRbFlag()
-	// initRmFlag()
+	initRmFlag()
 	// initStatFlag()
 	// initTeeFlag()
 
@@ -47,7 +47,7 @@ func init() {
 	rootCmd.AddCommand(MbCommand)
 	rootCmd.AddCommand(PresignCommand)
 	rootCmd.AddCommand(RbCommand)
-	// rootCmd.AddCommand(RmCommand)
+	rootCmd.AddCommand(RmCommand)
 	// rootCmd.AddCommand(StatCommand)
 	// rootCmd.AddCommand(TeeCommand)
 }

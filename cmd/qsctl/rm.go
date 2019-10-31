@@ -1,12 +1,10 @@
-// +build ignore
-
 package main
 
 import (
 	"fmt"
 
-	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -34,35 +32,17 @@ func initRmFlag() {
 		false, "recursively delete keys under a specific prefix")
 }
 
-func rmParse(t *task.RemoveObjectTask, _ []string) (err error) {
-	// Parse flags.
-	t.SetRecursive(rmInput.recursive)
-	return nil
-}
-
 func rmRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewRemoveObjectTask(func(t *task.RemoveObjectTask) {
-		if err = rmParse(t, args); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	rootTask := taskutils.NewAtStorageTask(10)
+	err = utils.ParseAtStorageInput(rootTask, args[0])
+	if err != nil {
+		return
+	}
 
-		err := utils.ParseAtStorageInput(t, args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		if (t.GetDestinationType() == types.ObjectTypeDir) && !t.GetRecursive() {
-			t.TriggerFault(fmt.Errorf("-r is required for removing dir operation"))
-			return
-		}
-	})
-
+	// TODO: handle remove dir.
+	t := task.NewDeleteFile(rootTask)
 	t.Run()
-	t.Wait()
-
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
@@ -70,6 +50,6 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func rmOutput(t *task.RemoveObjectTask) {
-	fmt.Printf("Object <%s> removed.\n", t.GetDestinationPath())
+func rmOutput(t *task.DeleteFileTask) {
+	fmt.Printf("Object <%s> removed.\n", t.GetPath())
 }

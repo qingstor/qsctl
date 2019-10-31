@@ -7,8 +7,8 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
 
-	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
+	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 var _ navvy.Pool
@@ -106,7 +106,6 @@ type copyFileShimTaskRequirement interface {
 	// Mutable value
 	types.TotalSizeSetter
 }
-
 
 // copyFileShimTask will Storage shim task for .
 type copyFileShimTask struct {
@@ -228,7 +227,6 @@ type copyLargeFileShimTaskRequirement interface {
 	types.ScheduleFuncSetter
 	types.SegmentIDSetter
 }
-
 
 // copyLargeFileShimTask will Storage shim task for .
 type copyLargeFileShimTask struct {
@@ -362,7 +360,6 @@ type copyPartialFileShimTaskRequirement interface {
 	types.MD5SumSetter
 }
 
-
 // copyPartialFileShimTask will Storage shim task for .
 type copyPartialFileShimTask struct {
 	copyPartialFileShimTaskRequirement
@@ -493,7 +490,6 @@ type copyPartialStreamShimTaskRequirement interface {
 	types.MD5SumSetter
 }
 
-
 // copyPartialStreamShimTask will Storage shim task for .
 type copyPartialStreamShimTask struct {
 	copyPartialStreamShimTaskRequirement
@@ -608,7 +604,6 @@ type copySingleFileShimTaskRequirement interface {
 
 	// Mutable value
 }
-
 
 // copySingleFileShimTask will Storage shim task for .
 type copySingleFileShimTask struct {
@@ -730,7 +725,6 @@ type copySmallFileShimTaskRequirement interface {
 	types.OffsetSetter
 	types.SizeSetter
 }
-
 
 // copySmallFileShimTask will Storage shim task for .
 type copySmallFileShimTask struct {
@@ -858,7 +852,6 @@ type copyStreamShimTaskRequirement interface {
 	types.SegmentIDSetter
 	types.TotalSizeSetter
 }
-
 
 // copyStreamShimTask will Storage shim task for .
 type copyStreamShimTask struct {
@@ -1300,7 +1293,6 @@ type fileShimTaskRequirement interface {
 
 	// Mutable value
 }
-
 
 // fileShimTask will a shim for file operation.
 type fileShimTask struct {
@@ -1983,7 +1975,6 @@ type segmentFileCopyShimTaskRequirement interface {
 	// Mutable value
 }
 
-
 // segmentFileCopyShimTask will Storage shim task for .
 type segmentFileCopyShimTask struct {
 	segmentFileCopyShimTaskRequirement
@@ -2097,7 +2088,6 @@ type segmentShimTaskRequirement interface {
 
 	// Mutable value
 }
-
 
 // segmentShimTask will a shim for segment operation.
 type segmentShimTask struct {
