@@ -60,7 +60,7 @@ func (t *CopyLargeFileTask) new() {
 }
 
 func (t *CopyLargeFileTask) run() {
-	x := newCopyLargeFileShim(t)
+	x := NewCopyLargeFileShim(t)
 	utils.ChooseDestinationStorage(x, t)
 
 	t.GetScheduler().Sync(x, NewSegmentInitTask)

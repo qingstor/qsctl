@@ -13,7 +13,7 @@ func (t *IterateFileTask) run() {
 	t.GetScheduler().Async(t, NewListFileTask)
 
 	for o := range t.GetObjectChannel() {
-		x := newFileShim(t)
+		x := NewFileShim(t)
 		x.SetPath(o.Name)
 
 		t.GetScheduler().Async(x, t.GetScheduleFunc())

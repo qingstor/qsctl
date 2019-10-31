@@ -58,6 +58,5 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	t.GetPool().Wait()
 	return
 }

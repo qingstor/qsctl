@@ -182,10 +182,22 @@
   "ListFile": {
     "description": "list files",
     "inherited_value": [
-      "ObjectChannel",
       "Path",
       "Recursive",
       "Storage"
+    ],
+    "runtime_value": [
+      "ObjectChannel"
+    ]
+  },
+  "ListFileRecursiveShim": {
+    "description": "list file shim",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "Recursive"
     ]
   },
   "ListStorage": {

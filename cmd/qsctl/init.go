@@ -27,7 +27,7 @@ func init() {
 	initGlobalFlag()
 	// init flags for every single cmd
 	initCpFlag()
-	// initLsFlag()
+	initLsFlag()
 	// initMbFlag()
 	// initPresignFlag()
 	// initRbFlag()
@@ -43,7 +43,7 @@ func init() {
 	// add sub-command to rootCmd
 	rootCmd.AddCommand(CatCommand)
 	rootCmd.AddCommand(CpCommand)
-	// rootCmd.AddCommand(LsCommand)
+	rootCmd.AddCommand(LsCommand)
 	// rootCmd.AddCommand(MbCommand)
 	// rootCmd.AddCommand(PresignCommand)
 	// rootCmd.AddCommand(RbCommand)

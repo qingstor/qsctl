@@ -9,7 +9,10 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *ListFileTask) new() {}
+func (t *ListFileTask) new() {
+	oc := make(chan *typ.Object)
+	t.SetObjectChannel(oc)
+}
 
 func (t *ListFileTask) run() {
 	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())

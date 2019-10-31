@@ -23,7 +23,7 @@ func (t *SegmentInitTask) run() {
 
 	offset := int64(0)
 	for {
-		x := newSegmentShim(t.segmentInitTaskRequirement)
+		x := NewSegmentShim(t.segmentInitTaskRequirement)
 		x.SetDone(false)
 		x.SetOffset(offset)
 

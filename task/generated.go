@@ -119,8 +119,8 @@ type copyFileShimTask struct {
 // Run implement navvy.Task
 func (t *copyFileShimTask) Run() {}
 
-// newCopyFileShim will create a copyFileShimTask struct and fetch inherited data from parent task.
-func newCopyFileShim(task navvy.Task) *copyFileShimTask {
+// NewCopyFileShim will create a copyFileShimTask struct and fetch inherited data from parent task.
+func NewCopyFileShim(task navvy.Task) *copyFileShimTask {
 	t := &copyFileShimTask{
 		copyFileShimTaskRequirement: task.(copyFileShimTaskRequirement),
 	}
@@ -240,8 +240,8 @@ type copyLargeFileShimTask struct {
 // Run implement navvy.Task
 func (t *copyLargeFileShimTask) Run() {}
 
-// newCopyLargeFileShim will create a copyLargeFileShimTask struct and fetch inherited data from parent task.
-func newCopyLargeFileShim(task navvy.Task) *copyLargeFileShimTask {
+// NewCopyLargeFileShim will create a copyLargeFileShimTask struct and fetch inherited data from parent task.
+func NewCopyLargeFileShim(task navvy.Task) *copyLargeFileShimTask {
 	t := &copyLargeFileShimTask{
 		copyLargeFileShimTaskRequirement: task.(copyLargeFileShimTaskRequirement),
 	}
@@ -372,8 +372,8 @@ type copyPartialFileShimTask struct {
 // Run implement navvy.Task
 func (t *copyPartialFileShimTask) Run() {}
 
-// newCopyPartialFileShim will create a copyPartialFileShimTask struct and fetch inherited data from parent task.
-func newCopyPartialFileShim(task navvy.Task) *copyPartialFileShimTask {
+// NewCopyPartialFileShim will create a copyPartialFileShimTask struct and fetch inherited data from parent task.
+func NewCopyPartialFileShim(task navvy.Task) *copyPartialFileShimTask {
 	t := &copyPartialFileShimTask{
 		copyPartialFileShimTaskRequirement: task.(copyPartialFileShimTaskRequirement),
 	}
@@ -502,8 +502,8 @@ type copyPartialStreamShimTask struct {
 // Run implement navvy.Task
 func (t *copyPartialStreamShimTask) Run() {}
 
-// newCopyPartialStreamShim will create a copyPartialStreamShimTask struct and fetch inherited data from parent task.
-func newCopyPartialStreamShim(task navvy.Task) *copyPartialStreamShimTask {
+// NewCopyPartialStreamShim will create a copyPartialStreamShimTask struct and fetch inherited data from parent task.
+func NewCopyPartialStreamShim(task navvy.Task) *copyPartialStreamShimTask {
 	t := &copyPartialStreamShimTask{
 		copyPartialStreamShimTaskRequirement: task.(copyPartialStreamShimTaskRequirement),
 	}
@@ -617,8 +617,8 @@ type copySingleFileShimTask struct {
 // Run implement navvy.Task
 func (t *copySingleFileShimTask) Run() {}
 
-// newCopySingleFileShim will create a copySingleFileShimTask struct and fetch inherited data from parent task.
-func newCopySingleFileShim(task navvy.Task) *copySingleFileShimTask {
+// NewCopySingleFileShim will create a copySingleFileShimTask struct and fetch inherited data from parent task.
+func NewCopySingleFileShim(task navvy.Task) *copySingleFileShimTask {
 	t := &copySingleFileShimTask{
 		copySingleFileShimTaskRequirement: task.(copySingleFileShimTaskRequirement),
 	}
@@ -738,8 +738,8 @@ type copySmallFileShimTask struct {
 // Run implement navvy.Task
 func (t *copySmallFileShimTask) Run() {}
 
-// newCopySmallFileShim will create a copySmallFileShimTask struct and fetch inherited data from parent task.
-func newCopySmallFileShim(task navvy.Task) *copySmallFileShimTask {
+// NewCopySmallFileShim will create a copySmallFileShimTask struct and fetch inherited data from parent task.
+func NewCopySmallFileShim(task navvy.Task) *copySmallFileShimTask {
 	t := &copySmallFileShimTask{
 		copySmallFileShimTaskRequirement: task.(copySmallFileShimTaskRequirement),
 	}
@@ -865,8 +865,8 @@ type copyStreamShimTask struct {
 // Run implement navvy.Task
 func (t *copyStreamShimTask) Run() {}
 
-// newCopyStreamShim will create a copyStreamShimTask struct and fetch inherited data from parent task.
-func newCopyStreamShim(task navvy.Task) *copyStreamShimTask {
+// NewCopyStreamShim will create a copyStreamShimTask struct and fetch inherited data from parent task.
+func NewCopyStreamShim(task navvy.Task) *copyStreamShimTask {
 	t := &copyStreamShimTask{
 		copyStreamShimTaskRequirement: task.(copyStreamShimTaskRequirement),
 	}
@@ -1308,8 +1308,8 @@ type fileShimTask struct {
 // Run implement navvy.Task
 func (t *fileShimTask) Run() {}
 
-// newFileShim will create a fileShimTask struct and fetch inherited data from parent task.
-func newFileShim(task navvy.Task) *fileShimTask {
+// NewFileShim will create a fileShimTask struct and fetch inherited data from parent task.
+func NewFileShim(task navvy.Task) *fileShimTask {
 	t := &fileShimTask{
 		fileShimTaskRequirement: task.(fileShimTaskRequirement),
 	}
@@ -1399,7 +1399,6 @@ type listFileTaskRequirement interface {
 	types.FaultGetter
 
 	// Inherited value
-	types.ObjectChannelGetter
 	types.PathGetter
 	types.RecursiveGetter
 	types.StorageGetter
@@ -1414,7 +1413,6 @@ type mockListFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.ObjectChannel
 	types.Path
 	types.Recursive
 	types.Storage
@@ -1433,6 +1431,7 @@ type ListFileTask struct {
 	types.Scheduler
 
 	// Runtime value
+	types.ObjectChannel
 }
 
 // Run implement navvy.Task
@@ -1460,6 +1459,40 @@ func NewListFile(task navvy.Task) *ListFileTask {
 // NewListFileTask will create a ListFileTask and fetch inherited data from parent task.
 func NewListFileTask(task navvy.Task) navvy.Task {
 	return NewListFile(task)
+}
+
+// listFileRecursiveShimTaskRequirement is the requirement for execute ListFileRecursiveShimTask.
+type listFileRecursiveShimTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+	types.PathGetter
+	types.StorageGetter
+
+	// Mutable value
+}
+
+// listFileRecursiveShimTask will list file shim.
+type listFileRecursiveShimTask struct {
+	listFileRecursiveShimTaskRequirement
+
+	// Runtime value
+	types.Recursive
+}
+
+// Run implement navvy.Task
+func (t *listFileRecursiveShimTask) Run() {}
+
+// NewListFileRecursiveShim will create a listFileRecursiveShimTask struct and fetch inherited data from parent task.
+func NewListFileRecursiveShim(task navvy.Task) *listFileRecursiveShimTask {
+	t := &listFileRecursiveShimTask{
+		listFileRecursiveShimTaskRequirement: task.(listFileRecursiveShimTaskRequirement),
+	}
+	return t
 }
 
 // listStorageTaskRequirement is the requirement for execute ListStorageTask.
@@ -1994,8 +2027,8 @@ type segmentFileCopyShimTask struct {
 // Run implement navvy.Task
 func (t *segmentFileCopyShimTask) Run() {}
 
-// newSegmentFileCopyShim will create a segmentFileCopyShimTask struct and fetch inherited data from parent task.
-func newSegmentFileCopyShim(task navvy.Task) *segmentFileCopyShimTask {
+// NewSegmentFileCopyShim will create a segmentFileCopyShimTask struct and fetch inherited data from parent task.
+func NewSegmentFileCopyShim(task navvy.Task) *segmentFileCopyShimTask {
 	t := &segmentFileCopyShimTask{
 		segmentFileCopyShimTaskRequirement: task.(segmentFileCopyShimTaskRequirement),
 	}
@@ -2109,8 +2142,8 @@ type segmentShimTask struct {
 // Run implement navvy.Task
 func (t *segmentShimTask) Run() {}
 
-// newSegmentShim will create a segmentShimTask struct and fetch inherited data from parent task.
-func newSegmentShim(task navvy.Task) *segmentShimTask {
+// NewSegmentShim will create a segmentShimTask struct and fetch inherited data from parent task.
+func NewSegmentShim(task navvy.Task) *segmentShimTask {
 	t := &segmentShimTask{
 		segmentShimTaskRequirement: task.(segmentShimTaskRequirement),
 	}

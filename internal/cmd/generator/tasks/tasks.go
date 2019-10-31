@@ -311,8 +311,8 @@ type {{ $name }}Task struct {
 // Run implement navvy.Task
 func (t *{{ $name }}Task) Run() {}
 
-// new{{ .Name }} will create a {{ $name }}Task struct and fetch inherited data from parent task.
-func new{{ .Name }}(task navvy.Task) *{{ $name }}Task {
+// New{{ .Name }} will create a {{ $name }}Task struct and fetch inherited data from parent task.
+func New{{ .Name }}(task navvy.Task) *{{ $name }}Task {
 	t := &{{ $name }}Task{
 		{{ $name }}TaskRequirement: task.({{ $name }}TaskRequirement),
 	}
