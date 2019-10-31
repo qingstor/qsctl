@@ -1,11 +1,10 @@
-// +build ignore
-
 package main
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -35,44 +34,24 @@ func initRbFlag() {
 	)
 }
 
-func rbParse(t *task.RemoveBucketTask, _ []string) (err error) {
-	// Parse flags.
-	t.SetForce(rbInput.force)
-	return nil
-}
-
 func rbRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewRemoveBucketTask(func(t *task.RemoveBucketTask) {
-		if err = rbParse(t, args); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	rootTask := taskutils.NewAtServiceTask(10)
+	err = utils.ParseAtServiceInput(rootTask)
+	if err != nil {
+		return
+	}
 
-		if err := utils.ParseAtServiceInput(t); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	_, bucketName, _, err := utils.ParseQsPath(args[0])
+	if err != nil {
+		return
+	}
 
-		_, bucketName, _, err := utils.ParseQsPath(args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		t.SetBucketName(bucketName)
-
-		// only rb -f use storage
-		if t.GetForce() {
-			if err := utils.ParseAtStorageInput(t, args[0]); err != nil {
-				t.TriggerFault(err)
-				return
-			}
-		}
-	})
+	// TODO: handle delete storage force.
+	t := task.NewDeleteStorage(rootTask)
+	t.SetStorageName(bucketName)
 
 	t.Run()
-	t.Wait()
-
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
@@ -80,6 +59,6 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func rbOutput(t *task.RemoveBucketTask) {
-	fmt.Printf("Bucket <%s> removed.\n", t.GetBucketName())
+func rbOutput(t *task.DeleteStorageTask) {
+	fmt.Printf("Bucket <%s> removed.\n", t.GetStorageName())
 }

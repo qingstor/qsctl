@@ -4,7 +4,6 @@ package types
 import (
 	"fmt"
 )
-
 type LocalFileNotExist struct {
 	err error
 	SourcePath
@@ -18,14 +17,13 @@ func (f *LocalFileNotExist) Unwrap() error {
 	return f.err
 }
 
-func NewErrLocalFileNotExist(err error, sourcePath string) error {
+func NewErrLocalFileNotExist(err error,sourcePath string) error {
 	f := &LocalFileNotExist{}
-	f.err = err
+	f.err=err
 	f.SetSourcePath(sourcePath)
 
 	return f
 }
-
 type LocalFileTooLarge struct {
 	err error
 	Size
@@ -39,14 +37,13 @@ func (f *LocalFileTooLarge) Unwrap() error {
 	return f.err
 }
 
-func NewErrLocalFileTooLarge(err error, size int64) error {
+func NewErrLocalFileTooLarge(err error,size int64) error {
 	f := &LocalFileTooLarge{}
-	f.err = err
+	f.err=err
 	f.SetSize(size)
 
 	return f
 }
-
 type ReadableSizeFormatInvalid struct {
 	err error
 	ByteSize
@@ -60,14 +57,13 @@ func (f *ReadableSizeFormatInvalid) Unwrap() error {
 	return f.err
 }
 
-func NewErrReadableSizeFormatInvalid(err error, byteSize string) error {
+func NewErrReadableSizeFormatInvalid(err error,byteSize string) error {
 	f := &ReadableSizeFormatInvalid{}
-	f.err = err
+	f.err=err
 	f.SetByteSize(byteSize)
 
 	return f
 }
-
 type StorageBucketInitFailed struct {
 	err error
 	StorageName
@@ -82,15 +78,14 @@ func (f *StorageBucketInitFailed) Unwrap() error {
 	return f.err
 }
 
-func NewErrStorageBucketInitFailed(err error, storageName string, zone string) error {
+func NewErrStorageBucketInitFailed(err error,storageName string,zone string) error {
 	f := &StorageBucketInitFailed{}
-	f.err = err
+	f.err=err
 	f.SetStorageName(storageName)
 	f.SetZone(zone)
 
 	return f
 }
-
 type StorageObjectNoPermission struct {
 	err error
 	DestinationPath
@@ -104,14 +99,13 @@ func (f *StorageObjectNoPermission) Unwrap() error {
 	return f.err
 }
 
-func NewErrStorageObjectNoPermission(err error, destinationPath string) error {
+func NewErrStorageObjectNoPermission(err error,destinationPath string) error {
 	f := &StorageObjectNoPermission{}
-	f.err = err
+	f.err=err
 	f.SetDestinationPath(destinationPath)
 
 	return f
 }
-
 type StorageObjectNotFound struct {
 	err error
 	DestinationPath
@@ -125,14 +119,13 @@ func (f *StorageObjectNotFound) Unwrap() error {
 	return f.err
 }
 
-func NewErrStorageObjectNotFound(err error, destinationPath string) error {
+func NewErrStorageObjectNotFound(err error,destinationPath string) error {
 	f := &StorageObjectNotFound{}
-	f.err = err
+	f.err=err
 	f.SetDestinationPath(destinationPath)
 
 	return f
 }
-
 type StorageServiceInitFailed struct {
 	err error
 }
@@ -147,11 +140,10 @@ func (f *StorageServiceInitFailed) Unwrap() error {
 
 func NewErrStorageServiceInitFailed(err error) error {
 	f := &StorageServiceInitFailed{}
-	f.err = err
+	f.err=err
 
 	return f
 }
-
 type Unhandled struct {
 	err error
 }
@@ -166,11 +158,10 @@ func (f *Unhandled) Unwrap() error {
 
 func NewErrUnhandled(err error) error {
 	f := &Unhandled{}
-	f.err = err
+	f.err=err
 
 	return f
 }
-
 type UserInputByteSizeInvalid struct {
 	err error
 	ByteSize
@@ -184,14 +175,13 @@ func (f *UserInputByteSizeInvalid) Unwrap() error {
 	return f.err
 }
 
-func NewErrUserInputByteSizeInvalid(err error, byteSize string) error {
+func NewErrUserInputByteSizeInvalid(err error,byteSize string) error {
 	f := &UserInputByteSizeInvalid{}
-	f.err = err
+	f.err=err
 	f.SetByteSize(byteSize)
 
 	return f
 }
-
 type UserInputDestinationPathInvalid struct {
 	err error
 	DestinationPath
@@ -205,9 +195,9 @@ func (f *UserInputDestinationPathInvalid) Unwrap() error {
 	return f.err
 }
 
-func NewErrUserInputDestinationPathInvalid(err error, destinationPath string) error {
+func NewErrUserInputDestinationPathInvalid(err error,destinationPath string) error {
 	f := &UserInputDestinationPathInvalid{}
-	f.err = err
+	f.err=err
 	f.SetDestinationPath(destinationPath)
 
 	return f
