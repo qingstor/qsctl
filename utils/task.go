@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -44,10 +43,10 @@ func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewLocalFileNotExist(err, p))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrLocalFileNotExist(err, p))
 	}
 	if err != nil {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", fault.NewUnhandled(err))
+		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrUnhandled(err))
 	}
 	if fi.IsDir() {
 		return typ.ObjectTypeDir, nil
@@ -126,21 +125,21 @@ func ParseServiceInput(serviceType typ.ServicerType) (service storage.Servicer, 
 
 // ParseAtServiceInput will parse single args and setup service.
 func ParseAtServiceInput(t interface {
-	types.DestinationServiceSetter
+	types.ServiceSetter
 }) (err error) {
-	dstService, err := ParseServiceInput(qingstor.ServicerType)
+	service, err := ParseServiceInput(qingstor.ServicerType)
 	if err != nil {
 		return
 	}
-	setupDestinationService(t, dstService)
+	setupService(t, service)
 	return
 }
 
 // ParseAtStorageInput will parse single args and setup path, type, storager.
 func ParseAtStorageInput(t interface {
-	types.DestinationPathSetter
-	types.DestinationStorageSetter
-	types.DestinationTypeSetter
+	types.PathSetter
+	types.StorageSetter
+	types.TypeSetter
 }, input string) (err error) {
 	flow := ParseFlow(input, "")
 	if flow != constants.FlowAtRemote {
@@ -151,7 +150,7 @@ func ParseAtStorageInput(t interface {
 	if err != nil {
 		return
 	}
-	setupDestinationStorage(t, dstPath, dstType, dstStore)
+	setupStorage(t, dstPath, dstType, dstStore)
 	return
 }
 
@@ -219,10 +218,20 @@ func setupDestinationStorage(t interface {
 	t.SetDestinationStorage(store)
 }
 
-func setupDestinationService(t interface {
-	types.DestinationServiceSetter
+func setupStorage(t interface {
+	types.PathSetter
+	types.StorageSetter
+	types.TypeSetter
+}, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetPath(path)
+	t.SetType(objectType)
+	t.SetStorage(store)
+}
+
+func setupService(t interface {
+	types.ServiceSetter
 }, store storage.Servicer) {
-	t.SetDestinationService(store)
+	t.SetService(store)
 }
 
 // NewQingStorService will create a new qingstor service.
@@ -236,4 +245,28 @@ func NewQingStorService() (*qingstor.Service, error) {
 		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
 	)
 	return srv, err
+}
+
+// ChooseDestinationStorage will choose the destination storage to fill.
+func ChooseDestinationStorage(x interface {
+	types.PathSetter
+	types.StorageSetter
+}, y interface {
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+}) {
+	x.SetPath(y.GetDestinationPath())
+	x.SetStorage(y.GetDestinationStorage())
+}
+
+// ChooseSourceStorage will choose the source storage to fill.
+func ChooseSourceStorage(x interface {
+	types.PathSetter
+	types.StorageSetter
+}, y interface {
+	types.SourcePathGetter
+	types.SourceStorageGetter
+}) {
+	x.SetPath(y.GetSourcePath())
+	x.SetStorage(y.GetSourceStorage())
 }

@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
@@ -36,59 +37,40 @@ var LsCommand = &cobra.Command{
 	RunE: lsRun,
 }
 
-func lsParse(t *task.ListTask, _ []string) (err error) {
-	// Parse flags.
-	t.SetHumanReadable(lsInput.HumanReadable)
-	t.SetLongFormat(lsInput.LongFormat)
-	t.SetRecursive(lsInput.Recursive)
-	t.SetZone(lsInput.Zone)
-	return nil
-}
-
 func lsRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewListTask(func(t *task.ListTask) {
-		err = lsParse(t, args)
+	if len(args) == 0 {
+		rootTask := taskutils.NewAtServiceTask(10)
+		err = utils.ParseAtServiceInput(rootTask)
 		if err != nil {
-			t.TriggerFault(err)
 			return
 		}
 
-		// TODO: maybe we need ListBucketTask and ListObjectTask?
+		t := task.NewListStorage(rootTask)
+		t.SetZone(lsInput.Zone)
 
-		// if no args, handle cmd as list buckets, otherwise list objects.
-		if len(args) == 0 {
-			err = utils.ParseAtServiceInput(t)
-			if err != nil {
-				t.TriggerFault(err)
-				return
-			}
-			t.SetListType(constants.ListTypeBucket)
-		} else {
-			err = utils.ParseAtStorageInput(t, args[0])
-			if err != nil {
-				t.TriggerFault(err)
-				return
-			}
-			t.SetListType(constants.ListTypeKey)
-		}
-	})
-
-	t.Run()
-
-	// list bucket output here
-	if t.GetListType() == constants.ListTypeBucket {
-		t.Wait()
-		if t.ValidateFault() {
+		t.Run()
+		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
+
 		listBucketOutput(t)
 		return
 	}
 
+	rootTask := taskutils.NewAtStorageTask(10)
+	err = utils.ParseAtStorageInput(rootTask, args[0])
+	if err != nil {
+		return
+	}
+
+	t := task.NewListFile(rootTask)
+	t.SetRecursive(lsInput.Recursive)
+
+	go t.Run()
 	// list objects sync with channel, so do not need wait here
 	listObjectOutput(t)
 	// but we have to get fault after output, otherwise fault will not be triggered
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 	return
@@ -110,15 +92,15 @@ func initLsFlag() {
 }
 
 // listBucketOutput list buckets with normal slice
-func listBucketOutput(t *task.ListTask) {
+func listBucketOutput(t *task.ListStorageTask) {
 	for _, v := range t.GetBucketList() {
 		fmt.Println(v)
 	}
 }
 
 // listObjectOutput get object from channel asynchronously, and pack them into output format
-func listObjectOutput(t *task.ListTask) {
-	if !t.GetLongFormat() {
+func listObjectOutput(t *task.ListFileTask) {
+	if !lsInput.LongFormat {
 		for v := range t.GetObjectChannel() {
 			fmt.Println(v.Name)
 		}
@@ -140,7 +122,7 @@ func listObjectOutput(t *task.ListTask) {
 
 		// default print size by bytes
 		readableSize := strconv.FormatInt(size, 10)
-		if t.GetHumanReadable() {
+		if lsInput.HumanReadable {
 			// if human readable flag true, print size as human readable format
 			readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
 			if err != nil {

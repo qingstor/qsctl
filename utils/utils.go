@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -13,7 +12,7 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 	partSize = constants.DefaultPartSize
 
 	if size > constants.MaximumObjectSize {
-		return 0, fmt.Errorf("calculate part size failed: {%w}", fault.NewLocalFileTooLarge(nil, size))
+		return 0, fmt.Errorf("calculate part size failed: {%w}", types.NewErrLocalFileTooLarge(nil, size))
 	}
 
 	for size/partSize >= int64(constants.MaximumMultipartNumber) {
@@ -27,19 +26,4 @@ func CalculatePartSize(size int64) (partSize int64, err error) {
 		break
 	}
 	return
-}
-
-// SubmitNextTask will fetch next todo and submit to pool async.
-func SubmitNextTask(t types.Tasker) {
-	fn := t.NextTODO()
-	if fn == nil {
-		return
-	}
-
-	pool := t.GetPool()
-	if pool.Free() > 0 {
-		pool.Submit(fn(t))
-		return
-	}
-	go pool.Submit(fn(t))
 }

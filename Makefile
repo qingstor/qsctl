@@ -34,11 +34,7 @@ lint:
 
 generate:
 	@echo "generate code..."
-	@go generate pkg/types/types_gen.go
-	@go generate pkg/fault/faults_gen.go
-	@go generate task/tasks_gen.go
-	@mockgen -package mock -destination pkg/mock/storager.go github.com/Xuanwo/storage Storager,Servicer
-	@mockgen -package mock -destination pkg/mock/io.go io ReadCloser
+	@go generate ./...
 	@echo "Done"
 
 build: tidy generate check

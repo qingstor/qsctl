@@ -1,36 +1,67 @@
 package task
 
 import (
-	"github.com/Xuanwo/navvy"
+	"errors"
 
+	"github.com/Xuanwo/storage/pkg/iterator"
 	typ "github.com/Xuanwo/storage/types"
-
-	"github.com/yunify/qsctl/v2/constants"
+	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/task/common"
 )
 
-var listTaskConstructor = map[constants.ListType]types.TodoFunc{
-	constants.ListTypeBucket: common.NewBucketListTask,
-	constants.ListTypeKey:    common.NewObjectListTask,
-}
-
-// NewListTask will create a list task.
-func NewListTask(fn func(*ListTask)) *ListTask {
-	t := &ListTask{}
-
-	pool := navvy.NewPool(10)
-	t.SetPool(pool)
-
-	fn(t)
-
+func (t *ListFileTask) new() {
 	oc := make(chan *typ.Object)
 	t.SetObjectChannel(oc)
+}
 
-	todo := listTaskConstructor[t.GetListType()]
-	if todo == nil {
-		panic("invalid todo func")
+func (t *ListFileTask) run() {
+	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())
+
+	pairs := make([]*typ.Pair, 0)
+
+	// TODO: we need to check runtime value before use them.
+	if !t.GetRecursive() {
+		pairs = append(pairs, typ.WithDelimiter("/"))
 	}
-	t.AddTODOs(todo)
-	return t
+
+	it := t.GetStorage().ListDir(t.GetPath(), pairs...)
+
+	// Always close the object channel.
+	defer close(t.GetObjectChannel())
+
+	for {
+		o, err := it.Next()
+		if err != nil && errors.Is(err, iterator.ErrDone) {
+			break
+		}
+		if err != nil {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+		t.GetObjectChannel() <- o
+	}
+
+	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetPath())
+}
+
+func (t *ListStorageTask) new() {}
+func (t *ListStorageTask) run() {
+	resp, err := t.GetService().List(typ.WithLocation(t.GetZone()))
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+	buckets := make([]string, 0, len(resp))
+	for _, v := range resp {
+		b, err := v.Metadata()
+		if err != nil {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+		if name, ok := b.GetName(); ok {
+			buckets = append(buckets, name)
+		}
+	}
+	t.SetBucketList(buckets)
+	log.Debugf("Task <%s> in zone <%s> finished.", "BucketListTask", t.GetZone())
 }

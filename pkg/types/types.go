@@ -10,6 +10,8 @@ import (
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
 type BucketList struct {
@@ -42,39 +44,6 @@ type BucketListValidator interface {
 }
 
 func (o *BucketList) ValidateBucketList() bool {
-	return o.valid
-}
-
-type BucketName struct {
-	valid bool
-	v     string
-}
-
-type BucketNameGetter interface {
-	GetBucketName() string
-}
-
-func (o *BucketName) GetBucketName() string {
-	if !o.valid {
-		panic("BucketName value is not valid")
-	}
-	return o.v
-}
-
-type BucketNameSetter interface {
-	SetBucketName(string)
-}
-
-func (o *BucketName) SetBucketName(v string) {
-	o.v = v
-	o.valid = true
-}
-
-type BucketNameValidator interface {
-	ValidateBucketName() bool
-}
-
-func (o *BucketName) ValidateBucketName() bool {
 	return o.valid
 }
 
@@ -377,14 +346,14 @@ func (o *DestinationType) ValidateDestinationType() bool {
 
 type Done struct {
 	valid bool
-	v     *bool
+	v     bool
 }
 
 type DoneGetter interface {
-	GetDone() *bool
+	GetDone() bool
 }
 
-func (o *Done) GetDone() *bool {
+func (o *Done) GetDone() bool {
 	if !o.valid {
 		panic("Done value is not valid")
 	}
@@ -392,10 +361,10 @@ func (o *Done) GetDone() *bool {
 }
 
 type DoneSetter interface {
-	SetDone(*bool)
+	SetDone(bool)
 }
 
-func (o *Done) SetDone(v *bool) {
+func (o *Done) SetDone(v bool) {
 	o.v = v
 	o.valid = true
 }
@@ -509,14 +478,14 @@ func (o *Expire) ValidateExpire() bool {
 
 type Fault struct {
 	valid bool
-	v     error
+	v     *fault.Fault
 }
 
 type FaultGetter interface {
-	GetFault() error
+	GetFault() *fault.Fault
 }
 
-func (o *Fault) GetFault() error {
+func (o *Fault) GetFault() *fault.Fault {
 	if !o.valid {
 		panic("Fault value is not valid")
 	}
@@ -524,10 +493,10 @@ func (o *Fault) GetFault() error {
 }
 
 type FaultSetter interface {
-	SetFault(error)
+	SetFault(*fault.Fault)
 }
 
-func (o *Fault) SetFault(v error) {
+func (o *Fault) SetFault(v *fault.Fault) {
 	o.v = v
 	o.valid = true
 }
@@ -969,6 +938,39 @@ func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
 }
 
+type Path struct {
+	valid bool
+	v     string
+}
+
+type PathGetter interface {
+	GetPath() string
+}
+
+func (o *Path) GetPath() string {
+	if !o.valid {
+		panic("Path value is not valid")
+	}
+	return o.v
+}
+
+type PathSetter interface {
+	SetPath(string)
+}
+
+func (o *Path) SetPath(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type PathValidator interface {
+	ValidatePath() bool
+}
+
+func (o *Path) ValidatePath() bool {
+	return o.valid
+}
+
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1068,16 +1070,49 @@ func (o *Recursive) ValidateRecursive() bool {
 	return o.valid
 }
 
+type ScheduleFunc struct {
+	valid bool
+	v     schedule.TaskFunc
+}
+
+type ScheduleFuncGetter interface {
+	GetScheduleFunc() schedule.TaskFunc
+}
+
+func (o *ScheduleFunc) GetScheduleFunc() schedule.TaskFunc {
+	if !o.valid {
+		panic("ScheduleFunc value is not valid")
+	}
+	return o.v
+}
+
+type ScheduleFuncSetter interface {
+	SetScheduleFunc(schedule.TaskFunc)
+}
+
+func (o *ScheduleFunc) SetScheduleFunc(v schedule.TaskFunc) {
+	o.v = v
+	o.valid = true
+}
+
+type ScheduleFuncValidator interface {
+	ValidateScheduleFunc() bool
+}
+
+func (o *ScheduleFunc) ValidateScheduleFunc() bool {
+	return o.valid
+}
+
 type Scheduler struct {
 	valid bool
-	v     scheduler
+	v     schedule.Scheduler
 }
 
 type SchedulerGetter interface {
-	GetScheduler() scheduler
+	GetScheduler() schedule.Scheduler
 }
 
-func (o *Scheduler) GetScheduler() scheduler {
+func (o *Scheduler) GetScheduler() schedule.Scheduler {
 	if !o.valid {
 		panic("Scheduler value is not valid")
 	}
@@ -1085,10 +1120,10 @@ func (o *Scheduler) GetScheduler() scheduler {
 }
 
 type SchedulerSetter interface {
-	SetScheduler(scheduler)
+	SetScheduler(schedule.Scheduler)
 }
 
-func (o *Scheduler) SetScheduler(v scheduler) {
+func (o *Scheduler) SetScheduler(v schedule.Scheduler) {
 	o.v = v
 	o.valid = true
 }
@@ -1131,6 +1166,39 @@ type SegmentIDValidator interface {
 }
 
 func (o *SegmentID) ValidateSegmentID() bool {
+	return o.valid
+}
+
+type Service struct {
+	valid bool
+	v     storage.Servicer
+}
+
+type ServiceGetter interface {
+	GetService() storage.Servicer
+}
+
+func (o *Service) GetService() storage.Servicer {
+	if !o.valid {
+		panic("Service value is not valid")
+	}
+	return o.v
+}
+
+type ServiceSetter interface {
+	SetService(storage.Servicer)
+}
+
+func (o *Service) SetService(v storage.Servicer) {
+	o.v = v
+	o.valid = true
+}
+
+type ServiceValidator interface {
+	ValidateService() bool
+}
+
+func (o *Service) ValidateService() bool {
 	return o.valid
 }
 
@@ -1299,6 +1367,72 @@ func (o *SourceType) ValidateSourceType() bool {
 	return o.valid
 }
 
+type Storage struct {
+	valid bool
+	v     storage.Storager
+}
+
+type StorageGetter interface {
+	GetStorage() storage.Storager
+}
+
+func (o *Storage) GetStorage() storage.Storager {
+	if !o.valid {
+		panic("Storage value is not valid")
+	}
+	return o.v
+}
+
+type StorageSetter interface {
+	SetStorage(storage.Storager)
+}
+
+func (o *Storage) SetStorage(v storage.Storager) {
+	o.v = v
+	o.valid = true
+}
+
+type StorageValidator interface {
+	ValidateStorage() bool
+}
+
+func (o *Storage) ValidateStorage() bool {
+	return o.valid
+}
+
+type StorageName struct {
+	valid bool
+	v     string
+}
+
+type StorageNameGetter interface {
+	GetStorageName() string
+}
+
+func (o *StorageName) GetStorageName() string {
+	if !o.valid {
+		panic("StorageName value is not valid")
+	}
+	return o.v
+}
+
+type StorageNameSetter interface {
+	SetStorageName(string)
+}
+
+func (o *StorageName) SetStorageName(v string) {
+	o.v = v
+	o.valid = true
+}
+
+type StorageNameValidator interface {
+	ValidateStorageName() bool
+}
+
+func (o *StorageName) ValidateStorageName() bool {
+	return o.valid
+}
+
 type TotalSize struct {
 	valid bool
 	v     int64
@@ -1329,6 +1463,39 @@ type TotalSizeValidator interface {
 }
 
 func (o *TotalSize) ValidateTotalSize() bool {
+	return o.valid
+}
+
+type Type struct {
+	valid bool
+	v     types.ObjectType
+}
+
+type TypeGetter interface {
+	GetType() types.ObjectType
+}
+
+func (o *Type) GetType() types.ObjectType {
+	if !o.valid {
+		panic("Type value is not valid")
+	}
+	return o.v
+}
+
+type TypeSetter interface {
+	SetType(types.ObjectType)
+}
+
+func (o *Type) SetType(v types.ObjectType) {
+	o.v = v
+	o.valid = true
+}
+
+type TypeValidator interface {
+	ValidateType() bool
+}
+
+func (o *Type) ValidateType() bool {
 	return o.valid
 }
 

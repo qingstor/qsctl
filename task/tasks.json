@@ -1,63 +1,6 @@
 {
-  "AbortMultipart": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "abort all multipart uploads in a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationStorage"
-    ]
-  },
-  "BucketCreate": {
-    "type": "required",
-    "path": "common/bucket",
-    "description": "send put request to create a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationService",
-      "Zone"
-    ]
-  },
-  "BucketDelete": {
-    "type": "required",
-    "path": "common/bucket",
-    "description": "send delete request to delete a bucket",
-    "inherited_value": [
-      "BucketName",
-      "DestinationService"
-    ]
-  },
-  "BucketList": {
-    "type": "required",
-    "path": "common/bucket",
-    "description": "send get request to get bucket list",
-    "inherited_value": [
-      "DestinationService",
-      "Zone"
-    ],
-    "runtime_value": [
-      "BucketList"
-    ]
-  },
-  "Copy": {
-    "type": "dependent",
-    "path": "copy",
-    "description": "the root copy task",
-    "runtime_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Pool",
-      "SourcePath",
-      "SourceStorage",
-      "SourceType"
-    ]
-  },
   "CopyFile": {
-    "type": "dependent",
-    "path": "copy_file",
-    "depend": "Copy",
-    "description": "copy a file to DestinationStorage",
+    "description": "copy a file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -69,10 +12,7 @@
     ]
   },
   "CopyLargeFile": {
-    "type": "dependent",
-    "path": "copy_file",
-    "depend": "CopyFile",
-    "description": "copy a large file to DestinationStorage",
+    "description": "copy a large file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -81,62 +21,65 @@
       "TotalSize"
     ],
     "runtime_value": [
-      "CurrentOffset",
       "PartSize",
-      "Scheduler",
+      "ScheduleFunc",
       "SegmentID"
     ]
   },
   "CopyPartialFile": {
-    "type": "dependent",
-    "path": "copy_file",
-    "depend": "CopyLargeFile",
-    "description": "copy a partial file to DestinationStorage, is the sub task for CopyLargeFile",
+    "description": "copy a partial file to between two storager",
     "inherited_value": [
-      "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
+      "Offset",
       "PartSize",
-      "Scheduler",
       "SegmentID",
+      "Size",
       "SourcePath",
       "SourceStorage",
       "TotalSize"
     ],
+    "mutable_value": [
+      "Size",
+      "Done"
+    ],
     "runtime_value": [
-      "MD5Sum",
-      "Offset",
-      "Size"
+      "MD5Sum"
     ]
   },
   "CopyPartialStream": {
-    "type": "dependent",
-    "path": "copy_stream",
-    "depend": "CopyStream",
-    "description": "copy a partial stream to DestinationStorage",
+    "description": "copy a partial stream between two storager",
     "inherited_value": [
       "BytesPool",
-      "CurrentOffset",
       "DestinationPath",
       "DestinationStorage",
       "PartSize",
-      "Scheduler",
       "SegmentID",
       "SourcePath",
       "SourceStorage"
     ],
+    "mutable_value": [
+      "Size",
+      "Done"
+    ],
     "runtime_value": [
       "Content",
+      "MD5Sum"
+    ]
+  },
+  "CopySingleFile": {
+    "description": "execute a file copy operation between towo storager",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
       "MD5Sum",
-      "Offset",
-      "Size"
+      "Size",
+      "SourcePath",
+      "SourceStorage"
     ]
   },
   "CopySmallFile": {
-    "type": "dependent",
-    "path": "copy_file",
-    "depend": "CopyFile",
-    "description": "copy a small file to DestinationStorage",
+    "description": "copy a small file between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -151,10 +94,7 @@
     ]
   },
   "CopyStream": {
-    "type": "dependent",
-    "path": "copy_stream",
-    "depend": "Copy",
-    "description": "copy a stream to DestinationStorage",
+    "description": "copy a stream between two storager",
     "inherited_value": [
       "DestinationPath",
       "DestinationStorage",
@@ -165,22 +105,106 @@
       "BytesPool",
       "CurrentOffset",
       "PartSize",
-      "Scheduler",
+      "ScheduleFunc",
       "SegmentID",
       "TotalSize"
     ]
   },
-  "DoneScheduler": {
-    "type": "required",
-    "path": "common/scheduler",
-    "description": "done scheduler manually",
+  "CreateStorage": {
+    "description": "create a storage",
     "inherited_value": [
-      "Scheduler"
+      "Service"
+    ],
+    "runtime_value": [
+      "StorageName",
+      "Zone"
     ]
   },
-  "FileMD5Sum": {
-    "type": "required",
-    "path": "common/md5sum",
+  "DeleteDir": {
+    "description": "will delete a dir recursively",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "ObjectChannel",
+      "Recursive",
+      "ScheduleFunc"
+    ]
+  },
+  "DeleteFile": {
+    "description": "will delete a file from storage",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ]
+  },
+  "DeleteSegment": {
+    "description": ""
+  },
+  "DeleteStorage": {
+    "description": "delete a storage",
+    "inherited_value": [
+      "Service"
+    ],
+    "runtime_value": [
+      "StorageName"
+    ]
+  },
+  "DeleteStorageForce": {
+    "description": "remove a bucket force",
+    "inherited_value": [
+      "Service",
+      "StorageName"
+    ],
+    "runtime_value": [
+      "ObjectChannel"
+    ]
+  },
+  "FileShim": {
+    "description": "a shim for file operation",
+    "inherited_value": [
+      "Storage"
+    ],
+    "runtime_value": [
+      "Path"
+    ]
+  },
+  "IterateFile": {
+    "description": "iterate file and execute operations on it",
+    "inherited_value": [
+      "Path",
+      "Recursive",
+      "ScheduleFunc",
+      "Storage"
+    ],
+    "runtime_value": [
+      "ObjectChannel",
+      "Path"
+    ]
+  },
+  "ListFile": {
+    "description": "list files",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "ObjectChannel",
+      "Recursive"
+    ]
+  },
+  "ListStorage": {
+    "description": "send get request to get bucket list",
+    "inherited_value": [
+      "Service"
+    ],
+    "runtime_value": [
+      "BucketList",
+      "Zone"
+    ]
+  },
+  "MD5SumFile": {
     "description": "get file's md5 sum",
     "inherited_value": [
       "Offset",
@@ -188,280 +212,11 @@
       "SourcePath",
       "SourceStorage"
     ],
-    "runtime_value": [
+    "mutable_value": [
       "MD5Sum"
     ]
   },
-  "FileUpload": {
-    "type": "required",
-    "path": "common/file",
-    "description": "upload file as an object",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "MD5Sum",
-      "Size",
-      "SourcePath",
-      "SourceStorage"
-    ]
-  },
-  "List": {
-    "type": "dependent",
-    "path": "list",
-    "description": "the root list task",
-    "runtime_value": [
-      "BucketList",
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage",
-      "DestinationType",
-      "HumanReadable",
-      "ListType",
-      "LongFormat",
-      "ObjectChannel",
-      "Pool",
-      "Recursive",
-      "Zone"
-    ]
-  },
-  "MakeBucket": {
-    "type": "dependent",
-    "path": "make_bucket",
-    "description": "make new bucket with given key",
-    "runtime_value": [
-      "BucketName",
-      "DestinationService",
-      "Pool",
-      "Zone"
-    ]
-  },
-  "MultipartComplete": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via stream",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SegmentID"
-    ]
-  },
-  "MultipartFileUpload": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via file",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "MD5Sum",
-      "Offset",
-      "Scheduler",
-      "SegmentID",
-      "Size",
-      "SourcePath",
-      "SourceStorage"
-    ]
-  },
-  "MultipartInit": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "init a multipart upload",
-    "inherited_value": [
-      "CurrentOffset",
-      "DestinationPath",
-      "DestinationStorage",
-      "Scheduler",
-      "TotalSize"
-    ],
-    "runtime_value": [
-      "SegmentID"
-    ]
-  },
-  "MultipartStreamUpload": {
-    "type": "required",
-    "path": "common/multipart",
-    "description": "upload a multipart via stream",
-    "inherited_value": [
-      "Content",
-      "DestinationPath",
-      "DestinationStorage",
-      "MD5Sum",
-      "Offset",
-      "Scheduler",
-      "SegmentID",
-      "Size"
-    ]
-  },
-  "ObjectDelete": {
-    "type": "required",
-    "path": "common/object_delete",
-    "description": "will delete a remote object with specific key",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
-    ]
-  },
-  "ObjectDeleteIterate": {
-    "type": "required",
-    "path": "common/object_delete",
-    "description": "delete a dir with rm -r",
-    "inherited_value": [
-      "Done",
-      "Scheduler"
-    ]
-  },
-  "ObjectDeleteScheduled": {
-    "type": "dependent",
-    "path": "common/object_delete",
-    "depend": "RemoveDir",
-    "description": "will delete remote objects with object channel",
-    "inherited_value": [
-      "DestinationStorage",
-      "Done",
-      "ObjectChannel",
-      "Scheduler"
-    ],
-    "runtime_value": [
-      "DestinationPath"
-    ]
-  },
-  "ObjectList": {
-    "type": "required",
-    "path": "common/object_list",
-    "description": "list objects",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "ObjectListAsync": {
-    "type": "required",
-    "path": "common/object_list",
-    "description": "list objects",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "ObjectChannel",
-      "Recursive"
-    ]
-  },
-  "ObjectPresign": {
-    "type": "required",
-    "path": "common/object_presign",
-    "description": "will presign a remote object and return the signed url",
-    "inherited_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationStorage",
-      "Expire"
-    ],
-    "runtime_value": [
-      "URL"
-    ]
-  },
-  "ObjectStat": {
-    "type": "required",
-    "path": "common/object_stat",
-    "description": "stat a remote object by request headObject",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
-    ],
-    "runtime_value": [
-      "Object"
-    ]
-  },
-  "Presign": {
-    "type": "dependent",
-    "path": "presign",
-    "description": "will handle presign tasks",
-    "runtime_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Expire",
-      "Pool",
-      "URL"
-    ]
-  },
-  "RemoveBucket": {
-    "type": "dependent",
-    "path": "remove_bucket",
-    "description": "remove a bucket",
-    "runtime_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage",
-      "DestinationType",
-      "Force",
-      "Pool"
-    ]
-  },
-  "RemoveBucketForce": {
-    "type": "dependent",
-    "path": "common/bucket",
-    "depend": "RemoveBucket",
-    "description": "remove a bucket force",
-    "inherited_value": [
-      "BucketName",
-      "DestinationPath",
-      "DestinationService",
-      "DestinationStorage"
-    ],
-    "runtime_value": [
-      "Done",
-      "ObjectChannel",
-      "Recursive",
-      "Scheduler"
-    ]
-  },
-  "RemoveDir": {
-    "type": "dependent",
-    "path": "common/object_delete",
-    "depend": "RemoveObject",
-    "description": "will delete a dir recursively",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage"
-    ],
-    "runtime_value": [
-      "Done",
-      "ObjectChannel",
-      "Recursive",
-      "Scheduler"
-    ]
-  },
-  "RemoveObject": {
-    "type": "dependent",
-    "path": "remove_object",
-    "description": "will remove object",
-    "runtime_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Pool",
-      "Recursive"
-    ]
-  },
-  "Stat": {
-    "type": "dependent",
-    "path": "stat",
-    "description": "will stat a remote object",
-    "runtime_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "DestinationType",
-      "Object",
-      "Pool"
-    ]
-  },
-  "StreamMD5Sum": {
-    "type": "required",
-    "path": "common/md5sum",
+  "MD5SumStream": {
     "description": "get stream's md5 sum",
     "inherited_value": [
       "Content"
@@ -470,12 +225,94 @@
       "MD5Sum"
     ]
   },
-  "Wait": {
-    "type": "required",
-    "path": "common/wait",
-    "description": "wait until parent task finished",
+  "ReachFile": {
+    "description": "will reach a remote object and return the signed url",
     "inherited_value": [
-      "Scheduler"
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "Expire",
+      "URL"
+    ]
+  },
+  "SegmentAbortAll": {
+    "description": "abort all multipart uploads in a bucket",
+    "inherited_value": [
+      "Storage",
+      "StorageName"
+    ]
+  },
+  "SegmentComplete": {
+    "description": "complete a segment",
+    "inherited_value": [
+      "Path",
+      "SegmentID",
+      "Storage"
+    ]
+  },
+  "SegmentFileCopy": {
+    "description": "copy a segment file",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
+      "MD5Sum",
+      "Offset",
+      "SegmentID",
+      "Size",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
+  "SegmentInit": {
+    "description": "init a segment upload",
+    "inherited_value": [
+      "Path",
+      "ScheduleFunc",
+      "Storage",
+      "TotalSize"
+    ],
+    "mutable_value": [
+      "SegmentID"
+    ]
+  },
+  "SegmentShim": {
+    "description": "a shim for segment operation",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
+      "PartSize",
+      "SegmentID",
+      "SourcePath",
+      "SourceStorage",
+      "TotalSize"
+    ],
+    "runtime_value": [
+      "Done",
+      "Offset",
+      "Size"
+    ]
+  },
+  "SegmentStreamCopy": {
+    "description": "copy a segment stream",
+    "inherited_value": [
+      "Content",
+      "DestinationPath",
+      "DestinationStorage",
+      "MD5Sum",
+      "Offset",
+      "SegmentID",
+      "Size"
+    ]
+  },
+  "StatFile": {
+    "description": "stat a remote object by request headObject",
+    "inherited_value": [
+      "Path",
+      "Storage"
+    ],
+    "runtime_value": [
+      "Object"
     ]
   }
 }
