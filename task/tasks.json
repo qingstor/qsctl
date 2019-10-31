@@ -113,7 +113,9 @@
   "CreateStorage": {
     "description": "create a storage",
     "inherited_value": [
-      "Service",
+      "Service"
+    ],
+    "runtime_value": [
       "StorageName",
       "Zone"
     ]

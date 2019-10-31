@@ -883,8 +883,6 @@ type createStorageTaskRequirement interface {
 
 	// Inherited value
 	types.ServiceGetter
-	types.StorageNameGetter
-	types.ZoneGetter
 
 	// Mutable value
 }
@@ -897,8 +895,6 @@ type mockCreateStorageTask struct {
 
 	// Inherited and mutable values.
 	types.Service
-	types.StorageName
-	types.Zone
 }
 
 func (t *mockCreateStorageTask) Run() {
@@ -914,6 +910,8 @@ type CreateStorageTask struct {
 	types.Scheduler
 
 	// Runtime value
+	types.StorageName
+	types.Zone
 }
 
 // Run implement navvy.Task

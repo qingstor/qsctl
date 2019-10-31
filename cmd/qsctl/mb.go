@@ -1,11 +1,10 @@
-// +build ignore
-
 package main
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -36,41 +35,24 @@ bucket name should follow DNS name rule with:
 	PreRunE: validateMbFlag,
 }
 
-func mbParse(t *task.MakeBucketTask, _ []string) (err error) {
-	// Parse flags.
-	t.SetZone(mbInput.Zone)
-	return nil
-}
-
 func mbRun(_ *cobra.Command, args []string) (err error) {
-	t := task.NewMakeBucketTask(func(t *task.MakeBucketTask) {
-		if err = mbParse(t, args); err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	rootTask := taskutils.NewAtServiceTask(10)
+	err = utils.ParseAtServiceInput(rootTask)
+	if err != nil {
+		return
+	}
 
-		err = utils.ParseAtServiceInput(t)
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
+	_, bucketName, _, err := utils.ParseQsPath(args[0])
+	if err != nil {
+		return
+	}
 
-		_, bucketName, _, err := utils.ParseQsPath(args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-		// if keyType != constants.KeyTypeBucket {
-		// 	t.TriggerFault(fmt.Errorf("key type is not match"))
-		// 	return
-		// }
-		t.SetBucketName(bucketName)
-	})
+	t := task.NewCreateStorage(rootTask)
+	t.SetStorageName(bucketName)
+	t.SetZone(mbInput.Zone)
 
 	t.Run()
-	t.Wait()
-
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
@@ -78,8 +60,8 @@ func mbRun(_ *cobra.Command, args []string) (err error) {
 	return
 }
 
-func mbOutput(t *task.MakeBucketTask) {
-	fmt.Printf("Bucket <%s> created.\n", t.GetBucketName())
+func mbOutput(t *task.CreateStorageTask) {
+	fmt.Printf("Bucket <%s> created.\n", t.GetStorageName())
 }
 
 func initMbFlag() {
