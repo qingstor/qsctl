@@ -68,7 +68,7 @@ func (t *CopyFileTask) Run() {
 }
 
 func (t *CopyFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopyFile failed: {%w}", err))
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
@@ -184,7 +184,7 @@ func (t *CopyLargeFileTask) Run() {
 }
 
 func (t *CopyLargeFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
 }
 
 // NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
@@ -314,7 +314,7 @@ func (t *CopyPartialFileTask) Run() {
 }
 
 func (t *CopyPartialFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
 }
 
 // NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
@@ -444,7 +444,7 @@ func (t *CopyPartialStreamTask) Run() {
 }
 
 func (t *CopyPartialStreamTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
 }
 
 // NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
@@ -567,7 +567,7 @@ func (t *CopySmallFileTask) Run() {
 }
 
 func (t *CopySmallFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
 }
 
 // NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
@@ -689,7 +689,7 @@ func (t *CopyStreamTask) Run() {
 }
 
 func (t *CopyStreamTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CopyStream failed: {%w}", err))
 }
 
 // NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
@@ -808,7 +808,7 @@ func (t *CreateStorageTask) Run() {
 }
 
 func (t *CreateStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task CreateStorage failed: {%w}", err))
 }
 
 // NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
@@ -879,7 +879,7 @@ func (t *DeleteDirTask) Run() {
 }
 
 func (t *DeleteDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task DeleteDir failed: {%w}", err))
 }
 
 // NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
@@ -947,7 +947,7 @@ func (t *DeleteFileTask) Run() {
 }
 
 func (t *DeleteFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task DeleteFile failed: {%w}", err))
 }
 
 // NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
@@ -1015,7 +1015,7 @@ func (t *DeleteStorageTask) Run() {
 }
 
 func (t *DeleteStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task DeleteStorage failed: {%w}", err))
 }
 
 // NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
@@ -1084,7 +1084,7 @@ func (t *DeleteStorageForceTask) Run() {
 }
 
 func (t *DeleteStorageForceTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task DeleteStorageForce failed: {%w}", err))
 }
 
 // NewDeleteStorageForce will create a DeleteStorageForceTask struct and fetch inherited data from parent task.
@@ -1160,7 +1160,7 @@ func (t *FileCopyTask) Run() {
 }
 
 func (t *FileCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task FileCopy failed: {%w}", err))
 }
 
 // NewFileCopy will create a FileCopyTask struct and fetch inherited data from parent task.
@@ -1273,7 +1273,7 @@ func (t *FileMD5SumTask) Run() {
 }
 
 func (t *FileMD5SumTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
 }
 
 // NewFileMD5Sum will create a FileMD5SumTask struct and fetch inherited data from parent task.
@@ -1380,7 +1380,7 @@ func (t *IterateFileTask) Run() {
 }
 
 func (t *IterateFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task IterateFile failed: {%w}", err))
 }
 
 // NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
@@ -1521,7 +1521,7 @@ func (t *ListStorageTask) Run() {
 }
 
 func (t *ListStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ListStorage failed: {%w}", err))
 }
 
 // NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
@@ -1592,7 +1592,7 @@ func (t *ReachFileTask) Run() {
 }
 
 func (t *ReachFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task ReachFile failed: {%w}", err))
 }
 
 // NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
@@ -1660,7 +1660,7 @@ func (t *SegmentAbortAllTask) Run() {
 }
 
 func (t *SegmentAbortAllTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task SegmentAbortAll failed: {%w}", err))
 }
 
 // NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
@@ -1730,7 +1730,7 @@ func (t *SegmentCompleteTask) Run() {
 }
 
 func (t *SegmentCompleteTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task SegmentComplete failed: {%w}", err))
 }
 
 // NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
@@ -1810,7 +1810,7 @@ func (t *SegmentFileCopyTask) Run() {
 }
 
 func (t *SegmentFileCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task SegmentFileCopy failed: {%w}", err))
 }
 
 // NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
@@ -1925,7 +1925,7 @@ func (t *SegmentInitTask) Run() {
 }
 
 func (t *SegmentInitTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task SegmentInit failed: {%w}", err))
 }
 
 // NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
@@ -2044,7 +2044,7 @@ func (t *SegmentStreamCopyTask) Run() {
 }
 
 func (t *SegmentStreamCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task SegmentStreamCopy failed: {%w}", err))
 }
 
 // NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
@@ -2113,7 +2113,7 @@ func (t *StatFileTask) Run() {
 }
 
 func (t *StatFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task StatFile failed: {%w}", err))
 }
 
 // NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
@@ -2180,7 +2180,7 @@ func (t *StreamMD5SumTask) Run() {
 }
 
 func (t *StreamMD5SumTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
 }
 
 // NewStreamMD5Sum will create a StreamMD5SumTask struct and fetch inherited data from parent task.

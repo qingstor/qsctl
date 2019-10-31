@@ -275,7 +275,7 @@ func (t *{{ .Name }}Task) Run() {
 }
 
 func (t *{{ .Name }}Task) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
 }
 
 // New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
