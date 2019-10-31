@@ -510,6 +510,121 @@ func newCopyPartialStreamShim(task navvy.Task) *copyPartialStreamShimTask {
 	return t
 }
 
+// copySingleFileTaskRequirement is the requirement for execute CopySingleFileTask.
+type copySingleFileTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+	types.MD5SumGetter
+	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
+
+	// Mutable value
+}
+
+// mockCopySingleFileTask is the mock task for CopySingleFileTask.
+type mockCopySingleFileTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited and mutable values.
+	types.DestinationPath
+	types.DestinationStorage
+	types.MD5Sum
+	types.Size
+	types.SourcePath
+	types.SourceStorage
+}
+
+func (t *mockCopySingleFileTask) Run() {
+	panic("mockCopySingleFileTask should not be run.")
+}
+
+// CopySingleFileTask will execute a file copy operation between towo storager.
+type CopySingleFileTask struct {
+	copySingleFileTaskRequirement
+
+	// Predefined runtime value
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *CopySingleFileTask) Run() {
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *CopySingleFileTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task CopySingleFile failed: {%w}", err))
+}
+
+// NewCopySingleFile will create a CopySingleFileTask struct and fetch inherited data from parent task.
+func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
+	t := &CopySingleFileTask{
+		copySingleFileTaskRequirement: task.(copySingleFileTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewCopySingleFileTask will create a CopySingleFileTask and fetch inherited data from parent task.
+func NewCopySingleFileTask(task navvy.Task) navvy.Task {
+	return NewCopySingleFile(task)
+}
+
+// copySingleFileShimTaskRequirement is the requirement for execute CopySingleFileShimTask.
+type copySingleFileShimTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+	types.MD5SumGetter
+	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
+
+	// Mutable value
+}
+
+// copySingleFileShimTask will Storage shim task for .
+type copySingleFileShimTask struct {
+	copySingleFileShimTaskRequirement
+
+	// Runtime value
+	types.Storage
+	types.Path
+}
+
+// Run implement navvy.Task
+func (t *copySingleFileShimTask) Run() {}
+
+// newCopySingleFileShim will create a copySingleFileShimTask struct and fetch inherited data from parent task.
+func newCopySingleFileShim(task navvy.Task) *copySingleFileShimTask {
+	t := &copySingleFileShimTask{
+		copySingleFileShimTaskRequirement: task.(copySingleFileShimTaskRequirement),
+	}
+	return t
+}
+
 // copySmallFileTaskRequirement is the requirement for execute CopySmallFileTask.
 type copySmallFileTaskRequirement interface {
 	navvy.Task
@@ -967,6 +1082,70 @@ func NewDeleteFileTask(task navvy.Task) navvy.Task {
 	return NewDeleteFile(task)
 }
 
+// deleteSegmentTaskRequirement is the requirement for execute DeleteSegmentTask.
+type deleteSegmentTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+
+	// Mutable value
+}
+
+// mockDeleteSegmentTask is the mock task for DeleteSegmentTask.
+type mockDeleteSegmentTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited and mutable values.
+}
+
+func (t *mockDeleteSegmentTask) Run() {
+	panic("mockDeleteSegmentTask should not be run.")
+}
+
+// DeleteSegmentTask will .
+type DeleteSegmentTask struct {
+	deleteSegmentTaskRequirement
+
+	// Predefined runtime value
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *DeleteSegmentTask) Run() {
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *DeleteSegmentTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task DeleteSegment failed: {%w}", err))
+}
+
+// NewDeleteSegment will create a DeleteSegmentTask struct and fetch inherited data from parent task.
+func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
+	t := &DeleteSegmentTask{
+		deleteSegmentTaskRequirement: task.(deleteSegmentTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewDeleteSegmentTask will create a DeleteSegmentTask and fetch inherited data from parent task.
+func NewDeleteSegmentTask(task navvy.Task) navvy.Task {
+	return NewDeleteSegment(task)
+}
+
 // deleteStorageTaskRequirement is the requirement for execute DeleteStorageTask.
 type deleteStorageTaskRequirement interface {
 	navvy.Task
@@ -1102,195 +1281,6 @@ func NewDeleteStorageForce(task navvy.Task) *DeleteStorageForceTask {
 // NewDeleteStorageForceTask will create a DeleteStorageForceTask and fetch inherited data from parent task.
 func NewDeleteStorageForceTask(task navvy.Task) navvy.Task {
 	return NewDeleteStorageForce(task)
-}
-
-// fileCopyTaskRequirement is the requirement for execute FileCopyTask.
-type fileCopyTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// mockFileCopyTask is the mock task for FileCopyTask.
-type mockFileCopyTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.DestinationPath
-	types.DestinationStorage
-	types.MD5Sum
-	types.Size
-	types.SourcePath
-	types.SourceStorage
-}
-
-func (t *mockFileCopyTask) Run() {
-	panic("mockFileCopyTask should not be run.")
-}
-
-// FileCopyTask will execute a file copy operation between towo storager.
-type FileCopyTask struct {
-	fileCopyTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *FileCopyTask) Run() {
-	t.run()
-	t.GetScheduler().Wait()
-}
-
-func (t *FileCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task FileCopy failed: {%w}", err))
-}
-
-// NewFileCopy will create a FileCopyTask struct and fetch inherited data from parent task.
-func NewFileCopy(task navvy.Task) *FileCopyTask {
-	t := &FileCopyTask{
-		fileCopyTaskRequirement: task.(fileCopyTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// NewFileCopyTask will create a FileCopyTask and fetch inherited data from parent task.
-func NewFileCopyTask(task navvy.Task) navvy.Task {
-	return NewFileCopy(task)
-}
-
-// fileCopyShimTaskRequirement is the requirement for execute FileCopyShimTask.
-type fileCopyShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// fileCopyShimTask will Storage shim task for .
-type fileCopyShimTask struct {
-	fileCopyShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *fileCopyShimTask) Run() {}
-
-// newFileCopyShim will create a fileCopyShimTask struct and fetch inherited data from parent task.
-func newFileCopyShim(task navvy.Task) *fileCopyShimTask {
-	t := &fileCopyShimTask{
-		fileCopyShimTaskRequirement: task.(fileCopyShimTaskRequirement),
-	}
-	return t
-}
-
-// fileMD5SumTaskRequirement is the requirement for execute FileMD5SumTask.
-type fileMD5SumTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.OffsetGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-	types.MD5SumSetter
-}
-
-// mockFileMD5SumTask is the mock task for FileMD5SumTask.
-type mockFileMD5SumTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.MD5Sum
-	types.Offset
-	types.Size
-	types.SourcePath
-	types.SourceStorage
-}
-
-func (t *mockFileMD5SumTask) Run() {
-	panic("mockFileMD5SumTask should not be run.")
-}
-
-// FileMD5SumTask will get file's md5 sum.
-type FileMD5SumTask struct {
-	fileMD5SumTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-}
-
-// Run implement navvy.Task
-func (t *FileMD5SumTask) Run() {
-	t.run()
-	t.GetScheduler().Wait()
-}
-
-func (t *FileMD5SumTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task FileMD5Sum failed: {%w}", err))
-}
-
-// NewFileMD5Sum will create a FileMD5SumTask struct and fetch inherited data from parent task.
-func NewFileMD5Sum(task navvy.Task) *FileMD5SumTask {
-	t := &FileMD5SumTask{
-		fileMD5SumTaskRequirement: task.(fileMD5SumTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// NewFileMD5SumTask will create a FileMD5SumTask and fetch inherited data from parent task.
-func NewFileMD5SumTask(task navvy.Task) navvy.Task {
-	return NewFileMD5Sum(task)
 }
 
 // fileShimTaskRequirement is the requirement for execute FileShimTask.
@@ -1539,6 +1529,147 @@ func NewListStorage(task navvy.Task) *ListStorageTask {
 // NewListStorageTask will create a ListStorageTask and fetch inherited data from parent task.
 func NewListStorageTask(task navvy.Task) navvy.Task {
 	return NewListStorage(task)
+}
+
+// mD5SumFileTaskRequirement is the requirement for execute MD5SumFileTask.
+type mD5SumFileTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+	types.OffsetGetter
+	types.SizeGetter
+	types.SourcePathGetter
+	types.SourceStorageGetter
+
+	// Mutable value
+	types.MD5SumSetter
+}
+
+// mockMD5SumFileTask is the mock task for MD5SumFileTask.
+type mockMD5SumFileTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited and mutable values.
+	types.MD5Sum
+	types.Offset
+	types.Size
+	types.SourcePath
+	types.SourceStorage
+}
+
+func (t *mockMD5SumFileTask) Run() {
+	panic("mockMD5SumFileTask should not be run.")
+}
+
+// MD5SumFileTask will get file's md5 sum.
+type MD5SumFileTask struct {
+	mD5SumFileTaskRequirement
+
+	// Predefined runtime value
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+}
+
+// Run implement navvy.Task
+func (t *MD5SumFileTask) Run() {
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *MD5SumFileTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task MD5SumFile failed: {%w}", err))
+}
+
+// NewMD5SumFile will create a MD5SumFileTask struct and fetch inherited data from parent task.
+func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
+	t := &MD5SumFileTask{
+		mD5SumFileTaskRequirement: task.(mD5SumFileTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewMD5SumFileTask will create a MD5SumFileTask and fetch inherited data from parent task.
+func NewMD5SumFileTask(task navvy.Task) navvy.Task {
+	return NewMD5SumFile(task)
+}
+
+// mD5SumStreamTaskRequirement is the requirement for execute MD5SumStreamTask.
+type mD5SumStreamTaskRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	types.PoolGetter
+	types.FaultGetter
+
+	// Inherited value
+	types.ContentGetter
+
+	// Mutable value
+}
+
+// mockMD5SumStreamTask is the mock task for MD5SumStreamTask.
+type mockMD5SumStreamTask struct {
+	types.Pool
+	types.Fault
+	types.ID
+
+	// Inherited and mutable values.
+	types.Content
+}
+
+func (t *mockMD5SumStreamTask) Run() {
+	panic("mockMD5SumStreamTask should not be run.")
+}
+
+// MD5SumStreamTask will get stream's md5 sum.
+type MD5SumStreamTask struct {
+	mD5SumStreamTaskRequirement
+
+	// Predefined runtime value
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+	types.MD5Sum
+}
+
+// Run implement navvy.Task
+func (t *MD5SumStreamTask) Run() {
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *MD5SumStreamTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task MD5SumStream failed: {%w}", err))
+}
+
+// NewMD5SumStream will create a MD5SumStreamTask struct and fetch inherited data from parent task.
+func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
+	t := &MD5SumStreamTask{
+		mD5SumStreamTaskRequirement: task.(mD5SumStreamTaskRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewMD5SumStreamTask will create a MD5SumStreamTask and fetch inherited data from parent task.
+func NewMD5SumStreamTask(task navvy.Task) navvy.Task {
+	return NewMD5SumStream(task)
 }
 
 // reachFileTaskRequirement is the requirement for execute ReachFileTask.
@@ -2131,71 +2262,4 @@ func NewStatFile(task navvy.Task) *StatFileTask {
 // NewStatFileTask will create a StatFileTask and fetch inherited data from parent task.
 func NewStatFileTask(task navvy.Task) navvy.Task {
 	return NewStatFile(task)
-}
-
-// streamMD5SumTaskRequirement is the requirement for execute StreamMD5SumTask.
-type streamMD5SumTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ContentGetter
-
-	// Mutable value
-}
-
-// mockStreamMD5SumTask is the mock task for StreamMD5SumTask.
-type mockStreamMD5SumTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Content
-}
-
-func (t *mockStreamMD5SumTask) Run() {
-	panic("mockStreamMD5SumTask should not be run.")
-}
-
-// StreamMD5SumTask will get stream's md5 sum.
-type StreamMD5SumTask struct {
-	streamMD5SumTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.MD5Sum
-}
-
-// Run implement navvy.Task
-func (t *StreamMD5SumTask) Run() {
-	t.run()
-	t.GetScheduler().Wait()
-}
-
-func (t *StreamMD5SumTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task StreamMD5Sum failed: {%w}", err))
-}
-
-// NewStreamMD5Sum will create a StreamMD5SumTask struct and fetch inherited data from parent task.
-func NewStreamMD5Sum(task navvy.Task) *StreamMD5SumTask {
-	t := &StreamMD5SumTask{
-		streamMD5SumTaskRequirement: task.(streamMD5SumTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// NewStreamMD5SumTask will create a StreamMD5SumTask and fetch inherited data from parent task.
-func NewStreamMD5SumTask(task navvy.Task) navvy.Task {
-	return NewStreamMD5Sum(task)
 }

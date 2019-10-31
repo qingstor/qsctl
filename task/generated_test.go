@@ -79,6 +79,22 @@ func TestMockCopyPartialStreamTask_Run(t *testing.T) {
 	})
 }
 
+func TestCopySingleFileTask_TriggerFault(t *testing.T) {
+	m := &mockCopySingleFileTask{}
+	m.SetFault(fault.New())
+	task := &CopySingleFileTask{copySingleFileTaskRequirement: m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMockCopySingleFileTask_Run(t *testing.T) {
+	task := &mockCopySingleFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestCopySmallFileTask_TriggerFault(t *testing.T) {
 	m := &mockCopySmallFileTask{}
 	m.SetFault(fault.New())
@@ -159,6 +175,22 @@ func TestMockDeleteFileTask_Run(t *testing.T) {
 	})
 }
 
+func TestDeleteSegmentTask_TriggerFault(t *testing.T) {
+	m := &mockDeleteSegmentTask{}
+	m.SetFault(fault.New())
+	task := &DeleteSegmentTask{deleteSegmentTaskRequirement: m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMockDeleteSegmentTask_Run(t *testing.T) {
+	task := &mockDeleteSegmentTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestDeleteStorageTask_TriggerFault(t *testing.T) {
 	m := &mockDeleteStorageTask{}
 	m.SetFault(fault.New())
@@ -186,38 +218,6 @@ func TestDeleteStorageForceTask_TriggerFault(t *testing.T) {
 
 func TestMockDeleteStorageForceTask_Run(t *testing.T) {
 	task := &mockDeleteStorageForceTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestFileCopyTask_TriggerFault(t *testing.T) {
-	m := &mockFileCopyTask{}
-	m.SetFault(fault.New())
-	task := &FileCopyTask{fileCopyTaskRequirement: m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestMockFileCopyTask_Run(t *testing.T) {
-	task := &mockFileCopyTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestFileMD5SumTask_TriggerFault(t *testing.T) {
-	m := &mockFileMD5SumTask{}
-	m.SetFault(fault.New())
-	task := &FileMD5SumTask{fileMD5SumTaskRequirement: m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestMockFileMD5SumTask_Run(t *testing.T) {
-	task := &mockFileMD5SumTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
@@ -266,6 +266,38 @@ func TestListStorageTask_TriggerFault(t *testing.T) {
 
 func TestMockListStorageTask_Run(t *testing.T) {
 	task := &mockListStorageTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
+func TestMD5SumFileTask_TriggerFault(t *testing.T) {
+	m := &mockMD5SumFileTask{}
+	m.SetFault(fault.New())
+	task := &MD5SumFileTask{mD5SumFileTaskRequirement: m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMockMD5SumFileTask_Run(t *testing.T) {
+	task := &mockMD5SumFileTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
+func TestMD5SumStreamTask_TriggerFault(t *testing.T) {
+	m := &mockMD5SumStreamTask{}
+	m.SetFault(fault.New())
+	task := &MD5SumStreamTask{mD5SumStreamTaskRequirement: m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMockMD5SumStreamTask_Run(t *testing.T) {
+	task := &mockMD5SumStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
@@ -378,22 +410,6 @@ func TestStatFileTask_TriggerFault(t *testing.T) {
 
 func TestMockStatFileTask_Run(t *testing.T) {
 	task := &mockStatFileTask{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
-}
-
-func TestStreamMD5SumTask_TriggerFault(t *testing.T) {
-	m := &mockStreamMD5SumTask{}
-	m.SetFault(fault.New())
-	task := &StreamMD5SumTask{streamMD5SumTaskRequirement: m}
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestMockStreamMD5SumTask_Run(t *testing.T) {
-	task := &mockStreamMD5SumTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})

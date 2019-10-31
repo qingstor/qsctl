@@ -67,6 +67,17 @@
       "MD5Sum"
     ]
   },
+  "CopySingleFile": {
+    "description": "execute a file copy operation between towo storager",
+    "inherited_value": [
+      "DestinationPath",
+      "DestinationStorage",
+      "MD5Sum",
+      "Size",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
   "CopySmallFile": {
     "description": "copy a small file between two storager",
     "inherited_value": [
@@ -126,6 +137,9 @@
       "Storage"
     ]
   },
+  "DeleteSegment": {
+    "description": ""
+  },
   "DeleteStorage": {
     "description": "delete a storage",
     "inherited_value": [
@@ -141,29 +155,6 @@
     ],
     "runtime_value": [
       "ObjectChannel"
-    ]
-  },
-  "FileCopy": {
-    "description": "execute a file copy operation between towo storager",
-    "inherited_value": [
-      "DestinationPath",
-      "DestinationStorage",
-      "MD5Sum",
-      "Size",
-      "SourcePath",
-      "SourceStorage"
-    ]
-  },
-  "FileMD5Sum": {
-    "description": "get file's md5 sum",
-    "inherited_value": [
-      "Offset",
-      "Size",
-      "SourcePath",
-      "SourceStorage"
-    ],
-    "mutable_value": [
-      "MD5Sum"
     ]
   },
   "FileShim": {
@@ -205,6 +196,27 @@
     ],
     "runtime_value": [
       "BucketList"
+    ]
+  },
+  "MD5SumFile": {
+    "description": "get file's md5 sum",
+    "inherited_value": [
+      "Offset",
+      "Size",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "mutable_value": [
+      "MD5Sum"
+    ]
+  },
+  "MD5SumStream": {
+    "description": "get stream's md5 sum",
+    "inherited_value": [
+      "Content"
+    ],
+    "runtime_value": [
+      "MD5Sum"
     ]
   },
   "ReachFile": {
@@ -295,15 +307,6 @@
     ],
     "runtime_value": [
       "Object"
-    ]
-  },
-  "StreamMD5Sum": {
-    "description": "get stream's md5 sum",
-    "inherited_value": [
-      "Content"
-    ],
-    "runtime_value": [
-      "MD5Sum"
     ]
   }
 }

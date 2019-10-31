@@ -59,10 +59,7 @@ func (t *DeleteStorageTask) run() {
 		"DeleteStorage", t.GetStorageName())
 }
 
-func (t *DeleteStorageForceTask) new() {
-
-}
-
+func (t *DeleteStorageForceTask) new() {}
 func (t *DeleteStorageForceTask) run() {
 	log.Debugf("Task <%s> for storage <%s> started",
 		"DeleteStorageForce", t.GetStorageName())
@@ -73,3 +70,6 @@ func (t *DeleteStorageForceTask) run() {
 	log.Debugf("Task <%s> for storage <%s> finished",
 		"DeleteStorageForce", t.GetStorageName())
 }
+
+func (t *DeleteSegmentTask) new() {}
+func (t *DeleteSegmentTask) run() {}

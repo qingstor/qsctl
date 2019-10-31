@@ -42,8 +42,8 @@ func (t *CopySmallFileTask) new() {
 }
 
 func (t *CopySmallFileTask) run() {
-	t.GetScheduler().Sync(t, NewFileMD5SumTask)
-	t.GetScheduler().Sync(t, NewFileCopyTask)
+	t.GetScheduler().Sync(t, NewMD5SumFileTask)
+	t.GetScheduler().Sync(t, NewCopySingleFileTask)
 }
 
 // newCopyLargeFileTask will create a new Task.
@@ -86,7 +86,7 @@ func (t *CopyPartialFileTask) new() {
 }
 
 func (t *CopyPartialFileTask) run() {
-	t.GetScheduler().Sync(t, NewFileMD5SumTask)
+	t.GetScheduler().Sync(t, NewMD5SumFileTask)
 	t.GetScheduler().Sync(t, NewSegmentFileCopyTask)
 }
 
@@ -147,6 +147,27 @@ func (t *CopyPartialStreamTask) new() {
 }
 
 func (t *CopyPartialStreamTask) run() {
-	t.GetScheduler().Sync(t, NewStreamMD5SumTask)
+	t.GetScheduler().Sync(t, NewMD5SumStreamTask)
 	t.GetScheduler().Sync(t, NewSegmentStreamCopyTask)
+}
+
+func (t *CopySingleFileTask) new() {}
+func (t *CopySingleFileTask) run() {
+	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileCopy", t.GetSourcePath(), t.GetDestinationPath())
+
+	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+	defer r.Close()
+
+	// TODO: add checksum support
+	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, typ.WithSize(t.GetSize()))
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+
+	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileUpload", t.GetSourcePath(), t.GetDestinationPath())
 }

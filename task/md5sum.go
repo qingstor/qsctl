@@ -9,9 +9,9 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *FileMD5SumTask) new() {}
+func (t *MD5SumFileTask) new() {}
 
-func (t *FileMD5SumTask) run() {
+func (t *MD5SumFileTask) run() {
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
@@ -31,9 +31,9 @@ func (t *FileMD5SumTask) run() {
 	t.SetMD5Sum(h.Sum(nil)[:])
 	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
 }
-func (t *StreamMD5SumTask) new() {}
+func (t *MD5SumStreamTask) new() {}
 
-func (t *StreamMD5SumTask) run() {
+func (t *MD5SumStreamTask) run() {
 	log.Debugf("Task <%s> for Stream started.", "StreamMD5SumTask")
 
 	md5Sum := md5.Sum(t.GetContent().Bytes())

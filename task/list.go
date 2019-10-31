@@ -9,9 +9,7 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *ListFileTask) new() {
-
-}
+func (t *ListFileTask) new() {}
 
 func (t *ListFileTask) run() {
 	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())
@@ -42,18 +40,24 @@ func (t *ListFileTask) run() {
 	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetPath())
 }
 
-func (t *IterateFileTask) new() {
-	oc := make(chan *typ.Object)
-	t.SetObjectChannel(oc)
-}
-
-func (t *IterateFileTask) run() {
-	t.GetScheduler().Async(t, NewListFileTask)
-
-	for o := range t.GetObjectChannel() {
-		x := newFileShim(t)
-		x.SetPath(o.Name)
-
-		t.GetScheduler().Async(x, t.GetScheduleFunc())
+func (t *ListStorageTask) new() {}
+func (t *ListStorageTask) run() {
+	resp, err := t.GetService().List(typ.WithLocation(t.GetZone()))
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
 	}
+	buckets := make([]string, 0, len(resp))
+	for _, v := range resp {
+		b, err := v.Metadata()
+		if err != nil {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+		if name, ok := b.GetName(); ok {
+			buckets = append(buckets, name)
+		}
+	}
+	t.SetBucketList(buckets)
+	log.Debugf("Task <%s> in zone <%s> finished.", "BucketListTask", t.GetZone())
 }
