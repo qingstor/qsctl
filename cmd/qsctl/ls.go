@@ -46,6 +46,7 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		}
 
 		t := task.NewListStorage(rootTask)
+		t.SetZone(lsInput.Zone)
 
 		t.Run()
 		if t.GetFault().HasError() {
@@ -62,10 +63,8 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	shim := task.NewListFileRecursiveShim(rootTask)
-	shim.SetRecursive(lsInput.Recursive)
-
-	t := task.NewListFile(shim)
+	t := task.NewListFile(rootTask)
+	t.SetRecursive(lsInput.Recursive)
 
 	go t.Run()
 	// list objects sync with channel, so do not need wait here

@@ -19,6 +19,7 @@ func (t *ListFileTask) run() {
 
 	pairs := make([]*typ.Pair, 0)
 
+	// TODO: we need to check runtime value before use them.
 	if !t.GetRecursive() {
 		pairs = append(pairs, typ.WithDelimiter("/"))
 	}

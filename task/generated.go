@@ -1400,7 +1400,6 @@ type listFileTaskRequirement interface {
 
 	// Inherited value
 	types.PathGetter
-	types.RecursiveGetter
 	types.StorageGetter
 
 	// Mutable value
@@ -1414,7 +1413,6 @@ type mockListFileTask struct {
 
 	// Inherited and mutable values.
 	types.Path
-	types.Recursive
 	types.Storage
 }
 
@@ -1432,6 +1430,7 @@ type ListFileTask struct {
 
 	// Runtime value
 	types.ObjectChannel
+	types.Recursive
 }
 
 // Run implement navvy.Task
@@ -1461,40 +1460,6 @@ func NewListFileTask(task navvy.Task) navvy.Task {
 	return NewListFile(task)
 }
 
-// listFileRecursiveShimTaskRequirement is the requirement for execute ListFileRecursiveShimTask.
-type listFileRecursiveShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// listFileRecursiveShimTask will list file shim.
-type listFileRecursiveShimTask struct {
-	listFileRecursiveShimTaskRequirement
-
-	// Runtime value
-	types.Recursive
-}
-
-// Run implement navvy.Task
-func (t *listFileRecursiveShimTask) Run() {}
-
-// NewListFileRecursiveShim will create a listFileRecursiveShimTask struct and fetch inherited data from parent task.
-func NewListFileRecursiveShim(task navvy.Task) *listFileRecursiveShimTask {
-	t := &listFileRecursiveShimTask{
-		listFileRecursiveShimTaskRequirement: task.(listFileRecursiveShimTaskRequirement),
-	}
-	return t
-}
-
 // listStorageTaskRequirement is the requirement for execute ListStorageTask.
 type listStorageTaskRequirement interface {
 	navvy.Task
@@ -1505,7 +1470,6 @@ type listStorageTaskRequirement interface {
 
 	// Inherited value
 	types.ServiceGetter
-	types.ZoneGetter
 
 	// Mutable value
 }
@@ -1518,7 +1482,6 @@ type mockListStorageTask struct {
 
 	// Inherited and mutable values.
 	types.Service
-	types.Zone
 }
 
 func (t *mockListStorageTask) Run() {
@@ -1535,6 +1498,7 @@ type ListStorageTask struct {
 
 	// Runtime value
 	types.BucketList
+	types.Zone
 }
 
 // Run implement navvy.Task

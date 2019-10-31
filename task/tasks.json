@@ -183,31 +183,21 @@
     "description": "list files",
     "inherited_value": [
       "Path",
-      "Recursive",
       "Storage"
     ],
     "runtime_value": [
-      "ObjectChannel"
-    ]
-  },
-  "ListFileRecursiveShim": {
-    "description": "list file shim",
-    "inherited_value": [
-      "Path",
-      "Storage"
-    ],
-    "runtime_value": [
+      "ObjectChannel",
       "Recursive"
     ]
   },
   "ListStorage": {
     "description": "send get request to get bucket list",
     "inherited_value": [
-      "Service",
-      "Zone"
+      "Service"
     ],
     "runtime_value": [
-      "BucketList"
+      "BucketList",
+      "Zone"
     ]
   },
   "MD5SumFile": {
