@@ -1676,7 +1676,6 @@ type reachFileTaskRequirement interface {
 	types.FaultGetter
 
 	// Inherited value
-	types.ExpireGetter
 	types.PathGetter
 	types.StorageGetter
 
@@ -1690,7 +1689,6 @@ type mockReachFileTask struct {
 	types.ID
 
 	// Inherited and mutable values.
-	types.Expire
 	types.Path
 	types.Storage
 }
@@ -1708,6 +1706,7 @@ type ReachFileTask struct {
 	types.Scheduler
 
 	// Runtime value
+	types.Expire
 	types.URL
 }
 

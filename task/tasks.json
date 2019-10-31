@@ -226,11 +226,11 @@
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
     "inherited_value": [
-      "Expire",
       "Path",
       "Storage"
     ],
     "runtime_value": [
+      "Expire",
       "URL"
     ]
   },

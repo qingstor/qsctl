@@ -1,11 +1,10 @@
-// +build ignore
-
 package main
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -33,30 +32,18 @@ this URL can always retrieve the object with an HTTP GET request.`,
 	PreRun: validatePresignFlag,
 }
 
-func presignParse(t *task.PresignTask, _ []string) (err error) {
-	// Parse flags.
+func presignRun(_ *cobra.Command, args []string) (err error) {
+	rootTask := taskutils.NewAtStorageTask(10)
+	err = utils.ParseAtStorageInput(rootTask, args[0])
+	if err != nil {
+		return
+	}
+
+	t := task.NewReachFile(rootTask)
 	t.SetExpire(presignInput.expire)
-	return nil
-}
-
-func presignRun(_ *cobra.Command, args []string) error {
-	t := task.NewPresignTask(func(t *task.PresignTask) {
-		if err := presignParse(t, args); err != nil {
-			t.TriggerFault(err)
-			return
-		}
-
-		err := utils.ParseAtStorageInput(t, args[0])
-		if err != nil {
-			t.TriggerFault(err)
-			return
-		}
-	})
 
 	t.Run()
-	t.Wait()
-
-	if t.ValidateFault() {
+	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
@@ -64,7 +51,7 @@ func presignRun(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func presignOutput(t *task.PresignTask) {
+func presignOutput(t *task.ReachFileTask) {
 	fmt.Println(t.GetURL())
 }
 

@@ -1,3 +1,1 @@
-// +build ignore
-
 package main
