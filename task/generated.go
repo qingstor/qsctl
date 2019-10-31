@@ -1280,39 +1280,6 @@ func NewDeleteStorageForceTask(task navvy.Task) navvy.Task {
 	return NewDeleteStorageForce(task)
 }
 
-// fileShimTaskRequirement is the requirement for execute FileShimTask.
-type fileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// fileShimTask will a shim for file operation.
-type fileShimTask struct {
-	fileShimTaskRequirement
-
-	// Runtime value
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *fileShimTask) Run() {}
-
-// NewFileShim will create a fileShimTask struct and fetch inherited data from parent task.
-func NewFileShim(task navvy.Task) *fileShimTask {
-	t := &fileShimTask{
-		fileShimTaskRequirement: task.(fileShimTaskRequirement),
-	}
-	return t
-}
-
 // iterateFileTaskRequirement is the requirement for execute IterateFileTask.
 type iterateFileTaskRequirement interface {
 	navvy.Task
@@ -1323,8 +1290,8 @@ type iterateFileTaskRequirement interface {
 
 	// Inherited value
 	types.PathGetter
+	types.PathScheduleFuncGetter
 	types.RecursiveGetter
-	types.ScheduleFuncGetter
 	types.StorageGetter
 
 	// Mutable value
@@ -1338,8 +1305,8 @@ type mockIterateFileTask struct {
 
 	// Inherited and mutable values.
 	types.Path
+	types.PathScheduleFunc
 	types.Recursive
-	types.ScheduleFunc
 	types.Storage
 }
 
@@ -2005,7 +1972,7 @@ type segmentInitTaskRequirement interface {
 
 	// Inherited value
 	types.PathGetter
-	types.ScheduleFuncGetter
+	types.SegmentScheduleFuncGetter
 	types.StorageGetter
 	types.TotalSizeGetter
 
@@ -2021,8 +1988,8 @@ type mockSegmentInitTask struct {
 
 	// Inherited and mutable values.
 	types.Path
-	types.ScheduleFunc
 	types.SegmentID
+	types.SegmentScheduleFunc
 	types.Storage
 	types.TotalSize
 }
@@ -2067,47 +2034,6 @@ func NewSegmentInit(task navvy.Task) *SegmentInitTask {
 // NewSegmentInitTask will create a SegmentInitTask and fetch inherited data from parent task.
 func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
-}
-
-// segmentShimTaskRequirement is the requirement for execute SegmentShimTask.
-type segmentShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.PartSizeGetter
-	types.SegmentIDGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-}
-
-// segmentShimTask will a shim for segment operation.
-type segmentShimTask struct {
-	segmentShimTaskRequirement
-
-	// Runtime value
-	types.Done
-	types.Offset
-	types.Size
-}
-
-// Run implement navvy.Task
-func (t *segmentShimTask) Run() {}
-
-// NewSegmentShim will create a segmentShimTask struct and fetch inherited data from parent task.
-func NewSegmentShim(task navvy.Task) *segmentShimTask {
-	t := &segmentShimTask{
-		segmentShimTaskRequirement: task.(segmentShimTaskRequirement),
-	}
-	return t
 }
 
 // segmentStreamCopyTaskRequirement is the requirement for execute SegmentStreamCopyTask.

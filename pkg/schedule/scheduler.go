@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/Xuanwo/navvy"
-	"github.com/yunify/qsctl/v2/pkg/fault"
 )
 
 // TaskFunc will be used create a new task.
@@ -13,26 +12,18 @@ type TaskFunc func(navvy.Task) navvy.Task
 // Scheduler will schedule tasks.
 //go:generate mockgen -package mock -destination ../mock/scheduler.go github.com/yunify/qsctl/v2/pkg/schedule Scheduler
 type Scheduler interface {
-	Sync(task navvy.Task, fn TaskFunc)
-	Async(task navvy.Task, fn TaskFunc)
+	Sync(task navvy.Task)
+	Async(task navvy.Task)
 
 	Wait()
 }
 
-// Schedulable is the task that can be used in RealScheduler.
-type Schedulable interface {
-	navvy.Task
-
-	GetID() string
-	GetFault() *fault.Fault
-}
-
 type task struct {
 	s *RealScheduler
-	t Schedulable
+	t navvy.Task
 }
 
-func newTask(s *RealScheduler, t Schedulable) *task {
+func newTask(s *RealScheduler, t navvy.Task) *task {
 	return &task{
 		s: s,
 		t: t,
@@ -62,21 +53,15 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 }
 
 // Sync will create a new task after wait.
-func (s *RealScheduler) Sync(task navvy.Task, fn TaskFunc) {
+func (s *RealScheduler) Sync(task navvy.Task) {
 	s.Wait()
-	s.Async(task, fn)
+	s.Async(task)
 }
 
 // Async will create a new task immediately.
-func (s *RealScheduler) Async(task navvy.Task, fn TaskFunc) {
-	// Don't submit to pool if task has an error.
-	t := fn(task).(Schedulable)
-	if t.GetFault().HasError() {
-		return
-	}
-
+func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
-	s.pool.Submit(newTask(s, t))
+	s.pool.Submit(newTask(s, task))
 }
 
 // Wait will wait until a task finished.

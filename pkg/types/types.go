@@ -971,6 +971,39 @@ func (o *Path) ValidatePath() bool {
 	return o.valid
 }
 
+type PathScheduleFunc struct {
+	valid bool
+	v     pathScheduleFunc
+}
+
+type PathScheduleFuncGetter interface {
+	GetPathScheduleFunc() pathScheduleFunc
+}
+
+func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
+	if !o.valid {
+		panic("PathScheduleFunc value is not valid")
+	}
+	return o.v
+}
+
+type PathScheduleFuncSetter interface {
+	SetPathScheduleFunc(pathScheduleFunc)
+}
+
+func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
+	o.v = v
+	o.valid = true
+}
+
+type PathScheduleFuncValidator interface {
+	ValidatePathScheduleFunc() bool
+}
+
+func (o *PathScheduleFunc) ValidatePathScheduleFunc() bool {
+	return o.valid
+}
+
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1166,6 +1199,39 @@ type SegmentIDValidator interface {
 }
 
 func (o *SegmentID) ValidateSegmentID() bool {
+	return o.valid
+}
+
+type SegmentScheduleFunc struct {
+	valid bool
+	v     segmentScheduleFunc
+}
+
+type SegmentScheduleFuncGetter interface {
+	GetSegmentScheduleFunc() segmentScheduleFunc
+}
+
+func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() segmentScheduleFunc {
+	if !o.valid {
+		panic("SegmentScheduleFunc value is not valid")
+	}
+	return o.v
+}
+
+type SegmentScheduleFuncSetter interface {
+	SetSegmentScheduleFunc(segmentScheduleFunc)
+}
+
+func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v segmentScheduleFunc) {
+	o.v = v
+	o.valid = true
+}
+
+type SegmentScheduleFuncValidator interface {
+	ValidateSegmentScheduleFunc() bool
+}
+
+func (o *SegmentScheduleFunc) ValidateSegmentScheduleFunc() bool {
 	return o.valid
 }
 

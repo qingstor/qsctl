@@ -30,9 +30,9 @@ func (t *CopyFileTask) new() {
 
 func (t *CopyFileTask) run() {
 	if t.GetTotalSize() >= constants.MaximumAutoMultipartSize {
-		t.GetScheduler().Sync(t, NewCopyLargeFileTask)
+		t.GetScheduler().Sync(NewCopyLargeFileTask(t))
 	} else {
-		t.GetScheduler().Sync(t, NewCopySmallFileTask)
+		t.GetScheduler().Sync(NewCopySmallFileTask(t))
 	}
 }
 
@@ -42,8 +42,8 @@ func (t *CopySmallFileTask) new() {
 }
 
 func (t *CopySmallFileTask) run() {
-	t.GetScheduler().Sync(t, NewMD5SumFileTask)
-	t.GetScheduler().Sync(t, NewCopySingleFileTask)
+	t.GetScheduler().Sync(NewMD5SumFileTask(t))
+	t.GetScheduler().Sync(NewCopySingleFileTask(t))
 }
 
 // newCopyLargeFileTask will create a new Task.
@@ -63,8 +63,8 @@ func (t *CopyLargeFileTask) run() {
 	x := NewCopyLargeFileShim(t)
 	utils.ChooseDestinationStorage(x, t)
 
-	t.GetScheduler().Sync(x, NewSegmentInitTask)
-	t.GetScheduler().Sync(x, NewSegmentCompleteTask)
+	t.GetScheduler().Sync(NewSegmentInitTask(x))
+	t.GetScheduler().Sync(NewSegmentCompleteTask(x))
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -86,8 +86,8 @@ func (t *CopyPartialFileTask) new() {
 }
 
 func (t *CopyPartialFileTask) run() {
-	t.GetScheduler().Sync(t, NewMD5SumFileTask)
-	t.GetScheduler().Sync(t, NewSegmentFileCopyTask)
+	t.GetScheduler().Sync(NewMD5SumFileTask(t))
+	t.GetScheduler().Sync(NewSegmentFileCopyTask(t))
 }
 
 // NewCopyStreamTask will create a copy stream task.
@@ -113,8 +113,8 @@ func (t *CopyStreamTask) new() {
 }
 
 func (t *CopyStreamTask) run() {
-	t.GetScheduler().Async(t, NewSegmentInitTask)
-	t.GetScheduler().Sync(t, NewSegmentCompleteTask)
+	t.GetScheduler().Async(NewSegmentInitTask(t))
+	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
 }
 
 // NewCopyPartialStreamTask will create a new Task.
@@ -147,8 +147,8 @@ func (t *CopyPartialStreamTask) new() {
 }
 
 func (t *CopyPartialStreamTask) run() {
-	t.GetScheduler().Sync(t, NewMD5SumStreamTask)
-	t.GetScheduler().Sync(t, NewSegmentStreamCopyTask)
+	t.GetScheduler().Sync(NewMD5SumStreamTask(t))
+	t.GetScheduler().Sync(NewSegmentStreamCopyTask(t))
 }
 
 func (t *CopySingleFileTask) new() {}
