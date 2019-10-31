@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -80,13 +81,13 @@ func TestCopyFileTask_run(t *testing.T) {
 	}
 	for _, v := range tests {
 		m := &mockCopyFileTask{}
+		m.SetPool(navvy.NewPool(10))
 		task := &CopyFileTask{copyFileTaskRequirement: m}
 		task.SetTotalSize(v.size)
 
 		sch := mock.NewMockScheduler(ctrl)
-		sch.EXPECT().Sync(gomock.Any(), gomock.Any()).Do(func(inputTask navvy.Task, inputFn schedule.TaskFunc) {
-			assert.Equal(t, task, inputTask)
-			assert.Equal(t, fmt.Sprint(v.fn), fmt.Sprint(inputFn))
+		sch.EXPECT().Sync(gomock.Any()).Do(func(inputTask navvy.Task) {
+			assert.Equal(t, reflect.TypeOf(v.fn(task)), reflect.TypeOf(inputTask))
 		})
 		sch.EXPECT().Wait().Do(func() {})
 		task.SetScheduler(sch)

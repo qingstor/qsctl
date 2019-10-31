@@ -13,8 +13,8 @@ type TaskFunc func(navvy.Task) navvy.Task
 // Scheduler will schedule tasks.
 //go:generate mockgen -package mock -destination ../mock/scheduler.go github.com/yunify/qsctl/v2/pkg/schedule Scheduler
 type Scheduler interface {
-	Sync(task navvy.Task, fn TaskFunc)
-	Async(task navvy.Task, fn TaskFunc)
+	Sync(task navvy.Task)
+	Async(task navvy.Task)
 
 	Wait()
 }
@@ -62,15 +62,15 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 }
 
 // Sync will create a new task after wait.
-func (s *RealScheduler) Sync(task navvy.Task, fn TaskFunc) {
+func (s *RealScheduler) Sync(task navvy.Task) {
 	s.Wait()
-	s.Async(task, fn)
+	s.Async(task)
 }
 
 // Async will create a new task immediately.
-func (s *RealScheduler) Async(task navvy.Task, fn TaskFunc) {
+func (s *RealScheduler) Async(task navvy.Task) {
 	// Don't submit to pool if task has an error.
-	t := fn(task).(Schedulable)
+	t := task.(Schedulable)
 	if t.GetFault().HasError() {
 		return
 	}

@@ -27,7 +27,7 @@ func (t *SegmentInitTask) run() {
 		x.SetDone(false)
 		x.SetOffset(offset)
 
-		t.GetScheduler().Async(x, t.GetScheduleFunc())
+		t.GetScheduler().Async(t.GetScheduleFunc()(x))
 
 		offset += x.GetSize()
 		if x.GetDone() {

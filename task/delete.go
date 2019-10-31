@@ -21,7 +21,7 @@ func (t *DeleteDirTask) run() {
 		"DeleteDir", t.GetPath())
 
 	// TODO: check logic here
-	t.GetScheduler().Sync(t, NewIterateFileTask)
+	t.GetScheduler().Sync(NewIterateFileTask(t))
 
 	log.Debugf("Task <%s> for path <%s> finished",
 		"DeleteDir", t.GetPath())
@@ -65,7 +65,7 @@ func (t *DeleteStorageForceTask) run() {
 		"DeleteStorageForce", t.GetStorageName())
 
 	// TODO: delete all dir, delete all segments
-	t.GetScheduler().Sync(t, NewDeleteStorageTask)
+	t.GetScheduler().Sync(NewDeleteStorageTask(t))
 
 	log.Debugf("Task <%s> for storage <%s> finished",
 		"DeleteStorageForce", t.GetStorageName())

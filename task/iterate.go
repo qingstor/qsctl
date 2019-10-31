@@ -10,12 +10,12 @@ func (t *IterateFileTask) new() {
 }
 
 func (t *IterateFileTask) run() {
-	t.GetScheduler().Async(t, NewListFileTask)
+	t.GetScheduler().Async(NewListFileTask(t))
 
 	for o := range t.GetObjectChannel() {
 		x := NewFileShim(t)
 		x.SetPath(o.Name)
 
-		t.GetScheduler().Async(x, t.GetScheduleFunc())
+		t.GetScheduler().Async(t.GetScheduleFunc()(x))
 	}
 }
