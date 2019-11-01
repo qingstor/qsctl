@@ -239,6 +239,22 @@ func TestMockIterateFileTask_Run(t *testing.T) {
 	})
 }
 
+func TestListDirTask_TriggerFault(t *testing.T) {
+	m := &types.MockListDirTask{}
+	m.SetFault(fault.New())
+	task := &ListDirTask{ListDirRequirement: m}
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMockListDirTask_Run(t *testing.T) {
+	task := &types.MockListDirTask{}
+	assert.Panics(t, func() {
+		task.Run()
+	})
+}
+
 func TestListFileTask_TriggerFault(t *testing.T) {
 	m := &types.MockListFileTask{}
 	m.SetFault(fault.New())

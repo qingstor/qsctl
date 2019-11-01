@@ -688,7 +688,6 @@ type IterateFileTask struct {
 
 	// Runtime value
 	types.ObjectChannel
-	types.Path
 }
 
 // Run implement navvy.Task
@@ -718,9 +717,44 @@ func NewIterateFileTask(task navvy.Task) navvy.Task {
 	return NewIterateFile(task)
 }
 
-// NewIterateFilePathParametricTask will create a IterateFileTask which meets types.PathParametricRequirement.
-func NewIterateFilePathParametricTask(task navvy.Task) types.PathParametricRequirement {
-	return NewIterateFile(task)
+// ListDirTask will list files from dir.
+type ListDirTask struct {
+	types.ListDirRequirement
+
+	// Predefined runtime value
+	types.ID
+	types.Scheduler
+
+	// Runtime value
+	types.ObjectChannel
+	types.Recursive
+}
+
+// Run implement navvy.Task
+func (t *ListDirTask) Run() {
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *ListDirTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task ListDir failed: {%w}", err))
+}
+
+// NewListDir will create a ListDirTask struct and fetch inherited data from parent task.
+func NewListDir(task navvy.Task) *ListDirTask {
+	t := &ListDirTask{
+		ListDirRequirement: task.(types.ListDirRequirement),
+	}
+	t.SetID(uuid.New().String())
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewListDirTask will create a ListDirTask which meets navvy.Task.
+func NewListDirTask(task navvy.Task) navvy.Task {
+	return NewListDir(task)
 }
 
 // ListFileTask will list files.
@@ -732,8 +766,6 @@ type ListFileTask struct {
 	types.Scheduler
 
 	// Runtime value
-	types.ObjectChannel
-	types.Recursive
 }
 
 // Run implement navvy.Task

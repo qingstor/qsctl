@@ -171,6 +171,7 @@ type MockDeleteFileTask struct {
 	ID
 
 	// Inherited and mutable values.
+	Recursive
 	Storage
 }
 
@@ -237,6 +238,21 @@ func (t *MockIterateFileTask) Run() {
 	panic("mockIterateFileTask should not be run.")
 }
 
+// <ockListDirTask is the mock task for ListDirTask.
+type MockListDirTask struct {
+	Pool
+	Fault
+	ID
+
+	// Inherited and mutable values.
+	Path
+	Storage
+}
+
+func (t *MockListDirTask) Run() {
+	panic("mockListDirTask should not be run.")
+}
+
 // <ockListFileTask is the mock task for ListFileTask.
 type MockListFileTask struct {
 	Pool
@@ -244,7 +260,9 @@ type MockListFileTask struct {
 	ID
 
 	// Inherited and mutable values.
+	ObjectChannel
 	Path
+	Recursive
 	Storage
 }
 

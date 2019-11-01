@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
+
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -40,16 +42,48 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	// TODO: handle remove dir.
+	if rootTask.GetType() == types.ObjectTypeDir && !rmInput.recursive {
+		return fmt.Errorf("-r is required while remove a directory")
+	}
+
+	if rmInput.recursive {
+		t := task.NewDeleteDir(rootTask)
+		t.Run()
+
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+		return rmDirOutput(t)
+	}
+
 	t := task.NewDeleteFile(rootTask)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
-	rmOutput(t)
+	rmFileOutput(t)
 	return nil
 }
 
-func rmOutput(t *task.DeleteFileTask) {
+func rmFileOutput(t *task.DeleteFileTask) {
 	fmt.Printf("Object <%s> removed.\n", t.GetPath())
+}
+
+func rmDirOutput(t *task.DeleteDirTask) error {
+	if t.GetPath() == "" || t.GetPath() == "/" {
+		md, err := t.GetStorage().Metadata()
+		if err != nil {
+			return err
+		}
+		bucketName, ok := md.GetName()
+		if ok {
+			fmt.Printf("Objects in bucket <%s> removed.\n", bucketName)
+			return nil
+		}
+		fmt.Printf("Objects removed.\n")
+		return nil
+	}
+	fmt.Printf("Objects in <%s> removed.\n", t.GetPath())
+	return nil
 }

@@ -6,22 +6,29 @@ import (
 	"github.com/Xuanwo/storage/pkg/iterator"
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *ListFileTask) new() {
+func (t *ListDirTask) new() {
 	oc := make(chan *typ.Object)
 	t.SetObjectChannel(oc)
 }
 
+func (t *ListDirTask) run() {
+	t.GetScheduler().Sync(NewListFileTask(t))
+}
+
+func (t *ListFileTask) new() {}
+
 func (t *ListFileTask) run() {
-	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())
+	log.Debugf("Task <%s> for key <%s> started", "ListFileTask", t.GetPath())
 
 	pairs := make([]*typ.Pair, 0)
 
 	// TODO: we need to check runtime value before use them.
-	if !t.GetRecursive() {
-		pairs = append(pairs, typ.WithDelimiter("/"))
+	if t.GetRecursive() {
+		pairs = append(pairs, typ.WithRecursive(t.GetRecursive()))
 	}
 
 	it := t.GetStorage().ListDir(t.GetPath(), pairs...)
@@ -41,7 +48,7 @@ func (t *ListFileTask) run() {
 		t.GetObjectChannel() <- o
 	}
 
-	log.Debugf("Task <%s> for key <%s> finished", "ObjectListTask", t.GetPath())
+	log.Debugf("Task <%s> for key <%s> finished", "ListFileTask", t.GetPath())
 }
 
 func (t *ListStorageTask) new() {}

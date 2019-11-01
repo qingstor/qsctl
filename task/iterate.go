@@ -2,6 +2,7 @@ package task
 
 import (
 	typ "github.com/Xuanwo/storage/types"
+	log "github.com/sirupsen/logrus"
 )
 
 func (t *IterateFileTask) new() {
@@ -10,6 +11,8 @@ func (t *IterateFileTask) new() {
 }
 
 func (t *IterateFileTask) run() {
+	log.Debugf("Task <%s> for path <%s> started",
+		"IterateFileTask", t.GetPath())
 	t.GetScheduler().Async(NewListFileTask(t))
 
 	for o := range t.GetObjectChannel() {
@@ -18,4 +21,6 @@ func (t *IterateFileTask) run() {
 
 		t.GetScheduler().Async(x)
 	}
+	log.Debugf("Task <%s> for path <%s> finished",
+		"IterateFileTask", t.GetPath())
 }

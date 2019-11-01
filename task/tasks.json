@@ -135,6 +135,7 @@
   "DeleteFile": {
     "description": "will delete a file from storage",
     "inherited_value": [
+      "Recursive",
       "Storage"
     ],
     "runtime_value": [
@@ -172,12 +173,11 @@
       "Storage"
     ],
     "runtime_value": [
-      "ObjectChannel",
-      "Path"
+      "ObjectChannel"
     ]
   },
-  "ListFile": {
-    "description": "list files",
+  "ListDir": {
+    "description": "list files from dir",
     "inherited_value": [
       "Path",
       "Storage"
@@ -185,6 +185,15 @@
     "runtime_value": [
       "ObjectChannel",
       "Recursive"
+    ]
+  },
+  "ListFile": {
+    "description": "list files",
+    "inherited_value": [
+      "ObjectChannel",
+      "Path",
+      "Recursive",
+      "Storage"
     ]
   },
   "ListStorage": {

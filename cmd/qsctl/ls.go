@@ -63,7 +63,7 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	t := task.NewListFile(rootTask)
+	t := task.NewListDir(rootTask)
 	t.SetRecursive(lsInput.Recursive)
 
 	go t.Run()
@@ -99,7 +99,7 @@ func listBucketOutput(t *task.ListStorageTask) {
 }
 
 // listObjectOutput get object from channel asynchronously, and pack them into output format
-func listObjectOutput(t *task.ListFileTask) {
+func listObjectOutput(t *task.ListDirTask) {
 	if !lsInput.LongFormat {
 		for v := range t.GetObjectChannel() {
 			fmt.Println(v.Name)

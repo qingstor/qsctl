@@ -345,6 +345,7 @@ type DeleteFileRequirement interface {
 	FaultGetter
 
 	// Inherited value
+	RecursiveGetter
 	StorageGetter
 
 	// Mutable value
@@ -409,6 +410,21 @@ type IterateFileRequirement interface {
 	// Mutable value
 }
 
+// ListDirRequirement is the requirement for ListDirTask.
+type ListDirRequirement interface {
+	navvy.Task
+
+	// Predefined inherited value
+	PoolGetter
+	FaultGetter
+
+	// Inherited value
+	PathGetter
+	StorageGetter
+
+	// Mutable value
+}
+
 // ListFileRequirement is the requirement for ListFileTask.
 type ListFileRequirement interface {
 	navvy.Task
@@ -418,7 +434,9 @@ type ListFileRequirement interface {
 	FaultGetter
 
 	// Inherited value
+	ObjectChannelGetter
 	PathGetter
+	RecursiveGetter
 	StorageGetter
 
 	// Mutable value
