@@ -5,12 +5,5 @@
       "Path",
       "Storage"
     ]
-  },
-  "Segment": {
-    "description": "",
-    "value": [
-      "Done",
-      "Size"
-    ]
   }
 }

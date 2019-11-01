@@ -19,18 +19,3 @@ type PathRequirement interface {
 }
 
 type pathScheduleFunc func(navvy.Task) PathRequirement
-
-// SegmentRequirement is the requirement for SegmentTask.
-type SegmentRequirement interface {
-	navvy.Task
-
-	// Value
-	DoneGetter
-	DoneSetter
-	DoneValidator
-	SizeGetter
-	SizeSetter
-	SizeValidator
-}
-
-type segmentScheduleFunc func(navvy.Task) SegmentRequirement

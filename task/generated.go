@@ -262,11 +262,6 @@ func NewCopyPartialFileTask(task navvy.Task) navvy.Task {
 	return NewCopyPartialFile(task)
 }
 
-// NewCopyPartialFileSegmentRequirement will create a CopyPartialFileTask which meets SegmentRequirement.
-func NewCopyPartialFileSegmentRequirement(task navvy.Task) types.SegmentRequirement {
-	return NewCopyPartialFile(task)
-}
-
 // CopyPartialStreamTask will copy a partial stream between two storager.
 type CopyPartialStreamTask struct {
 	// Predefined value
@@ -354,11 +349,6 @@ func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
 
 // NewCopyPartialStreamTask will create a CopyPartialStreamTask which meets navvy.Task.
 func NewCopyPartialStreamTask(task navvy.Task) navvy.Task {
-	return NewCopyPartialStream(task)
-}
-
-// NewCopyPartialStreamSegmentRequirement will create a CopyPartialStreamTask which meets SegmentRequirement.
-func NewCopyPartialStreamSegmentRequirement(task navvy.Task) types.SegmentRequirement {
 	return NewCopyPartialStream(task)
 }
 
