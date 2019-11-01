@@ -70,6 +70,8 @@ import (
 type {{$k}} struct {
 	valid bool
 	v {{$v}}
+
+	l sync.RWMutex
 }
 
 type {{$k}}Getter interface {
@@ -77,6 +79,9 @@ type {{$k}}Getter interface {
 }
 
 func (o *{{$k}}) Get{{$k}}() {{$v}} {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("{{$k}} value is not valid")
 	}
@@ -88,6 +93,9 @@ type {{$k}}Setter interface {
 }
 
 func (o *{{$k}}) Set{{$k}}(v {{$v}}) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -97,6 +105,9 @@ type {{$k}}Validator interface {
 }
 
 func (o *{{$k}}) Validate{{$k}}() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
 }
 
