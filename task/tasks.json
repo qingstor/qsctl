@@ -1,55 +1,47 @@
 {
   "CopyFile": {
     "description": "copy a file between two storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
       "SourceStorage"
     ],
-    "runtime_value": [
+    "output": [
       "TotalSize"
     ]
   },
   "CopyLargeFile": {
     "description": "copy a large file between two storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
       "SourceStorage",
       "TotalSize"
-    ],
-    "runtime_value": [
-      "PartSize",
-      "ScheduleFunc",
-      "SegmentID"
     ]
   },
   "CopyPartialFile": {
     "description": "copy a partial file to between two storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "Offset",
       "PartSize",
       "SegmentID",
-      "Size",
       "SourcePath",
       "SourceStorage",
       "TotalSize"
     ],
-    "mutable_value": [
-      "Size",
-      "Done"
-    ],
-    "runtime_value": [
-      "MD5Sum"
+    "output": [
+      "Done",
+      "MD5Sum",
+      "Size"
     ]
   },
   "CopyPartialStream": {
     "description": "copy a partial stream between two storager",
-    "inherited_value": [
+    "input": [
       "BytesPool",
       "DestinationPath",
       "DestinationStorage",
@@ -58,18 +50,16 @@
       "SourcePath",
       "SourceStorage"
     ],
-    "mutable_value": [
-      "Size",
-      "Done"
-    ],
-    "runtime_value": [
+    "output": [
       "Content",
-      "MD5Sum"
+      "Done",
+      "MD5Sum",
+      "Size"
     ]
   },
   "CopySingleFile": {
     "description": "execute a file copy operation between towo storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "MD5Sum",
@@ -80,14 +70,14 @@
   },
   "CopySmallFile": {
     "description": "copy a small file between two storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
       "SourceStorage",
       "TotalSize"
     ],
-    "runtime_value": [
+    "output": [
       "MD5Sum",
       "Offset",
       "Size"
@@ -95,13 +85,13 @@
   },
   "CopyStream": {
     "description": "copy a stream between two storager",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
       "SourceStorage"
     ],
-    "runtime_value": [
+    "output": [
       "BytesPool",
       "CurrentOffset",
       "PartSize",
@@ -112,21 +102,21 @@
   },
   "CreateStorage": {
     "description": "create a storage",
-    "inherited_value": [
+    "input": [
       "Service"
     ],
-    "runtime_value": [
+    "output": [
       "StorageName",
       "Zone"
     ]
   },
   "DeleteDir": {
     "description": "will delete a dir recursively",
-    "inherited_value": [
+    "input": [
       "Path",
       "Storage"
     ],
-    "runtime_value": [
+    "output": [
       "ObjectChannel",
       "PathScheduleFunc",
       "Recursive"
@@ -134,11 +124,9 @@
   },
   "DeleteFile": {
     "description": "will delete a file from storage",
-    "inherited_value": [
+    "input": [
+      "Path",
       "Storage"
-    ],
-    "runtime_value": [
-      "Path"
     ]
   },
   "DeleteSegment": {
@@ -146,105 +134,87 @@
   },
   "DeleteStorage": {
     "description": "delete a storage",
-    "inherited_value": [
-      "Service"
-    ],
-    "runtime_value": [
-      "StorageName"
-    ]
-  },
-  "DeleteStorageForce": {
-    "description": "remove a bucket force",
-    "inherited_value": [
+    "input": [
+      "Force",
       "Service",
       "StorageName"
-    ],
-    "runtime_value": [
-      "ObjectChannel"
     ]
   },
   "IterateFile": {
     "description": "iterate file and execute operations on it",
-    "inherited_value": [
+    "input": [
       "Path",
       "PathScheduleFunc",
       "Recursive",
       "Storage"
     ],
-    "runtime_value": [
-      "ObjectChannel",
-      "Path"
+    "output": [
+      "ObjectChannel"
     ]
   },
   "ListFile": {
     "description": "list files",
-    "inherited_value": [
+    "input": [
       "Path",
       "Storage"
     ],
-    "runtime_value": [
+    "output": [
       "ObjectChannel",
       "Recursive"
     ]
   },
   "ListStorage": {
     "description": "send get request to get bucket list",
-    "inherited_value": [
+    "input": [
       "Service"
     ],
-    "runtime_value": [
+    "output": [
       "BucketList",
       "Zone"
     ]
   },
   "MD5SumFile": {
     "description": "get file's md5 sum",
-    "inherited_value": [
+    "input": [
       "Offset",
       "Size",
       "SourcePath",
       "SourceStorage"
     ],
-    "mutable_value": [
+    "output": [
       "MD5Sum"
     ]
   },
   "MD5SumStream": {
     "description": "get stream's md5 sum",
-    "inherited_value": [
+    "input": [
       "Content"
     ],
-    "runtime_value": [
+    "output": [
       "MD5Sum"
-    ]
-  },
-  "PathParametric": {
-    "description": "",
-    "mutable_value": [
-      "Path"
     ]
   },
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
-    "inherited_value": [
+    "input": [
+      "Expire",
       "Path",
       "Storage"
     ],
-    "runtime_value": [
-      "Expire",
+    "output": [
       "URL"
     ]
   },
   "SegmentAbortAll": {
     "description": "abort all multipart uploads in a bucket",
-    "inherited_value": [
+    "input": [
       "Storage",
       "StorageName"
     ]
   },
   "SegmentComplete": {
     "description": "complete a segment",
-    "inherited_value": [
+    "input": [
       "Path",
       "SegmentID",
       "Storage"
@@ -252,7 +222,7 @@
   },
   "SegmentFileCopy": {
     "description": "copy a segment file",
-    "inherited_value": [
+    "input": [
       "DestinationPath",
       "DestinationStorage",
       "MD5Sum",
@@ -265,30 +235,21 @@
   },
   "SegmentInit": {
     "description": "init a segment upload",
-    "inherited_value": [
+    "input": [
+      "PartSize",
       "Path",
       "SegmentScheduleFunc",
       "Storage",
       "TotalSize"
     ],
-    "mutable_value": [
-      "SegmentID"
-    ]
-  },
-  "SegmentParametric": {
-    "description": "",
-    "inherited_value": [
-      "Done",
-      "Size"
-    ],
-    "mutable_value": [
+    "output": [
       "Offset",
-      "Done"
+      "SegmentID"
     ]
   },
   "SegmentStreamCopy": {
     "description": "copy a segment stream",
-    "inherited_value": [
+    "input": [
       "Content",
       "DestinationPath",
       "DestinationStorage",
@@ -300,11 +261,11 @@
   },
   "StatFile": {
     "description": "stat a remote object by request headObject",
-    "inherited_value": [
+    "input": [
       "Path",
       "Storage"
     ],
-    "runtime_value": [
+    "output": [
       "Object"
     ]
   }

@@ -47,6 +47,21 @@ func (o *BucketList) ValidateBucketList() bool {
 	return o.valid
 }
 
+func LoadBucketList(t navvy.Task, v BucketListSetter) {
+	x, ok := t.(interface {
+		BucketListGetter
+		BucketListValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateBucketList() {
+		return
+	}
+
+	v.SetBucketList(x.GetBucketList())
+}
+
 type ByteSize struct {
 	valid bool
 	v     string
@@ -78,6 +93,21 @@ type ByteSizeValidator interface {
 
 func (o *ByteSize) ValidateByteSize() bool {
 	return o.valid
+}
+
+func LoadByteSize(t navvy.Task, v ByteSizeSetter) {
+	x, ok := t.(interface {
+		ByteSizeGetter
+		ByteSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateByteSize() {
+		return
+	}
+
+	v.SetByteSize(x.GetByteSize())
 }
 
 type BytesPool struct {
@@ -113,6 +143,21 @@ func (o *BytesPool) ValidateBytesPool() bool {
 	return o.valid
 }
 
+func LoadBytesPool(t navvy.Task, v BytesPoolSetter) {
+	x, ok := t.(interface {
+		BytesPoolGetter
+		BytesPoolValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateBytesPool() {
+		return
+	}
+
+	v.SetBytesPool(x.GetBytesPool())
+}
+
 type Content struct {
 	valid bool
 	v     *bytes.Buffer
@@ -144,6 +189,21 @@ type ContentValidator interface {
 
 func (o *Content) ValidateContent() bool {
 	return o.valid
+}
+
+func LoadContent(t navvy.Task, v ContentSetter) {
+	x, ok := t.(interface {
+		ContentGetter
+		ContentValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateContent() {
+		return
+	}
+
+	v.SetContent(x.GetContent())
 }
 
 type CurrentOffset struct {
@@ -179,6 +239,21 @@ func (o *CurrentOffset) ValidateCurrentOffset() bool {
 	return o.valid
 }
 
+func LoadCurrentOffset(t navvy.Task, v CurrentOffsetSetter) {
+	x, ok := t.(interface {
+		CurrentOffsetGetter
+		CurrentOffsetValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateCurrentOffset() {
+		return
+	}
+
+	v.SetCurrentOffset(x.GetCurrentOffset())
+}
+
 type CurrentPartNumber struct {
 	valid bool
 	v     *int32
@@ -210,6 +285,21 @@ type CurrentPartNumberValidator interface {
 
 func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
 	return o.valid
+}
+
+func LoadCurrentPartNumber(t navvy.Task, v CurrentPartNumberSetter) {
+	x, ok := t.(interface {
+		CurrentPartNumberGetter
+		CurrentPartNumberValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateCurrentPartNumber() {
+		return
+	}
+
+	v.SetCurrentPartNumber(x.GetCurrentPartNumber())
 }
 
 type DestinationPath struct {
@@ -245,6 +335,21 @@ func (o *DestinationPath) ValidateDestinationPath() bool {
 	return o.valid
 }
 
+func LoadDestinationPath(t navvy.Task, v DestinationPathSetter) {
+	x, ok := t.(interface {
+		DestinationPathGetter
+		DestinationPathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationPath() {
+		return
+	}
+
+	v.SetDestinationPath(x.GetDestinationPath())
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
@@ -276,6 +381,21 @@ type DestinationServiceValidator interface {
 
 func (o *DestinationService) ValidateDestinationService() bool {
 	return o.valid
+}
+
+func LoadDestinationService(t navvy.Task, v DestinationServiceSetter) {
+	x, ok := t.(interface {
+		DestinationServiceGetter
+		DestinationServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationService() {
+		return
+	}
+
+	v.SetDestinationService(x.GetDestinationService())
 }
 
 type DestinationStorage struct {
@@ -311,6 +431,21 @@ func (o *DestinationStorage) ValidateDestinationStorage() bool {
 	return o.valid
 }
 
+func LoadDestinationStorage(t navvy.Task, v DestinationStorageSetter) {
+	x, ok := t.(interface {
+		DestinationStorageGetter
+		DestinationStorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationStorage() {
+		return
+	}
+
+	v.SetDestinationStorage(x.GetDestinationStorage())
+}
+
 type DestinationType struct {
 	valid bool
 	v     types.ObjectType
@@ -342,6 +477,21 @@ type DestinationTypeValidator interface {
 
 func (o *DestinationType) ValidateDestinationType() bool {
 	return o.valid
+}
+
+func LoadDestinationType(t navvy.Task, v DestinationTypeSetter) {
+	x, ok := t.(interface {
+		DestinationTypeGetter
+		DestinationTypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationType() {
+		return
+	}
+
+	v.SetDestinationType(x.GetDestinationType())
 }
 
 type Done struct {
@@ -377,6 +527,21 @@ func (o *Done) ValidateDone() bool {
 	return o.valid
 }
 
+func LoadDone(t navvy.Task, v DoneSetter) {
+	x, ok := t.(interface {
+		DoneGetter
+		DoneValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDone() {
+		return
+	}
+
+	v.SetDone(x.GetDone())
+}
+
 type EnableBenchmark struct {
 	valid bool
 	v     bool
@@ -408,6 +573,21 @@ type EnableBenchmarkValidator interface {
 
 func (o *EnableBenchmark) ValidateEnableBenchmark() bool {
 	return o.valid
+}
+
+func LoadEnableBenchmark(t navvy.Task, v EnableBenchmarkSetter) {
+	x, ok := t.(interface {
+		EnableBenchmarkGetter
+		EnableBenchmarkValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateEnableBenchmark() {
+		return
+	}
+
+	v.SetEnableBenchmark(x.GetEnableBenchmark())
 }
 
 type ExpectSize struct {
@@ -443,6 +623,21 @@ func (o *ExpectSize) ValidateExpectSize() bool {
 	return o.valid
 }
 
+func LoadExpectSize(t navvy.Task, v ExpectSizeSetter) {
+	x, ok := t.(interface {
+		ExpectSizeGetter
+		ExpectSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateExpectSize() {
+		return
+	}
+
+	v.SetExpectSize(x.GetExpectSize())
+}
+
 type Expire struct {
 	valid bool
 	v     int
@@ -474,6 +669,21 @@ type ExpireValidator interface {
 
 func (o *Expire) ValidateExpire() bool {
 	return o.valid
+}
+
+func LoadExpire(t navvy.Task, v ExpireSetter) {
+	x, ok := t.(interface {
+		ExpireGetter
+		ExpireValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateExpire() {
+		return
+	}
+
+	v.SetExpire(x.GetExpire())
 }
 
 type Fault struct {
@@ -509,6 +719,21 @@ func (o *Fault) ValidateFault() bool {
 	return o.valid
 }
 
+func LoadFault(t navvy.Task, v FaultSetter) {
+	x, ok := t.(interface {
+		FaultGetter
+		FaultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateFault() {
+		return
+	}
+
+	v.SetFault(x.GetFault())
+}
+
 type Force struct {
 	valid bool
 	v     bool
@@ -540,6 +765,21 @@ type ForceValidator interface {
 
 func (o *Force) ValidateForce() bool {
 	return o.valid
+}
+
+func LoadForce(t navvy.Task, v ForceSetter) {
+	x, ok := t.(interface {
+		ForceGetter
+		ForceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateForce() {
+		return
+	}
+
+	v.SetForce(x.GetForce())
 }
 
 type HumanReadable struct {
@@ -575,6 +815,21 @@ func (o *HumanReadable) ValidateHumanReadable() bool {
 	return o.valid
 }
 
+func LoadHumanReadable(t navvy.Task, v HumanReadableSetter) {
+	x, ok := t.(interface {
+		HumanReadableGetter
+		HumanReadableValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateHumanReadable() {
+		return
+	}
+
+	v.SetHumanReadable(x.GetHumanReadable())
+}
+
 type ID struct {
 	valid bool
 	v     string
@@ -606,6 +861,21 @@ type IDValidator interface {
 
 func (o *ID) ValidateID() bool {
 	return o.valid
+}
+
+func LoadID(t navvy.Task, v IDSetter) {
+	x, ok := t.(interface {
+		IDGetter
+		IDValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateID() {
+		return
+	}
+
+	v.SetID(x.GetID())
 }
 
 type ListType struct {
@@ -641,6 +911,21 @@ func (o *ListType) ValidateListType() bool {
 	return o.valid
 }
 
+func LoadListType(t navvy.Task, v ListTypeSetter) {
+	x, ok := t.(interface {
+		ListTypeGetter
+		ListTypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateListType() {
+		return
+	}
+
+	v.SetListType(x.GetListType())
+}
+
 type LongFormat struct {
 	valid bool
 	v     bool
@@ -672,6 +957,21 @@ type LongFormatValidator interface {
 
 func (o *LongFormat) ValidateLongFormat() bool {
 	return o.valid
+}
+
+func LoadLongFormat(t navvy.Task, v LongFormatSetter) {
+	x, ok := t.(interface {
+		LongFormatGetter
+		LongFormatValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateLongFormat() {
+		return
+	}
+
+	v.SetLongFormat(x.GetLongFormat())
 }
 
 type MD5Sum struct {
@@ -707,6 +1007,21 @@ func (o *MD5Sum) ValidateMD5Sum() bool {
 	return o.valid
 }
 
+func LoadMD5Sum(t navvy.Task, v MD5SumSetter) {
+	x, ok := t.(interface {
+		MD5SumGetter
+		MD5SumValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateMD5Sum() {
+		return
+	}
+
+	v.SetMD5Sum(x.GetMD5Sum())
+}
+
 type Name struct {
 	valid bool
 	v     string
@@ -738,6 +1053,21 @@ type NameValidator interface {
 
 func (o *Name) ValidateName() bool {
 	return o.valid
+}
+
+func LoadName(t navvy.Task, v NameSetter) {
+	x, ok := t.(interface {
+		NameGetter
+		NameValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateName() {
+		return
+	}
+
+	v.SetName(x.GetName())
 }
 
 type Object struct {
@@ -773,6 +1103,21 @@ func (o *Object) ValidateObject() bool {
 	return o.valid
 }
 
+func LoadObject(t navvy.Task, v ObjectSetter) {
+	x, ok := t.(interface {
+		ObjectGetter
+		ObjectValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObject() {
+		return
+	}
+
+	v.SetObject(x.GetObject())
+}
+
 type ObjectChannel struct {
 	valid bool
 	v     chan *types.Object
@@ -804,6 +1149,21 @@ type ObjectChannelValidator interface {
 
 func (o *ObjectChannel) ValidateObjectChannel() bool {
 	return o.valid
+}
+
+func LoadObjectChannel(t navvy.Task, v ObjectChannelSetter) {
+	x, ok := t.(interface {
+		ObjectChannelGetter
+		ObjectChannelValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObjectChannel() {
+		return
+	}
+
+	v.SetObjectChannel(x.GetObjectChannel())
 }
 
 type ObjectLongList struct {
@@ -839,6 +1199,21 @@ func (o *ObjectLongList) ValidateObjectLongList() bool {
 	return o.valid
 }
 
+func LoadObjectLongList(t navvy.Task, v ObjectLongListSetter) {
+	x, ok := t.(interface {
+		ObjectLongListGetter
+		ObjectLongListValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObjectLongList() {
+		return
+	}
+
+	v.SetObjectLongList(x.GetObjectLongList())
+}
+
 type Offset struct {
 	valid bool
 	v     int64
@@ -870,6 +1245,21 @@ type OffsetValidator interface {
 
 func (o *Offset) ValidateOffset() bool {
 	return o.valid
+}
+
+func LoadOffset(t navvy.Task, v OffsetSetter) {
+	x, ok := t.(interface {
+		OffsetGetter
+		OffsetValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateOffset() {
+		return
+	}
+
+	v.SetOffset(x.GetOffset())
 }
 
 type PartNumber struct {
@@ -905,6 +1295,21 @@ func (o *PartNumber) ValidatePartNumber() bool {
 	return o.valid
 }
 
+func LoadPartNumber(t navvy.Task, v PartNumberSetter) {
+	x, ok := t.(interface {
+		PartNumberGetter
+		PartNumberValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePartNumber() {
+		return
+	}
+
+	v.SetPartNumber(x.GetPartNumber())
+}
+
 type PartSize struct {
 	valid bool
 	v     int64
@@ -936,6 +1341,21 @@ type PartSizeValidator interface {
 
 func (o *PartSize) ValidatePartSize() bool {
 	return o.valid
+}
+
+func LoadPartSize(t navvy.Task, v PartSizeSetter) {
+	x, ok := t.(interface {
+		PartSizeGetter
+		PartSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePartSize() {
+		return
+	}
+
+	v.SetPartSize(x.GetPartSize())
 }
 
 type Path struct {
@@ -971,16 +1391,31 @@ func (o *Path) ValidatePath() bool {
 	return o.valid
 }
 
+func LoadPath(t navvy.Task, v PathSetter) {
+	x, ok := t.(interface {
+		PathGetter
+		PathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePath() {
+		return
+	}
+
+	v.SetPath(x.GetPath())
+}
+
 type PathScheduleFunc struct {
 	valid bool
-	v     PathParametricFunc
+	v     pathScheduleFunc
 }
 
 type PathScheduleFuncGetter interface {
-	GetPathScheduleFunc() PathParametricFunc
+	GetPathScheduleFunc() pathScheduleFunc
 }
 
-func (o *PathScheduleFunc) GetPathScheduleFunc() PathParametricFunc {
+func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
 	if !o.valid {
 		panic("PathScheduleFunc value is not valid")
 	}
@@ -988,10 +1423,10 @@ func (o *PathScheduleFunc) GetPathScheduleFunc() PathParametricFunc {
 }
 
 type PathScheduleFuncSetter interface {
-	SetPathScheduleFunc(PathParametricFunc)
+	SetPathScheduleFunc(pathScheduleFunc)
 }
 
-func (o *PathScheduleFunc) SetPathScheduleFunc(v PathParametricFunc) {
+func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
 	o.v = v
 	o.valid = true
 }
@@ -1002,6 +1437,21 @@ type PathScheduleFuncValidator interface {
 
 func (o *PathScheduleFunc) ValidatePathScheduleFunc() bool {
 	return o.valid
+}
+
+func LoadPathScheduleFunc(t navvy.Task, v PathScheduleFuncSetter) {
+	x, ok := t.(interface {
+		PathScheduleFuncGetter
+		PathScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePathScheduleFunc() {
+		return
+	}
+
+	v.SetPathScheduleFunc(x.GetPathScheduleFunc())
 }
 
 type Pool struct {
@@ -1037,6 +1487,21 @@ func (o *Pool) ValidatePool() bool {
 	return o.valid
 }
 
+func LoadPool(t navvy.Task, v PoolSetter) {
+	x, ok := t.(interface {
+		PoolGetter
+		PoolValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePool() {
+		return
+	}
+
+	v.SetPool(x.GetPool())
+}
+
 type ReadableSize struct {
 	valid bool
 	v     string
@@ -1068,6 +1533,21 @@ type ReadableSizeValidator interface {
 
 func (o *ReadableSize) ValidateReadableSize() bool {
 	return o.valid
+}
+
+func LoadReadableSize(t navvy.Task, v ReadableSizeSetter) {
+	x, ok := t.(interface {
+		ReadableSizeGetter
+		ReadableSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateReadableSize() {
+		return
+	}
+
+	v.SetReadableSize(x.GetReadableSize())
 }
 
 type Recursive struct {
@@ -1103,6 +1583,21 @@ func (o *Recursive) ValidateRecursive() bool {
 	return o.valid
 }
 
+func LoadRecursive(t navvy.Task, v RecursiveSetter) {
+	x, ok := t.(interface {
+		RecursiveGetter
+		RecursiveValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateRecursive() {
+		return
+	}
+
+	v.SetRecursive(x.GetRecursive())
+}
+
 type ScheduleFunc struct {
 	valid bool
 	v     schedule.TaskFunc
@@ -1134,6 +1629,21 @@ type ScheduleFuncValidator interface {
 
 func (o *ScheduleFunc) ValidateScheduleFunc() bool {
 	return o.valid
+}
+
+func LoadScheduleFunc(t navvy.Task, v ScheduleFuncSetter) {
+	x, ok := t.(interface {
+		ScheduleFuncGetter
+		ScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateScheduleFunc() {
+		return
+	}
+
+	v.SetScheduleFunc(x.GetScheduleFunc())
 }
 
 type Scheduler struct {
@@ -1169,6 +1679,21 @@ func (o *Scheduler) ValidateScheduler() bool {
 	return o.valid
 }
 
+func LoadScheduler(t navvy.Task, v SchedulerSetter) {
+	x, ok := t.(interface {
+		SchedulerGetter
+		SchedulerValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateScheduler() {
+		return
+	}
+
+	v.SetScheduler(x.GetScheduler())
+}
+
 type SegmentID struct {
 	valid bool
 	v     string
@@ -1202,16 +1727,31 @@ func (o *SegmentID) ValidateSegmentID() bool {
 	return o.valid
 }
 
+func LoadSegmentID(t navvy.Task, v SegmentIDSetter) {
+	x, ok := t.(interface {
+		SegmentIDGetter
+		SegmentIDValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentID() {
+		return
+	}
+
+	v.SetSegmentID(x.GetSegmentID())
+}
+
 type SegmentScheduleFunc struct {
 	valid bool
-	v     SegmentParametricFunc
+	v     segmentScheduleFunc
 }
 
 type SegmentScheduleFuncGetter interface {
-	GetSegmentScheduleFunc() SegmentParametricFunc
+	GetSegmentScheduleFunc() segmentScheduleFunc
 }
 
-func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() SegmentParametricFunc {
+func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() segmentScheduleFunc {
 	if !o.valid {
 		panic("SegmentScheduleFunc value is not valid")
 	}
@@ -1219,10 +1759,10 @@ func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() SegmentParametricFunc {
 }
 
 type SegmentScheduleFuncSetter interface {
-	SetSegmentScheduleFunc(SegmentParametricFunc)
+	SetSegmentScheduleFunc(segmentScheduleFunc)
 }
 
-func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v SegmentParametricFunc) {
+func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v segmentScheduleFunc) {
 	o.v = v
 	o.valid = true
 }
@@ -1233,6 +1773,21 @@ type SegmentScheduleFuncValidator interface {
 
 func (o *SegmentScheduleFunc) ValidateSegmentScheduleFunc() bool {
 	return o.valid
+}
+
+func LoadSegmentScheduleFunc(t navvy.Task, v SegmentScheduleFuncSetter) {
+	x, ok := t.(interface {
+		SegmentScheduleFuncGetter
+		SegmentScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentScheduleFunc() {
+		return
+	}
+
+	v.SetSegmentScheduleFunc(x.GetSegmentScheduleFunc())
 }
 
 type Service struct {
@@ -1268,6 +1823,21 @@ func (o *Service) ValidateService() bool {
 	return o.valid
 }
 
+func LoadService(t navvy.Task, v ServiceSetter) {
+	x, ok := t.(interface {
+		ServiceGetter
+		ServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateService() {
+		return
+	}
+
+	v.SetService(x.GetService())
+}
+
 type Size struct {
 	valid bool
 	v     int64
@@ -1299,6 +1869,21 @@ type SizeValidator interface {
 
 func (o *Size) ValidateSize() bool {
 	return o.valid
+}
+
+func LoadSize(t navvy.Task, v SizeSetter) {
+	x, ok := t.(interface {
+		SizeGetter
+		SizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSize() {
+		return
+	}
+
+	v.SetSize(x.GetSize())
 }
 
 type SourcePath struct {
@@ -1334,6 +1919,21 @@ func (o *SourcePath) ValidateSourcePath() bool {
 	return o.valid
 }
 
+func LoadSourcePath(t navvy.Task, v SourcePathSetter) {
+	x, ok := t.(interface {
+		SourcePathGetter
+		SourcePathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourcePath() {
+		return
+	}
+
+	v.SetSourcePath(x.GetSourcePath())
+}
+
 type SourceService struct {
 	valid bool
 	v     storage.Servicer
@@ -1365,6 +1965,21 @@ type SourceServiceValidator interface {
 
 func (o *SourceService) ValidateSourceService() bool {
 	return o.valid
+}
+
+func LoadSourceService(t navvy.Task, v SourceServiceSetter) {
+	x, ok := t.(interface {
+		SourceServiceGetter
+		SourceServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceService() {
+		return
+	}
+
+	v.SetSourceService(x.GetSourceService())
 }
 
 type SourceStorage struct {
@@ -1400,6 +2015,21 @@ func (o *SourceStorage) ValidateSourceStorage() bool {
 	return o.valid
 }
 
+func LoadSourceStorage(t navvy.Task, v SourceStorageSetter) {
+	x, ok := t.(interface {
+		SourceStorageGetter
+		SourceStorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceStorage() {
+		return
+	}
+
+	v.SetSourceStorage(x.GetSourceStorage())
+}
+
 type SourceType struct {
 	valid bool
 	v     types.ObjectType
@@ -1431,6 +2061,21 @@ type SourceTypeValidator interface {
 
 func (o *SourceType) ValidateSourceType() bool {
 	return o.valid
+}
+
+func LoadSourceType(t navvy.Task, v SourceTypeSetter) {
+	x, ok := t.(interface {
+		SourceTypeGetter
+		SourceTypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceType() {
+		return
+	}
+
+	v.SetSourceType(x.GetSourceType())
 }
 
 type Storage struct {
@@ -1466,6 +2111,21 @@ func (o *Storage) ValidateStorage() bool {
 	return o.valid
 }
 
+func LoadStorage(t navvy.Task, v StorageSetter) {
+	x, ok := t.(interface {
+		StorageGetter
+		StorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateStorage() {
+		return
+	}
+
+	v.SetStorage(x.GetStorage())
+}
+
 type StorageName struct {
 	valid bool
 	v     string
@@ -1497,6 +2157,21 @@ type StorageNameValidator interface {
 
 func (o *StorageName) ValidateStorageName() bool {
 	return o.valid
+}
+
+func LoadStorageName(t navvy.Task, v StorageNameSetter) {
+	x, ok := t.(interface {
+		StorageNameGetter
+		StorageNameValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateStorageName() {
+		return
+	}
+
+	v.SetStorageName(x.GetStorageName())
 }
 
 type TotalSize struct {
@@ -1532,6 +2207,21 @@ func (o *TotalSize) ValidateTotalSize() bool {
 	return o.valid
 }
 
+func LoadTotalSize(t navvy.Task, v TotalSizeSetter) {
+	x, ok := t.(interface {
+		TotalSizeGetter
+		TotalSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateTotalSize() {
+		return
+	}
+
+	v.SetTotalSize(x.GetTotalSize())
+}
+
 type Type struct {
 	valid bool
 	v     types.ObjectType
@@ -1563,6 +2253,21 @@ type TypeValidator interface {
 
 func (o *Type) ValidateType() bool {
 	return o.valid
+}
+
+func LoadType(t navvy.Task, v TypeSetter) {
+	x, ok := t.(interface {
+		TypeGetter
+		TypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateType() {
+		return
+	}
+
+	v.SetType(x.GetType())
 }
 
 type URL struct {
@@ -1598,6 +2303,21 @@ func (o *URL) ValidateURL() bool {
 	return o.valid
 }
 
+func LoadURL(t navvy.Task, v URLSetter) {
+	x, ok := t.(interface {
+		URLGetter
+		URLValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateURL() {
+		return
+	}
+
+	v.SetURL(x.GetURL())
+}
+
 type Zone struct {
 	valid bool
 	v     string
@@ -1629,4 +2349,19 @@ type ZoneValidator interface {
 
 func (o *Zone) ValidateZone() bool {
 	return o.valid
+}
+
+func LoadZone(t navvy.Task, v ZoneSetter) {
+	x, ok := t.(interface {
+		ZoneGetter
+		ZoneValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateZone() {
+		return
+	}
+
+	v.SetZone(x.GetZone())
 }

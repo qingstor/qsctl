@@ -5,7 +5,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,13 +15,18 @@ import (
 )
 
 type task struct {
-	Name           string   `json:"-"`
-	Description    string   `json:"description"`
-	InheritedValue []string `json:"inherited_value,omitempty"`
-	MutableValue   []string `json:"mutable_value,omitempty"`
-	RuntimeValue   []string `json:"runtime_value,omitempty"`
+	Name        string   `json:"-"`
+	Description string   `json:"description"`
+	Input       []string `json:"input,omitempty"`
+	Output      []string `json:"output,omitempty"`
 
-	SatisfiedParametricRequirement []string `json:"-"`
+	SatisfiedRequirement []string `json:"-"`
+}
+
+type requirement struct {
+	Name        string   `json:"-"`
+	Description string   `json:"description"`
+	Value       []string `json:"value,omitempty"`
 }
 
 var funcs = template.FuncMap{
@@ -56,63 +60,6 @@ var funcs = template.FuncMap{
 	},
 }
 
-func hasBetweenSubString(s []string, x string) bool {
-	str := strings.Join(s, " ")
-	return strings.Contains(str, "Source"+x) && strings.Contains(str, "Destination"+x)
-}
-
-func getRequirements(x *task) (getter, setter map[string]struct{}) {
-	getter, setter = make(map[string]struct{}), make(map[string]struct{})
-
-	for _, v := range x.InheritedValue {
-		getter[v] = struct{}{}
-	}
-	for _, v := range x.MutableValue {
-		setter[v] = struct{}{}
-	}
-
-	return
-}
-
-func getAbility(x *task) (getter, setter map[string]struct{}) {
-	getter, setter = make(map[string]struct{}), make(map[string]struct{})
-
-	for _, v := range x.InheritedValue {
-		getter[v] = struct{}{}
-	}
-	for _, v := range x.MutableValue {
-		setter[v] = struct{}{}
-	}
-	for _, v := range x.RuntimeValue {
-		getter[v] = struct{}{}
-		setter[v] = struct{}{}
-	}
-
-	return
-}
-
-// Check whether x contains y.
-func isContain(x, y map[string]struct{}) bool {
-	for i := range y {
-		if _, ok := x[i]; !ok {
-			return false
-		}
-	}
-
-	return true
-}
-
-// Check whether y satisfy the x's requirement.
-func satisfyRequirement(x *task, y *task) {
-	abilityGetter, abilitySetter := getAbility(x)
-	requirementGetter, requirementSetter := getRequirements(y)
-
-	if !isContain(abilityGetter, requirementGetter) || !isContain(abilitySetter, requirementSetter) {
-		return
-	}
-	x.SatisfiedParametricRequirement = append(x.SatisfiedParametricRequirement, y.Name)
-}
-
 func executeTemplate(tmpl *template.Template, w io.Writer, v interface{}) {
 	err := tmpl.Execute(w, v)
 	if err != nil {
@@ -120,8 +67,44 @@ func executeTemplate(tmpl *template.Template, w io.Writer, v interface{}) {
 	}
 }
 
+func isSatisfied(t *task, r *requirement) bool {
+	ability, required := make(map[string]struct{}), make(map[string]struct{})
+
+	for _, v := range t.Input {
+		ability[v] = struct{}{}
+	}
+	for _, v := range t.Output {
+		ability[v] = struct{}{}
+	}
+	for _, v := range r.Value {
+		required[v] = struct{}{}
+	}
+
+	for _, v := range r.Value {
+		if _, ok := ability[v]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 func main() {
-	data, err := ioutil.ReadFile("tasks.json")
+	data, err := ioutil.ReadFile("../pkg/types/schedule_func.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	requirements := make(map[string]*requirement)
+	err = json.Unmarshal(data, &requirements)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for k, v := range requirements {
+		v.Name = k
+	}
+
+	data, err = ioutil.ReadFile("tasks.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,8 +118,8 @@ func main() {
 	// Do sort to all tasks via name.
 	taskNames := make([]string, 0)
 	for k := range tasks {
-		sort.Strings(tasks[k].InheritedValue)
-		sort.Strings(tasks[k].RuntimeValue)
+		sort.Strings(tasks[k].Input)
+		sort.Strings(tasks[k].Output)
 
 		taskNames = append(taskNames, k)
 	}
@@ -152,162 +135,37 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Set task names.
-	for k, v := range tasks {
-		v.Name = k
-	}
-
-	// Add shims for storage.
-	shimTasks := make(map[string]*task)
-	for k, v := range tasks {
-		if strings.HasSuffix(k, "Shim") {
-			continue
-		}
-
-		t := *v
-		t.Name = k + "Shim"
-		t.Description = fmt.Sprintf("Storage shim task for %s", v.Name)
-		t.InheritedValue = append(t.InheritedValue, t.RuntimeValue...)
-		t.MutableValue = append(t.MutableValue, t.RuntimeValue...)
-
-		t.RuntimeValue = nil
-		for _, s := range []string{"Storage", "Path", "Type"} {
-			if hasBetweenSubString(t.InheritedValue, s) {
-				t.RuntimeValue = append(t.RuntimeValue, s)
-			}
-		}
-		if len(t.RuntimeValue) == 0 {
-			continue
-		}
-		shimTasks[t.Name] = &t
-	}
-	for k, v := range shimTasks {
-		v := v
-		tasks[k] = v
-		taskNames = append(taskNames, k)
-	}
-	sort.Strings(taskNames)
-
-	parametricTasks := make([]*task, 0)
-	for _, v := range tasks {
-		v := v
-
-		if !strings.HasSuffix(v.Name, "Parametric") {
-			continue
-		}
-		parametricTasks = append(parametricTasks, v)
-	}
-
-	requirementFile, err := os.Create("../pkg/types/requirements.go")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer requirementFile.Close()
-
-	executeTemplate(requirementPageTmpl, requirementFile, nil)
-
-	mockFile, err := os.Create("../pkg/types/mocks.go")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer mockFile.Close()
-
-	executeTemplate(mockPageTmpl, mockFile, nil)
-
 	taskFile, err := os.Create("generated.go")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer taskFile.Close()
 
-	executeTemplate(pageTmpl, taskFile, nil)
+	executeTemplate(taskPageTmpl, taskFile, nil)
 
-	testFile, err := os.Create("generated_test.go")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer testFile.Close()
+	// testFile, err := os.Create("generated_test.go")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer testFile.Close()
 
-	executeTemplate(testPageTmpl, testFile, nil)
+	// executeTemplate(testPageTmpl, testFile, nil)
 
 	for _, taskName := range taskNames {
 		v := tasks[taskName]
+		v.Name = taskName
 
-		for _, rv := range parametricTasks {
-			satisfyRequirement(v, rv)
+		for _, r := range requirements {
+			if isSatisfied(v, r) {
+				v.SatisfiedRequirement = append(v.SatisfiedRequirement, r.Name)
+			}
 		}
 
-		if strings.HasSuffix(taskName, "Shim") {
-			executeTemplate(requirementTmpl, requirementFile, v)
-			executeTemplate(shimTaskTmpl, taskFile, v)
-		} else if strings.HasSuffix(taskName, "Parametric") {
-			executeTemplate(requirementTmpl, requirementFile, v)
-			executeTemplate(parametricTmpl, requirementFile, v)
-		} else {
-			executeTemplate(requirementTmpl, requirementFile, v)
-			executeTemplate(mockTmpl, mockFile, v)
-			executeTemplate(taskTmpl, taskFile, v)
-			executeTemplate(taskTestTmpl, testFile, v)
-		}
+		executeTemplate(taskTmpl, taskFile, v)
 	}
 }
 
-var requirementPageTmpl = template.Must(template.New("requirementPage").Funcs(funcs).Parse(`// Code generated by go generate; DO NOT EDIT.
-package types
-
-import (
-	"github.com/Xuanwo/navvy"
-)
-`))
-
-var requirementTmpl = template.Must(template.New("requirement").Funcs(funcs).Parse(`
-// {{ .Name }}Requirement is the requirement for {{ .Name }}Task.
-type {{ .Name }}Requirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	PoolGetter
-	FaultGetter
-
-	// Inherited value
-{{- range $k, $v := .InheritedValue }}
-	{{$v}}Getter
-{{- end }}
-
-	// Mutable value
-{{- range $k, $v := .MutableValue }}
-	{{$v}}Setter
-{{- end }}
-}
-`))
-
-var parametricTmpl = template.Must(template.New("requirement").Funcs(funcs).Parse(`
-type {{ .Name }}Func func(navvy.Task){{ .Name }}Requirement
-`))
-
-var mockPageTmpl = template.Must(template.New("mockPage").Funcs(funcs).Parse(`// Code generated by go generate; DO NOT EDIT.
-package types
-`))
-
-var mockTmpl = template.Must(template.New("mock").Funcs(funcs).Parse(`
-// <ock{{ .Name }}Task is the mock task for {{ .Name }}Task.
-type Mock{{ .Name }}Task struct {
-	Pool
-	Fault
-	ID
-
-	// Inherited and mutable values.
-{{- range $k, $v := merge .InheritedValue .MutableValue}}
-	{{$v}}
-{{- end }}
-}
-
-func (t *Mock{{ .Name }}Task) Run() {
-	panic("mock{{ .Name }}Task should not be run.")
-}
-`))
-
-var pageTmpl = template.Must(template.New("page").Parse(`// Code generated by go generate; DO NOT EDIT.
+var taskPageTmpl = template.Must(template.New("taskPage").Parse(`// Code generated by go generate; DO NOT EDIT.
 package task
 
 import (
@@ -328,20 +186,46 @@ var _ = uuid.New()
 var taskTmpl = template.Must(template.New("task").Funcs(funcs).Parse(`
 // {{ .Name }}Task will {{ .Description }}.
 type {{ .Name }}Task struct {
-	types.{{ .Name }}Requirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
-{{- range $k, $v := .RuntimeValue }}
+	// Input value
+{{- range $k, $v := .Input }}
 	types.{{$v}}
+{{- end }}
+
+	// Output value
+{{- range $k, $v := .Output }}
+	types.{{$v}}
+{{- end }}
+}
+
+// validateInput will validate all input before run task.
+func (t *{{ .Name }}Task) validateInput() {
+{{- range $k, $v := .Input }}
+	if !t.Validate{{$v}}() {
+		panic(fmt.Errorf("Task {{ $.Name }} value {{$v}} is invalid"))
+	}
+{{- end }}
+}
+
+// loadInput will check and load all input before new task.
+func (t *{{ .Name }}Task) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+
+{{- range $k, $v := .Input }}
+	types.Load{{$v}}(task, t)
 {{- end }}
 }
 
 // Run implement navvy.Task
 func (t *{{ .Name }}Task) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -352,12 +236,11 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 
 // New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
 func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
-	t := &{{ .Name }}Task{
-		{{ .Name }}Requirement: task.(types.{{ .Name }}Requirement),
-	}
+	t := &{{ .Name }}Task{}
 	t.SetID(uuid.New().String())
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
+	t.loadInput(task)
 	t.new()
 	return t
 }
@@ -367,36 +250,12 @@ func New{{ .Name }}Task(task navvy.Task) navvy.Task {
 	return New{{ .Name }}(task)
 }
 
-{{- range $_, $v := .SatisfiedParametricRequirement }}
-// New{{ $.Name }}{{ $v }}Task will create a {{ $.Name }}Task which meets types.{{ $v }}Requirement.
-func New{{ $.Name }}{{ $v }}Task(task navvy.Task) types.{{ $v }}Requirement {
+{{- range $k, $v := .SatisfiedRequirement }}
+// New{{ $.Name }}{{ $v }}Requirement will create a {{ $.Name }}Task which meets {{ $v }}Requirement.
+func New{{ $.Name }}{{ $v }}Requirement(task navvy.Task) types.{{ $v }}Requirement {
 	return New{{ $.Name }}(task)
 }
 {{- end }}
-`))
-
-var shimTaskTmpl = template.Must(template.New("shimTask").Funcs(funcs).Parse(`
-{{ $name := .Name | lowerFirst }}
-// {{ $name }}Task will {{ .Description }}.
-type {{ $name }}Task struct {
-	types.{{ .Name }}Requirement
-
-	// Runtime value
-{{- range $k, $v := .RuntimeValue }}
-	types.{{$v}}
-{{- end }}
-}
-
-// Run implement navvy.Task
-func (t *{{ $name }}Task) Run() {}
-
-// New{{ .Name }} will create a {{ $name }}Task struct and fetch inherited data from parent task.
-func New{{ .Name }}(task navvy.Task) *{{ $name }}Task {
-	t := &{{ $name }}Task{
-		{{ .Name }}Requirement: task.(types.{{ .Name }}Requirement),
-	}
-	return t
-}
 `))
 
 var testPageTmpl = template.Must(template.New("testPage").Parse(`// Code generated by go generate; DO NOT EDIT.

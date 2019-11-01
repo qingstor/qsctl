@@ -99,6 +99,21 @@ type {{$k}}Validator interface {
 func (o *{{$k}}) Validate{{$k}}() bool {
 	return o.valid
 }
+
+func Load{{$k}}(t navvy.Task, v {{$k}}Setter) {
+	x, ok := t.(interface{
+		{{$k}}Getter
+		{{$k}}Validator
+	})
+	if !ok {
+		return
+	}
+	if !x.Validate{{$k}}() {
+		return
+	}
+
+	v.Set{{$k}}(x.Get{{$k}}())
+}
 {{- end }}
 
 `))

@@ -24,14 +24,13 @@ func (t *SegmentInitTask) run() {
 	offset := int64(0)
 	for {
 		x := t.GetSegmentScheduleFunc()(t)
-		x.SetDone(false)
-		x.SetOffset(offset)
-		offset += x.GetSize()
 		if x.GetDone() {
 			break
 		}
-
 		t.GetScheduler().Async(x)
+
+		offset += x.GetSize()
+		t.SetOffset(offset)
 	}
 	log.Debugf("Task <%s> for Object <%s> finished.", "SegmentInitTask", t.GetPath())
 }

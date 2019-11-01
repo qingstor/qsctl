@@ -48,23 +48,23 @@ func (t *CopySmallFileTask) run() {
 
 // newCopyLargeFileTask will create a new Task.
 func (t *CopyLargeFileTask) new() {
-	// Init part size.
+}
+
+func (t *CopyLargeFileTask) run() {
+	initTask := NewSegmentInit(t)
+	utils.ChooseDestinationStorage(initTask, t)
+
+	// Set segment part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-	t.SetPartSize(partSize)
+	initTask.SetPartSize(partSize)
+	initTask.SetSegmentScheduleFunc(NewCopyPartialFileSegmentRequirement)
 
-	t.SetScheduleFunc(NewCopyPartialFileTask)
-}
-
-func (t *CopyLargeFileTask) run() {
-	x := NewCopyLargeFileShim(t)
-	utils.ChooseDestinationStorage(x, t)
-
-	t.GetScheduler().Sync(NewSegmentInitTask(x))
-	t.GetScheduler().Sync(NewSegmentCompleteTask(x))
+	t.GetScheduler().Sync(initTask)
+	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -80,6 +80,7 @@ func (t *CopyPartialFileTask) new() {
 		t.SetDone(true)
 	} else {
 		t.SetSize(partSize)
+		t.SetDone(false)
 	}
 
 	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())

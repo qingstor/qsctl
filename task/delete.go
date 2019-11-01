@@ -13,7 +13,7 @@ func (t *DeleteDirTask) new() {
 	// set recursive for list async task to list recursively
 	t.SetRecursive(true)
 
-	t.SetPathScheduleFunc(NewDeleteFilePathParametricTask)
+	t.SetPathScheduleFunc(NewDeleteFilePathRequirement)
 }
 
 func (t *DeleteDirTask) run() {
@@ -58,18 +58,6 @@ func (t *DeleteStorageTask) run() {
 
 	log.Debugf("Task <%s> for storage <%s> finished",
 		"DeleteStorage", t.GetStorageName())
-}
-
-func (t *DeleteStorageForceTask) new() {}
-func (t *DeleteStorageForceTask) run() {
-	log.Debugf("Task <%s> for storage <%s> started",
-		"DeleteStorageForce", t.GetStorageName())
-
-	// TODO: delete all dir, delete all segments
-	t.GetScheduler().Sync(NewDeleteStorageTask(t))
-
-	log.Debugf("Task <%s> for storage <%s> finished",
-		"DeleteStorageForce", t.GetStorageName())
 }
 
 func (t *DeleteSegmentTask) new() {}
