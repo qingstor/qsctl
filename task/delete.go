@@ -13,7 +13,7 @@ func (t *DeleteDirTask) new() {
 	// set recursive for list async task to list recursively
 	t.SetRecursive(true)
 
-	t.SetScheduleFunc(NewDeleteFileTask)
+	t.SetPathScheduleFunc(NewDeleteFilePathParametricTask)
 }
 
 func (t *DeleteDirTask) run() {
@@ -21,6 +21,7 @@ func (t *DeleteDirTask) run() {
 		"DeleteDir", t.GetPath())
 
 	// TODO: check logic here
+
 	t.GetScheduler().Sync(NewIterateFileTask(t))
 
 	log.Debugf("Task <%s> for path <%s> finished",

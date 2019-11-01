@@ -973,14 +973,14 @@ func (o *Path) ValidatePath() bool {
 
 type PathScheduleFunc struct {
 	valid bool
-	v     pathScheduleFunc
+	v     PathParametricFunc
 }
 
 type PathScheduleFuncGetter interface {
-	GetPathScheduleFunc() pathScheduleFunc
+	GetPathScheduleFunc() PathParametricFunc
 }
 
-func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
+func (o *PathScheduleFunc) GetPathScheduleFunc() PathParametricFunc {
 	if !o.valid {
 		panic("PathScheduleFunc value is not valid")
 	}
@@ -988,10 +988,10 @@ func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
 }
 
 type PathScheduleFuncSetter interface {
-	SetPathScheduleFunc(pathScheduleFunc)
+	SetPathScheduleFunc(PathParametricFunc)
 }
 
-func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
+func (o *PathScheduleFunc) SetPathScheduleFunc(v PathParametricFunc) {
 	o.v = v
 	o.valid = true
 }
@@ -1204,14 +1204,14 @@ func (o *SegmentID) ValidateSegmentID() bool {
 
 type SegmentScheduleFunc struct {
 	valid bool
-	v     segmentScheduleFunc
+	v     SegmentParametricFunc
 }
 
 type SegmentScheduleFuncGetter interface {
-	GetSegmentScheduleFunc() segmentScheduleFunc
+	GetSegmentScheduleFunc() SegmentParametricFunc
 }
 
-func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() segmentScheduleFunc {
+func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() SegmentParametricFunc {
 	if !o.valid {
 		panic("SegmentScheduleFunc value is not valid")
 	}
@@ -1219,10 +1219,10 @@ func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() segmentScheduleFunc {
 }
 
 type SegmentScheduleFuncSetter interface {
-	SetSegmentScheduleFunc(segmentScheduleFunc)
+	SetSegmentScheduleFunc(SegmentParametricFunc)
 }
 
-func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v segmentScheduleFunc) {
+func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v SegmentParametricFunc) {
 	o.v = v
 	o.valid = true
 }

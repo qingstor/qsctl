@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
+	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/mock"
@@ -48,10 +49,10 @@ func TestCopyFileTask_new(t *testing.T) {
 				}, nil
 			})
 
-			m := &mockCopyFileTask{}
+			m := &types.MockCopyFileTask{}
 			m.SetSourceStorage(srcStore)
 			m.SetSourcePath(paths[k])
-			task := &CopyFileTask{copyFileTaskRequirement: m}
+			task := &CopyFileTask{CopyFileRequirement: m}
 			task.new()
 
 			assert.Equal(t, v.size, task.GetTotalSize())
@@ -80,9 +81,9 @@ func TestCopyFileTask_run(t *testing.T) {
 		},
 	}
 	for _, v := range tests {
-		m := &mockCopyFileTask{}
+		m := &types.MockCopyFileTask{}
 		m.SetPool(navvy.NewPool(10))
-		task := &CopyFileTask{copyFileTaskRequirement: m}
+		task := &CopyFileTask{CopyFileRequirement: m}
 		task.SetTotalSize(v.size)
 
 		sch := mock.NewMockScheduler(ctrl)
@@ -100,7 +101,7 @@ func TestCopyLargeFileTask_new(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	m := &mockCopyLargeFileTask{}
+	m := &types.MockCopyLargeFileTask{}
 	m.SetPool(navvy.NewPool(10))
 	m.SetTotalSize(1024)
 
@@ -126,7 +127,7 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 
 	pool := navvy.NewPool(10)
 
-	x := &mockCopyLargeFileTask{}
+	x := &types.MockCopyLargeFileTask{}
 	x.SetPool(pool)
 	x.SetSourcePath(name)
 	x.SetSourceStorage(srcStore)
@@ -149,7 +150,7 @@ func TestCopyStreamTask_run(t *testing.T) {
 
 	pool := navvy.NewPool(10)
 
-	x := &mockCopyStreamTask{}
+	x := &types.MockCopyStreamTask{}
 	x.SetDestinationStorage(store)
 	x.SetDestinationPath(key)
 	x.SetSourcePath("-")

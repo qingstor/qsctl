@@ -16,400 +16,400 @@ var _ navvy.Pool
 var _ types.Pool
 
 func TestCopyFileTask_TriggerFault(t *testing.T) {
-	m := &mockCopyFileTask{}
+	m := &types.MockCopyFileTask{}
 	m.SetFault(fault.New())
-	task := &CopyFileTask{copyFileTaskRequirement: m}
+	task := &CopyFileTask{CopyFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopyFileTask_Run(t *testing.T) {
-	task := &mockCopyFileTask{}
+	task := &types.MockCopyFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopyLargeFileTask_TriggerFault(t *testing.T) {
-	m := &mockCopyLargeFileTask{}
+	m := &types.MockCopyLargeFileTask{}
 	m.SetFault(fault.New())
-	task := &CopyLargeFileTask{copyLargeFileTaskRequirement: m}
+	task := &CopyLargeFileTask{CopyLargeFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopyLargeFileTask_Run(t *testing.T) {
-	task := &mockCopyLargeFileTask{}
+	task := &types.MockCopyLargeFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopyPartialFileTask_TriggerFault(t *testing.T) {
-	m := &mockCopyPartialFileTask{}
+	m := &types.MockCopyPartialFileTask{}
 	m.SetFault(fault.New())
-	task := &CopyPartialFileTask{copyPartialFileTaskRequirement: m}
+	task := &CopyPartialFileTask{CopyPartialFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopyPartialFileTask_Run(t *testing.T) {
-	task := &mockCopyPartialFileTask{}
+	task := &types.MockCopyPartialFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopyPartialStreamTask_TriggerFault(t *testing.T) {
-	m := &mockCopyPartialStreamTask{}
+	m := &types.MockCopyPartialStreamTask{}
 	m.SetFault(fault.New())
-	task := &CopyPartialStreamTask{copyPartialStreamTaskRequirement: m}
+	task := &CopyPartialStreamTask{CopyPartialStreamRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopyPartialStreamTask_Run(t *testing.T) {
-	task := &mockCopyPartialStreamTask{}
+	task := &types.MockCopyPartialStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopySingleFileTask_TriggerFault(t *testing.T) {
-	m := &mockCopySingleFileTask{}
+	m := &types.MockCopySingleFileTask{}
 	m.SetFault(fault.New())
-	task := &CopySingleFileTask{copySingleFileTaskRequirement: m}
+	task := &CopySingleFileTask{CopySingleFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopySingleFileTask_Run(t *testing.T) {
-	task := &mockCopySingleFileTask{}
+	task := &types.MockCopySingleFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopySmallFileTask_TriggerFault(t *testing.T) {
-	m := &mockCopySmallFileTask{}
+	m := &types.MockCopySmallFileTask{}
 	m.SetFault(fault.New())
-	task := &CopySmallFileTask{copySmallFileTaskRequirement: m}
+	task := &CopySmallFileTask{CopySmallFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopySmallFileTask_Run(t *testing.T) {
-	task := &mockCopySmallFileTask{}
+	task := &types.MockCopySmallFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCopyStreamTask_TriggerFault(t *testing.T) {
-	m := &mockCopyStreamTask{}
+	m := &types.MockCopyStreamTask{}
 	m.SetFault(fault.New())
-	task := &CopyStreamTask{copyStreamTaskRequirement: m}
+	task := &CopyStreamTask{CopyStreamRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCopyStreamTask_Run(t *testing.T) {
-	task := &mockCopyStreamTask{}
+	task := &types.MockCopyStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestCreateStorageTask_TriggerFault(t *testing.T) {
-	m := &mockCreateStorageTask{}
+	m := &types.MockCreateStorageTask{}
 	m.SetFault(fault.New())
-	task := &CreateStorageTask{createStorageTaskRequirement: m}
+	task := &CreateStorageTask{CreateStorageRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockCreateStorageTask_Run(t *testing.T) {
-	task := &mockCreateStorageTask{}
+	task := &types.MockCreateStorageTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestDeleteDirTask_TriggerFault(t *testing.T) {
-	m := &mockDeleteDirTask{}
+	m := &types.MockDeleteDirTask{}
 	m.SetFault(fault.New())
-	task := &DeleteDirTask{deleteDirTaskRequirement: m}
+	task := &DeleteDirTask{DeleteDirRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockDeleteDirTask_Run(t *testing.T) {
-	task := &mockDeleteDirTask{}
+	task := &types.MockDeleteDirTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestDeleteFileTask_TriggerFault(t *testing.T) {
-	m := &mockDeleteFileTask{}
+	m := &types.MockDeleteFileTask{}
 	m.SetFault(fault.New())
-	task := &DeleteFileTask{deleteFileTaskRequirement: m}
+	task := &DeleteFileTask{DeleteFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockDeleteFileTask_Run(t *testing.T) {
-	task := &mockDeleteFileTask{}
+	task := &types.MockDeleteFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestDeleteSegmentTask_TriggerFault(t *testing.T) {
-	m := &mockDeleteSegmentTask{}
+	m := &types.MockDeleteSegmentTask{}
 	m.SetFault(fault.New())
-	task := &DeleteSegmentTask{deleteSegmentTaskRequirement: m}
+	task := &DeleteSegmentTask{DeleteSegmentRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockDeleteSegmentTask_Run(t *testing.T) {
-	task := &mockDeleteSegmentTask{}
+	task := &types.MockDeleteSegmentTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestDeleteStorageTask_TriggerFault(t *testing.T) {
-	m := &mockDeleteStorageTask{}
+	m := &types.MockDeleteStorageTask{}
 	m.SetFault(fault.New())
-	task := &DeleteStorageTask{deleteStorageTaskRequirement: m}
+	task := &DeleteStorageTask{DeleteStorageRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockDeleteStorageTask_Run(t *testing.T) {
-	task := &mockDeleteStorageTask{}
+	task := &types.MockDeleteStorageTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestDeleteStorageForceTask_TriggerFault(t *testing.T) {
-	m := &mockDeleteStorageForceTask{}
+	m := &types.MockDeleteStorageForceTask{}
 	m.SetFault(fault.New())
-	task := &DeleteStorageForceTask{deleteStorageForceTaskRequirement: m}
+	task := &DeleteStorageForceTask{DeleteStorageForceRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockDeleteStorageForceTask_Run(t *testing.T) {
-	task := &mockDeleteStorageForceTask{}
+	task := &types.MockDeleteStorageForceTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestIterateFileTask_TriggerFault(t *testing.T) {
-	m := &mockIterateFileTask{}
+	m := &types.MockIterateFileTask{}
 	m.SetFault(fault.New())
-	task := &IterateFileTask{iterateFileTaskRequirement: m}
+	task := &IterateFileTask{IterateFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockIterateFileTask_Run(t *testing.T) {
-	task := &mockIterateFileTask{}
+	task := &types.MockIterateFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestListFileTask_TriggerFault(t *testing.T) {
-	m := &mockListFileTask{}
+	m := &types.MockListFileTask{}
 	m.SetFault(fault.New())
-	task := &ListFileTask{listFileTaskRequirement: m}
+	task := &ListFileTask{ListFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockListFileTask_Run(t *testing.T) {
-	task := &mockListFileTask{}
+	task := &types.MockListFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestListStorageTask_TriggerFault(t *testing.T) {
-	m := &mockListStorageTask{}
+	m := &types.MockListStorageTask{}
 	m.SetFault(fault.New())
-	task := &ListStorageTask{listStorageTaskRequirement: m}
+	task := &ListStorageTask{ListStorageRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockListStorageTask_Run(t *testing.T) {
-	task := &mockListStorageTask{}
+	task := &types.MockListStorageTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestMD5SumFileTask_TriggerFault(t *testing.T) {
-	m := &mockMD5SumFileTask{}
+	m := &types.MockMD5SumFileTask{}
 	m.SetFault(fault.New())
-	task := &MD5SumFileTask{mD5SumFileTaskRequirement: m}
+	task := &MD5SumFileTask{MD5SumFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockMD5SumFileTask_Run(t *testing.T) {
-	task := &mockMD5SumFileTask{}
+	task := &types.MockMD5SumFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestMD5SumStreamTask_TriggerFault(t *testing.T) {
-	m := &mockMD5SumStreamTask{}
+	m := &types.MockMD5SumStreamTask{}
 	m.SetFault(fault.New())
-	task := &MD5SumStreamTask{mD5SumStreamTaskRequirement: m}
+	task := &MD5SumStreamTask{MD5SumStreamRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockMD5SumStreamTask_Run(t *testing.T) {
-	task := &mockMD5SumStreamTask{}
+	task := &types.MockMD5SumStreamTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestReachFileTask_TriggerFault(t *testing.T) {
-	m := &mockReachFileTask{}
+	m := &types.MockReachFileTask{}
 	m.SetFault(fault.New())
-	task := &ReachFileTask{reachFileTaskRequirement: m}
+	task := &ReachFileTask{ReachFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockReachFileTask_Run(t *testing.T) {
-	task := &mockReachFileTask{}
+	task := &types.MockReachFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestSegmentAbortAllTask_TriggerFault(t *testing.T) {
-	m := &mockSegmentAbortAllTask{}
+	m := &types.MockSegmentAbortAllTask{}
 	m.SetFault(fault.New())
-	task := &SegmentAbortAllTask{segmentAbortAllTaskRequirement: m}
+	task := &SegmentAbortAllTask{SegmentAbortAllRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockSegmentAbortAllTask_Run(t *testing.T) {
-	task := &mockSegmentAbortAllTask{}
+	task := &types.MockSegmentAbortAllTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestSegmentCompleteTask_TriggerFault(t *testing.T) {
-	m := &mockSegmentCompleteTask{}
+	m := &types.MockSegmentCompleteTask{}
 	m.SetFault(fault.New())
-	task := &SegmentCompleteTask{segmentCompleteTaskRequirement: m}
+	task := &SegmentCompleteTask{SegmentCompleteRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockSegmentCompleteTask_Run(t *testing.T) {
-	task := &mockSegmentCompleteTask{}
+	task := &types.MockSegmentCompleteTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestSegmentFileCopyTask_TriggerFault(t *testing.T) {
-	m := &mockSegmentFileCopyTask{}
+	m := &types.MockSegmentFileCopyTask{}
 	m.SetFault(fault.New())
-	task := &SegmentFileCopyTask{segmentFileCopyTaskRequirement: m}
+	task := &SegmentFileCopyTask{SegmentFileCopyRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockSegmentFileCopyTask_Run(t *testing.T) {
-	task := &mockSegmentFileCopyTask{}
+	task := &types.MockSegmentFileCopyTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestSegmentInitTask_TriggerFault(t *testing.T) {
-	m := &mockSegmentInitTask{}
+	m := &types.MockSegmentInitTask{}
 	m.SetFault(fault.New())
-	task := &SegmentInitTask{segmentInitTaskRequirement: m}
+	task := &SegmentInitTask{SegmentInitRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockSegmentInitTask_Run(t *testing.T) {
-	task := &mockSegmentInitTask{}
+	task := &types.MockSegmentInitTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestSegmentStreamCopyTask_TriggerFault(t *testing.T) {
-	m := &mockSegmentStreamCopyTask{}
+	m := &types.MockSegmentStreamCopyTask{}
 	m.SetFault(fault.New())
-	task := &SegmentStreamCopyTask{segmentStreamCopyTaskRequirement: m}
+	task := &SegmentStreamCopyTask{SegmentStreamCopyRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockSegmentStreamCopyTask_Run(t *testing.T) {
-	task := &mockSegmentStreamCopyTask{}
+	task := &types.MockSegmentStreamCopyTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})
 }
 
 func TestStatFileTask_TriggerFault(t *testing.T) {
-	m := &mockStatFileTask{}
+	m := &types.MockStatFileTask{}
 	m.SetFault(fault.New())
-	task := &StatFileTask{statFileTaskRequirement: m}
+	task := &StatFileTask{StatFileRequirement: m}
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
 
 func TestMockStatFileTask_Run(t *testing.T) {
-	task := &mockStatFileTask{}
+	task := &types.MockStatFileTask{}
 	assert.Panics(t, func() {
 		task.Run()
 	})

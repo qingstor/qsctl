@@ -128,15 +128,17 @@
     ],
     "runtime_value": [
       "ObjectChannel",
-      "Recursive",
-      "ScheduleFunc"
+      "PathScheduleFunc",
+      "Recursive"
     ]
   },
   "DeleteFile": {
     "description": "will delete a file from storage",
     "inherited_value": [
-      "Path",
       "Storage"
+    ],
+    "runtime_value": [
+      "Path"
     ]
   },
   "DeleteSegment": {
@@ -216,6 +218,12 @@
       "MD5Sum"
     ]
   },
+  "PathParametric": {
+    "description": "",
+    "mutable_value": [
+      "Path"
+    ]
+  },
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
     "inherited_value": [
@@ -265,6 +273,17 @@
     ],
     "mutable_value": [
       "SegmentID"
+    ]
+  },
+  "SegmentParametric": {
+    "description": "",
+    "inherited_value": [
+      "Done",
+      "Size"
+    ],
+    "mutable_value": [
+      "Offset",
+      "Done"
     ]
   },
   "SegmentStreamCopy": {
