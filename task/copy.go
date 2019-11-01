@@ -92,7 +92,7 @@ func (t *CopyPartialFileTask) new() {
 	partSize := t.GetPartSize()
 	offset := t.GetOffset()
 
-	if totalSize < offset+partSize {
+	if totalSize <= offset+partSize {
 		t.SetSize(totalSize - offset)
 		t.SetDone(true)
 	} else {
@@ -100,7 +100,7 @@ func (t *CopyPartialFileTask) new() {
 		t.SetDone(false)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Object <%s> finished.", "CopyPartialFile", t.GetDestinationPath())
 }
 
 func (t *CopyPartialFileTask) run() {
