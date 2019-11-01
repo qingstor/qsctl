@@ -360,6 +360,8 @@ type DeleteSegmentRequirement interface {
 	FaultGetter
 
 	// Inherited value
+	StorageGetter
+	StorageNameGetter
 
 	// Mutable value
 }
@@ -387,8 +389,8 @@ type DeleteStorageForceRequirement interface {
 	FaultGetter
 
 	// Inherited value
-	ServiceGetter
-	StorageNameGetter
+	PathGetter
+	StorageGetter
 
 	// Mutable value
 }

@@ -186,6 +186,8 @@ type MockDeleteSegmentTask struct {
 	ID
 
 	// Inherited and mutable values.
+	Storage
+	StorageName
 }
 
 func (t *MockDeleteSegmentTask) Run() {
@@ -213,8 +215,8 @@ type MockDeleteStorageForceTask struct {
 	ID
 
 	// Inherited and mutable values.
-	Service
-	StorageName
+	Path
+	Storage
 }
 
 func (t *MockDeleteStorageForceTask) Run() {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -46,7 +47,21 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	// TODO: handle delete storage force.
+	if rbInput.force {
+		storRootTask := taskutils.NewAtStorageTask(10)
+		err = utils.ParseAtStorageInput(storRootTask, args[0])
+		if err != nil {
+			return
+		}
+
+		t := task.NewDeleteStorageForce(storRootTask)
+		t.SetStorageName(bucketName)
+		t.Run()
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+	}
+
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
 

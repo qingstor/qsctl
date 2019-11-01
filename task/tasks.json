@@ -143,7 +143,11 @@
     ]
   },
   "DeleteSegment": {
-    "description": ""
+    "description": "delete all segments",
+    "inherited_value": [
+      "Storage",
+      "StorageName"
+    ]
   },
   "DeleteStorage": {
     "description": "delete a storage",
@@ -157,11 +161,11 @@
   "DeleteStorageForce": {
     "description": "remove a bucket force",
     "inherited_value": [
-      "Service",
-      "StorageName"
+      "Path",
+      "Storage"
     ],
     "runtime_value": [
-      "ObjectChannel"
+      "StorageName"
     ]
   },
   "IterateFile": {

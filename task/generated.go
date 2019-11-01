@@ -562,7 +562,7 @@ func NewDeleteFilePathParametricTask(task navvy.Task) types.PathParametricRequir
 	return NewDeleteFile(task)
 }
 
-// DeleteSegmentTask will .
+// DeleteSegmentTask will delete all segments.
 type DeleteSegmentTask struct {
 	types.DeleteSegmentRequirement
 
@@ -648,7 +648,7 @@ type DeleteStorageForceTask struct {
 	types.Scheduler
 
 	// Runtime value
-	types.ObjectChannel
+	types.StorageName
 }
 
 // Run implement navvy.Task
