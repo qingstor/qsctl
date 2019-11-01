@@ -75,9 +75,10 @@ func (t *CopyFileTask) TriggerFault(err error) {
 func NewCopyFile(task navvy.Task) *CopyFileTask {
 	t := &CopyFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -151,9 +152,10 @@ func (t *CopyLargeFileTask) TriggerFault(err error) {
 func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
 	t := &CopyLargeFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -245,9 +247,10 @@ func (t *CopyPartialFileTask) TriggerFault(err error) {
 func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
 	t := &CopyPartialFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -340,9 +343,10 @@ func (t *CopyPartialStreamTask) TriggerFault(err error) {
 func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
 	t := &CopyPartialStreamTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -426,9 +430,10 @@ func (t *CopySingleFileTask) TriggerFault(err error) {
 func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
 	t := &CopySingleFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -505,9 +510,10 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
 	t := &CopySmallFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -582,9 +588,10 @@ func (t *CopyStreamTask) TriggerFault(err error) {
 func NewCopyStream(task navvy.Task) *CopyStreamTask {
 	t := &CopyStreamTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -640,9 +647,10 @@ func (t *CreateStorageTask) TriggerFault(err error) {
 func NewCreateStorage(task navvy.Task) *CreateStorageTask {
 	t := &CreateStorageTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -704,9 +712,10 @@ func (t *DeleteDirTask) TriggerFault(err error) {
 func NewDeleteDir(task navvy.Task) *DeleteDirTask {
 	t := &DeleteDirTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -770,9 +779,10 @@ func (t *DeleteFileTask) TriggerFault(err error) {
 func NewDeleteFile(task navvy.Task) *DeleteFileTask {
 	t := &DeleteFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -826,9 +836,10 @@ func (t *DeleteSegmentTask) TriggerFault(err error) {
 func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
 	t := &DeleteSegmentTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -892,9 +903,10 @@ func (t *DeleteStorageTask) TriggerFault(err error) {
 func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
 	t := &DeleteStorageTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -964,9 +976,10 @@ func (t *IterateFileTask) TriggerFault(err error) {
 func NewIterateFile(task navvy.Task) *IterateFileTask {
 	t := &IterateFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1032,9 +1045,10 @@ func (t *ListFileTask) TriggerFault(err error) {
 func NewListFile(task navvy.Task) *ListFileTask {
 	t := &ListFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1095,9 +1109,10 @@ func (t *ListStorageTask) TriggerFault(err error) {
 func NewListStorage(task navvy.Task) *ListStorageTask {
 	t := &ListStorageTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1167,9 +1182,10 @@ func (t *MD5SumFileTask) TriggerFault(err error) {
 func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
 	t := &MD5SumFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1224,9 +1240,10 @@ func (t *MD5SumStreamTask) TriggerFault(err error) {
 func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
 	t := &MD5SumStreamTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1291,9 +1308,10 @@ func (t *ReachFileTask) TriggerFault(err error) {
 func NewReachFile(task navvy.Task) *ReachFileTask {
 	t := &ReachFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1357,9 +1375,10 @@ func (t *SegmentAbortAllTask) TriggerFault(err error) {
 func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
 	t := &SegmentAbortAllTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1423,9 +1442,10 @@ func (t *SegmentCompleteTask) TriggerFault(err error) {
 func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
 	t := &SegmentCompleteTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1519,9 +1539,10 @@ func (t *SegmentFileCopyTask) TriggerFault(err error) {
 func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
 	t := &SegmentFileCopyTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1597,9 +1618,10 @@ func (t *SegmentInitTask) TriggerFault(err error) {
 func NewSegmentInit(task navvy.Task) *SegmentInitTask {
 	t := &SegmentInitTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1688,9 +1710,10 @@ func (t *SegmentStreamCopyTask) TriggerFault(err error) {
 func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
 	t := &SegmentStreamCopyTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
@@ -1750,9 +1773,10 @@ func (t *StatFileTask) TriggerFault(err error) {
 func NewStatFile(task navvy.Task) *StatFileTask {
 	t := &StatFileTask{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }

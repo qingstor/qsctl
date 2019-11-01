@@ -238,9 +238,10 @@ func (t *{{ .Name }}Task) TriggerFault(err error) {
 func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
 	t := &{{ .Name }}Task{}
 	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
 	t.new()
 	return t
 }
