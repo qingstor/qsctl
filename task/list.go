@@ -18,11 +18,7 @@ func (t *ListFileTask) run() {
 	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())
 
 	pairs := make([]*typ.Pair, 0)
-
-	// TODO: we need to check runtime value before use them.
-	if !t.GetRecursive() {
-		pairs = append(pairs, typ.WithDelimiter("/"))
-	}
+	pairs = append(pairs, typ.WithRecursive(t.GetRecursive()))
 
 	it := t.GetStorage().ListDir(t.GetPath(), pairs...)
 

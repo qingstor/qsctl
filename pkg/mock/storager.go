@@ -55,18 +55,23 @@ func (mr *MockStoragerMockRecorder) AbortSegment(arg0 interface{}, arg1 ...inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AbortSegment", reflect.TypeOf((*MockStorager)(nil).AbortSegment), varargs...)
 }
 
-// Capability mocks base method
-func (m *MockStorager) Capability() types.Capability {
+// Capable mocks base method
+func (m *MockStorager) Capable(arg0 string, arg1 ...string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Capability")
-	ret0, _ := ret[0].(types.Capability)
+	varargs := []interface{}{arg0}
+	for _, a := range arg1 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Capable", varargs...)
+	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// Capability indicates an expected call of Capability
-func (mr *MockStoragerMockRecorder) Capability() *gomock.Call {
+// Capable indicates an expected call of Capable
+func (mr *MockStoragerMockRecorder) Capable(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Capability", reflect.TypeOf((*MockStorager)(nil).Capability))
+	varargs := append([]interface{}{arg0}, arg1...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Capable", reflect.TypeOf((*MockStorager)(nil).Capable), varargs...)
 }
 
 // CompleteSegment mocks base method
@@ -163,20 +168,6 @@ func (mr *MockStoragerMockRecorder) InitSegment(arg0 interface{}, arg1 ...interf
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0}, arg1...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitSegment", reflect.TypeOf((*MockStorager)(nil).InitSegment), varargs...)
-}
-
-// IsPairAvailable mocks base method
-func (m *MockStorager) IsPairAvailable(arg0, arg1 string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsPairAvailable", arg0, arg1)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// IsPairAvailable indicates an expected call of IsPairAvailable
-func (mr *MockStoragerMockRecorder) IsPairAvailable(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPairAvailable", reflect.TypeOf((*MockStorager)(nil).IsPairAvailable), arg0, arg1)
 }
 
 // ListDir mocks base method
