@@ -60,10 +60,27 @@ func (t *CopyLargeFileTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-	initTask.SetPartSize(partSize)
-	initTask.SetSegmentScheduleFunc(NewCopyPartialFileSegmentRequirement)
+	t.SetPartSize(partSize)
 
 	t.GetScheduler().Sync(initTask)
+	t.SetSegmentID(initTask.GetSegmentID())
+
+	offset := int64(0)
+	for {
+		t.SetOffset(offset)
+
+		x := NewCopyPartialFile(t)
+		t.GetScheduler().Async(x)
+		// While GetDone is true, this must be the last part.
+		if x.GetDone() {
+			break
+		}
+
+		offset += x.GetSize()
+	}
+
+	// Make sure all segment upload finished.
+	t.GetScheduler().Wait()
 	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
@@ -87,8 +104,12 @@ func (t *CopyPartialFileTask) new() {
 }
 
 func (t *CopyPartialFileTask) run() {
-	t.GetScheduler().Sync(NewMD5SumFileTask(t))
-	t.GetScheduler().Sync(NewSegmentFileCopyTask(t))
+	md5Task := NewMD5SumFile(t)
+	t.GetScheduler().Sync(md5Task)
+
+	fileCopyTask := NewSegmentFileCopy(t)
+	fileCopyTask.SetMD5Sum(md5Task.GetMD5Sum())
+	t.GetScheduler().Sync(fileCopyTask)
 }
 
 // NewCopyStreamTask will create a copy stream task.
@@ -99,22 +120,29 @@ func (t *CopyStreamTask) new() {
 		},
 	}
 	t.SetBytesPool(bytesPool)
-
-	// TODO: we will use expect size to calculate part size later.
-	t.SetPartSize(constants.DefaultPartSize)
-
-	t.SetScheduleFunc(NewCopyPartialStreamTask)
-
-	currentOffset := int64(0)
-	t.SetCurrentOffset(&currentOffset)
-
-	// We don't know how many data in stream, set it to -1 as an indicate.
-	// We will set current offset to -1 when got an EOF from stream.
-	t.SetTotalSize(-1)
 }
 
 func (t *CopyStreamTask) run() {
-	t.GetScheduler().Async(NewSegmentInitTask(t))
+	initTask := NewSegmentInit(t)
+	utils.ChooseDestinationStorage(initTask, t)
+
+	// TODO: we will use expect size to calculate part size later.
+	partSize := int64(constants.DefaultPartSize)
+	t.SetPartSize(partSize)
+
+	t.GetScheduler().Sync(initTask)
+	t.SetSegmentID(initTask.GetSegmentID())
+
+	for {
+		x := NewCopyPartialStream(t)
+		t.GetScheduler().Async(x)
+
+		if x.GetDone() {
+			break
+		}
+	}
+
+	t.GetScheduler().Wait()
 	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
 }
 

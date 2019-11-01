@@ -104,6 +104,9 @@ type CopyLargeFileTask struct {
 	types.TotalSize
 
 	// Output value
+	types.Offset
+	types.PartSize
+	types.SegmentID
 }
 
 // validateInput will validate all input before run task.
@@ -185,7 +188,6 @@ type CopyPartialFileTask struct {
 
 	// Output value
 	types.Done
-	types.MD5Sum
 	types.Size
 }
 
@@ -285,7 +287,6 @@ type CopyPartialStreamTask struct {
 	// Output value
 	types.Content
 	types.Done
-	types.MD5Sum
 	types.Size
 }
 
@@ -539,11 +540,8 @@ type CopyStreamTask struct {
 
 	// Output value
 	types.BytesPool
-	types.CurrentOffset
 	types.PartSize
-	types.ScheduleFunc
 	types.SegmentID
-	types.TotalSize
 }
 
 // validateInput will validate all input before run task.
@@ -1561,33 +1559,20 @@ type SegmentInitTask struct {
 	types.Scheduler
 
 	// Input value
-	types.PartSize
 	types.Path
-	types.SegmentScheduleFunc
 	types.Storage
-	types.TotalSize
 
 	// Output value
-	types.Offset
 	types.SegmentID
 }
 
 // validateInput will validate all input before run task.
 func (t *SegmentInitTask) validateInput() {
-	if !t.ValidatePartSize() {
-		panic(fmt.Errorf("Task SegmentInit value PartSize is invalid"))
-	}
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task SegmentInit value Path is invalid"))
 	}
-	if !t.ValidateSegmentScheduleFunc() {
-		panic(fmt.Errorf("Task SegmentInit value SegmentScheduleFunc is invalid"))
-	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task SegmentInit value Storage is invalid"))
-	}
-	if !t.ValidateTotalSize() {
-		panic(fmt.Errorf("Task SegmentInit value TotalSize is invalid"))
 	}
 }
 
@@ -1595,11 +1580,8 @@ func (t *SegmentInitTask) validateInput() {
 func (t *SegmentInitTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
-	types.LoadPartSize(task, t)
 	types.LoadPath(task, t)
-	types.LoadSegmentScheduleFunc(task, t)
 	types.LoadStorage(task, t)
-	types.LoadTotalSize(task, t)
 }
 
 // Run implement navvy.Task
