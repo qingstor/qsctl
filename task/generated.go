@@ -919,7 +919,6 @@ type IterateFileTask struct {
 	types.Storage
 
 	// Output value
-	types.ObjectChannel
 }
 
 // validateInput will validate all input before run task.
