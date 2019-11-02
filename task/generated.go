@@ -661,9 +661,7 @@ type DeleteDirTask struct {
 	types.Storage
 
 	// Output value
-	types.ObjectChannel
 	types.PathScheduleFunc
-	types.Recursive
 }
 
 // validateInput will validate all input before run task.

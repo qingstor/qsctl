@@ -117,9 +117,7 @@
       "Storage"
     ],
     "output": [
-      "ObjectChannel",
-      "PathScheduleFunc",
-      "Recursive"
+      "PathScheduleFunc"
     ]
   },
   "DeleteFile": {

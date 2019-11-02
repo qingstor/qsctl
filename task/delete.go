@@ -1,28 +1,20 @@
 package task
 
 import (
-	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *DeleteDirTask) new() {
-	oc := make(chan *typ.Object)
-	t.SetObjectChannel(oc)
-
-	// set recursive for list async task to list recursively
-	t.SetRecursive(true)
-
-	t.SetPathScheduleFunc(NewDeleteFilePathRequirement)
-}
+func (t *DeleteDirTask) new() {}
 
 func (t *DeleteDirTask) run() {
 	log.Debugf("Task <%s> for path <%s> started",
 		"DeleteDir", t.GetPath())
 
-	// TODO: check logic here
-
-	t.GetScheduler().Sync(NewIterateFileTask(t))
+	x := NewIterateFile(t)
+	x.SetPathScheduleFunc(NewDeleteFilePathRequirement)
+	x.SetRecursive(true)
+	t.GetScheduler().Sync(x)
 
 	log.Debugf("Task <%s> for path <%s> finished",
 		"DeleteDir", t.GetPath())
@@ -49,6 +41,22 @@ func (t *DeleteStorageTask) new() {
 func (t *DeleteStorageTask) run() {
 	log.Debugf("Task <%s> for storage <%s> started",
 		"DeleteStorage", t.GetStorageName())
+
+	if t.GetForce() {
+		store, err := t.GetService().Get(t.GetStorageName())
+		if err != nil {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+
+		deleteDir := NewDeleteDir(t)
+		deleteDir.SetPath("")
+		deleteDir.SetStorage(store)
+
+		t.GetScheduler().Sync(deleteDir)
+
+		// TODO: remove all segments.
+	}
 
 	err := t.GetService().Delete(t.GetStorageName())
 	if err != nil {
