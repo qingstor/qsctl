@@ -7,6 +7,7 @@ import (
 
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -42,8 +43,12 @@ func (t *CopySmallFileTask) new() {
 }
 
 func (t *CopySmallFileTask) run() {
-	t.GetScheduler().Sync(NewMD5SumFileTask(t))
-	t.GetScheduler().Sync(NewCopySingleFileTask(t))
+	md5Task := NewMD5SumFile(t)
+	t.GetScheduler().Sync(md5Task)
+
+	fileCopyTask := NewCopySingleFile(t)
+	fileCopyTask.SetMD5Sum(md5Task.GetMD5Sum())
+	t.GetScheduler().Sync(fileCopyTask)
 }
 
 // newCopyLargeFileTask will create a new Task.
