@@ -13,3 +13,17 @@ func (t *IterateFileTask) run() {
 		t.GetScheduler().Async(x)
 	}
 }
+
+func (t *IterateSegmentTask) new() {}
+
+func (t *IterateSegmentTask) run() {
+	listTask := NewListSegment(t)
+	t.GetScheduler().Async(listTask)
+
+	for o := range listTask.GetSegmentChannel() {
+		x := t.GetSegmentIDScheduleFunc()(t)
+		x.SetSegmentID(o.ID)
+
+		t.GetScheduler().Async(x)
+	}
+}

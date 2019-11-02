@@ -783,7 +783,7 @@ func NewDeleteFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewDeleteFile(task)
 }
 
-// DeleteSegmentTask will .
+// DeleteSegmentTask will delete all segments with a given path.
 type DeleteSegmentTask struct {
 	// Predefined value
 	types.Fault
@@ -792,18 +792,28 @@ type DeleteSegmentTask struct {
 	types.Scheduler
 
 	// Input value
+	types.SegmentID
+	types.Storage
 
 	// Output value
 }
 
 // validateInput will validate all input before run task.
 func (t *DeleteSegmentTask) validateInput() {
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task DeleteSegment value SegmentID is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteSegment value Storage is invalid"))
+	}
 }
 
 // loadInput will check and load all input before new task.
 func (t *DeleteSegmentTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
@@ -833,6 +843,78 @@ func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
 // NewDeleteSegmentTask will create a DeleteSegmentTask which meets navvy.Task.
 func NewDeleteSegmentTask(task navvy.Task) navvy.Task {
 	return NewDeleteSegment(task)
+}
+
+// NewDeleteSegmentSegmentIDRequirement will create a DeleteSegmentTask which meets SegmentIDRequirement.
+func NewDeleteSegmentSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+	return NewDeleteSegment(task)
+}
+
+// DeleteSegmentDirTask will delete all segments under a path.
+type DeleteSegmentDirTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *DeleteSegmentDirTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task DeleteSegmentDir value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteSegmentDir value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteSegmentDirTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *DeleteSegmentDirTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *DeleteSegmentDirTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task DeleteSegmentDir failed: {%w}", err))
+}
+
+// NewDeleteSegmentDir will create a DeleteSegmentDirTask struct and fetch inherited data from parent task.
+func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
+	t := &DeleteSegmentDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewDeleteSegmentDirTask will create a DeleteSegmentDirTask which meets navvy.Task.
+func NewDeleteSegmentDirTask(task navvy.Task) navvy.Task {
+	return NewDeleteSegmentDir(task)
+}
+
+// NewDeleteSegmentDirPathRequirement will create a DeleteSegmentDirTask which meets PathRequirement.
+func NewDeleteSegmentDirPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewDeleteSegmentDir(task)
 }
 
 // DeleteStorageTask will delete a storage.
@@ -979,6 +1061,78 @@ func NewIterateFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewIterateFile(task)
 }
 
+// IterateSegmentTask will iterate segment and execute operations on it.
+type IterateSegmentTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.Path
+	types.SegmentIDScheduleFunc
+	types.Storage
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *IterateSegmentTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task IterateSegment value Path is invalid"))
+	}
+	if !t.ValidateSegmentIDScheduleFunc() {
+		panic(fmt.Errorf("Task IterateSegment value SegmentIDScheduleFunc is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task IterateSegment value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *IterateSegmentTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadSegmentIDScheduleFunc(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *IterateSegmentTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *IterateSegmentTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task IterateSegment failed: {%w}", err))
+}
+
+// NewIterateSegment will create a IterateSegmentTask struct and fetch inherited data from parent task.
+func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
+	t := &IterateSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
+func NewIterateSegmentTask(task navvy.Task) navvy.Task {
+	return NewIterateSegment(task)
+}
+
+// NewIterateSegmentPathRequirement will create a IterateSegmentTask which meets PathRequirement.
+func NewIterateSegmentPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewIterateSegment(task)
+}
+
 // ListFileTask will list files.
 type ListFileTask struct {
 	// Predefined value
@@ -1050,6 +1204,74 @@ func NewListFileTask(task navvy.Task) navvy.Task {
 // NewListFilePathRequirement will create a ListFileTask which meets PathRequirement.
 func NewListFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewListFile(task)
+}
+
+// ListSegmentTask will list segments.
+type ListSegmentTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+	types.SegmentChannel
+}
+
+// validateInput will validate all input before run task.
+func (t *ListSegmentTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task ListSegment value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task ListSegment value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *ListSegmentTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *ListSegmentTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *ListSegmentTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task ListSegment failed: {%w}", err))
+}
+
+// NewListSegment will create a ListSegmentTask struct and fetch inherited data from parent task.
+func NewListSegment(task navvy.Task) *ListSegmentTask {
+	t := &ListSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewListSegmentTask will create a ListSegmentTask which meets navvy.Task.
+func NewListSegmentTask(task navvy.Task) navvy.Task {
+	return NewListSegment(task)
+}
+
+// NewListSegmentPathRequirement will create a ListSegmentTask which meets PathRequirement.
+func NewListSegmentPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewListSegment(task)
 }
 
 // ListStorageTask will send get request to get bucket list.
@@ -1449,6 +1671,11 @@ func NewSegmentCompletePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewSegmentComplete(task)
 }
 
+// NewSegmentCompleteSegmentIDRequirement will create a SegmentCompleteTask which meets SegmentIDRequirement.
+func NewSegmentCompleteSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+	return NewSegmentComplete(task)
+}
+
 // SegmentFileCopyTask will copy a segment file.
 type SegmentFileCopyTask struct {
 	// Predefined value
@@ -1606,6 +1833,11 @@ func NewSegmentInitTask(task navvy.Task) navvy.Task {
 
 // NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
 func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewSegmentInit(task)
+}
+
+// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
+func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
 	return NewSegmentInit(task)
 }
 

@@ -19,3 +19,18 @@ type PathRequirement interface {
 }
 
 type pathScheduleFunc func(navvy.Task) PathRequirement
+
+// SegmentIDRequirement is the requirement for SegmentIDTask.
+type SegmentIDRequirement interface {
+	navvy.Task
+
+	// Value
+	SegmentIDGetter
+	SegmentIDSetter
+	SegmentIDValidator
+	StorageGetter
+	StorageSetter
+	StorageValidator
+}
+
+type segmentIDScheduleFunc func(navvy.Task) SegmentIDRequirement

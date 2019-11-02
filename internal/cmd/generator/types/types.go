@@ -59,6 +59,7 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/pkg/segment"
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/pkg/schedule"

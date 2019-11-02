@@ -128,7 +128,18 @@
     ]
   },
   "DeleteSegment": {
-    "description": ""
+    "description": "delete all segments with a given path",
+    "input": [
+      "SegmentID",
+      "Storage"
+    ]
+  },
+  "DeleteSegmentDir": {
+    "description": "delete all segments under a path",
+    "input": [
+      "Path",
+      "Storage"
+    ]
   },
   "DeleteStorage": {
     "description": "delete a storage",
@@ -147,6 +158,14 @@
       "Storage"
     ]
   },
+  "IterateSegment": {
+    "description": "iterate segment and execute operations on it",
+    "input": [
+      "Path",
+      "SegmentIDScheduleFunc",
+      "Storage"
+    ]
+  },
   "ListFile": {
     "description": "list files",
     "input": [
@@ -156,6 +175,16 @@
     ],
     "output": [
       "ObjectChannel"
+    ]
+  },
+  "ListSegment": {
+    "description": "list segments",
+    "input": [
+      "Path",
+      "Storage"
+    ],
+    "output": [
+      "SegmentChannel"
     ]
   },
   "ListStorage": {

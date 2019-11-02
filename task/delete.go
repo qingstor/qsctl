@@ -2,6 +2,7 @@ package task
 
 import (
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -53,9 +54,14 @@ func (t *DeleteStorageTask) run() {
 		deleteDir.SetPath("")
 		deleteDir.SetStorage(store)
 
-		t.GetScheduler().Sync(deleteDir)
+		t.GetScheduler().Async(deleteDir)
 
-		// TODO: remove all segments.
+		deleteSegment := NewDeleteSegmentDir(t)
+		deleteSegment.SetPath("") // set path "" means delete all segments
+		deleteSegment.SetStorage(store)
+
+		t.GetScheduler().Async(deleteSegment)
+		t.GetScheduler().Wait()
 	}
 
 	err := t.GetService().Delete(t.GetStorageName())
@@ -69,4 +75,28 @@ func (t *DeleteStorageTask) run() {
 }
 
 func (t *DeleteSegmentTask) new() {}
-func (t *DeleteSegmentTask) run() {}
+func (t *DeleteSegmentTask) run() {
+	log.Debugf("Task <%s> for ID <%s> started.", "DeleteSegment", t.GetSegmentID())
+
+	if err := t.GetStorage().AbortSegment(t.GetSegmentID()); err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+
+	log.Debugf("Task <%s> for ID <%s> finished.", "DeleteSegment", t.GetSegmentID())
+}
+
+func (t *DeleteSegmentDirTask) new() {}
+
+func (t *DeleteSegmentDirTask) run() {
+	log.Debugf("Task <%s> for path <%s> started",
+		"DeleteSegmentDir", t.GetPath())
+
+	x := NewIterateSegment(t)
+	x.SetSegmentIDScheduleFunc(NewDeleteSegmentSegmentIDRequirement)
+
+	t.GetScheduler().Sync(x)
+
+	log.Debugf("Task <%s> for path <%s> finished",
+		"DeleteSegmentDir", t.GetPath())
+}

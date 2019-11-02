@@ -7,6 +7,7 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/pkg/segment"
 	"github.com/Xuanwo/storage/types"
 
 	"github.com/yunify/qsctl/v2/pkg/fault"
@@ -1901,6 +1902,65 @@ func LoadScheduler(t navvy.Task, v SchedulerSetter) {
 	v.SetScheduler(x.GetScheduler())
 }
 
+type SegmentChannel struct {
+	valid bool
+	v     chan *segment.Segment
+
+	l sync.RWMutex
+}
+
+type SegmentChannelGetter interface {
+	GetSegmentChannel() chan *segment.Segment
+}
+
+func (o *SegmentChannel) GetSegmentChannel() chan *segment.Segment {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("SegmentChannel value is not valid")
+	}
+	return o.v
+}
+
+type SegmentChannelSetter interface {
+	SetSegmentChannel(chan *segment.Segment)
+}
+
+func (o *SegmentChannel) SetSegmentChannel(v chan *segment.Segment) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type SegmentChannelValidator interface {
+	ValidateSegmentChannel() bool
+}
+
+func (o *SegmentChannel) ValidateSegmentChannel() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadSegmentChannel(t navvy.Task, v SegmentChannelSetter) {
+	x, ok := t.(interface {
+		SegmentChannelGetter
+		SegmentChannelValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentChannel() {
+		return
+	}
+
+	v.SetSegmentChannel(x.GetSegmentChannel())
+}
+
 type SegmentID struct {
 	valid bool
 	v     string
@@ -1958,6 +2018,65 @@ func LoadSegmentID(t navvy.Task, v SegmentIDSetter) {
 	}
 
 	v.SetSegmentID(x.GetSegmentID())
+}
+
+type SegmentIDScheduleFunc struct {
+	valid bool
+	v     segmentIDScheduleFunc
+
+	l sync.RWMutex
+}
+
+type SegmentIDScheduleFuncGetter interface {
+	GetSegmentIDScheduleFunc() segmentIDScheduleFunc
+}
+
+func (o *SegmentIDScheduleFunc) GetSegmentIDScheduleFunc() segmentIDScheduleFunc {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("SegmentIDScheduleFunc value is not valid")
+	}
+	return o.v
+}
+
+type SegmentIDScheduleFuncSetter interface {
+	SetSegmentIDScheduleFunc(segmentIDScheduleFunc)
+}
+
+func (o *SegmentIDScheduleFunc) SetSegmentIDScheduleFunc(v segmentIDScheduleFunc) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type SegmentIDScheduleFuncValidator interface {
+	ValidateSegmentIDScheduleFunc() bool
+}
+
+func (o *SegmentIDScheduleFunc) ValidateSegmentIDScheduleFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadSegmentIDScheduleFunc(t navvy.Task, v SegmentIDScheduleFuncSetter) {
+	x, ok := t.(interface {
+		SegmentIDScheduleFuncGetter
+		SegmentIDScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentIDScheduleFunc() {
+		return
+	}
+
+	v.SetSegmentIDScheduleFunc(x.GetSegmentIDScheduleFunc())
 }
 
 type Service struct {
