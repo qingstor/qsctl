@@ -39,7 +39,17 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	// TODO: handle remove dir.
+	if rmInput.recursive {
+		t := task.NewDeleteDir(rootTask)
+		t.Run()
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+
+		rmDirOutput(t)
+		return nil
+	}
+
 	t := task.NewDeleteFile(rootTask)
 	t.Run()
 	if t.GetFault().HasError() {
@@ -52,4 +62,8 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 
 func rmOutput(t *task.DeleteFileTask) {
 	fmt.Printf("Object <%s> removed.\n", t.GetPath())
+}
+
+func rmDirOutput(t *task.DeleteDirTask) {
+	fmt.Printf("Dir <%s> removed.\n", t.GetPath())
 }
