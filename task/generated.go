@@ -992,17 +992,20 @@ type ListFileTask struct {
 
 	// Input value
 	types.Path
+	types.Recursive
 	types.Storage
 
 	// Output value
 	types.ObjectChannel
-	types.Recursive
 }
 
 // validateInput will validate all input before run task.
 func (t *ListFileTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task ListFile value Path is invalid"))
+	}
+	if !t.ValidateRecursive() {
+		panic(fmt.Errorf("Task ListFile value Recursive is invalid"))
 	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task ListFile value Storage is invalid"))
@@ -1014,6 +1017,7 @@ func (t *ListFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
+	types.LoadRecursive(task, t)
 	types.LoadStorage(task, t)
 }
 

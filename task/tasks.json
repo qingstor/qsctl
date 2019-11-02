@@ -156,11 +156,11 @@
     "description": "list files",
     "input": [
       "Path",
+      "Recursive",
       "Storage"
     ],
     "output": [
-      "ObjectChannel",
-      "Recursive"
+      "ObjectChannel"
     ]
   },
   "ListStorage": {

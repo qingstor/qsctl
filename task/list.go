@@ -17,10 +17,7 @@ func (t *ListFileTask) new() {
 func (t *ListFileTask) run() {
 	log.Debugf("Task <%s> for key <%s> started", "ObjectListTask", t.GetPath())
 
-	pairs := make([]*typ.Pair, 0)
-	pairs = append(pairs, typ.WithRecursive(t.GetRecursive()))
-
-	it := t.GetStorage().ListDir(t.GetPath(), pairs...)
+	it := t.GetStorage().ListDir(t.GetPath(), typ.WithRecursive(t.GetRecursive()))
 
 	// Always close the object channel.
 	defer close(t.GetObjectChannel())
