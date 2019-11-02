@@ -9,7 +9,6 @@ import (
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
@@ -248,124 +247,6 @@ func LoadContent(t navvy.Task, v ContentSetter) {
 	}
 
 	v.SetContent(x.GetContent())
-}
-
-type CurrentOffset struct {
-	valid bool
-	v     *int64
-
-	l sync.RWMutex
-}
-
-type CurrentOffsetGetter interface {
-	GetCurrentOffset() *int64
-}
-
-func (o *CurrentOffset) GetCurrentOffset() *int64 {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("CurrentOffset value is not valid")
-	}
-	return o.v
-}
-
-type CurrentOffsetSetter interface {
-	SetCurrentOffset(*int64)
-}
-
-func (o *CurrentOffset) SetCurrentOffset(v *int64) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type CurrentOffsetValidator interface {
-	ValidateCurrentOffset() bool
-}
-
-func (o *CurrentOffset) ValidateCurrentOffset() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadCurrentOffset(t navvy.Task, v CurrentOffsetSetter) {
-	x, ok := t.(interface {
-		CurrentOffsetGetter
-		CurrentOffsetValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateCurrentOffset() {
-		return
-	}
-
-	v.SetCurrentOffset(x.GetCurrentOffset())
-}
-
-type CurrentPartNumber struct {
-	valid bool
-	v     *int32
-
-	l sync.RWMutex
-}
-
-type CurrentPartNumberGetter interface {
-	GetCurrentPartNumber() *int32
-}
-
-func (o *CurrentPartNumber) GetCurrentPartNumber() *int32 {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("CurrentPartNumber value is not valid")
-	}
-	return o.v
-}
-
-type CurrentPartNumberSetter interface {
-	SetCurrentPartNumber(*int32)
-}
-
-func (o *CurrentPartNumber) SetCurrentPartNumber(v *int32) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type CurrentPartNumberValidator interface {
-	ValidateCurrentPartNumber() bool
-}
-
-func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadCurrentPartNumber(t navvy.Task, v CurrentPartNumberSetter) {
-	x, ok := t.(interface {
-		CurrentPartNumberGetter
-		CurrentPartNumberValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateCurrentPartNumber() {
-		return
-	}
-
-	v.SetCurrentPartNumber(x.GetCurrentPartNumber())
 }
 
 type DestinationPath struct {
@@ -1074,65 +955,6 @@ func LoadID(t navvy.Task, v IDSetter) {
 	}
 
 	v.SetID(x.GetID())
-}
-
-type ListType struct {
-	valid bool
-	v     constants.ListType
-
-	l sync.RWMutex
-}
-
-type ListTypeGetter interface {
-	GetListType() constants.ListType
-}
-
-func (o *ListType) GetListType() constants.ListType {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("ListType value is not valid")
-	}
-	return o.v
-}
-
-type ListTypeSetter interface {
-	SetListType(constants.ListType)
-}
-
-func (o *ListType) SetListType(v constants.ListType) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type ListTypeValidator interface {
-	ValidateListType() bool
-}
-
-func (o *ListType) ValidateListType() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadListType(t navvy.Task, v ListTypeSetter) {
-	x, ok := t.(interface {
-		ListTypeGetter
-		ListTypeValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateListType() {
-		return
-	}
-
-	v.SetListType(x.GetListType())
 }
 
 type LongFormat struct {

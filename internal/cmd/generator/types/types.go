@@ -61,7 +61,6 @@ import (
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 )
