@@ -150,6 +150,24 @@ func (mr *MockStoragerMockRecorder) Delete(arg0 interface{}, arg1 ...interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorager)(nil).Delete), varargs...)
 }
 
+// Init mocks base method
+func (m *MockStorager) Init(arg0 ...*types.Pair) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Init", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Init indicates an expected call of Init
+func (mr *MockStoragerMockRecorder) Init(arg0 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockStorager)(nil).Init), arg0...)
+}
+
 // InitSegment mocks base method
 func (m *MockStorager) InitSegment(arg0 string, arg1 ...*types.Pair) (string, error) {
 	m.ctrl.T.Helper()
