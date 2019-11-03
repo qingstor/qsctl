@@ -143,13 +143,13 @@ func main() {
 
 	executeTemplate(taskPageTmpl, taskFile, nil)
 
-	// testFile, err := os.Create("generated_test.go")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer testFile.Close()
+	testFile, err := os.Create("generated_test.go")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer testFile.Close()
 
-	// executeTemplate(testPageTmpl, testFile, nil)
+	executeTemplate(testPageTmpl, testFile, nil)
 
 	for _, taskName := range taskNames {
 		v := tasks[taskName]
@@ -162,6 +162,7 @@ func main() {
 		}
 
 		executeTemplate(taskTmpl, taskFile, v)
+		executeTemplate(testTmpl, testFile, v)
 	}
 }
 
@@ -277,20 +278,12 @@ var _ navvy.Pool
 var _ types.Pool
 `))
 
-var taskTestTmpl = template.Must(template.New("taskTest").Funcs(funcs).Parse(`
+var testTmpl = template.Must(template.New("test").Funcs(funcs).Parse(`
 func Test{{ .Name }}Task_TriggerFault(t *testing.T) {
-	m := &types.Mock{{ .Name }}Task{}
-	m.SetFault(fault.New())
-	task := &{{ .Name }}Task{ {{ .Name }}Requirement: m}
+	task := &{{ .Name }}Task{}
+	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
-}
-
-func TestMock{{ .Name }}Task_Run(t *testing.T) {
-	task := &types.Mock{{ .Name }}Task{}
-	assert.Panics(t, func() {
-		task.Run()
-	})
 }
 `))
