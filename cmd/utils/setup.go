@@ -96,35 +96,30 @@ var confirmPrompt = &survey.Confirm{
 func SetupConfigInteractive() (fileName string, err error) {
 	in := NewInputConfig()
 
-	// multiple times to set config if not confirmed
-	for {
-		if err = survey.Ask(keyPrompt, &in); err != nil {
+	if err = survey.Ask(keyPrompt, &in); err != nil {
+		return "", err
+	}
+
+	if err = survey.AskOne(publicCloudPrompt, &isPublicCloud); err != nil {
+		return "", err
+	}
+
+	if !isPublicCloud {
+		if err = survey.Ask(privatePrompt, &in); err != nil {
 			return "", err
 		}
+	}
 
-		if err = survey.AskOne(publicCloudPrompt, &isPublicCloud); err != nil {
-			return "", err
-		}
+	if err = survey.AskOne(logLevelPrompt, &in.LogLevel); err != nil {
+		return "", err
+	}
 
-		if !isPublicCloud {
-			if err = survey.Ask(privatePrompt, &in); err != nil {
-				return "", err
-			}
-		}
+	if err = survey.AskOne(confirmPrompt, &confirm); err != nil {
+		return "", err
+	}
 
-		if err = survey.AskOne(logLevelPrompt, &in.LogLevel); err != nil {
-			return "", err
-		}
-
-		if err = survey.AskOne(confirmPrompt, &confirm); err != nil {
-			return "", err
-		}
-
-		if confirm {
-			break
-		}
-		// reset the input
-		in = NewInputConfig()
+	if !confirm {
+		return "", fmt.Errorf("config not confirmed")
 	}
 
 	b, err := yaml.Marshal(in)
