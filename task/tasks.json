@@ -7,9 +7,6 @@
       "DestinationStorage",
       "SourcePath",
       "SourceStorage"
-    ],
-    "output": [
-      "TotalSize"
     ]
   },
   "CopyLargeFile": {
@@ -82,14 +79,12 @@
     "input": [
       "DestinationPath",
       "DestinationStorage",
+      "Size",
       "SourcePath",
-      "SourceStorage",
-      "TotalSize"
+      "SourceStorage"
     ],
     "output": [
-      "MD5Sum",
-      "Offset",
-      "Size"
+      "MD5Sum"
     ]
   },
   "CopyStream": {
@@ -217,9 +212,9 @@
     "workload": "io",
     "input": [
       "Offset",
+      "Path",
       "Size",
-      "SourcePath",
-      "SourceStorage"
+      "Storage"
     ],
     "output": [
       "MD5Sum"
