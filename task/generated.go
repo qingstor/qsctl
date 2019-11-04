@@ -15,54 +15,54 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
-// copyFileTaskRequirement is the requirement for execute CopyFileTask.
-type copyFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// mockCopyFileTask is the mock task for CopyFileTask.
-type mockCopyFileTask struct {
-	types.Pool
+// CopyFileTask will copy a file between two storager.
+type CopyFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
-}
 
-func (t *mockCopyFileTask) Run() {
-	panic("mockCopyFileTask should not be run.")
-}
-
-// CopyFileTask will copy a file between two storager.
-type CopyFileTask struct {
-	copyFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+	// Output value
 	types.TotalSize
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyFileTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyFile value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopyFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -73,112 +73,76 @@ func (t *CopyFileTask) TriggerFault(err error) {
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
 func NewCopyFile(task navvy.Task) *CopyFileTask {
-	t := &CopyFileTask{
-		copyFileTaskRequirement: task.(copyFileTaskRequirement),
-	}
+	t := &CopyFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopyFileTask will create a CopyFileTask and fetch inherited data from parent task.
+// NewCopyFileTask will create a CopyFileTask which meets navvy.Task.
 func NewCopyFileTask(task navvy.Task) navvy.Task {
 	return NewCopyFile(task)
 }
 
-// copyFileShimTaskRequirement is the requirement for execute CopyFileShimTask.
-type copyFileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-	types.TotalSizeSetter
-}
-
-// copyFileShimTask will Storage shim task for .
-type copyFileShimTask struct {
-	copyFileShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copyFileShimTask) Run() {}
-
-// NewCopyFileShim will create a copyFileShimTask struct and fetch inherited data from parent task.
-func NewCopyFileShim(task navvy.Task) *copyFileShimTask {
-	t := &copyFileShimTask{
-		copyFileShimTaskRequirement: task.(copyFileShimTaskRequirement),
-	}
-	return t
-}
-
-// copyLargeFileTaskRequirement is the requirement for execute CopyLargeFileTask.
-type copyLargeFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-}
-
-// mockCopyLargeFileTask is the mock task for CopyLargeFileTask.
-type mockCopyLargeFileTask struct {
-	types.Pool
+// CopyLargeFileTask will copy a large file between two storager.
+type CopyLargeFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
-}
 
-func (t *mockCopyLargeFileTask) Run() {
-	panic("mockCopyLargeFileTask should not be run.")
-}
-
-// CopyLargeFileTask will copy a large file between two storager.
-type CopyLargeFileTask struct {
-	copyLargeFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+	// Output value
+	types.Offset
 	types.PartSize
-	types.ScheduleFunc
 	types.SegmentID
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyLargeFileTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyLargeFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyLargeFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyLargeFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyLargeFile value SourceStorage is invalid"))
+	}
+	if !t.ValidateTotalSize() {
+		panic(fmt.Errorf("Task CopyLargeFile value TotalSize is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyLargeFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+	types.LoadTotalSize(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopyLargeFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -189,126 +153,90 @@ func (t *CopyLargeFileTask) TriggerFault(err error) {
 
 // NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
 func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
-	t := &CopyLargeFileTask{
-		copyLargeFileTaskRequirement: task.(copyLargeFileTaskRequirement),
-	}
+	t := &CopyLargeFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopyLargeFileTask will create a CopyLargeFileTask and fetch inherited data from parent task.
+// NewCopyLargeFileTask will create a CopyLargeFileTask which meets navvy.Task.
 func NewCopyLargeFileTask(task navvy.Task) navvy.Task {
 	return NewCopyLargeFile(task)
 }
 
-// copyLargeFileShimTaskRequirement is the requirement for execute CopyLargeFileShimTask.
-type copyLargeFileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-	types.PartSizeGetter
-	types.ScheduleFuncGetter
-	types.SegmentIDGetter
-
-	// Mutable value
-	types.PartSizeSetter
-	types.ScheduleFuncSetter
-	types.SegmentIDSetter
-}
-
-// copyLargeFileShimTask will Storage shim task for .
-type copyLargeFileShimTask struct {
-	copyLargeFileShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copyLargeFileShimTask) Run() {}
-
-// NewCopyLargeFileShim will create a copyLargeFileShimTask struct and fetch inherited data from parent task.
-func NewCopyLargeFileShim(task navvy.Task) *copyLargeFileShimTask {
-	t := &copyLargeFileShimTask{
-		copyLargeFileShimTaskRequirement: task.(copyLargeFileShimTaskRequirement),
-	}
-	return t
-}
-
-// copyPartialFileTaskRequirement is the requirement for execute CopyPartialFileTask.
-type copyPartialFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.OffsetGetter
-	types.PartSizeGetter
-	types.SegmentIDGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-	types.SizeSetter
-	types.DoneSetter
-}
-
-// mockCopyPartialFileTask is the mock task for CopyPartialFileTask.
-type mockCopyPartialFileTask struct {
-	types.Pool
+// CopyPartialFileTask will copy a partial file to between two storager.
+type CopyPartialFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
-	types.Done
 	types.Offset
 	types.PartSize
 	types.SegmentID
-	types.Size
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
+
+	// Output value
+	types.Done
+	types.Size
 }
 
-func (t *mockCopyPartialFileTask) Run() {
-	panic("mockCopyPartialFileTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *CopyPartialFileTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyPartialFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyPartialFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateOffset() {
+		panic(fmt.Errorf("Task CopyPartialFile value Offset is invalid"))
+	}
+	if !t.ValidatePartSize() {
+		panic(fmt.Errorf("Task CopyPartialFile value PartSize is invalid"))
+	}
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task CopyPartialFile value SegmentID is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyPartialFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyPartialFile value SourceStorage is invalid"))
+	}
+	if !t.ValidateTotalSize() {
+		panic(fmt.Errorf("Task CopyPartialFile value TotalSize is invalid"))
+	}
 }
 
-// CopyPartialFileTask will copy a partial file to between two storager.
-type CopyPartialFileTask struct {
-	copyPartialFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.MD5Sum
+// loadInput will check and load all input before new task.
+func (t *CopyPartialFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadOffset(task, t)
+	types.LoadPartSize(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+	types.LoadTotalSize(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopyPartialFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -319,126 +247,86 @@ func (t *CopyPartialFileTask) TriggerFault(err error) {
 
 // NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
 func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
-	t := &CopyPartialFileTask{
-		copyPartialFileTaskRequirement: task.(copyPartialFileTaskRequirement),
-	}
+	t := &CopyPartialFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopyPartialFileTask will create a CopyPartialFileTask and fetch inherited data from parent task.
+// NewCopyPartialFileTask will create a CopyPartialFileTask which meets navvy.Task.
 func NewCopyPartialFileTask(task navvy.Task) navvy.Task {
 	return NewCopyPartialFile(task)
 }
 
-// copyPartialFileShimTaskRequirement is the requirement for execute CopyPartialFileShimTask.
-type copyPartialFileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.OffsetGetter
-	types.PartSizeGetter
-	types.SegmentIDGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-	types.MD5SumGetter
-
-	// Mutable value
-	types.SizeSetter
-	types.DoneSetter
-	types.MD5SumSetter
-}
-
-// copyPartialFileShimTask will Storage shim task for .
-type copyPartialFileShimTask struct {
-	copyPartialFileShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copyPartialFileShimTask) Run() {}
-
-// NewCopyPartialFileShim will create a copyPartialFileShimTask struct and fetch inherited data from parent task.
-func NewCopyPartialFileShim(task navvy.Task) *copyPartialFileShimTask {
-	t := &copyPartialFileShimTask{
-		copyPartialFileShimTaskRequirement: task.(copyPartialFileShimTaskRequirement),
-	}
-	return t
-}
-
-// copyPartialStreamTaskRequirement is the requirement for execute CopyPartialStreamTask.
-type copyPartialStreamTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.BytesPoolGetter
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.PartSizeGetter
-	types.SegmentIDGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-	types.SizeSetter
-	types.DoneSetter
-}
-
-// mockCopyPartialStreamTask is the mock task for CopyPartialStreamTask.
-type mockCopyPartialStreamTask struct {
-	types.Pool
+// CopyPartialStreamTask will copy a partial stream between two storager.
+type CopyPartialStreamTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.BytesPool
 	types.DestinationPath
 	types.DestinationStorage
-	types.Done
 	types.PartSize
 	types.SegmentID
-	types.Size
 	types.SourcePath
 	types.SourceStorage
-}
 
-func (t *mockCopyPartialStreamTask) Run() {
-	panic("mockCopyPartialStreamTask should not be run.")
-}
-
-// CopyPartialStreamTask will copy a partial stream between two storager.
-type CopyPartialStreamTask struct {
-	copyPartialStreamTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+	// Output value
 	types.Content
-	types.MD5Sum
+	types.Done
+	types.Size
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyPartialStreamTask) validateInput() {
+	if !t.ValidateBytesPool() {
+		panic(fmt.Errorf("Task CopyPartialStream value BytesPool is invalid"))
+	}
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyPartialStream value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyPartialStream value DestinationStorage is invalid"))
+	}
+	if !t.ValidatePartSize() {
+		panic(fmt.Errorf("Task CopyPartialStream value PartSize is invalid"))
+	}
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task CopyPartialStream value SegmentID is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyPartialStream value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyPartialStream value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyPartialStreamTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadBytesPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadPartSize(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopyPartialStreamTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -449,118 +337,78 @@ func (t *CopyPartialStreamTask) TriggerFault(err error) {
 
 // NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
 func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
-	t := &CopyPartialStreamTask{
-		copyPartialStreamTaskRequirement: task.(copyPartialStreamTaskRequirement),
-	}
+	t := &CopyPartialStreamTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopyPartialStreamTask will create a CopyPartialStreamTask and fetch inherited data from parent task.
+// NewCopyPartialStreamTask will create a CopyPartialStreamTask which meets navvy.Task.
 func NewCopyPartialStreamTask(task navvy.Task) navvy.Task {
 	return NewCopyPartialStream(task)
 }
 
-// copyPartialStreamShimTaskRequirement is the requirement for execute CopyPartialStreamShimTask.
-type copyPartialStreamShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.BytesPoolGetter
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.PartSizeGetter
-	types.SegmentIDGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.ContentGetter
-	types.MD5SumGetter
-
-	// Mutable value
-	types.SizeSetter
-	types.DoneSetter
-	types.ContentSetter
-	types.MD5SumSetter
-}
-
-// copyPartialStreamShimTask will Storage shim task for .
-type copyPartialStreamShimTask struct {
-	copyPartialStreamShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copyPartialStreamShimTask) Run() {}
-
-// NewCopyPartialStreamShim will create a copyPartialStreamShimTask struct and fetch inherited data from parent task.
-func NewCopyPartialStreamShim(task navvy.Task) *copyPartialStreamShimTask {
-	t := &copyPartialStreamShimTask{
-		copyPartialStreamShimTaskRequirement: task.(copyPartialStreamShimTaskRequirement),
-	}
-	return t
-}
-
-// copySingleFileTaskRequirement is the requirement for execute CopySingleFileTask.
-type copySingleFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// mockCopySingleFileTask is the mock task for CopySingleFileTask.
-type mockCopySingleFileTask struct {
-	types.Pool
+// CopySingleFileTask will execute a file copy operation between towo storager.
+type CopySingleFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
 	types.Size
 	types.SourcePath
 	types.SourceStorage
+
+	// Output value
 }
 
-func (t *mockCopySingleFileTask) Run() {
-	panic("mockCopySingleFileTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *CopySingleFileTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopySingleFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopySingleFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateMD5Sum() {
+		panic(fmt.Errorf("Task CopySingleFile value MD5Sum is invalid"))
+	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task CopySingleFile value Size is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopySingleFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopySingleFile value SourceStorage is invalid"))
+	}
 }
 
-// CopySingleFileTask will execute a file copy operation between towo storager.
-type CopySingleFileTask struct {
-	copySingleFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+// loadInput will check and load all input before new task.
+func (t *CopySingleFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadMD5Sum(task, t)
+	types.LoadSize(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopySingleFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -571,112 +419,76 @@ func (t *CopySingleFileTask) TriggerFault(err error) {
 
 // NewCopySingleFile will create a CopySingleFileTask struct and fetch inherited data from parent task.
 func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
-	t := &CopySingleFileTask{
-		copySingleFileTaskRequirement: task.(copySingleFileTaskRequirement),
-	}
+	t := &CopySingleFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopySingleFileTask will create a CopySingleFileTask and fetch inherited data from parent task.
+// NewCopySingleFileTask will create a CopySingleFileTask which meets navvy.Task.
 func NewCopySingleFileTask(task navvy.Task) navvy.Task {
 	return NewCopySingleFile(task)
 }
 
-// copySingleFileShimTaskRequirement is the requirement for execute CopySingleFileShimTask.
-type copySingleFileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// copySingleFileShimTask will Storage shim task for .
-type copySingleFileShimTask struct {
-	copySingleFileShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copySingleFileShimTask) Run() {}
-
-// NewCopySingleFileShim will create a copySingleFileShimTask struct and fetch inherited data from parent task.
-func NewCopySingleFileShim(task navvy.Task) *copySingleFileShimTask {
-	t := &copySingleFileShimTask{
-		copySingleFileShimTaskRequirement: task.(copySingleFileShimTaskRequirement),
-	}
-	return t
-}
-
-// copySmallFileTaskRequirement is the requirement for execute CopySmallFileTask.
-type copySmallFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-}
-
-// mockCopySmallFileTask is the mock task for CopySmallFileTask.
-type mockCopySmallFileTask struct {
-	types.Pool
+// CopySmallFileTask will copy a small file between two storager.
+type CopySmallFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
 	types.TotalSize
-}
 
-func (t *mockCopySmallFileTask) Run() {
-	panic("mockCopySmallFileTask should not be run.")
-}
-
-// CopySmallFileTask will copy a small file between two storager.
-type CopySmallFileTask struct {
-	copySmallFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+	// Output value
 	types.MD5Sum
 	types.Offset
 	types.Size
 }
 
+// validateInput will validate all input before run task.
+func (t *CopySmallFileTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopySmallFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopySmallFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopySmallFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopySmallFile value SourceStorage is invalid"))
+	}
+	if !t.ValidateTotalSize() {
+		panic(fmt.Errorf("Task CopySmallFile value TotalSize is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopySmallFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+	types.LoadTotalSize(task, t)
+}
+
 // Run implement navvy.Task
 func (t *CopySmallFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -687,118 +499,71 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 
 // NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
 func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
-	t := &CopySmallFileTask{
-		copySmallFileTaskRequirement: task.(copySmallFileTaskRequirement),
-	}
+	t := &CopySmallFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopySmallFileTask will create a CopySmallFileTask and fetch inherited data from parent task.
+// NewCopySmallFileTask will create a CopySmallFileTask which meets navvy.Task.
 func NewCopySmallFileTask(task navvy.Task) navvy.Task {
 	return NewCopySmallFile(task)
 }
 
-// copySmallFileShimTaskRequirement is the requirement for execute CopySmallFileShimTask.
-type copySmallFileShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.TotalSizeGetter
-	types.MD5SumGetter
-	types.OffsetGetter
-	types.SizeGetter
-
-	// Mutable value
-	types.MD5SumSetter
-	types.OffsetSetter
-	types.SizeSetter
-}
-
-// copySmallFileShimTask will Storage shim task for .
-type copySmallFileShimTask struct {
-	copySmallFileShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copySmallFileShimTask) Run() {}
-
-// NewCopySmallFileShim will create a copySmallFileShimTask struct and fetch inherited data from parent task.
-func NewCopySmallFileShim(task navvy.Task) *copySmallFileShimTask {
-	t := &copySmallFileShimTask{
-		copySmallFileShimTaskRequirement: task.(copySmallFileShimTaskRequirement),
-	}
-	return t
-}
-
-// copyStreamTaskRequirement is the requirement for execute CopyStreamTask.
-type copyStreamTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// mockCopyStreamTask is the mock task for CopyStreamTask.
-type mockCopyStreamTask struct {
-	types.Pool
+// CopyStreamTask will copy a stream between two storager.
+type CopyStreamTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
 	types.SourceStorage
-}
 
-func (t *mockCopyStreamTask) Run() {
-	panic("mockCopyStreamTask should not be run.")
-}
-
-// CopyStreamTask will copy a stream between two storager.
-type CopyStreamTask struct {
-	copyStreamTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+	// Output value
 	types.BytesPool
-	types.CurrentOffset
 	types.PartSize
-	types.ScheduleFunc
 	types.SegmentID
-	types.TotalSize
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyStreamTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyStream value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyStream value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyStream value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyStream value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyStreamTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *CopyStreamTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -809,113 +574,55 @@ func (t *CopyStreamTask) TriggerFault(err error) {
 
 // NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
 func NewCopyStream(task navvy.Task) *CopyStreamTask {
-	t := &CopyStreamTask{
-		copyStreamTaskRequirement: task.(copyStreamTaskRequirement),
-	}
+	t := &CopyStreamTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCopyStreamTask will create a CopyStreamTask and fetch inherited data from parent task.
+// NewCopyStreamTask will create a CopyStreamTask which meets navvy.Task.
 func NewCopyStreamTask(task navvy.Task) navvy.Task {
 	return NewCopyStream(task)
 }
 
-// copyStreamShimTaskRequirement is the requirement for execute CopyStreamShimTask.
-type copyStreamShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-	types.BytesPoolGetter
-	types.CurrentOffsetGetter
-	types.PartSizeGetter
-	types.ScheduleFuncGetter
-	types.SegmentIDGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-	types.BytesPoolSetter
-	types.CurrentOffsetSetter
-	types.PartSizeSetter
-	types.ScheduleFuncSetter
-	types.SegmentIDSetter
-	types.TotalSizeSetter
-}
-
-// copyStreamShimTask will Storage shim task for .
-type copyStreamShimTask struct {
-	copyStreamShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *copyStreamShimTask) Run() {}
-
-// NewCopyStreamShim will create a copyStreamShimTask struct and fetch inherited data from parent task.
-func NewCopyStreamShim(task navvy.Task) *copyStreamShimTask {
-	t := &copyStreamShimTask{
-		copyStreamShimTaskRequirement: task.(copyStreamShimTaskRequirement),
-	}
-	return t
-}
-
-// createStorageTaskRequirement is the requirement for execute CreateStorageTask.
-type createStorageTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ServiceGetter
-
-	// Mutable value
-}
-
-// mockCreateStorageTask is the mock task for CreateStorageTask.
-type mockCreateStorageTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Service
-}
-
-func (t *mockCreateStorageTask) Run() {
-	panic("mockCreateStorageTask should not be run.")
-}
-
 // CreateStorageTask will create a storage.
 type CreateStorageTask struct {
-	createStorageTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Service
+
+	// Output value
 	types.StorageName
 	types.Zone
 }
 
+// validateInput will validate all input before run task.
+func (t *CreateStorageTask) validateInput() {
+	if !t.ValidateService() {
+		panic(fmt.Errorf("Task CreateStorage value Service is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CreateStorageTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadService(task, t)
+}
+
 // Run implement navvy.Task
 func (t *CreateStorageTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -926,67 +633,59 @@ func (t *CreateStorageTask) TriggerFault(err error) {
 
 // NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
 func NewCreateStorage(task navvy.Task) *CreateStorageTask {
-	t := &CreateStorageTask{
-		createStorageTaskRequirement: task.(createStorageTaskRequirement),
-	}
+	t := &CreateStorageTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewCreateStorageTask will create a CreateStorageTask and fetch inherited data from parent task.
+// NewCreateStorageTask will create a CreateStorageTask which meets navvy.Task.
 func NewCreateStorageTask(task navvy.Task) navvy.Task {
 	return NewCreateStorage(task)
 }
 
-// deleteDirTaskRequirement is the requirement for execute DeleteDirTask.
-type deleteDirTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockDeleteDirTask is the mock task for DeleteDirTask.
-type mockDeleteDirTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Path
-	types.Storage
-}
-
-func (t *mockDeleteDirTask) Run() {
-	panic("mockDeleteDirTask should not be run.")
-}
-
 // DeleteDirTask will will delete a dir recursively.
 type DeleteDirTask struct {
-	deleteDirTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
-	types.ObjectChannel
-	types.Recursive
-	types.ScheduleFunc
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+	types.PathScheduleFunc
+}
+
+// validateInput will validate all input before run task.
+func (t *DeleteDirTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task DeleteDir value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteDir value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteDirTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *DeleteDirTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -997,64 +696,63 @@ func (t *DeleteDirTask) TriggerFault(err error) {
 
 // NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
 func NewDeleteDir(task navvy.Task) *DeleteDirTask {
-	t := &DeleteDirTask{
-		deleteDirTaskRequirement: task.(deleteDirTaskRequirement),
-	}
+	t := &DeleteDirTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewDeleteDirTask will create a DeleteDirTask and fetch inherited data from parent task.
+// NewDeleteDirTask will create a DeleteDirTask which meets navvy.Task.
 func NewDeleteDirTask(task navvy.Task) navvy.Task {
 	return NewDeleteDir(task)
 }
 
-// deleteFileTaskRequirement is the requirement for execute DeleteFileTask.
-type deleteFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockDeleteFileTask is the mock task for DeleteFileTask.
-type mockDeleteFileTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Path
-	types.Storage
-}
-
-func (t *mockDeleteFileTask) Run() {
-	panic("mockDeleteFileTask should not be run.")
+// NewDeleteDirPathRequirement will create a DeleteDirTask which meets PathRequirement.
+func NewDeleteDirPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewDeleteDir(task)
 }
 
 // DeleteFileTask will will delete a file from storage.
 type DeleteFileTask struct {
-	deleteFileTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *DeleteFileTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task DeleteFile value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteFile value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *DeleteFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1065,60 +763,63 @@ func (t *DeleteFileTask) TriggerFault(err error) {
 
 // NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
 func NewDeleteFile(task navvy.Task) *DeleteFileTask {
-	t := &DeleteFileTask{
-		deleteFileTaskRequirement: task.(deleteFileTaskRequirement),
-	}
+	t := &DeleteFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewDeleteFileTask will create a DeleteFileTask and fetch inherited data from parent task.
+// NewDeleteFileTask will create a DeleteFileTask which meets navvy.Task.
 func NewDeleteFileTask(task navvy.Task) navvy.Task {
 	return NewDeleteFile(task)
 }
 
-// deleteSegmentTaskRequirement is the requirement for execute DeleteSegmentTask.
-type deleteSegmentTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-
-	// Mutable value
+// NewDeleteFilePathRequirement will create a DeleteFileTask which meets PathRequirement.
+func NewDeleteFilePathRequirement(task navvy.Task) types.PathRequirement {
+	return NewDeleteFile(task)
 }
 
-// mockDeleteSegmentTask is the mock task for DeleteSegmentTask.
-type mockDeleteSegmentTask struct {
-	types.Pool
+// DeleteSegmentTask will delete all segments with a given path.
+type DeleteSegmentTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
-
-	// Inherited and mutable values.
-}
-
-func (t *mockDeleteSegmentTask) Run() {
-	panic("mockDeleteSegmentTask should not be run.")
-}
-
-// DeleteSegmentTask will .
-type DeleteSegmentTask struct {
-	deleteSegmentTaskRequirement
-
-	// Predefined runtime value
-	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.SegmentID
+	types.Storage
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *DeleteSegmentTask) validateInput() {
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task DeleteSegment value SegmentID is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteSegment value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteSegmentTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *DeleteSegmentTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1129,63 +830,135 @@ func (t *DeleteSegmentTask) TriggerFault(err error) {
 
 // NewDeleteSegment will create a DeleteSegmentTask struct and fetch inherited data from parent task.
 func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
-	t := &DeleteSegmentTask{
-		deleteSegmentTaskRequirement: task.(deleteSegmentTaskRequirement),
-	}
+	t := &DeleteSegmentTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewDeleteSegmentTask will create a DeleteSegmentTask and fetch inherited data from parent task.
+// NewDeleteSegmentTask will create a DeleteSegmentTask which meets navvy.Task.
 func NewDeleteSegmentTask(task navvy.Task) navvy.Task {
 	return NewDeleteSegment(task)
 }
 
-// deleteStorageTaskRequirement is the requirement for execute DeleteStorageTask.
-type deleteStorageTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ServiceGetter
-
-	// Mutable value
+// NewDeleteSegmentSegmentIDRequirement will create a DeleteSegmentTask which meets SegmentIDRequirement.
+func NewDeleteSegmentSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+	return NewDeleteSegment(task)
 }
 
-// mockDeleteStorageTask is the mock task for DeleteStorageTask.
-type mockDeleteStorageTask struct {
-	types.Pool
+// DeleteSegmentDirTask will delete all segments under a path.
+type DeleteSegmentDirTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
-	types.Service
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
 }
 
-func (t *mockDeleteStorageTask) Run() {
-	panic("mockDeleteStorageTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *DeleteSegmentDirTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task DeleteSegmentDir value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task DeleteSegmentDir value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteSegmentDirTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *DeleteSegmentDirTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *DeleteSegmentDirTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task DeleteSegmentDir failed: {%w}", err))
+}
+
+// NewDeleteSegmentDir will create a DeleteSegmentDirTask struct and fetch inherited data from parent task.
+func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
+	t := &DeleteSegmentDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewDeleteSegmentDirTask will create a DeleteSegmentDirTask which meets navvy.Task.
+func NewDeleteSegmentDirTask(task navvy.Task) navvy.Task {
+	return NewDeleteSegmentDir(task)
+}
+
+// NewDeleteSegmentDirPathRequirement will create a DeleteSegmentDirTask which meets PathRequirement.
+func NewDeleteSegmentDirPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewDeleteSegmentDir(task)
 }
 
 // DeleteStorageTask will delete a storage.
 type DeleteStorageTask struct {
-	deleteStorageTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Force
+	types.Service
 	types.StorageName
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *DeleteStorageTask) validateInput() {
+	if !t.ValidateForce() {
+		panic(fmt.Errorf("Task DeleteStorage value Force is invalid"))
+	}
+	if !t.ValidateService() {
+		panic(fmt.Errorf("Task DeleteStorage value Service is invalid"))
+	}
+	if !t.ValidateStorageName() {
+		panic(fmt.Errorf("Task DeleteStorage value StorageName is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *DeleteStorageTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadForce(task, t)
+	types.LoadService(task, t)
+	types.LoadStorageName(task, t)
 }
 
 // Run implement navvy.Task
 func (t *DeleteStorageTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1196,139 +969,68 @@ func (t *DeleteStorageTask) TriggerFault(err error) {
 
 // NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
 func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
-	t := &DeleteStorageTask{
-		deleteStorageTaskRequirement: task.(deleteStorageTaskRequirement),
-	}
+	t := &DeleteStorageTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewDeleteStorageTask will create a DeleteStorageTask and fetch inherited data from parent task.
+// NewDeleteStorageTask will create a DeleteStorageTask which meets navvy.Task.
 func NewDeleteStorageTask(task navvy.Task) navvy.Task {
 	return NewDeleteStorage(task)
 }
 
-// deleteStorageForceTaskRequirement is the requirement for execute DeleteStorageForceTask.
-type deleteStorageForceTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ServiceGetter
-	types.StorageNameGetter
-
-	// Mutable value
-}
-
-// mockDeleteStorageForceTask is the mock task for DeleteStorageForceTask.
-type mockDeleteStorageForceTask struct {
-	types.Pool
+// IterateFileTask will iterate file and execute operations on it.
+type IterateFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
-
-	// Inherited and mutable values.
-	types.Service
-	types.StorageName
-}
-
-func (t *mockDeleteStorageForceTask) Run() {
-	panic("mockDeleteStorageForceTask should not be run.")
-}
-
-// DeleteStorageForceTask will remove a bucket force.
-type DeleteStorageForceTask struct {
-	deleteStorageForceTaskRequirement
-
-	// Predefined runtime value
-	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
-	types.ObjectChannel
-}
-
-// Run implement navvy.Task
-func (t *DeleteStorageForceTask) Run() {
-	t.run()
-	t.GetScheduler().Wait()
-}
-
-func (t *DeleteStorageForceTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteStorageForce failed: {%w}", err))
-}
-
-// NewDeleteStorageForce will create a DeleteStorageForceTask struct and fetch inherited data from parent task.
-func NewDeleteStorageForce(task navvy.Task) *DeleteStorageForceTask {
-	t := &DeleteStorageForceTask{
-		deleteStorageForceTaskRequirement: task.(deleteStorageForceTaskRequirement),
-	}
-	t.SetID(uuid.New().String())
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// NewDeleteStorageForceTask will create a DeleteStorageForceTask and fetch inherited data from parent task.
-func NewDeleteStorageForceTask(task navvy.Task) navvy.Task {
-	return NewDeleteStorageForce(task)
-}
-
-// iterateFileTaskRequirement is the requirement for execute IterateFileTask.
-type iterateFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.PathScheduleFuncGetter
-	types.RecursiveGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockIterateFileTask is the mock task for IterateFileTask.
-type mockIterateFileTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
+	// Input value
 	types.Path
 	types.PathScheduleFunc
 	types.Recursive
 	types.Storage
+
+	// Output value
 }
 
-func (t *mockIterateFileTask) Run() {
-	panic("mockIterateFileTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *IterateFileTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task IterateFile value Path is invalid"))
+	}
+	if !t.ValidatePathScheduleFunc() {
+		panic(fmt.Errorf("Task IterateFile value PathScheduleFunc is invalid"))
+	}
+	if !t.ValidateRecursive() {
+		panic(fmt.Errorf("Task IterateFile value Recursive is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task IterateFile value Storage is invalid"))
+	}
 }
 
-// IterateFileTask will iterate file and execute operations on it.
-type IterateFileTask struct {
-	iterateFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
-	types.ObjectChannel
-	types.Path
+// loadInput will check and load all input before new task.
+func (t *IterateFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadPathScheduleFunc(task, t)
+	types.LoadRecursive(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *IterateFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1339,66 +1041,141 @@ func (t *IterateFileTask) TriggerFault(err error) {
 
 // NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
 func NewIterateFile(task navvy.Task) *IterateFileTask {
-	t := &IterateFileTask{
-		iterateFileTaskRequirement: task.(iterateFileTaskRequirement),
-	}
+	t := &IterateFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewIterateFileTask will create a IterateFileTask and fetch inherited data from parent task.
+// NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
 func NewIterateFileTask(task navvy.Task) navvy.Task {
 	return NewIterateFile(task)
 }
 
-// listFileTaskRequirement is the requirement for execute ListFileTask.
-type listFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
+// NewIterateFilePathRequirement will create a IterateFileTask which meets PathRequirement.
+func NewIterateFilePathRequirement(task navvy.Task) types.PathRequirement {
+	return NewIterateFile(task)
 }
 
-// mockListFileTask is the mock task for ListFileTask.
-type mockListFileTask struct {
-	types.Pool
+// IterateSegmentTask will iterate segment and execute operations on it.
+type IterateSegmentTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.Path
+	types.SegmentIDScheduleFunc
 	types.Storage
+
+	// Output value
 }
 
-func (t *mockListFileTask) Run() {
-	panic("mockListFileTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *IterateSegmentTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task IterateSegment value Path is invalid"))
+	}
+	if !t.ValidateSegmentIDScheduleFunc() {
+		panic(fmt.Errorf("Task IterateSegment value SegmentIDScheduleFunc is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task IterateSegment value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *IterateSegmentTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadSegmentIDScheduleFunc(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *IterateSegmentTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *IterateSegmentTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task IterateSegment failed: {%w}", err))
+}
+
+// NewIterateSegment will create a IterateSegmentTask struct and fetch inherited data from parent task.
+func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
+	t := &IterateSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
+func NewIterateSegmentTask(task navvy.Task) navvy.Task {
+	return NewIterateSegment(task)
+}
+
+// NewIterateSegmentPathRequirement will create a IterateSegmentTask which meets PathRequirement.
+func NewIterateSegmentPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewIterateSegment(task)
 }
 
 // ListFileTask will list files.
 type ListFileTask struct {
-	listFileTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
-	types.ObjectChannel
+	// Input value
+	types.Path
 	types.Recursive
+	types.Storage
+
+	// Output value
+	types.ObjectChannel
+}
+
+// validateInput will validate all input before run task.
+func (t *ListFileTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task ListFile value Path is invalid"))
+	}
+	if !t.ValidateRecursive() {
+		panic(fmt.Errorf("Task ListFile value Recursive is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task ListFile value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *ListFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadRecursive(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *ListFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1409,64 +1186,128 @@ func (t *ListFileTask) TriggerFault(err error) {
 
 // NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
 func NewListFile(task navvy.Task) *ListFileTask {
-	t := &ListFileTask{
-		listFileTaskRequirement: task.(listFileTaskRequirement),
-	}
+	t := &ListFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewListFileTask will create a ListFileTask and fetch inherited data from parent task.
+// NewListFileTask will create a ListFileTask which meets navvy.Task.
 func NewListFileTask(task navvy.Task) navvy.Task {
 	return NewListFile(task)
 }
 
-// listStorageTaskRequirement is the requirement for execute ListStorageTask.
-type listStorageTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ServiceGetter
-
-	// Mutable value
+// NewListFilePathRequirement will create a ListFileTask which meets PathRequirement.
+func NewListFilePathRequirement(task navvy.Task) types.PathRequirement {
+	return NewListFile(task)
 }
 
-// mockListStorageTask is the mock task for ListStorageTask.
-type mockListStorageTask struct {
-	types.Pool
+// ListSegmentTask will list segments.
+type ListSegmentTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
-	types.Service
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+	types.SegmentChannel
 }
 
-func (t *mockListStorageTask) Run() {
-	panic("mockListStorageTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *ListSegmentTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task ListSegment value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task ListSegment value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *ListSegmentTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *ListSegmentTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *ListSegmentTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task ListSegment failed: {%w}", err))
+}
+
+// NewListSegment will create a ListSegmentTask struct and fetch inherited data from parent task.
+func NewListSegment(task navvy.Task) *ListSegmentTask {
+	t := &ListSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewListSegmentTask will create a ListSegmentTask which meets navvy.Task.
+func NewListSegmentTask(task navvy.Task) navvy.Task {
+	return NewListSegment(task)
+}
+
+// NewListSegmentPathRequirement will create a ListSegmentTask which meets PathRequirement.
+func NewListSegmentPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewListSegment(task)
 }
 
 // ListStorageTask will send get request to get bucket list.
 type ListStorageTask struct {
-	listStorageTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Service
+
+	// Output value
 	types.BucketList
 	types.Zone
 }
 
+// validateInput will validate all input before run task.
+func (t *ListStorageTask) validateInput() {
+	if !t.ValidateService() {
+		panic(fmt.Errorf("Task ListStorage value Service is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *ListStorageTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadService(task, t)
+}
+
 // Run implement navvy.Task
 func (t *ListStorageTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1477,70 +1318,69 @@ func (t *ListStorageTask) TriggerFault(err error) {
 
 // NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
 func NewListStorage(task navvy.Task) *ListStorageTask {
-	t := &ListStorageTask{
-		listStorageTaskRequirement: task.(listStorageTaskRequirement),
-	}
+	t := &ListStorageTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewListStorageTask will create a ListStorageTask and fetch inherited data from parent task.
+// NewListStorageTask will create a ListStorageTask which meets navvy.Task.
 func NewListStorageTask(task navvy.Task) navvy.Task {
 	return NewListStorage(task)
 }
 
-// mD5SumFileTaskRequirement is the requirement for execute MD5SumFileTask.
-type mD5SumFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.OffsetGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-	types.MD5SumSetter
-}
-
-// mockMD5SumFileTask is the mock task for MD5SumFileTask.
-type mockMD5SumFileTask struct {
-	types.Pool
+// MD5SumFileTask will get file's md5 sum.
+type MD5SumFileTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
-	types.MD5Sum
+	// Input value
 	types.Offset
 	types.Size
 	types.SourcePath
 	types.SourceStorage
+
+	// Output value
+	types.MD5Sum
 }
 
-func (t *mockMD5SumFileTask) Run() {
-	panic("mockMD5SumFileTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *MD5SumFileTask) validateInput() {
+	if !t.ValidateOffset() {
+		panic(fmt.Errorf("Task MD5SumFile value Offset is invalid"))
+	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task MD5SumFile value Size is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task MD5SumFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task MD5SumFile value SourceStorage is invalid"))
+	}
 }
 
-// MD5SumFileTask will get file's md5 sum.
-type MD5SumFileTask struct {
-	mD5SumFileTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+// loadInput will check and load all input before new task.
+func (t *MD5SumFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadOffset(task, t)
+	types.LoadSize(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *MD5SumFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1551,63 +1391,54 @@ func (t *MD5SumFileTask) TriggerFault(err error) {
 
 // NewMD5SumFile will create a MD5SumFileTask struct and fetch inherited data from parent task.
 func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
-	t := &MD5SumFileTask{
-		mD5SumFileTaskRequirement: task.(mD5SumFileTaskRequirement),
-	}
+	t := &MD5SumFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewMD5SumFileTask will create a MD5SumFileTask and fetch inherited data from parent task.
+// NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
 func NewMD5SumFileTask(task navvy.Task) navvy.Task {
 	return NewMD5SumFile(task)
 }
 
-// mD5SumStreamTaskRequirement is the requirement for execute MD5SumStreamTask.
-type mD5SumStreamTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ContentGetter
-
-	// Mutable value
-}
-
-// mockMD5SumStreamTask is the mock task for MD5SumStreamTask.
-type mockMD5SumStreamTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Content
-}
-
-func (t *mockMD5SumStreamTask) Run() {
-	panic("mockMD5SumStreamTask should not be run.")
-}
-
 // MD5SumStreamTask will get stream's md5 sum.
 type MD5SumStreamTask struct {
-	mD5SumStreamTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Content
+
+	// Output value
 	types.MD5Sum
+}
+
+// validateInput will validate all input before run task.
+func (t *MD5SumStreamTask) validateInput() {
+	if !t.ValidateContent() {
+		panic(fmt.Errorf("Task MD5SumStream value Content is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *MD5SumStreamTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadContent(task, t)
 }
 
 // Run implement navvy.Task
 func (t *MD5SumStreamTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1618,66 +1449,64 @@ func (t *MD5SumStreamTask) TriggerFault(err error) {
 
 // NewMD5SumStream will create a MD5SumStreamTask struct and fetch inherited data from parent task.
 func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
-	t := &MD5SumStreamTask{
-		mD5SumStreamTaskRequirement: task.(mD5SumStreamTaskRequirement),
-	}
+	t := &MD5SumStreamTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewMD5SumStreamTask will create a MD5SumStreamTask and fetch inherited data from parent task.
+// NewMD5SumStreamTask will create a MD5SumStreamTask which meets navvy.Task.
 func NewMD5SumStreamTask(task navvy.Task) navvy.Task {
 	return NewMD5SumStream(task)
 }
 
-// reachFileTaskRequirement is the requirement for execute ReachFileTask.
-type reachFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockReachFileTask is the mock task for ReachFileTask.
-type mockReachFileTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Path
-	types.Storage
-}
-
-func (t *mockReachFileTask) Run() {
-	panic("mockReachFileTask should not be run.")
-}
-
 // ReachFileTask will will reach a remote object and return the signed url.
 type ReachFileTask struct {
-	reachFileTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
 	types.Expire
+	types.Path
+	types.Storage
+
+	// Output value
 	types.URL
+}
+
+// validateInput will validate all input before run task.
+func (t *ReachFileTask) validateInput() {
+	if !t.ValidateExpire() {
+		panic(fmt.Errorf("Task ReachFile value Expire is invalid"))
+	}
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task ReachFile value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task ReachFile value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *ReachFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadExpire(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *ReachFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1688,64 +1517,63 @@ func (t *ReachFileTask) TriggerFault(err error) {
 
 // NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
 func NewReachFile(task navvy.Task) *ReachFileTask {
-	t := &ReachFileTask{
-		reachFileTaskRequirement: task.(reachFileTaskRequirement),
-	}
+	t := &ReachFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewReachFileTask will create a ReachFileTask and fetch inherited data from parent task.
+// NewReachFileTask will create a ReachFileTask which meets navvy.Task.
 func NewReachFileTask(task navvy.Task) navvy.Task {
 	return NewReachFile(task)
 }
 
-// segmentAbortAllTaskRequirement is the requirement for execute SegmentAbortAllTask.
-type segmentAbortAllTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.StorageGetter
-	types.StorageNameGetter
-
-	// Mutable value
-}
-
-// mockSegmentAbortAllTask is the mock task for SegmentAbortAllTask.
-type mockSegmentAbortAllTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Storage
-	types.StorageName
-}
-
-func (t *mockSegmentAbortAllTask) Run() {
-	panic("mockSegmentAbortAllTask should not be run.")
+// NewReachFilePathRequirement will create a ReachFileTask which meets PathRequirement.
+func NewReachFilePathRequirement(task navvy.Task) types.PathRequirement {
+	return NewReachFile(task)
 }
 
 // SegmentAbortAllTask will abort all multipart uploads in a bucket.
 type SegmentAbortAllTask struct {
-	segmentAbortAllTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Storage
+	types.StorageName
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *SegmentAbortAllTask) validateInput() {
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task SegmentAbortAll value Storage is invalid"))
+	}
+	if !t.ValidateStorageName() {
+		panic(fmt.Errorf("Task SegmentAbortAll value StorageName is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *SegmentAbortAllTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadStorage(task, t)
+	types.LoadStorageName(task, t)
 }
 
 // Run implement navvy.Task
 func (t *SegmentAbortAllTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1756,66 +1584,63 @@ func (t *SegmentAbortAllTask) TriggerFault(err error) {
 
 // NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
 func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
-	t := &SegmentAbortAllTask{
-		segmentAbortAllTaskRequirement: task.(segmentAbortAllTaskRequirement),
-	}
+	t := &SegmentAbortAllTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewSegmentAbortAllTask will create a SegmentAbortAllTask and fetch inherited data from parent task.
+// NewSegmentAbortAllTask will create a SegmentAbortAllTask which meets navvy.Task.
 func NewSegmentAbortAllTask(task navvy.Task) navvy.Task {
 	return NewSegmentAbortAll(task)
 }
 
-// segmentCompleteTaskRequirement is the requirement for execute SegmentCompleteTask.
-type segmentCompleteTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.SegmentIDGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockSegmentCompleteTask is the mock task for SegmentCompleteTask.
-type mockSegmentCompleteTask struct {
-	types.Pool
+// SegmentCompleteTask will complete a segment.
+type SegmentCompleteTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.Path
 	types.SegmentID
 	types.Storage
+
+	// Output value
 }
 
-func (t *mockSegmentCompleteTask) Run() {
-	panic("mockSegmentCompleteTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *SegmentCompleteTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task SegmentComplete value Path is invalid"))
+	}
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task SegmentComplete value SegmentID is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task SegmentComplete value Storage is invalid"))
+	}
 }
 
-// SegmentCompleteTask will complete a segment.
-type SegmentCompleteTask struct {
-	segmentCompleteTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+// loadInput will check and load all input before new task.
+func (t *SegmentCompleteTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *SegmentCompleteTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1826,49 +1651,40 @@ func (t *SegmentCompleteTask) TriggerFault(err error) {
 
 // NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
 func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
-	t := &SegmentCompleteTask{
-		segmentCompleteTaskRequirement: task.(segmentCompleteTaskRequirement),
-	}
+	t := &SegmentCompleteTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewSegmentCompleteTask will create a SegmentCompleteTask and fetch inherited data from parent task.
+// NewSegmentCompleteTask will create a SegmentCompleteTask which meets navvy.Task.
 func NewSegmentCompleteTask(task navvy.Task) navvy.Task {
 	return NewSegmentComplete(task)
 }
 
-// segmentFileCopyTaskRequirement is the requirement for execute SegmentFileCopyTask.
-type segmentFileCopyTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.OffsetGetter
-	types.SegmentIDGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
+// NewSegmentCompletePathRequirement will create a SegmentCompleteTask which meets PathRequirement.
+func NewSegmentCompletePathRequirement(task navvy.Task) types.PathRequirement {
+	return NewSegmentComplete(task)
 }
 
-// mockSegmentFileCopyTask is the mock task for SegmentFileCopyTask.
-type mockSegmentFileCopyTask struct {
-	types.Pool
+// NewSegmentCompleteSegmentIDRequirement will create a SegmentCompleteTask which meets SegmentIDRequirement.
+func NewSegmentCompleteSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+	return NewSegmentComplete(task)
+}
+
+// SegmentFileCopyTask will copy a segment file.
+type SegmentFileCopyTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.DestinationPath
 	types.DestinationStorage
 	types.MD5Sum
@@ -1877,25 +1693,56 @@ type mockSegmentFileCopyTask struct {
 	types.Size
 	types.SourcePath
 	types.SourceStorage
+
+	// Output value
 }
 
-func (t *mockSegmentFileCopyTask) Run() {
-	panic("mockSegmentFileCopyTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *SegmentFileCopyTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task SegmentFileCopy value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task SegmentFileCopy value DestinationStorage is invalid"))
+	}
+	if !t.ValidateMD5Sum() {
+		panic(fmt.Errorf("Task SegmentFileCopy value MD5Sum is invalid"))
+	}
+	if !t.ValidateOffset() {
+		panic(fmt.Errorf("Task SegmentFileCopy value Offset is invalid"))
+	}
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task SegmentFileCopy value SegmentID is invalid"))
+	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task SegmentFileCopy value Size is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task SegmentFileCopy value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task SegmentFileCopy value SourceStorage is invalid"))
+	}
 }
 
-// SegmentFileCopyTask will copy a segment file.
-type SegmentFileCopyTask struct {
-	segmentFileCopyTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+// loadInput will check and load all input before new task.
+func (t *SegmentFileCopyTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadMD5Sum(task, t)
+	types.LoadOffset(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadSize(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *SegmentFileCopyTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -1906,111 +1753,59 @@ func (t *SegmentFileCopyTask) TriggerFault(err error) {
 
 // NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
 func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
-	t := &SegmentFileCopyTask{
-		segmentFileCopyTaskRequirement: task.(segmentFileCopyTaskRequirement),
-	}
+	t := &SegmentFileCopyTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewSegmentFileCopyTask will create a SegmentFileCopyTask and fetch inherited data from parent task.
+// NewSegmentFileCopyTask will create a SegmentFileCopyTask which meets navvy.Task.
 func NewSegmentFileCopyTask(task navvy.Task) navvy.Task {
 	return NewSegmentFileCopy(task)
 }
 
-// segmentFileCopyShimTaskRequirement is the requirement for execute SegmentFileCopyShimTask.
-type segmentFileCopyShimTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.OffsetGetter
-	types.SegmentIDGetter
-	types.SizeGetter
-	types.SourcePathGetter
-	types.SourceStorageGetter
-
-	// Mutable value
-}
-
-// segmentFileCopyShimTask will Storage shim task for .
-type segmentFileCopyShimTask struct {
-	segmentFileCopyShimTaskRequirement
-
-	// Runtime value
-	types.Storage
-	types.Path
-}
-
-// Run implement navvy.Task
-func (t *segmentFileCopyShimTask) Run() {}
-
-// NewSegmentFileCopyShim will create a segmentFileCopyShimTask struct and fetch inherited data from parent task.
-func NewSegmentFileCopyShim(task navvy.Task) *segmentFileCopyShimTask {
-	t := &segmentFileCopyShimTask{
-		segmentFileCopyShimTaskRequirement: task.(segmentFileCopyShimTaskRequirement),
-	}
-	return t
-}
-
-// segmentInitTaskRequirement is the requirement for execute SegmentInitTask.
-type segmentInitTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.SegmentScheduleFuncGetter
-	types.StorageGetter
-	types.TotalSizeGetter
-
-	// Mutable value
-	types.SegmentIDSetter
-}
-
-// mockSegmentInitTask is the mock task for SegmentInitTask.
-type mockSegmentInitTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Path
-	types.SegmentID
-	types.SegmentScheduleFunc
-	types.Storage
-	types.TotalSize
-}
-
-func (t *mockSegmentInitTask) Run() {
-	panic("mockSegmentInitTask should not be run.")
-}
-
 // SegmentInitTask will init a segment upload.
 type SegmentInitTask struct {
-	segmentInitTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
+	types.SegmentID
+}
+
+// validateInput will validate all input before run task.
+func (t *SegmentInitTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task SegmentInit value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task SegmentInit value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *SegmentInitTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *SegmentInitTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -2021,48 +1816,40 @@ func (t *SegmentInitTask) TriggerFault(err error) {
 
 // NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
 func NewSegmentInit(task navvy.Task) *SegmentInitTask {
-	t := &SegmentInitTask{
-		segmentInitTaskRequirement: task.(segmentInitTaskRequirement),
-	}
+	t := &SegmentInitTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewSegmentInitTask will create a SegmentInitTask and fetch inherited data from parent task.
+// NewSegmentInitTask will create a SegmentInitTask which meets navvy.Task.
 func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
 }
 
-// segmentStreamCopyTaskRequirement is the requirement for execute SegmentStreamCopyTask.
-type segmentStreamCopyTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.ContentGetter
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-	types.MD5SumGetter
-	types.OffsetGetter
-	types.SegmentIDGetter
-	types.SizeGetter
-
-	// Mutable value
+// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
+func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
+	return NewSegmentInit(task)
 }
 
-// mockSegmentStreamCopyTask is the mock task for SegmentStreamCopyTask.
-type mockSegmentStreamCopyTask struct {
-	types.Pool
+// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
+func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+	return NewSegmentInit(task)
+}
+
+// SegmentStreamCopyTask will copy a segment stream.
+type SegmentStreamCopyTask struct {
+	// Predefined value
 	types.Fault
 	types.ID
+	types.Pool
+	types.Scheduler
 
-	// Inherited and mutable values.
+	// Input value
 	types.Content
 	types.DestinationPath
 	types.DestinationStorage
@@ -2070,25 +1857,52 @@ type mockSegmentStreamCopyTask struct {
 	types.Offset
 	types.SegmentID
 	types.Size
+
+	// Output value
 }
 
-func (t *mockSegmentStreamCopyTask) Run() {
-	panic("mockSegmentStreamCopyTask should not be run.")
+// validateInput will validate all input before run task.
+func (t *SegmentStreamCopyTask) validateInput() {
+	if !t.ValidateContent() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value Content is invalid"))
+	}
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationStorage is invalid"))
+	}
+	if !t.ValidateMD5Sum() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value MD5Sum is invalid"))
+	}
+	if !t.ValidateOffset() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value Offset is invalid"))
+	}
+	if !t.ValidateSegmentID() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value SegmentID is invalid"))
+	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value Size is invalid"))
+	}
 }
 
-// SegmentStreamCopyTask will copy a segment stream.
-type SegmentStreamCopyTask struct {
-	segmentStreamCopyTaskRequirement
-
-	// Predefined runtime value
-	types.ID
-	types.Scheduler
-
-	// Runtime value
+// loadInput will check and load all input before new task.
+func (t *SegmentStreamCopyTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadContent(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadMD5Sum(task, t)
+	types.LoadOffset(task, t)
+	types.LoadSegmentID(task, t)
+	types.LoadSize(task, t)
 }
 
 // Run implement navvy.Task
 func (t *SegmentStreamCopyTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -2099,65 +1913,59 @@ func (t *SegmentStreamCopyTask) TriggerFault(err error) {
 
 // NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
 func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
-	t := &SegmentStreamCopyTask{
-		segmentStreamCopyTaskRequirement: task.(segmentStreamCopyTaskRequirement),
-	}
+	t := &SegmentStreamCopyTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewSegmentStreamCopyTask will create a SegmentStreamCopyTask and fetch inherited data from parent task.
+// NewSegmentStreamCopyTask will create a SegmentStreamCopyTask which meets navvy.Task.
 func NewSegmentStreamCopyTask(task navvy.Task) navvy.Task {
 	return NewSegmentStreamCopy(task)
 }
 
-// statFileTaskRequirement is the requirement for execute StatFileTask.
-type statFileTaskRequirement interface {
-	navvy.Task
-
-	// Predefined inherited value
-	types.PoolGetter
-	types.FaultGetter
-
-	// Inherited value
-	types.PathGetter
-	types.StorageGetter
-
-	// Mutable value
-}
-
-// mockStatFileTask is the mock task for StatFileTask.
-type mockStatFileTask struct {
-	types.Pool
-	types.Fault
-	types.ID
-
-	// Inherited and mutable values.
-	types.Path
-	types.Storage
-}
-
-func (t *mockStatFileTask) Run() {
-	panic("mockStatFileTask should not be run.")
-}
-
 // StatFileTask will stat a remote object by request headObject.
 type StatFileTask struct {
-	statFileTaskRequirement
-
-	// Predefined runtime value
+	// Predefined value
+	types.Fault
 	types.ID
+	types.Pool
 	types.Scheduler
 
-	// Runtime value
+	// Input value
+	types.Path
+	types.Storage
+
+	// Output value
 	types.Object
+}
+
+// validateInput will validate all input before run task.
+func (t *StatFileTask) validateInput() {
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task StatFile value Path is invalid"))
+	}
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task StatFile value Storage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *StatFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadPath(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
 func (t *StatFileTask) Run() {
+	t.validateInput()
+
 	t.run()
 	t.GetScheduler().Wait()
 }
@@ -2168,17 +1976,22 @@ func (t *StatFileTask) TriggerFault(err error) {
 
 // NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
 func NewStatFile(task navvy.Task) *StatFileTask {
-	t := &StatFileTask{
-		statFileTaskRequirement: task.(statFileTaskRequirement),
-	}
+	t := &StatFileTask{}
 	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
 	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
 
 	t.new()
 	return t
 }
 
-// NewStatFileTask will create a StatFileTask and fetch inherited data from parent task.
+// NewStatFileTask will create a StatFileTask which meets navvy.Task.
 func NewStatFileTask(task navvy.Task) navvy.Task {
+	return NewStatFile(task)
+}
+
+// NewStatFilePathRequirement will create a StatFileTask which meets PathRequirement.
+func NewStatFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewStatFile(task)
 }

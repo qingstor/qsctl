@@ -21,6 +21,7 @@ type Scheduler interface {
 type task struct {
 	s *RealScheduler
 	t navvy.Task
+	c *sync.Cond
 }
 
 func newTask(s *RealScheduler, t navvy.Task) *task {
@@ -30,9 +31,23 @@ func newTask(s *RealScheduler, t navvy.Task) *task {
 	}
 }
 
+func newSyncTask(s *RealScheduler, t navvy.Task) *task {
+	lock := &sync.Mutex{}
+	lock.Lock()
+
+	return &task{
+		s: s,
+		t: t,
+		c: sync.NewCond(lock),
+	}
+}
+
 func (t *task) Run() {
 	defer func() {
 		t.s.wg.Done()
+		if t.c != nil {
+			t.c.Broadcast()
+		}
 	}()
 
 	t.t.Run()
@@ -52,10 +67,12 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 	}
 }
 
-// Sync will create a new task after wait.
+// Sync will return after this task finished.
 func (s *RealScheduler) Sync(task navvy.Task) {
-	s.Wait()
-	s.Async(task)
+	s.wg.Add(1)
+	t := newSyncTask(s, task)
+	s.pool.Submit(t)
+	t.c.Wait()
 }
 
 // Async will create a new task immediately.

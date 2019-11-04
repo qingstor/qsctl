@@ -46,9 +46,9 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	// TODO: handle delete storage force.
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
+	t.SetForce(rbInput.force)
 
 	t.Run()
 	if t.GetFault().HasError() {

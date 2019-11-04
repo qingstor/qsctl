@@ -7,9 +7,9 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/pkg/segment"
 	"github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
@@ -17,6 +17,8 @@ import (
 type BucketList struct {
 	valid bool
 	v     []string
+
+	l sync.RWMutex
 }
 
 type BucketListGetter interface {
@@ -24,6 +26,9 @@ type BucketListGetter interface {
 }
 
 func (o *BucketList) GetBucketList() []string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("BucketList value is not valid")
 	}
@@ -35,6 +40,9 @@ type BucketListSetter interface {
 }
 
 func (o *BucketList) SetBucketList(v []string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -44,12 +52,32 @@ type BucketListValidator interface {
 }
 
 func (o *BucketList) ValidateBucketList() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadBucketList(t navvy.Task, v BucketListSetter) {
+	x, ok := t.(interface {
+		BucketListGetter
+		BucketListValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateBucketList() {
+		return
+	}
+
+	v.SetBucketList(x.GetBucketList())
 }
 
 type ByteSize struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type ByteSizeGetter interface {
@@ -57,6 +85,9 @@ type ByteSizeGetter interface {
 }
 
 func (o *ByteSize) GetByteSize() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ByteSize value is not valid")
 	}
@@ -68,6 +99,9 @@ type ByteSizeSetter interface {
 }
 
 func (o *ByteSize) SetByteSize(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -77,12 +111,32 @@ type ByteSizeValidator interface {
 }
 
 func (o *ByteSize) ValidateByteSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadByteSize(t navvy.Task, v ByteSizeSetter) {
+	x, ok := t.(interface {
+		ByteSizeGetter
+		ByteSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateByteSize() {
+		return
+	}
+
+	v.SetByteSize(x.GetByteSize())
 }
 
 type BytesPool struct {
 	valid bool
 	v     *sync.Pool
+
+	l sync.RWMutex
 }
 
 type BytesPoolGetter interface {
@@ -90,6 +144,9 @@ type BytesPoolGetter interface {
 }
 
 func (o *BytesPool) GetBytesPool() *sync.Pool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("BytesPool value is not valid")
 	}
@@ -101,6 +158,9 @@ type BytesPoolSetter interface {
 }
 
 func (o *BytesPool) SetBytesPool(v *sync.Pool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -110,12 +170,32 @@ type BytesPoolValidator interface {
 }
 
 func (o *BytesPool) ValidateBytesPool() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadBytesPool(t navvy.Task, v BytesPoolSetter) {
+	x, ok := t.(interface {
+		BytesPoolGetter
+		BytesPoolValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateBytesPool() {
+		return
+	}
+
+	v.SetBytesPool(x.GetBytesPool())
 }
 
 type Content struct {
 	valid bool
 	v     *bytes.Buffer
+
+	l sync.RWMutex
 }
 
 type ContentGetter interface {
@@ -123,6 +203,9 @@ type ContentGetter interface {
 }
 
 func (o *Content) GetContent() *bytes.Buffer {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Content value is not valid")
 	}
@@ -134,6 +217,9 @@ type ContentSetter interface {
 }
 
 func (o *Content) SetContent(v *bytes.Buffer) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -143,78 +229,32 @@ type ContentValidator interface {
 }
 
 func (o *Content) ValidateContent() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
 }
 
-type CurrentOffset struct {
-	valid bool
-	v     *int64
-}
-
-type CurrentOffsetGetter interface {
-	GetCurrentOffset() *int64
-}
-
-func (o *CurrentOffset) GetCurrentOffset() *int64 {
-	if !o.valid {
-		panic("CurrentOffset value is not valid")
+func LoadContent(t navvy.Task, v ContentSetter) {
+	x, ok := t.(interface {
+		ContentGetter
+		ContentValidator
+	})
+	if !ok {
+		return
 	}
-	return o.v
-}
-
-type CurrentOffsetSetter interface {
-	SetCurrentOffset(*int64)
-}
-
-func (o *CurrentOffset) SetCurrentOffset(v *int64) {
-	o.v = v
-	o.valid = true
-}
-
-type CurrentOffsetValidator interface {
-	ValidateCurrentOffset() bool
-}
-
-func (o *CurrentOffset) ValidateCurrentOffset() bool {
-	return o.valid
-}
-
-type CurrentPartNumber struct {
-	valid bool
-	v     *int32
-}
-
-type CurrentPartNumberGetter interface {
-	GetCurrentPartNumber() *int32
-}
-
-func (o *CurrentPartNumber) GetCurrentPartNumber() *int32 {
-	if !o.valid {
-		panic("CurrentPartNumber value is not valid")
+	if !x.ValidateContent() {
+		return
 	}
-	return o.v
-}
 
-type CurrentPartNumberSetter interface {
-	SetCurrentPartNumber(*int32)
-}
-
-func (o *CurrentPartNumber) SetCurrentPartNumber(v *int32) {
-	o.v = v
-	o.valid = true
-}
-
-type CurrentPartNumberValidator interface {
-	ValidateCurrentPartNumber() bool
-}
-
-func (o *CurrentPartNumber) ValidateCurrentPartNumber() bool {
-	return o.valid
+	v.SetContent(x.GetContent())
 }
 
 type DestinationPath struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type DestinationPathGetter interface {
@@ -222,6 +262,9 @@ type DestinationPathGetter interface {
 }
 
 func (o *DestinationPath) GetDestinationPath() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("DestinationPath value is not valid")
 	}
@@ -233,6 +276,9 @@ type DestinationPathSetter interface {
 }
 
 func (o *DestinationPath) SetDestinationPath(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -242,12 +288,32 @@ type DestinationPathValidator interface {
 }
 
 func (o *DestinationPath) ValidateDestinationPath() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadDestinationPath(t navvy.Task, v DestinationPathSetter) {
+	x, ok := t.(interface {
+		DestinationPathGetter
+		DestinationPathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationPath() {
+		return
+	}
+
+	v.SetDestinationPath(x.GetDestinationPath())
 }
 
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
+
+	l sync.RWMutex
 }
 
 type DestinationServiceGetter interface {
@@ -255,6 +321,9 @@ type DestinationServiceGetter interface {
 }
 
 func (o *DestinationService) GetDestinationService() storage.Servicer {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("DestinationService value is not valid")
 	}
@@ -266,6 +335,9 @@ type DestinationServiceSetter interface {
 }
 
 func (o *DestinationService) SetDestinationService(v storage.Servicer) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -275,12 +347,32 @@ type DestinationServiceValidator interface {
 }
 
 func (o *DestinationService) ValidateDestinationService() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadDestinationService(t navvy.Task, v DestinationServiceSetter) {
+	x, ok := t.(interface {
+		DestinationServiceGetter
+		DestinationServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationService() {
+		return
+	}
+
+	v.SetDestinationService(x.GetDestinationService())
 }
 
 type DestinationStorage struct {
 	valid bool
 	v     storage.Storager
+
+	l sync.RWMutex
 }
 
 type DestinationStorageGetter interface {
@@ -288,6 +380,9 @@ type DestinationStorageGetter interface {
 }
 
 func (o *DestinationStorage) GetDestinationStorage() storage.Storager {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("DestinationStorage value is not valid")
 	}
@@ -299,6 +394,9 @@ type DestinationStorageSetter interface {
 }
 
 func (o *DestinationStorage) SetDestinationStorage(v storage.Storager) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -308,12 +406,32 @@ type DestinationStorageValidator interface {
 }
 
 func (o *DestinationStorage) ValidateDestinationStorage() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadDestinationStorage(t navvy.Task, v DestinationStorageSetter) {
+	x, ok := t.(interface {
+		DestinationStorageGetter
+		DestinationStorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationStorage() {
+		return
+	}
+
+	v.SetDestinationStorage(x.GetDestinationStorage())
 }
 
 type DestinationType struct {
 	valid bool
 	v     types.ObjectType
+
+	l sync.RWMutex
 }
 
 type DestinationTypeGetter interface {
@@ -321,6 +439,9 @@ type DestinationTypeGetter interface {
 }
 
 func (o *DestinationType) GetDestinationType() types.ObjectType {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("DestinationType value is not valid")
 	}
@@ -332,6 +453,9 @@ type DestinationTypeSetter interface {
 }
 
 func (o *DestinationType) SetDestinationType(v types.ObjectType) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -341,12 +465,32 @@ type DestinationTypeValidator interface {
 }
 
 func (o *DestinationType) ValidateDestinationType() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadDestinationType(t navvy.Task, v DestinationTypeSetter) {
+	x, ok := t.(interface {
+		DestinationTypeGetter
+		DestinationTypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationType() {
+		return
+	}
+
+	v.SetDestinationType(x.GetDestinationType())
 }
 
 type Done struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type DoneGetter interface {
@@ -354,6 +498,9 @@ type DoneGetter interface {
 }
 
 func (o *Done) GetDone() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Done value is not valid")
 	}
@@ -365,6 +512,9 @@ type DoneSetter interface {
 }
 
 func (o *Done) SetDone(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -374,12 +524,32 @@ type DoneValidator interface {
 }
 
 func (o *Done) ValidateDone() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadDone(t navvy.Task, v DoneSetter) {
+	x, ok := t.(interface {
+		DoneGetter
+		DoneValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDone() {
+		return
+	}
+
+	v.SetDone(x.GetDone())
 }
 
 type EnableBenchmark struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type EnableBenchmarkGetter interface {
@@ -387,6 +557,9 @@ type EnableBenchmarkGetter interface {
 }
 
 func (o *EnableBenchmark) GetEnableBenchmark() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("EnableBenchmark value is not valid")
 	}
@@ -398,6 +571,9 @@ type EnableBenchmarkSetter interface {
 }
 
 func (o *EnableBenchmark) SetEnableBenchmark(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -407,12 +583,32 @@ type EnableBenchmarkValidator interface {
 }
 
 func (o *EnableBenchmark) ValidateEnableBenchmark() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadEnableBenchmark(t navvy.Task, v EnableBenchmarkSetter) {
+	x, ok := t.(interface {
+		EnableBenchmarkGetter
+		EnableBenchmarkValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateEnableBenchmark() {
+		return
+	}
+
+	v.SetEnableBenchmark(x.GetEnableBenchmark())
 }
 
 type ExpectSize struct {
 	valid bool
 	v     int64
+
+	l sync.RWMutex
 }
 
 type ExpectSizeGetter interface {
@@ -420,6 +616,9 @@ type ExpectSizeGetter interface {
 }
 
 func (o *ExpectSize) GetExpectSize() int64 {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ExpectSize value is not valid")
 	}
@@ -431,6 +630,9 @@ type ExpectSizeSetter interface {
 }
 
 func (o *ExpectSize) SetExpectSize(v int64) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -440,12 +642,32 @@ type ExpectSizeValidator interface {
 }
 
 func (o *ExpectSize) ValidateExpectSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadExpectSize(t navvy.Task, v ExpectSizeSetter) {
+	x, ok := t.(interface {
+		ExpectSizeGetter
+		ExpectSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateExpectSize() {
+		return
+	}
+
+	v.SetExpectSize(x.GetExpectSize())
 }
 
 type Expire struct {
 	valid bool
 	v     int
+
+	l sync.RWMutex
 }
 
 type ExpireGetter interface {
@@ -453,6 +675,9 @@ type ExpireGetter interface {
 }
 
 func (o *Expire) GetExpire() int {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Expire value is not valid")
 	}
@@ -464,6 +689,9 @@ type ExpireSetter interface {
 }
 
 func (o *Expire) SetExpire(v int) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -473,12 +701,32 @@ type ExpireValidator interface {
 }
 
 func (o *Expire) ValidateExpire() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadExpire(t navvy.Task, v ExpireSetter) {
+	x, ok := t.(interface {
+		ExpireGetter
+		ExpireValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateExpire() {
+		return
+	}
+
+	v.SetExpire(x.GetExpire())
 }
 
 type Fault struct {
 	valid bool
 	v     *fault.Fault
+
+	l sync.RWMutex
 }
 
 type FaultGetter interface {
@@ -486,6 +734,9 @@ type FaultGetter interface {
 }
 
 func (o *Fault) GetFault() *fault.Fault {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Fault value is not valid")
 	}
@@ -497,6 +748,9 @@ type FaultSetter interface {
 }
 
 func (o *Fault) SetFault(v *fault.Fault) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -506,12 +760,32 @@ type FaultValidator interface {
 }
 
 func (o *Fault) ValidateFault() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadFault(t navvy.Task, v FaultSetter) {
+	x, ok := t.(interface {
+		FaultGetter
+		FaultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateFault() {
+		return
+	}
+
+	v.SetFault(x.GetFault())
 }
 
 type Force struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type ForceGetter interface {
@@ -519,6 +793,9 @@ type ForceGetter interface {
 }
 
 func (o *Force) GetForce() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Force value is not valid")
 	}
@@ -530,6 +807,9 @@ type ForceSetter interface {
 }
 
 func (o *Force) SetForce(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -539,12 +819,32 @@ type ForceValidator interface {
 }
 
 func (o *Force) ValidateForce() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadForce(t navvy.Task, v ForceSetter) {
+	x, ok := t.(interface {
+		ForceGetter
+		ForceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateForce() {
+		return
+	}
+
+	v.SetForce(x.GetForce())
 }
 
 type HumanReadable struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type HumanReadableGetter interface {
@@ -552,6 +852,9 @@ type HumanReadableGetter interface {
 }
 
 func (o *HumanReadable) GetHumanReadable() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("HumanReadable value is not valid")
 	}
@@ -563,6 +866,9 @@ type HumanReadableSetter interface {
 }
 
 func (o *HumanReadable) SetHumanReadable(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -572,12 +878,32 @@ type HumanReadableValidator interface {
 }
 
 func (o *HumanReadable) ValidateHumanReadable() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadHumanReadable(t navvy.Task, v HumanReadableSetter) {
+	x, ok := t.(interface {
+		HumanReadableGetter
+		HumanReadableValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateHumanReadable() {
+		return
+	}
+
+	v.SetHumanReadable(x.GetHumanReadable())
 }
 
 type ID struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type IDGetter interface {
@@ -585,6 +911,9 @@ type IDGetter interface {
 }
 
 func (o *ID) GetID() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ID value is not valid")
 	}
@@ -596,6 +925,9 @@ type IDSetter interface {
 }
 
 func (o *ID) SetID(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -605,45 +937,32 @@ type IDValidator interface {
 }
 
 func (o *ID) ValidateID() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
 }
 
-type ListType struct {
-	valid bool
-	v     constants.ListType
-}
-
-type ListTypeGetter interface {
-	GetListType() constants.ListType
-}
-
-func (o *ListType) GetListType() constants.ListType {
-	if !o.valid {
-		panic("ListType value is not valid")
+func LoadID(t navvy.Task, v IDSetter) {
+	x, ok := t.(interface {
+		IDGetter
+		IDValidator
+	})
+	if !ok {
+		return
 	}
-	return o.v
-}
+	if !x.ValidateID() {
+		return
+	}
 
-type ListTypeSetter interface {
-	SetListType(constants.ListType)
-}
-
-func (o *ListType) SetListType(v constants.ListType) {
-	o.v = v
-	o.valid = true
-}
-
-type ListTypeValidator interface {
-	ValidateListType() bool
-}
-
-func (o *ListType) ValidateListType() bool {
-	return o.valid
+	v.SetID(x.GetID())
 }
 
 type LongFormat struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type LongFormatGetter interface {
@@ -651,6 +970,9 @@ type LongFormatGetter interface {
 }
 
 func (o *LongFormat) GetLongFormat() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("LongFormat value is not valid")
 	}
@@ -662,6 +984,9 @@ type LongFormatSetter interface {
 }
 
 func (o *LongFormat) SetLongFormat(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -671,12 +996,32 @@ type LongFormatValidator interface {
 }
 
 func (o *LongFormat) ValidateLongFormat() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadLongFormat(t navvy.Task, v LongFormatSetter) {
+	x, ok := t.(interface {
+		LongFormatGetter
+		LongFormatValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateLongFormat() {
+		return
+	}
+
+	v.SetLongFormat(x.GetLongFormat())
 }
 
 type MD5Sum struct {
 	valid bool
 	v     []byte
+
+	l sync.RWMutex
 }
 
 type MD5SumGetter interface {
@@ -684,6 +1029,9 @@ type MD5SumGetter interface {
 }
 
 func (o *MD5Sum) GetMD5Sum() []byte {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("MD5Sum value is not valid")
 	}
@@ -695,6 +1043,9 @@ type MD5SumSetter interface {
 }
 
 func (o *MD5Sum) SetMD5Sum(v []byte) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -704,12 +1055,32 @@ type MD5SumValidator interface {
 }
 
 func (o *MD5Sum) ValidateMD5Sum() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadMD5Sum(t navvy.Task, v MD5SumSetter) {
+	x, ok := t.(interface {
+		MD5SumGetter
+		MD5SumValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateMD5Sum() {
+		return
+	}
+
+	v.SetMD5Sum(x.GetMD5Sum())
 }
 
 type Name struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type NameGetter interface {
@@ -717,6 +1088,9 @@ type NameGetter interface {
 }
 
 func (o *Name) GetName() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Name value is not valid")
 	}
@@ -728,6 +1102,9 @@ type NameSetter interface {
 }
 
 func (o *Name) SetName(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -737,12 +1114,32 @@ type NameValidator interface {
 }
 
 func (o *Name) ValidateName() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadName(t navvy.Task, v NameSetter) {
+	x, ok := t.(interface {
+		NameGetter
+		NameValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateName() {
+		return
+	}
+
+	v.SetName(x.GetName())
 }
 
 type Object struct {
 	valid bool
 	v     *types.Object
+
+	l sync.RWMutex
 }
 
 type ObjectGetter interface {
@@ -750,6 +1147,9 @@ type ObjectGetter interface {
 }
 
 func (o *Object) GetObject() *types.Object {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Object value is not valid")
 	}
@@ -761,6 +1161,9 @@ type ObjectSetter interface {
 }
 
 func (o *Object) SetObject(v *types.Object) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -770,12 +1173,32 @@ type ObjectValidator interface {
 }
 
 func (o *Object) ValidateObject() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadObject(t navvy.Task, v ObjectSetter) {
+	x, ok := t.(interface {
+		ObjectGetter
+		ObjectValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObject() {
+		return
+	}
+
+	v.SetObject(x.GetObject())
 }
 
 type ObjectChannel struct {
 	valid bool
 	v     chan *types.Object
+
+	l sync.RWMutex
 }
 
 type ObjectChannelGetter interface {
@@ -783,6 +1206,9 @@ type ObjectChannelGetter interface {
 }
 
 func (o *ObjectChannel) GetObjectChannel() chan *types.Object {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ObjectChannel value is not valid")
 	}
@@ -794,6 +1220,9 @@ type ObjectChannelSetter interface {
 }
 
 func (o *ObjectChannel) SetObjectChannel(v chan *types.Object) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -803,12 +1232,32 @@ type ObjectChannelValidator interface {
 }
 
 func (o *ObjectChannel) ValidateObjectChannel() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadObjectChannel(t navvy.Task, v ObjectChannelSetter) {
+	x, ok := t.(interface {
+		ObjectChannelGetter
+		ObjectChannelValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObjectChannel() {
+		return
+	}
+
+	v.SetObjectChannel(x.GetObjectChannel())
 }
 
 type ObjectLongList struct {
 	valid bool
 	v     *[][]string
+
+	l sync.RWMutex
 }
 
 type ObjectLongListGetter interface {
@@ -816,6 +1265,9 @@ type ObjectLongListGetter interface {
 }
 
 func (o *ObjectLongList) GetObjectLongList() *[][]string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ObjectLongList value is not valid")
 	}
@@ -827,6 +1279,9 @@ type ObjectLongListSetter interface {
 }
 
 func (o *ObjectLongList) SetObjectLongList(v *[][]string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -836,12 +1291,32 @@ type ObjectLongListValidator interface {
 }
 
 func (o *ObjectLongList) ValidateObjectLongList() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadObjectLongList(t navvy.Task, v ObjectLongListSetter) {
+	x, ok := t.(interface {
+		ObjectLongListGetter
+		ObjectLongListValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateObjectLongList() {
+		return
+	}
+
+	v.SetObjectLongList(x.GetObjectLongList())
 }
 
 type Offset struct {
 	valid bool
 	v     int64
+
+	l sync.RWMutex
 }
 
 type OffsetGetter interface {
@@ -849,6 +1324,9 @@ type OffsetGetter interface {
 }
 
 func (o *Offset) GetOffset() int64 {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Offset value is not valid")
 	}
@@ -860,6 +1338,9 @@ type OffsetSetter interface {
 }
 
 func (o *Offset) SetOffset(v int64) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -869,12 +1350,32 @@ type OffsetValidator interface {
 }
 
 func (o *Offset) ValidateOffset() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadOffset(t navvy.Task, v OffsetSetter) {
+	x, ok := t.(interface {
+		OffsetGetter
+		OffsetValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateOffset() {
+		return
+	}
+
+	v.SetOffset(x.GetOffset())
 }
 
 type PartNumber struct {
 	valid bool
 	v     int
+
+	l sync.RWMutex
 }
 
 type PartNumberGetter interface {
@@ -882,6 +1383,9 @@ type PartNumberGetter interface {
 }
 
 func (o *PartNumber) GetPartNumber() int {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("PartNumber value is not valid")
 	}
@@ -893,6 +1397,9 @@ type PartNumberSetter interface {
 }
 
 func (o *PartNumber) SetPartNumber(v int) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -902,12 +1409,32 @@ type PartNumberValidator interface {
 }
 
 func (o *PartNumber) ValidatePartNumber() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadPartNumber(t navvy.Task, v PartNumberSetter) {
+	x, ok := t.(interface {
+		PartNumberGetter
+		PartNumberValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePartNumber() {
+		return
+	}
+
+	v.SetPartNumber(x.GetPartNumber())
 }
 
 type PartSize struct {
 	valid bool
 	v     int64
+
+	l sync.RWMutex
 }
 
 type PartSizeGetter interface {
@@ -915,6 +1442,9 @@ type PartSizeGetter interface {
 }
 
 func (o *PartSize) GetPartSize() int64 {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("PartSize value is not valid")
 	}
@@ -926,6 +1456,9 @@ type PartSizeSetter interface {
 }
 
 func (o *PartSize) SetPartSize(v int64) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -935,12 +1468,32 @@ type PartSizeValidator interface {
 }
 
 func (o *PartSize) ValidatePartSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadPartSize(t navvy.Task, v PartSizeSetter) {
+	x, ok := t.(interface {
+		PartSizeGetter
+		PartSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePartSize() {
+		return
+	}
+
+	v.SetPartSize(x.GetPartSize())
 }
 
 type Path struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type PathGetter interface {
@@ -948,6 +1501,9 @@ type PathGetter interface {
 }
 
 func (o *Path) GetPath() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Path value is not valid")
 	}
@@ -959,6 +1515,9 @@ type PathSetter interface {
 }
 
 func (o *Path) SetPath(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -968,12 +1527,32 @@ type PathValidator interface {
 }
 
 func (o *Path) ValidatePath() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadPath(t navvy.Task, v PathSetter) {
+	x, ok := t.(interface {
+		PathGetter
+		PathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePath() {
+		return
+	}
+
+	v.SetPath(x.GetPath())
 }
 
 type PathScheduleFunc struct {
 	valid bool
 	v     pathScheduleFunc
+
+	l sync.RWMutex
 }
 
 type PathScheduleFuncGetter interface {
@@ -981,6 +1560,9 @@ type PathScheduleFuncGetter interface {
 }
 
 func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("PathScheduleFunc value is not valid")
 	}
@@ -992,6 +1574,9 @@ type PathScheduleFuncSetter interface {
 }
 
 func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1001,12 +1586,32 @@ type PathScheduleFuncValidator interface {
 }
 
 func (o *PathScheduleFunc) ValidatePathScheduleFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadPathScheduleFunc(t navvy.Task, v PathScheduleFuncSetter) {
+	x, ok := t.(interface {
+		PathScheduleFuncGetter
+		PathScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePathScheduleFunc() {
+		return
+	}
+
+	v.SetPathScheduleFunc(x.GetPathScheduleFunc())
 }
 
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
+
+	l sync.RWMutex
 }
 
 type PoolGetter interface {
@@ -1014,6 +1619,9 @@ type PoolGetter interface {
 }
 
 func (o *Pool) GetPool() *navvy.Pool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Pool value is not valid")
 	}
@@ -1025,6 +1633,9 @@ type PoolSetter interface {
 }
 
 func (o *Pool) SetPool(v *navvy.Pool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1034,12 +1645,32 @@ type PoolValidator interface {
 }
 
 func (o *Pool) ValidatePool() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadPool(t navvy.Task, v PoolSetter) {
+	x, ok := t.(interface {
+		PoolGetter
+		PoolValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePool() {
+		return
+	}
+
+	v.SetPool(x.GetPool())
 }
 
 type ReadableSize struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type ReadableSizeGetter interface {
@@ -1047,6 +1678,9 @@ type ReadableSizeGetter interface {
 }
 
 func (o *ReadableSize) GetReadableSize() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ReadableSize value is not valid")
 	}
@@ -1058,6 +1692,9 @@ type ReadableSizeSetter interface {
 }
 
 func (o *ReadableSize) SetReadableSize(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1067,12 +1704,32 @@ type ReadableSizeValidator interface {
 }
 
 func (o *ReadableSize) ValidateReadableSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadReadableSize(t navvy.Task, v ReadableSizeSetter) {
+	x, ok := t.(interface {
+		ReadableSizeGetter
+		ReadableSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateReadableSize() {
+		return
+	}
+
+	v.SetReadableSize(x.GetReadableSize())
 }
 
 type Recursive struct {
 	valid bool
 	v     bool
+
+	l sync.RWMutex
 }
 
 type RecursiveGetter interface {
@@ -1080,6 +1737,9 @@ type RecursiveGetter interface {
 }
 
 func (o *Recursive) GetRecursive() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Recursive value is not valid")
 	}
@@ -1091,6 +1751,9 @@ type RecursiveSetter interface {
 }
 
 func (o *Recursive) SetRecursive(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1100,12 +1763,32 @@ type RecursiveValidator interface {
 }
 
 func (o *Recursive) ValidateRecursive() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadRecursive(t navvy.Task, v RecursiveSetter) {
+	x, ok := t.(interface {
+		RecursiveGetter
+		RecursiveValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateRecursive() {
+		return
+	}
+
+	v.SetRecursive(x.GetRecursive())
 }
 
 type ScheduleFunc struct {
 	valid bool
 	v     schedule.TaskFunc
+
+	l sync.RWMutex
 }
 
 type ScheduleFuncGetter interface {
@@ -1113,6 +1796,9 @@ type ScheduleFuncGetter interface {
 }
 
 func (o *ScheduleFunc) GetScheduleFunc() schedule.TaskFunc {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("ScheduleFunc value is not valid")
 	}
@@ -1124,6 +1810,9 @@ type ScheduleFuncSetter interface {
 }
 
 func (o *ScheduleFunc) SetScheduleFunc(v schedule.TaskFunc) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1133,12 +1822,32 @@ type ScheduleFuncValidator interface {
 }
 
 func (o *ScheduleFunc) ValidateScheduleFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadScheduleFunc(t navvy.Task, v ScheduleFuncSetter) {
+	x, ok := t.(interface {
+		ScheduleFuncGetter
+		ScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateScheduleFunc() {
+		return
+	}
+
+	v.SetScheduleFunc(x.GetScheduleFunc())
 }
 
 type Scheduler struct {
 	valid bool
 	v     schedule.Scheduler
+
+	l sync.RWMutex
 }
 
 type SchedulerGetter interface {
@@ -1146,6 +1855,9 @@ type SchedulerGetter interface {
 }
 
 func (o *Scheduler) GetScheduler() schedule.Scheduler {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Scheduler value is not valid")
 	}
@@ -1157,6 +1869,9 @@ type SchedulerSetter interface {
 }
 
 func (o *Scheduler) SetScheduler(v schedule.Scheduler) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1166,12 +1881,91 @@ type SchedulerValidator interface {
 }
 
 func (o *Scheduler) ValidateScheduler() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadScheduler(t navvy.Task, v SchedulerSetter) {
+	x, ok := t.(interface {
+		SchedulerGetter
+		SchedulerValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateScheduler() {
+		return
+	}
+
+	v.SetScheduler(x.GetScheduler())
+}
+
+type SegmentChannel struct {
+	valid bool
+	v     chan *segment.Segment
+
+	l sync.RWMutex
+}
+
+type SegmentChannelGetter interface {
+	GetSegmentChannel() chan *segment.Segment
+}
+
+func (o *SegmentChannel) GetSegmentChannel() chan *segment.Segment {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("SegmentChannel value is not valid")
+	}
+	return o.v
+}
+
+type SegmentChannelSetter interface {
+	SetSegmentChannel(chan *segment.Segment)
+}
+
+func (o *SegmentChannel) SetSegmentChannel(v chan *segment.Segment) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type SegmentChannelValidator interface {
+	ValidateSegmentChannel() bool
+}
+
+func (o *SegmentChannel) ValidateSegmentChannel() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadSegmentChannel(t navvy.Task, v SegmentChannelSetter) {
+	x, ok := t.(interface {
+		SegmentChannelGetter
+		SegmentChannelValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentChannel() {
+		return
+	}
+
+	v.SetSegmentChannel(x.GetSegmentChannel())
 }
 
 type SegmentID struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type SegmentIDGetter interface {
@@ -1179,6 +1973,9 @@ type SegmentIDGetter interface {
 }
 
 func (o *SegmentID) GetSegmentID() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("SegmentID value is not valid")
 	}
@@ -1190,6 +1987,9 @@ type SegmentIDSetter interface {
 }
 
 func (o *SegmentID) SetSegmentID(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1199,45 +1999,91 @@ type SegmentIDValidator interface {
 }
 
 func (o *SegmentID) ValidateSegmentID() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
 }
 
-type SegmentScheduleFunc struct {
+func LoadSegmentID(t navvy.Task, v SegmentIDSetter) {
+	x, ok := t.(interface {
+		SegmentIDGetter
+		SegmentIDValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentID() {
+		return
+	}
+
+	v.SetSegmentID(x.GetSegmentID())
+}
+
+type SegmentIDScheduleFunc struct {
 	valid bool
-	v     segmentScheduleFunc
+	v     segmentIDScheduleFunc
+
+	l sync.RWMutex
 }
 
-type SegmentScheduleFuncGetter interface {
-	GetSegmentScheduleFunc() segmentScheduleFunc
+type SegmentIDScheduleFuncGetter interface {
+	GetSegmentIDScheduleFunc() segmentIDScheduleFunc
 }
 
-func (o *SegmentScheduleFunc) GetSegmentScheduleFunc() segmentScheduleFunc {
+func (o *SegmentIDScheduleFunc) GetSegmentIDScheduleFunc() segmentIDScheduleFunc {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
-		panic("SegmentScheduleFunc value is not valid")
+		panic("SegmentIDScheduleFunc value is not valid")
 	}
 	return o.v
 }
 
-type SegmentScheduleFuncSetter interface {
-	SetSegmentScheduleFunc(segmentScheduleFunc)
+type SegmentIDScheduleFuncSetter interface {
+	SetSegmentIDScheduleFunc(segmentIDScheduleFunc)
 }
 
-func (o *SegmentScheduleFunc) SetSegmentScheduleFunc(v segmentScheduleFunc) {
+func (o *SegmentIDScheduleFunc) SetSegmentIDScheduleFunc(v segmentIDScheduleFunc) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
 
-type SegmentScheduleFuncValidator interface {
-	ValidateSegmentScheduleFunc() bool
+type SegmentIDScheduleFuncValidator interface {
+	ValidateSegmentIDScheduleFunc() bool
 }
 
-func (o *SegmentScheduleFunc) ValidateSegmentScheduleFunc() bool {
+func (o *SegmentIDScheduleFunc) ValidateSegmentIDScheduleFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSegmentIDScheduleFunc(t navvy.Task, v SegmentIDScheduleFuncSetter) {
+	x, ok := t.(interface {
+		SegmentIDScheduleFuncGetter
+		SegmentIDScheduleFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSegmentIDScheduleFunc() {
+		return
+	}
+
+	v.SetSegmentIDScheduleFunc(x.GetSegmentIDScheduleFunc())
 }
 
 type Service struct {
 	valid bool
 	v     storage.Servicer
+
+	l sync.RWMutex
 }
 
 type ServiceGetter interface {
@@ -1245,6 +2091,9 @@ type ServiceGetter interface {
 }
 
 func (o *Service) GetService() storage.Servicer {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Service value is not valid")
 	}
@@ -1256,6 +2105,9 @@ type ServiceSetter interface {
 }
 
 func (o *Service) SetService(v storage.Servicer) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1265,12 +2117,32 @@ type ServiceValidator interface {
 }
 
 func (o *Service) ValidateService() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadService(t navvy.Task, v ServiceSetter) {
+	x, ok := t.(interface {
+		ServiceGetter
+		ServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateService() {
+		return
+	}
+
+	v.SetService(x.GetService())
 }
 
 type Size struct {
 	valid bool
 	v     int64
+
+	l sync.RWMutex
 }
 
 type SizeGetter interface {
@@ -1278,6 +2150,9 @@ type SizeGetter interface {
 }
 
 func (o *Size) GetSize() int64 {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Size value is not valid")
 	}
@@ -1289,6 +2164,9 @@ type SizeSetter interface {
 }
 
 func (o *Size) SetSize(v int64) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1298,12 +2176,32 @@ type SizeValidator interface {
 }
 
 func (o *Size) ValidateSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSize(t navvy.Task, v SizeSetter) {
+	x, ok := t.(interface {
+		SizeGetter
+		SizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSize() {
+		return
+	}
+
+	v.SetSize(x.GetSize())
 }
 
 type SourcePath struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type SourcePathGetter interface {
@@ -1311,6 +2209,9 @@ type SourcePathGetter interface {
 }
 
 func (o *SourcePath) GetSourcePath() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("SourcePath value is not valid")
 	}
@@ -1322,6 +2223,9 @@ type SourcePathSetter interface {
 }
 
 func (o *SourcePath) SetSourcePath(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1331,12 +2235,32 @@ type SourcePathValidator interface {
 }
 
 func (o *SourcePath) ValidateSourcePath() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSourcePath(t navvy.Task, v SourcePathSetter) {
+	x, ok := t.(interface {
+		SourcePathGetter
+		SourcePathValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourcePath() {
+		return
+	}
+
+	v.SetSourcePath(x.GetSourcePath())
 }
 
 type SourceService struct {
 	valid bool
 	v     storage.Servicer
+
+	l sync.RWMutex
 }
 
 type SourceServiceGetter interface {
@@ -1344,6 +2268,9 @@ type SourceServiceGetter interface {
 }
 
 func (o *SourceService) GetSourceService() storage.Servicer {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("SourceService value is not valid")
 	}
@@ -1355,6 +2282,9 @@ type SourceServiceSetter interface {
 }
 
 func (o *SourceService) SetSourceService(v storage.Servicer) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1364,12 +2294,32 @@ type SourceServiceValidator interface {
 }
 
 func (o *SourceService) ValidateSourceService() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSourceService(t navvy.Task, v SourceServiceSetter) {
+	x, ok := t.(interface {
+		SourceServiceGetter
+		SourceServiceValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceService() {
+		return
+	}
+
+	v.SetSourceService(x.GetSourceService())
 }
 
 type SourceStorage struct {
 	valid bool
 	v     storage.Storager
+
+	l sync.RWMutex
 }
 
 type SourceStorageGetter interface {
@@ -1377,6 +2327,9 @@ type SourceStorageGetter interface {
 }
 
 func (o *SourceStorage) GetSourceStorage() storage.Storager {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("SourceStorage value is not valid")
 	}
@@ -1388,6 +2341,9 @@ type SourceStorageSetter interface {
 }
 
 func (o *SourceStorage) SetSourceStorage(v storage.Storager) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1397,12 +2353,32 @@ type SourceStorageValidator interface {
 }
 
 func (o *SourceStorage) ValidateSourceStorage() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSourceStorage(t navvy.Task, v SourceStorageSetter) {
+	x, ok := t.(interface {
+		SourceStorageGetter
+		SourceStorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceStorage() {
+		return
+	}
+
+	v.SetSourceStorage(x.GetSourceStorage())
 }
 
 type SourceType struct {
 	valid bool
 	v     types.ObjectType
+
+	l sync.RWMutex
 }
 
 type SourceTypeGetter interface {
@@ -1410,6 +2386,9 @@ type SourceTypeGetter interface {
 }
 
 func (o *SourceType) GetSourceType() types.ObjectType {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("SourceType value is not valid")
 	}
@@ -1421,6 +2400,9 @@ type SourceTypeSetter interface {
 }
 
 func (o *SourceType) SetSourceType(v types.ObjectType) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1430,12 +2412,32 @@ type SourceTypeValidator interface {
 }
 
 func (o *SourceType) ValidateSourceType() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadSourceType(t navvy.Task, v SourceTypeSetter) {
+	x, ok := t.(interface {
+		SourceTypeGetter
+		SourceTypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceType() {
+		return
+	}
+
+	v.SetSourceType(x.GetSourceType())
 }
 
 type Storage struct {
 	valid bool
 	v     storage.Storager
+
+	l sync.RWMutex
 }
 
 type StorageGetter interface {
@@ -1443,6 +2445,9 @@ type StorageGetter interface {
 }
 
 func (o *Storage) GetStorage() storage.Storager {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Storage value is not valid")
 	}
@@ -1454,6 +2459,9 @@ type StorageSetter interface {
 }
 
 func (o *Storage) SetStorage(v storage.Storager) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1463,12 +2471,32 @@ type StorageValidator interface {
 }
 
 func (o *Storage) ValidateStorage() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadStorage(t navvy.Task, v StorageSetter) {
+	x, ok := t.(interface {
+		StorageGetter
+		StorageValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateStorage() {
+		return
+	}
+
+	v.SetStorage(x.GetStorage())
 }
 
 type StorageName struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type StorageNameGetter interface {
@@ -1476,6 +2504,9 @@ type StorageNameGetter interface {
 }
 
 func (o *StorageName) GetStorageName() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("StorageName value is not valid")
 	}
@@ -1487,6 +2518,9 @@ type StorageNameSetter interface {
 }
 
 func (o *StorageName) SetStorageName(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1496,12 +2530,32 @@ type StorageNameValidator interface {
 }
 
 func (o *StorageName) ValidateStorageName() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadStorageName(t navvy.Task, v StorageNameSetter) {
+	x, ok := t.(interface {
+		StorageNameGetter
+		StorageNameValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateStorageName() {
+		return
+	}
+
+	v.SetStorageName(x.GetStorageName())
 }
 
 type TotalSize struct {
 	valid bool
 	v     int64
+
+	l sync.RWMutex
 }
 
 type TotalSizeGetter interface {
@@ -1509,6 +2563,9 @@ type TotalSizeGetter interface {
 }
 
 func (o *TotalSize) GetTotalSize() int64 {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("TotalSize value is not valid")
 	}
@@ -1520,6 +2577,9 @@ type TotalSizeSetter interface {
 }
 
 func (o *TotalSize) SetTotalSize(v int64) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1529,12 +2589,32 @@ type TotalSizeValidator interface {
 }
 
 func (o *TotalSize) ValidateTotalSize() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadTotalSize(t navvy.Task, v TotalSizeSetter) {
+	x, ok := t.(interface {
+		TotalSizeGetter
+		TotalSizeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateTotalSize() {
+		return
+	}
+
+	v.SetTotalSize(x.GetTotalSize())
 }
 
 type Type struct {
 	valid bool
 	v     types.ObjectType
+
+	l sync.RWMutex
 }
 
 type TypeGetter interface {
@@ -1542,6 +2622,9 @@ type TypeGetter interface {
 }
 
 func (o *Type) GetType() types.ObjectType {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Type value is not valid")
 	}
@@ -1553,6 +2636,9 @@ type TypeSetter interface {
 }
 
 func (o *Type) SetType(v types.ObjectType) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1562,12 +2648,32 @@ type TypeValidator interface {
 }
 
 func (o *Type) ValidateType() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadType(t navvy.Task, v TypeSetter) {
+	x, ok := t.(interface {
+		TypeGetter
+		TypeValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateType() {
+		return
+	}
+
+	v.SetType(x.GetType())
 }
 
 type URL struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type URLGetter interface {
@@ -1575,6 +2681,9 @@ type URLGetter interface {
 }
 
 func (o *URL) GetURL() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("URL value is not valid")
 	}
@@ -1586,6 +2695,9 @@ type URLSetter interface {
 }
 
 func (o *URL) SetURL(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1595,12 +2707,32 @@ type URLValidator interface {
 }
 
 func (o *URL) ValidateURL() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadURL(t navvy.Task, v URLSetter) {
+	x, ok := t.(interface {
+		URLGetter
+		URLValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateURL() {
+		return
+	}
+
+	v.SetURL(x.GetURL())
 }
 
 type Zone struct {
 	valid bool
 	v     string
+
+	l sync.RWMutex
 }
 
 type ZoneGetter interface {
@@ -1608,6 +2740,9 @@ type ZoneGetter interface {
 }
 
 func (o *Zone) GetZone() string {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	if !o.valid {
 		panic("Zone value is not valid")
 	}
@@ -1619,6 +2754,9 @@ type ZoneSetter interface {
 }
 
 func (o *Zone) SetZone(v string) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
 	o.v = v
 	o.valid = true
 }
@@ -1628,5 +2766,23 @@ type ZoneValidator interface {
 }
 
 func (o *Zone) ValidateZone() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
 	return o.valid
+}
+
+func LoadZone(t navvy.Task, v ZoneSetter) {
+	x, ok := t.(interface {
+		ZoneGetter
+		ZoneValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateZone() {
+		return
+	}
+
+	v.SetZone(x.GetZone())
 }

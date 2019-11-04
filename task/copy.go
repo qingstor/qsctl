@@ -7,6 +7,7 @@ import (
 
 	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -42,13 +43,23 @@ func (t *CopySmallFileTask) new() {
 }
 
 func (t *CopySmallFileTask) run() {
-	t.GetScheduler().Sync(NewMD5SumFileTask(t))
-	t.GetScheduler().Sync(NewCopySingleFileTask(t))
+	md5Task := NewMD5SumFile(t)
+	t.GetScheduler().Sync(md5Task)
+
+	fileCopyTask := NewCopySingleFile(t)
+	fileCopyTask.SetMD5Sum(md5Task.GetMD5Sum())
+	t.GetScheduler().Sync(fileCopyTask)
 }
 
 // newCopyLargeFileTask will create a new Task.
 func (t *CopyLargeFileTask) new() {
-	// Init part size.
+}
+
+func (t *CopyLargeFileTask) run() {
+	initTask := NewSegmentInit(t)
+	utils.ChooseDestinationStorage(initTask, t)
+
+	// Set segment part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
@@ -56,15 +67,26 @@ func (t *CopyLargeFileTask) new() {
 	}
 	t.SetPartSize(partSize)
 
-	t.SetScheduleFunc(NewCopyPartialFileTask)
-}
+	t.GetScheduler().Sync(initTask)
+	t.SetSegmentID(initTask.GetSegmentID())
 
-func (t *CopyLargeFileTask) run() {
-	x := NewCopyLargeFileShim(t)
-	utils.ChooseDestinationStorage(x, t)
+	offset := int64(0)
+	for {
+		t.SetOffset(offset)
 
-	t.GetScheduler().Sync(NewSegmentInitTask(x))
-	t.GetScheduler().Sync(NewSegmentCompleteTask(x))
+		x := NewCopyPartialFile(t)
+		t.GetScheduler().Async(x)
+		// While GetDone is true, this must be the last part.
+		if x.GetDone() {
+			break
+		}
+
+		offset += x.GetSize()
+	}
+
+	// Make sure all segment upload finished.
+	t.GetScheduler().Wait()
+	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
 // NewCopyPartialFileTask will create a new Task.
@@ -75,19 +97,24 @@ func (t *CopyPartialFileTask) new() {
 	partSize := t.GetPartSize()
 	offset := t.GetOffset()
 
-	if totalSize < offset+partSize {
+	if totalSize <= offset+partSize {
 		t.SetSize(totalSize - offset)
 		t.SetDone(true)
 	} else {
 		t.SetSize(partSize)
+		t.SetDone(false)
 	}
 
-	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())
+	log.Debugf("Task <%s> for Object <%s> finished.", "CopyPartialFile", t.GetDestinationPath())
 }
 
 func (t *CopyPartialFileTask) run() {
-	t.GetScheduler().Sync(NewMD5SumFileTask(t))
-	t.GetScheduler().Sync(NewSegmentFileCopyTask(t))
+	md5Task := NewMD5SumFile(t)
+	t.GetScheduler().Sync(md5Task)
+
+	fileCopyTask := NewSegmentFileCopy(t)
+	fileCopyTask.SetMD5Sum(md5Task.GetMD5Sum())
+	t.GetScheduler().Sync(fileCopyTask)
 }
 
 // NewCopyStreamTask will create a copy stream task.
@@ -98,22 +125,29 @@ func (t *CopyStreamTask) new() {
 		},
 	}
 	t.SetBytesPool(bytesPool)
-
-	// TODO: we will use expect size to calculate part size later.
-	t.SetPartSize(constants.DefaultPartSize)
-
-	t.SetScheduleFunc(NewCopyPartialStreamTask)
-
-	currentOffset := int64(0)
-	t.SetCurrentOffset(&currentOffset)
-
-	// We don't know how many data in stream, set it to -1 as an indicate.
-	// We will set current offset to -1 when got an EOF from stream.
-	t.SetTotalSize(-1)
 }
 
 func (t *CopyStreamTask) run() {
-	t.GetScheduler().Async(NewSegmentInitTask(t))
+	initTask := NewSegmentInit(t)
+	utils.ChooseDestinationStorage(initTask, t)
+
+	// TODO: we will use expect size to calculate part size later.
+	partSize := int64(constants.DefaultPartSize)
+	t.SetPartSize(partSize)
+
+	t.GetScheduler().Sync(initTask)
+	t.SetSegmentID(initTask.GetSegmentID())
+
+	for {
+		x := NewCopyPartialStream(t)
+		t.GetScheduler().Async(x)
+
+		if x.GetDone() {
+			break
+		}
+	}
+
+	t.GetScheduler().Wait()
 	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
 }
 

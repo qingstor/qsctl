@@ -40,7 +40,7 @@ generate:
 build: tidy generate check
 	@echo "build qsctl"
 	@mkdir -p ./bin
-	@go build ${GO_BUILD_OPTION} -o ./bin/qsctl ${CMD_PKG}
+	@go build ${GO_BUILD_OPTION} -race -o ./bin/qsctl ${CMD_PKG}
 	@echo "ok"
 
 install: build

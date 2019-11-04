@@ -1,27 +1,21 @@
 package task
 
 import (
-	typ "github.com/Xuanwo/storage/types"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *DeleteDirTask) new() {
-	oc := make(chan *typ.Object)
-	t.SetObjectChannel(oc)
-
-	// set recursive for list async task to list recursively
-	t.SetRecursive(true)
-
-	t.SetScheduleFunc(NewDeleteFileTask)
-}
+func (t *DeleteDirTask) new() {}
 
 func (t *DeleteDirTask) run() {
 	log.Debugf("Task <%s> for path <%s> started",
 		"DeleteDir", t.GetPath())
 
-	// TODO: check logic here
-	t.GetScheduler().Sync(NewIterateFileTask(t))
+	x := NewIterateFile(t)
+	x.SetPathScheduleFunc(NewDeleteFilePathRequirement)
+	x.SetRecursive(true)
+	t.GetScheduler().Sync(x)
 
 	log.Debugf("Task <%s> for path <%s> finished",
 		"DeleteDir", t.GetPath())
@@ -49,6 +43,27 @@ func (t *DeleteStorageTask) run() {
 	log.Debugf("Task <%s> for storage <%s> started",
 		"DeleteStorage", t.GetStorageName())
 
+	if t.GetForce() {
+		store, err := t.GetService().Get(t.GetStorageName())
+		if err != nil {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+
+		deleteDir := NewDeleteDir(t)
+		deleteDir.SetPath("")
+		deleteDir.SetStorage(store)
+
+		t.GetScheduler().Async(deleteDir)
+
+		deleteSegment := NewDeleteSegmentDir(t)
+		deleteSegment.SetPath("") // set path "" means delete all segments
+		deleteSegment.SetStorage(store)
+
+		t.GetScheduler().Async(deleteSegment)
+		t.GetScheduler().Wait()
+	}
+
 	err := t.GetService().Delete(t.GetStorageName())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
@@ -59,17 +74,29 @@ func (t *DeleteStorageTask) run() {
 		"DeleteStorage", t.GetStorageName())
 }
 
-func (t *DeleteStorageForceTask) new() {}
-func (t *DeleteStorageForceTask) run() {
-	log.Debugf("Task <%s> for storage <%s> started",
-		"DeleteStorageForce", t.GetStorageName())
+func (t *DeleteSegmentTask) new() {}
+func (t *DeleteSegmentTask) run() {
+	log.Debugf("Task <%s> for ID <%s> started.", "DeleteSegment", t.GetSegmentID())
 
-	// TODO: delete all dir, delete all segments
-	t.GetScheduler().Sync(NewDeleteStorageTask(t))
+	if err := t.GetStorage().AbortSegment(t.GetSegmentID()); err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
 
-	log.Debugf("Task <%s> for storage <%s> finished",
-		"DeleteStorageForce", t.GetStorageName())
+	log.Debugf("Task <%s> for ID <%s> finished.", "DeleteSegment", t.GetSegmentID())
 }
 
-func (t *DeleteSegmentTask) new() {}
-func (t *DeleteSegmentTask) run() {}
+func (t *DeleteSegmentDirTask) new() {}
+
+func (t *DeleteSegmentDirTask) run() {
+	log.Debugf("Task <%s> for path <%s> started",
+		"DeleteSegmentDir", t.GetPath())
+
+	x := NewIterateSegment(t)
+	x.SetSegmentIDScheduleFunc(NewDeleteSegmentSegmentIDRequirement)
+
+	t.GetScheduler().Sync(x)
+
+	log.Debugf("Task <%s> for path <%s> finished",
+		"DeleteSegmentDir", t.GetPath())
+}

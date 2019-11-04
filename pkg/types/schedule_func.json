@@ -1,0 +1,16 @@
+{
+  "Path": {
+    "description": "",
+    "value": [
+      "Path",
+      "Storage"
+    ]
+  },
+  "SegmentID": {
+    "description": "for segment id schedule func",
+    "value": [
+      "SegmentID",
+      "Storage"
+    ]
+  }
+}
