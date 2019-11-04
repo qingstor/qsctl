@@ -31,7 +31,6 @@ type CopyFileTask struct {
 	types.SourceStorage
 
 	// Output value
-	types.TotalSize
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
@@ -486,14 +485,12 @@ type CopySmallFileTask struct {
 	// Input value
 	types.DestinationPath
 	types.DestinationStorage
+	types.Size
 	types.SourcePath
 	types.SourceStorage
-	types.TotalSize
 
 	// Output value
 	types.MD5Sum
-	types.Offset
-	types.Size
 }
 
 // NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
@@ -516,14 +513,14 @@ func (t *CopySmallFileTask) validateInput() {
 	if !t.ValidateDestinationStorage() {
 		panic(fmt.Errorf("Task CopySmallFile value DestinationStorage is invalid"))
 	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task CopySmallFile value Size is invalid"))
+	}
 	if !t.ValidateSourcePath() {
 		panic(fmt.Errorf("Task CopySmallFile value SourcePath is invalid"))
 	}
 	if !t.ValidateSourceStorage() {
 		panic(fmt.Errorf("Task CopySmallFile value SourceStorage is invalid"))
-	}
-	if !t.ValidateTotalSize() {
-		panic(fmt.Errorf("Task CopySmallFile value TotalSize is invalid"))
 	}
 }
 
@@ -533,9 +530,9 @@ func (t *CopySmallFileTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadDestinationPath(task, t)
 	types.LoadDestinationStorage(task, t)
+	types.LoadSize(task, t)
 	types.LoadSourcePath(task, t)
 	types.LoadSourceStorage(task, t)
-	types.LoadTotalSize(task, t)
 }
 
 // Run implement navvy.Task
@@ -1488,9 +1485,9 @@ type MD5SumFileTask struct {
 
 	// Input value
 	types.Offset
+	types.Path
 	types.Size
-	types.SourcePath
-	types.SourceStorage
+	types.Storage
 
 	// Output value
 	types.MD5Sum
@@ -1513,14 +1510,14 @@ func (t *MD5SumFileTask) validateInput() {
 	if !t.ValidateOffset() {
 		panic(fmt.Errorf("Task MD5SumFile value Offset is invalid"))
 	}
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task MD5SumFile value Path is invalid"))
+	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task MD5SumFile value Size is invalid"))
 	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task MD5SumFile value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task MD5SumFile value SourceStorage is invalid"))
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task MD5SumFile value Storage is invalid"))
 	}
 }
 
@@ -1529,9 +1526,9 @@ func (t *MD5SumFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadOffset(task, t)
+	types.LoadPath(task, t)
 	types.LoadSize(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
@@ -1556,6 +1553,11 @@ func (t *MD5SumFileTask) String() string {
 
 // NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
 func NewMD5SumFileTask(task navvy.Task) navvy.Task {
+	return NewMD5SumFile(task)
+}
+
+// NewMD5SumFilePathRequirement will create a MD5SumFileTask which meets PathRequirement.
+func NewMD5SumFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewMD5SumFile(task)
 }
 
