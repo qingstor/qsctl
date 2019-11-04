@@ -1838,13 +1838,13 @@ func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
-func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
+// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
+func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
-func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
+func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewSegmentInit(task)
 }
 
