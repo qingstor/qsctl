@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/yunify/qsctl/v2/cmd/utils"
 	"github.com/yunify/qsctl/v2/constants"
 )
 
@@ -58,11 +61,10 @@ func initConfig() (err error) {
 	viper.AutomaticEnv()
 
 	// Set default value for config.
-	viper.SetDefault(constants.ConfigHost, "qingstor.com")
-	viper.SetDefault(constants.ConfigPort, 443)
-	viper.SetDefault(constants.ConfigProtocol, "https")
-	viper.SetDefault(constants.ConfigConnectionRetries, 3)
-	viper.SetDefault(constants.ConfigLogLevel, "info")
+	viper.SetDefault(constants.ConfigHost, constants.DefaultHost)
+	viper.SetDefault(constants.ConfigPort, constants.DefaultPort)
+	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
+	viper.SetDefault(constants.ConfigLogLevel, constants.DefaultLogLevel)
 
 	// Load config from config file.
 	if configPath != "" {
@@ -78,11 +80,26 @@ func initConfig() (err error) {
 		viper.SetConfigName("config")
 	}
 
+	// try to read config from path set above
 	err = viper.ReadInConfig()
 	if err != nil {
 		switch err.(type) {
 		case viper.ConfigFileNotFoundError:
+			// if config file not found, try to get access key & secret key from env
 			log.Warnf("Config not loaded, use default and environment value instead.")
+			// if env not set, start interactive setup
+			if viper.GetString(constants.ConfigAccessKeyID) == "" && viper.GetString(constants.ConfigSecretAccessKey) == "" {
+				log.Infof("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
+				fileName, err := utils.SetupConfigInteractive()
+				if err != nil {
+					return fmt.Errorf("setup config failed [%v], please try again", err)
+				}
+				log.Infof("Your config has been set to <%v>. You can still modify it manually.", fileName)
+				viper.SetConfigFile(fileName)
+				if err = viper.ReadInConfig(); err != nil {
+					return err
+				}
+			}
 			err = nil
 		default:
 			log.Errorf("Load config failed [%v]", err)
