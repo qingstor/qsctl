@@ -64,7 +64,6 @@ func initConfig() (err error) {
 	viper.SetDefault(constants.ConfigHost, constants.DefaultHost)
 	viper.SetDefault(constants.ConfigPort, constants.DefaultPort)
 	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
-	viper.SetDefault(constants.ConfigConnectionRetries, constants.DefaultConnectionRetries)
 	viper.SetDefault(constants.ConfigLogLevel, constants.DefaultLogLevel)
 
 	// Load config from config file.
