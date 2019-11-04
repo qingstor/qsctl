@@ -12,9 +12,9 @@ import (
 func (t *MD5SumFileTask) new() {}
 
 func (t *MD5SumFileTask) run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
 
-	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
+	r, err := t.GetStorage().Read(t.GetPath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
@@ -29,7 +29,7 @@ func (t *MD5SumFileTask) run() {
 	}
 
 	t.SetMD5Sum(h.Sum(nil)[:])
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetSourcePath(), t.GetOffset())
+	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "FileMD5SumTask", t.GetPath(), t.GetOffset())
 }
 func (t *MD5SumStreamTask) new() {}
 
