@@ -56,9 +56,6 @@ func (t *CopyLargeFileTask) new() {
 }
 
 func (t *CopyLargeFileTask) run() {
-	initTask := NewSegmentInit(t)
-	utils.ChooseDestinationStorage(initTask, t)
-
 	// Set segment part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
 	if err != nil {
@@ -66,6 +63,9 @@ func (t *CopyLargeFileTask) run() {
 		return
 	}
 	t.SetPartSize(partSize)
+
+	initTask := NewSegmentInit(t)
+	utils.ChooseDestinationStorage(initTask, t)
 
 	t.GetScheduler().Sync(initTask)
 	t.SetSegmentID(initTask.GetSegmentID())

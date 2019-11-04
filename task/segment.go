@@ -14,7 +14,8 @@ func (t *SegmentInitTask) new() {}
 func (t *SegmentInitTask) run() {
 	log.Debugf("Task <%s> for Object <%s> started.", "SegmentInitTask", t.GetPath())
 
-	id, err := t.GetStorage().InitSegment(t.GetPath())
+	id, err := t.GetStorage().InitSegment(t.GetPath(),
+		typ.WithPartSize(t.GetPartSize()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return

@@ -1777,6 +1777,7 @@ type SegmentInitTask struct {
 	types.Scheduler
 
 	// Input value
+	types.PartSize
 	types.Path
 	types.Storage
 
@@ -1786,6 +1787,9 @@ type SegmentInitTask struct {
 
 // validateInput will validate all input before run task.
 func (t *SegmentInitTask) validateInput() {
+	if !t.ValidatePartSize() {
+		panic(fmt.Errorf("Task SegmentInit value PartSize is invalid"))
+	}
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task SegmentInit value Path is invalid"))
 	}
@@ -1798,6 +1802,7 @@ func (t *SegmentInitTask) validateInput() {
 func (t *SegmentInitTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadPartSize(task, t)
 	types.LoadPath(task, t)
 	types.LoadStorage(task, t)
 }
