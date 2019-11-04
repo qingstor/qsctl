@@ -93,7 +93,7 @@ func TestParseStorageInput(t *testing.T) {
 			gotPath, gotObjectType, gotStore, gotErr := ParseStorageInput(v.input, v.storageType)
 			assert.Equal(t, v.err == nil, gotErr == nil)
 			if v.err == nil {
-				assert.NotZero(t, gotPath)
+				assert.Zero(t, gotPath)
 				assert.NotZero(t, gotObjectType)
 				assert.NotNil(t, gotStore)
 			}
