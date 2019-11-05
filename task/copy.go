@@ -42,6 +42,7 @@ func (t *CopySmallFileTask) new() {}
 
 func (t *CopySmallFileTask) run() {
 	md5Task := NewMD5SumFile(t)
+	utils.ChooseSourceStorage(md5Task, t)
 	md5Task.SetOffset(0)
 	t.GetScheduler().Sync(md5Task)
 
@@ -194,4 +195,25 @@ func (t *CopySingleFileTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
+}
+
+func (t *CopyDirTask) new() {}
+
+func (t *CopyDirTask) run() {
+	log.Debugf("Task <%s> for path <%s> started",
+		"CopyDir", t.GetSourcePath())
+
+	x := NewIterateFile(t)
+	utils.ChooseSourceStorage(x, t)
+	x.SetPathFunc(func(key string) {
+		sf := NewCopyFile(t)
+		sf.SetSourcePath(key)
+		sf.SetDestinationPath(key)
+		t.GetScheduler().Async(sf)
+	})
+	x.SetRecursive(true)
+	t.GetScheduler().Sync(x)
+
+	log.Debugf("Task <%s> for path <%s> finished",
+		"CopyDir", t.GetSourcePath())
 }
