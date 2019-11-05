@@ -6,6 +6,7 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -31,6 +32,18 @@ type CopyFileTask struct {
 
 	// Output value
 	types.TotalSize
+}
+
+// NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
+func NewCopyFile(task navvy.Task) *CopyFileTask {
+	t := &CopyFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -63,24 +76,20 @@ func (t *CopyFileTask) loadInput(task navvy.Task) {
 func (t *CopyFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
-func NewCopyFile(task navvy.Task) *CopyFileTask {
-	t := &CopyFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyFileTask) String() string {
+	return fmt.Sprintf("CopyFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyFileTask will create a CopyFileTask which meets navvy.Task.
@@ -107,6 +116,18 @@ type CopyLargeFileTask struct {
 	types.Offset
 	types.PartSize
 	types.SegmentID
+}
+
+// NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
+func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
+	t := &CopyLargeFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -143,24 +164,20 @@ func (t *CopyLargeFileTask) loadInput(task navvy.Task) {
 func (t *CopyLargeFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyLargeFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyLargeFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyLargeFile will create a CopyLargeFileTask struct and fetch inherited data from parent task.
-func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
-	t := &CopyLargeFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyLargeFileTask) String() string {
+	return fmt.Sprintf("CopyLargeFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
 }
 
 // NewCopyLargeFileTask will create a CopyLargeFileTask which meets navvy.Task.
@@ -189,6 +206,18 @@ type CopyPartialFileTask struct {
 	// Output value
 	types.Done
 	types.Size
+}
+
+// NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
+func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
+	t := &CopyPartialFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -237,24 +266,20 @@ func (t *CopyPartialFileTask) loadInput(task navvy.Task) {
 func (t *CopyPartialFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyPartialFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyPartialFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyPartialFile will create a CopyPartialFileTask struct and fetch inherited data from parent task.
-func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
-	t := &CopyPartialFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyPartialFileTask) String() string {
+	return fmt.Sprintf("CopyPartialFileTask {DestinationPath: %v, DestinationStorage: %v, Offset: %v, PartSize: %v, SegmentID: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetOffset(), t.GetPartSize(), t.GetSegmentID(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
 }
 
 // NewCopyPartialFileTask will create a CopyPartialFileTask which meets navvy.Task.
@@ -283,6 +308,18 @@ type CopyPartialStreamTask struct {
 	types.Content
 	types.Done
 	types.Size
+}
+
+// NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
+func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
+	t := &CopyPartialStreamTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -327,24 +364,20 @@ func (t *CopyPartialStreamTask) loadInput(task navvy.Task) {
 func (t *CopyPartialStreamTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyPartialStreamTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyPartialStream failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyPartialStream will create a CopyPartialStreamTask struct and fetch inherited data from parent task.
-func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
-	t := &CopyPartialStreamTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyPartialStreamTask) String() string {
+	return fmt.Sprintf("CopyPartialStreamTask {BytesPool: %v, DestinationPath: %v, DestinationStorage: %v, PartSize: %v, SegmentID: %v, SourcePath: %v, SourceStorage: %v}", t.GetBytesPool(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetPartSize(), t.GetSegmentID(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyPartialStreamTask will create a CopyPartialStreamTask which meets navvy.Task.
@@ -369,6 +402,18 @@ type CopySingleFileTask struct {
 	types.SourceStorage
 
 	// Output value
+}
+
+// NewCopySingleFile will create a CopySingleFileTask struct and fetch inherited data from parent task.
+func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
+	t := &CopySingleFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -409,24 +454,20 @@ func (t *CopySingleFileTask) loadInput(task navvy.Task) {
 func (t *CopySingleFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopySingleFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopySingleFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopySingleFile will create a CopySingleFileTask struct and fetch inherited data from parent task.
-func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
-	t := &CopySingleFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopySingleFileTask) String() string {
+	return fmt.Sprintf("CopySingleFileTask {DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopySingleFileTask will create a CopySingleFileTask which meets navvy.Task.
@@ -453,6 +494,18 @@ type CopySmallFileTask struct {
 	types.MD5Sum
 	types.Offset
 	types.Size
+}
+
+// NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
+func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
+	t := &CopySmallFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -489,24 +542,20 @@ func (t *CopySmallFileTask) loadInput(task navvy.Task) {
 func (t *CopySmallFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopySmallFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopySmallFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
-func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
-	t := &CopySmallFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopySmallFileTask) String() string {
+	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
 }
 
 // NewCopySmallFileTask will create a CopySmallFileTask which meets navvy.Task.
@@ -532,6 +581,18 @@ type CopyStreamTask struct {
 	types.BytesPool
 	types.PartSize
 	types.SegmentID
+}
+
+// NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
+func NewCopyStream(task navvy.Task) *CopyStreamTask {
+	t := &CopyStreamTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -564,24 +625,20 @@ func (t *CopyStreamTask) loadInput(task navvy.Task) {
 func (t *CopyStreamTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyStreamTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyStream failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyStream will create a CopyStreamTask struct and fetch inherited data from parent task.
-func NewCopyStream(task navvy.Task) *CopyStreamTask {
-	t := &CopyStreamTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyStreamTask) String() string {
+	return fmt.Sprintf("CopyStreamTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyStreamTask will create a CopyStreamTask which meets navvy.Task.
@@ -605,6 +662,18 @@ type CreateStorageTask struct {
 	types.Zone
 }
 
+// NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
+func NewCreateStorage(task navvy.Task) *CreateStorageTask {
+	t := &CreateStorageTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *CreateStorageTask) validateInput() {
 	if !t.ValidateService() {
@@ -623,24 +692,20 @@ func (t *CreateStorageTask) loadInput(task navvy.Task) {
 func (t *CreateStorageTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CreateStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CreateStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCreateStorage will create a CreateStorageTask struct and fetch inherited data from parent task.
-func NewCreateStorage(task navvy.Task) *CreateStorageTask {
-	t := &CreateStorageTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CreateStorageTask) String() string {
+	return fmt.Sprintf("CreateStorageTask {Service: %v}", t.GetService())
 }
 
 // NewCreateStorageTask will create a CreateStorageTask which meets navvy.Task.
@@ -662,6 +727,18 @@ type DeleteDirTask struct {
 
 	// Output value
 	types.PathScheduleFunc
+}
+
+// NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
+func NewDeleteDir(task navvy.Task) *DeleteDirTask {
+	t := &DeleteDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -686,24 +763,20 @@ func (t *DeleteDirTask) loadInput(task navvy.Task) {
 func (t *DeleteDirTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *DeleteDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteDir failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
-func NewDeleteDir(task navvy.Task) *DeleteDirTask {
-	t := &DeleteDirTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *DeleteDirTask) String() string {
+	return fmt.Sprintf("DeleteDirTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewDeleteDirTask will create a DeleteDirTask which meets navvy.Task.
@@ -731,6 +804,18 @@ type DeleteFileTask struct {
 	// Output value
 }
 
+// NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
+func NewDeleteFile(task navvy.Task) *DeleteFileTask {
+	t := &DeleteFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *DeleteFileTask) validateInput() {
 	if !t.ValidatePath() {
@@ -753,24 +838,20 @@ func (t *DeleteFileTask) loadInput(task navvy.Task) {
 func (t *DeleteFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *DeleteFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewDeleteFile will create a DeleteFileTask struct and fetch inherited data from parent task.
-func NewDeleteFile(task navvy.Task) *DeleteFileTask {
-	t := &DeleteFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *DeleteFileTask) String() string {
+	return fmt.Sprintf("DeleteFileTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewDeleteFileTask will create a DeleteFileTask which meets navvy.Task.
@@ -798,6 +879,18 @@ type DeleteSegmentTask struct {
 	// Output value
 }
 
+// NewDeleteSegment will create a DeleteSegmentTask struct and fetch inherited data from parent task.
+func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
+	t := &DeleteSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *DeleteSegmentTask) validateInput() {
 	if !t.ValidateSegmentID() {
@@ -820,24 +913,20 @@ func (t *DeleteSegmentTask) loadInput(task navvy.Task) {
 func (t *DeleteSegmentTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *DeleteSegmentTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteSegment failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewDeleteSegment will create a DeleteSegmentTask struct and fetch inherited data from parent task.
-func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
-	t := &DeleteSegmentTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *DeleteSegmentTask) String() string {
+	return fmt.Sprintf("DeleteSegmentTask {SegmentID: %v, Storage: %v}", t.GetSegmentID(), t.GetStorage())
 }
 
 // NewDeleteSegmentTask will create a DeleteSegmentTask which meets navvy.Task.
@@ -865,6 +954,18 @@ type DeleteSegmentDirTask struct {
 	// Output value
 }
 
+// NewDeleteSegmentDir will create a DeleteSegmentDirTask struct and fetch inherited data from parent task.
+func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
+	t := &DeleteSegmentDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *DeleteSegmentDirTask) validateInput() {
 	if !t.ValidatePath() {
@@ -887,24 +988,20 @@ func (t *DeleteSegmentDirTask) loadInput(task navvy.Task) {
 func (t *DeleteSegmentDirTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *DeleteSegmentDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteSegmentDir failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewDeleteSegmentDir will create a DeleteSegmentDirTask struct and fetch inherited data from parent task.
-func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
-	t := &DeleteSegmentDirTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *DeleteSegmentDirTask) String() string {
+	return fmt.Sprintf("DeleteSegmentDirTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewDeleteSegmentDirTask will create a DeleteSegmentDirTask which meets navvy.Task.
@@ -933,6 +1030,18 @@ type DeleteStorageTask struct {
 	// Output value
 }
 
+// NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
+func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
+	t := &DeleteStorageTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *DeleteStorageTask) validateInput() {
 	if !t.ValidateForce() {
@@ -959,24 +1068,20 @@ func (t *DeleteStorageTask) loadInput(task navvy.Task) {
 func (t *DeleteStorageTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *DeleteStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task DeleteStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewDeleteStorage will create a DeleteStorageTask struct and fetch inherited data from parent task.
-func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
-	t := &DeleteStorageTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *DeleteStorageTask) String() string {
+	return fmt.Sprintf("DeleteStorageTask {Force: %v, Service: %v, StorageName: %v}", t.GetForce(), t.GetService(), t.GetStorageName())
 }
 
 // NewDeleteStorageTask will create a DeleteStorageTask which meets navvy.Task.
@@ -999,6 +1104,18 @@ type IterateFileTask struct {
 	types.Storage
 
 	// Output value
+}
+
+// NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
+func NewIterateFile(task navvy.Task) *IterateFileTask {
+	t := &IterateFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1031,24 +1148,20 @@ func (t *IterateFileTask) loadInput(task navvy.Task) {
 func (t *IterateFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *IterateFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task IterateFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
-func NewIterateFile(task navvy.Task) *IterateFileTask {
-	t := &IterateFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *IterateFileTask) String() string {
+	return fmt.Sprintf("IterateFileTask {Path: %v, PathScheduleFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathScheduleFunc(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
@@ -1077,6 +1190,18 @@ type IterateSegmentTask struct {
 	// Output value
 }
 
+// NewIterateSegment will create a IterateSegmentTask struct and fetch inherited data from parent task.
+func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
+	t := &IterateSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *IterateSegmentTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1103,24 +1228,20 @@ func (t *IterateSegmentTask) loadInput(task navvy.Task) {
 func (t *IterateSegmentTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *IterateSegmentTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task IterateSegment failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewIterateSegment will create a IterateSegmentTask struct and fetch inherited data from parent task.
-func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
-	t := &IterateSegmentTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *IterateSegmentTask) String() string {
+	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDScheduleFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDScheduleFunc(), t.GetStorage())
 }
 
 // NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
@@ -1150,6 +1271,18 @@ type ListFileTask struct {
 	types.ObjectChannel
 }
 
+// NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
+func NewListFile(task navvy.Task) *ListFileTask {
+	t := &ListFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *ListFileTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1176,24 +1309,20 @@ func (t *ListFileTask) loadInput(task navvy.Task) {
 func (t *ListFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *ListFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
-func NewListFile(task navvy.Task) *ListFileTask {
-	t := &ListFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *ListFileTask) String() string {
+	return fmt.Sprintf("ListFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewListFileTask will create a ListFileTask which meets navvy.Task.
@@ -1222,6 +1351,18 @@ type ListSegmentTask struct {
 	types.SegmentChannel
 }
 
+// NewListSegment will create a ListSegmentTask struct and fetch inherited data from parent task.
+func NewListSegment(task navvy.Task) *ListSegmentTask {
+	t := &ListSegmentTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *ListSegmentTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1244,24 +1385,20 @@ func (t *ListSegmentTask) loadInput(task navvy.Task) {
 func (t *ListSegmentTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *ListSegmentTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListSegment failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewListSegment will create a ListSegmentTask struct and fetch inherited data from parent task.
-func NewListSegment(task navvy.Task) *ListSegmentTask {
-	t := &ListSegmentTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *ListSegmentTask) String() string {
+	return fmt.Sprintf("ListSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewListSegmentTask will create a ListSegmentTask which meets navvy.Task.
@@ -1290,6 +1427,18 @@ type ListStorageTask struct {
 	types.Zone
 }
 
+// NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
+func NewListStorage(task navvy.Task) *ListStorageTask {
+	t := &ListStorageTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *ListStorageTask) validateInput() {
 	if !t.ValidateService() {
@@ -1308,24 +1457,20 @@ func (t *ListStorageTask) loadInput(task navvy.Task) {
 func (t *ListStorageTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *ListStorageTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ListStorage failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
-func NewListStorage(task navvy.Task) *ListStorageTask {
-	t := &ListStorageTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *ListStorageTask) String() string {
+	return fmt.Sprintf("ListStorageTask {Service: %v}", t.GetService())
 }
 
 // NewListStorageTask will create a ListStorageTask which meets navvy.Task.
@@ -1349,6 +1494,18 @@ type MD5SumFileTask struct {
 
 	// Output value
 	types.MD5Sum
+}
+
+// NewMD5SumFile will create a MD5SumFileTask struct and fetch inherited data from parent task.
+func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
+	t := &MD5SumFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1381,24 +1538,20 @@ func (t *MD5SumFileTask) loadInput(task navvy.Task) {
 func (t *MD5SumFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *MD5SumFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task MD5SumFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewMD5SumFile will create a MD5SumFileTask struct and fetch inherited data from parent task.
-func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
-	t := &MD5SumFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *MD5SumFileTask) String() string {
+	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetOffset(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
@@ -1421,6 +1574,18 @@ type MD5SumStreamTask struct {
 	types.MD5Sum
 }
 
+// NewMD5SumStream will create a MD5SumStreamTask struct and fetch inherited data from parent task.
+func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
+	t := &MD5SumStreamTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *MD5SumStreamTask) validateInput() {
 	if !t.ValidateContent() {
@@ -1439,24 +1604,20 @@ func (t *MD5SumStreamTask) loadInput(task navvy.Task) {
 func (t *MD5SumStreamTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *MD5SumStreamTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task MD5SumStream failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewMD5SumStream will create a MD5SumStreamTask struct and fetch inherited data from parent task.
-func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
-	t := &MD5SumStreamTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *MD5SumStreamTask) String() string {
+	return fmt.Sprintf("MD5SumStreamTask {Content: %v}", t.GetContent())
 }
 
 // NewMD5SumStreamTask will create a MD5SumStreamTask which meets navvy.Task.
@@ -1479,6 +1640,18 @@ type ReachFileTask struct {
 
 	// Output value
 	types.URL
+}
+
+// NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
+func NewReachFile(task navvy.Task) *ReachFileTask {
+	t := &ReachFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1507,24 +1680,20 @@ func (t *ReachFileTask) loadInput(task navvy.Task) {
 func (t *ReachFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *ReachFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task ReachFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewReachFile will create a ReachFileTask struct and fetch inherited data from parent task.
-func NewReachFile(task navvy.Task) *ReachFileTask {
-	t := &ReachFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *ReachFileTask) String() string {
+	return fmt.Sprintf("ReachFileTask {Expire: %v, Path: %v, Storage: %v}", t.GetExpire(), t.GetPath(), t.GetStorage())
 }
 
 // NewReachFileTask will create a ReachFileTask which meets navvy.Task.
@@ -1552,6 +1721,18 @@ type SegmentAbortAllTask struct {
 	// Output value
 }
 
+// NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
+func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
+	t := &SegmentAbortAllTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *SegmentAbortAllTask) validateInput() {
 	if !t.ValidateStorage() {
@@ -1574,24 +1755,20 @@ func (t *SegmentAbortAllTask) loadInput(task navvy.Task) {
 func (t *SegmentAbortAllTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *SegmentAbortAllTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task SegmentAbortAll failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
-func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
-	t := &SegmentAbortAllTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *SegmentAbortAllTask) String() string {
+	return fmt.Sprintf("SegmentAbortAllTask {Storage: %v, StorageName: %v}", t.GetStorage(), t.GetStorageName())
 }
 
 // NewSegmentAbortAllTask will create a SegmentAbortAllTask which meets navvy.Task.
@@ -1613,6 +1790,18 @@ type SegmentCompleteTask struct {
 	types.Storage
 
 	// Output value
+}
+
+// NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
+func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
+	t := &SegmentCompleteTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1641,24 +1830,20 @@ func (t *SegmentCompleteTask) loadInput(task navvy.Task) {
 func (t *SegmentCompleteTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *SegmentCompleteTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task SegmentComplete failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewSegmentComplete will create a SegmentCompleteTask struct and fetch inherited data from parent task.
-func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
-	t := &SegmentCompleteTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *SegmentCompleteTask) String() string {
+	return fmt.Sprintf("SegmentCompleteTask {Path: %v, SegmentID: %v, Storage: %v}", t.GetPath(), t.GetSegmentID(), t.GetStorage())
 }
 
 // NewSegmentCompleteTask will create a SegmentCompleteTask which meets navvy.Task.
@@ -1695,6 +1880,18 @@ type SegmentFileCopyTask struct {
 	types.SourceStorage
 
 	// Output value
+}
+
+// NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
+func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
+	t := &SegmentFileCopyTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1743,24 +1940,20 @@ func (t *SegmentFileCopyTask) loadInput(task navvy.Task) {
 func (t *SegmentFileCopyTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *SegmentFileCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task SegmentFileCopy failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewSegmentFileCopy will create a SegmentFileCopyTask struct and fetch inherited data from parent task.
-func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
-	t := &SegmentFileCopyTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *SegmentFileCopyTask) String() string {
+	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewSegmentFileCopyTask will create a SegmentFileCopyTask which meets navvy.Task.
@@ -1783,6 +1976,18 @@ type SegmentInitTask struct {
 
 	// Output value
 	types.SegmentID
+}
+
+// NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
+func NewSegmentInit(task navvy.Task) *SegmentInitTask {
+	t := &SegmentInitTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1811,24 +2016,20 @@ func (t *SegmentInitTask) loadInput(task navvy.Task) {
 func (t *SegmentInitTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *SegmentInitTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task SegmentInit failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewSegmentInit will create a SegmentInitTask struct and fetch inherited data from parent task.
-func NewSegmentInit(task navvy.Task) *SegmentInitTask {
-	t := &SegmentInitTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *SegmentInitTask) String() string {
+	return fmt.Sprintf("SegmentInitTask {PartSize: %v, Path: %v, Storage: %v}", t.GetPartSize(), t.GetPath(), t.GetStorage())
 }
 
 // NewSegmentInitTask will create a SegmentInitTask which meets navvy.Task.
@@ -1864,6 +2065,18 @@ type SegmentStreamCopyTask struct {
 	types.Size
 
 	// Output value
+}
+
+// NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
+func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
+	t := &SegmentStreamCopyTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1908,24 +2121,20 @@ func (t *SegmentStreamCopyTask) loadInput(task navvy.Task) {
 func (t *SegmentStreamCopyTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *SegmentStreamCopyTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task SegmentStreamCopy failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewSegmentStreamCopy will create a SegmentStreamCopyTask struct and fetch inherited data from parent task.
-func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
-	t := &SegmentStreamCopyTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *SegmentStreamCopyTask) String() string {
+	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize())
 }
 
 // NewSegmentStreamCopyTask will create a SegmentStreamCopyTask which meets navvy.Task.
@@ -1947,6 +2156,18 @@ type StatFileTask struct {
 
 	// Output value
 	types.Object
+}
+
+// NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
+func NewStatFile(task navvy.Task) *StatFileTask {
+	t := &StatFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
 }
 
 // validateInput will validate all input before run task.
@@ -1971,24 +2192,20 @@ func (t *StatFileTask) loadInput(task navvy.Task) {
 func (t *StatFileTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *StatFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task StatFile failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewStatFile will create a StatFileTask struct and fetch inherited data from parent task.
-func NewStatFile(task navvy.Task) *StatFileTask {
-	t := &StatFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *StatFileTask) String() string {
+	return fmt.Sprintf("StatFileTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewStatFileTask will create a StatFileTask which meets navvy.Task.

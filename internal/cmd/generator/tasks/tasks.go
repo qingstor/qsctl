@@ -174,6 +174,7 @@ import (
 
 	"github.com/Xuanwo/navvy"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/pkg/schedule"
@@ -204,6 +205,18 @@ type {{ .Name }}Task struct {
 {{- end }}
 }
 
+// New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
+func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
+	t := &{{ .Name }}Task{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *{{ .Name }}Task) validateInput() {
 {{- range $k, $v := .Input }}
@@ -227,25 +240,29 @@ func (t *{{ .Name }}Task) loadInput(task navvy.Task) {
 func (t *{{ .Name }}Task) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *{{ .Name }}Task) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task {{ .Name }} failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}",t , err))
 }
 
-// New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
-func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
-	t := &{{ .Name }}Task{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *{{ .Name }}Task) String() string {
+	return fmt.Sprintf("{{ .Name }}Task {
+{{- range $k, $v := .Input -}}
+	{{ if ne $k 0 }}, {{end}}{{$v}}: %v
+{{- end -}}
+}", {{- range $k, $v := .Input -}}
+	{{ if ne $k 0 }}, {{end}}t.Get{{$v}}()
+{{- end -}})
 }
+
+
 
 // New{{ .Name }}Task will create a {{ .Name }}Task which meets navvy.Task.
 func New{{ .Name }}Task(task navvy.Task) navvy.Task {
