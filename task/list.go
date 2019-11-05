@@ -6,8 +6,6 @@ import (
 	"github.com/Xuanwo/storage/pkg/iterator"
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -17,8 +15,6 @@ func (t *ListFileTask) new() {
 }
 
 func (t *ListFileTask) run() {
-	log.Debugf("Task <%s> for key <%s> started", "ListFileTask", t.GetPath())
-
 	it := t.GetStorage().ListDir(t.GetPath(), typ.WithRecursive(t.GetRecursive()))
 
 	// Always close the object channel.
@@ -35,8 +31,6 @@ func (t *ListFileTask) run() {
 		}
 		t.GetObjectChannel() <- o
 	}
-
-	log.Debugf("Task <%s> for key <%s> finished", "ListFileTask", t.GetPath())
 }
 
 func (t *ListSegmentTask) new() {
@@ -45,8 +39,6 @@ func (t *ListSegmentTask) new() {
 }
 
 func (t *ListSegmentTask) run() {
-	log.Debugf("Task <%s> for key <%s> started", "ListSegmentTask", t.GetPath())
-
 	it := t.GetStorage().ListSegments(t.GetPath())
 
 	// Always close the segment channel.
@@ -63,8 +55,6 @@ func (t *ListSegmentTask) run() {
 		}
 		t.GetSegmentChannel() <- o
 	}
-
-	log.Debugf("Task <%s> for key <%s> finished", "ListSegmentTask", t.GetPath())
 }
 
 func (t *ListStorageTask) new() {}
@@ -86,5 +76,4 @@ func (t *ListStorageTask) run() {
 		}
 	}
 	t.SetBucketList(buckets)
-	log.Debugf("Task <%s> in zone <%s> finished.", "BucketListTask", t.GetZone())
 }

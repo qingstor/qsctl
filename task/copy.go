@@ -6,8 +6,6 @@ import (
 	"sync"
 
 	typ "github.com/Xuanwo/storage/types"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -91,8 +89,6 @@ func (t *CopyLargeFileTask) run() {
 
 // NewCopyPartialFileTask will create a new Task.
 func (t *CopyPartialFileTask) new() {
-	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialFile", t.GetDestinationPath())
-
 	totalSize := t.GetTotalSize()
 	partSize := t.GetPartSize()
 	offset := t.GetOffset()
@@ -104,8 +100,6 @@ func (t *CopyPartialFileTask) new() {
 		t.SetSize(partSize)
 		t.SetDone(false)
 	}
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "CopyPartialFile", t.GetDestinationPath())
 }
 
 func (t *CopyPartialFileTask) run() {
@@ -153,8 +147,6 @@ func (t *CopyStreamTask) run() {
 
 // NewCopyPartialStreamTask will create a new Task.
 func (t *CopyPartialStreamTask) new() {
-	log.Debugf("Task <%s> for Object <%s> started.", "CopyPartialStream", t.GetDestinationPath())
-
 	// Set size and update offset.
 	partSize := t.GetPartSize()
 
@@ -176,8 +168,6 @@ func (t *CopyPartialStreamTask) new() {
 	if n < partSize {
 		t.SetDone(true)
 	}
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "CopyPartialStream", t.GetDestinationPath())
 }
 
 func (t *CopyPartialStreamTask) run() {
@@ -187,8 +177,6 @@ func (t *CopyPartialStreamTask) run() {
 
 func (t *CopySingleFileTask) new() {}
 func (t *CopySingleFileTask) run() {
-	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileCopy", t.GetSourcePath(), t.GetDestinationPath())
-
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
@@ -202,6 +190,4 @@ func (t *CopySingleFileTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-
-	log.Debugf("Task <%s> for file from <%s> to <%s> started.", "FileUpload", t.GetSourcePath(), t.GetDestinationPath())
 }

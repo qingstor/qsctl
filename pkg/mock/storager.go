@@ -320,6 +320,20 @@ func (mr *MockStoragerMockRecorder) Stat(arg0 interface{}, arg1 ...interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stat", reflect.TypeOf((*MockStorager)(nil).Stat), varargs...)
 }
 
+// String mocks base method
+func (m *MockStorager) String() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "String")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// String indicates an expected call of String
+func (mr *MockStoragerMockRecorder) String() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "String", reflect.TypeOf((*MockStorager)(nil).String))
+}
+
 // Write mocks base method
 func (m *MockStorager) Write(arg0 string, arg1 io.Reader, arg2 ...*types.Pair) error {
 	m.ctrl.T.Helper()
