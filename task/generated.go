@@ -16,6 +16,78 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
+// CopyDirTask will copy a directory recursively between two storager.
+type CopyDirTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyDirTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyDir value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyDir value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyDir value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyDir value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyDirTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *CopyDirTask) Run() {
+	t.validateInput()
+
+	t.run()
+	t.GetScheduler().Wait()
+}
+
+func (t *CopyDirTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Task CopyDir failed: {%w}", err))
+}
+
+// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
+func NewCopyDir(task navvy.Task) *CopyDirTask {
+	t := &CopyDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// NewCopyDirTask will create a CopyDirTask which meets navvy.Task.
+func NewCopyDirTask(task navvy.Task) navvy.Task {
+	return NewCopyDir(task)
+}
+
 // CopyFileTask will copy a file between two storager.
 type CopyFileTask struct {
 	// Predefined value

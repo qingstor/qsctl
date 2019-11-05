@@ -1,4 +1,13 @@
 {
+  "CopyDir": {
+    "description": "copy a directory recursively between two storager",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
   "CopyFile": {
     "description": "copy a file between two storager",
     "workload": "void",
