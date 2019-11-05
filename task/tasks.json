@@ -110,9 +110,6 @@
     "input": [
       "Path",
       "Storage"
-    ],
-    "output": [
-      "PathScheduleFunc"
     ]
   },
   "DeleteFile": {
@@ -148,7 +145,7 @@
     "description": "iterate file and execute operations on it",
     "input": [
       "Path",
-      "PathScheduleFunc",
+      "PathFunc",
       "Recursive",
       "Storage"
     ]
@@ -157,7 +154,7 @@
     "description": "iterate segment and execute operations on it",
     "input": [
       "Path",
-      "SegmentIDScheduleFunc",
+      "SegmentIDFunc",
       "Storage"
     ]
   },

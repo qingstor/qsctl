@@ -1548,32 +1548,32 @@ func LoadPath(t navvy.Task, v PathSetter) {
 	v.SetPath(x.GetPath())
 }
 
-type PathScheduleFunc struct {
+type PathFunc struct {
 	valid bool
-	v     pathScheduleFunc
+	v     func(string)
 
 	l sync.RWMutex
 }
 
-type PathScheduleFuncGetter interface {
-	GetPathScheduleFunc() pathScheduleFunc
+type PathFuncGetter interface {
+	GetPathFunc() func(string)
 }
 
-func (o *PathScheduleFunc) GetPathScheduleFunc() pathScheduleFunc {
+func (o *PathFunc) GetPathFunc() func(string) {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	if !o.valid {
-		panic("PathScheduleFunc value is not valid")
+		panic("PathFunc value is not valid")
 	}
 	return o.v
 }
 
-type PathScheduleFuncSetter interface {
-	SetPathScheduleFunc(pathScheduleFunc)
+type PathFuncSetter interface {
+	SetPathFunc(func(string))
 }
 
-func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
+func (o *PathFunc) SetPathFunc(v func(string)) {
 	o.l.Lock()
 	defer o.l.Unlock()
 
@@ -1581,30 +1581,30 @@ func (o *PathScheduleFunc) SetPathScheduleFunc(v pathScheduleFunc) {
 	o.valid = true
 }
 
-type PathScheduleFuncValidator interface {
-	ValidatePathScheduleFunc() bool
+type PathFuncValidator interface {
+	ValidatePathFunc() bool
 }
 
-func (o *PathScheduleFunc) ValidatePathScheduleFunc() bool {
+func (o *PathFunc) ValidatePathFunc() bool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	return o.valid
 }
 
-func LoadPathScheduleFunc(t navvy.Task, v PathScheduleFuncSetter) {
+func LoadPathFunc(t navvy.Task, v PathFuncSetter) {
 	x, ok := t.(interface {
-		PathScheduleFuncGetter
-		PathScheduleFuncValidator
+		PathFuncGetter
+		PathFuncValidator
 	})
 	if !ok {
 		return
 	}
-	if !x.ValidatePathScheduleFunc() {
+	if !x.ValidatePathFunc() {
 		return
 	}
 
-	v.SetPathScheduleFunc(x.GetPathScheduleFunc())
+	v.SetPathFunc(x.GetPathFunc())
 }
 
 type Pool struct {
@@ -2020,32 +2020,32 @@ func LoadSegmentID(t navvy.Task, v SegmentIDSetter) {
 	v.SetSegmentID(x.GetSegmentID())
 }
 
-type SegmentIDScheduleFunc struct {
+type SegmentIDFunc struct {
 	valid bool
-	v     segmentIDScheduleFunc
+	v     func(string)
 
 	l sync.RWMutex
 }
 
-type SegmentIDScheduleFuncGetter interface {
-	GetSegmentIDScheduleFunc() segmentIDScheduleFunc
+type SegmentIDFuncGetter interface {
+	GetSegmentIDFunc() func(string)
 }
 
-func (o *SegmentIDScheduleFunc) GetSegmentIDScheduleFunc() segmentIDScheduleFunc {
+func (o *SegmentIDFunc) GetSegmentIDFunc() func(string) {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	if !o.valid {
-		panic("SegmentIDScheduleFunc value is not valid")
+		panic("SegmentIDFunc value is not valid")
 	}
 	return o.v
 }
 
-type SegmentIDScheduleFuncSetter interface {
-	SetSegmentIDScheduleFunc(segmentIDScheduleFunc)
+type SegmentIDFuncSetter interface {
+	SetSegmentIDFunc(func(string))
 }
 
-func (o *SegmentIDScheduleFunc) SetSegmentIDScheduleFunc(v segmentIDScheduleFunc) {
+func (o *SegmentIDFunc) SetSegmentIDFunc(v func(string)) {
 	o.l.Lock()
 	defer o.l.Unlock()
 
@@ -2053,30 +2053,30 @@ func (o *SegmentIDScheduleFunc) SetSegmentIDScheduleFunc(v segmentIDScheduleFunc
 	o.valid = true
 }
 
-type SegmentIDScheduleFuncValidator interface {
-	ValidateSegmentIDScheduleFunc() bool
+type SegmentIDFuncValidator interface {
+	ValidateSegmentIDFunc() bool
 }
 
-func (o *SegmentIDScheduleFunc) ValidateSegmentIDScheduleFunc() bool {
+func (o *SegmentIDFunc) ValidateSegmentIDFunc() bool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	return o.valid
 }
 
-func LoadSegmentIDScheduleFunc(t navvy.Task, v SegmentIDScheduleFuncSetter) {
+func LoadSegmentIDFunc(t navvy.Task, v SegmentIDFuncSetter) {
 	x, ok := t.(interface {
-		SegmentIDScheduleFuncGetter
-		SegmentIDScheduleFuncValidator
+		SegmentIDFuncGetter
+		SegmentIDFuncValidator
 	})
 	if !ok {
 		return
 	}
-	if !x.ValidateSegmentIDScheduleFunc() {
+	if !x.ValidateSegmentIDFunc() {
 		return
 	}
 
-	v.SetSegmentIDScheduleFunc(x.GetSegmentIDScheduleFunc())
+	v.SetSegmentIDFunc(x.GetSegmentIDFunc())
 }
 
 type Service struct {
