@@ -200,9 +200,6 @@ func (t *CopySingleFileTask) run() {
 func (t *CopyDirTask) new() {}
 
 func (t *CopyDirTask) run() {
-	log.Debugf("Task <%s> for path <%s> started",
-		"CopyDir", t.GetSourcePath())
-
 	x := NewIterateFile(t)
 	utils.ChooseSourceStorage(x, t)
 	x.SetPathFunc(func(key string) {
@@ -213,7 +210,4 @@ func (t *CopyDirTask) run() {
 	})
 	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
-
-	log.Debugf("Task <%s> for path <%s> finished",
-		"CopyDir", t.GetSourcePath())
 }
