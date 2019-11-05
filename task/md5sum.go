@@ -11,7 +11,7 @@ import (
 func (t *MD5SumFileTask) new() {}
 
 func (t *MD5SumFileTask) run() {
-	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
+	r, err := t.GetStorage().Read(t.GetPath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return

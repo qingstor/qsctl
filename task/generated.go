@@ -33,6 +33,18 @@ type CopyDirTask struct {
 	// Output value
 }
 
+// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
+func NewCopyDir(task navvy.Task) *CopyDirTask {
+	t := &CopyDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *CopyDirTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -63,24 +75,20 @@ func (t *CopyDirTask) loadInput(task navvy.Task) {
 func (t *CopyDirTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyDir failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
-func NewCopyDir(task navvy.Task) *CopyDirTask {
-	t := &CopyDirTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyDirTask) String() string {
+	return fmt.Sprintf("CopyDirTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyDirTask will create a CopyDirTask which meets navvy.Task.
@@ -624,7 +632,7 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *CopySmallFileTask) String() string {
-	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
+	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopySmallFileTask will create a CopySmallFileTask which meets navvy.Task.
@@ -1229,7 +1237,7 @@ func (t *IterateFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IterateFileTask) String() string {
-	return fmt.Sprintf("IterateFileTask {Path: %v, PathScheduleFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathScheduleFunc(), t.GetRecursive(), t.GetStorage())
+	return fmt.Sprintf("IterateFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
@@ -1309,7 +1317,7 @@ func (t *IterateSegmentTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IterateSegmentTask) String() string {
-	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDScheduleFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDScheduleFunc(), t.GetStorage())
+	return fmt.Sprintf("IterateSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
@@ -1619,7 +1627,7 @@ func (t *MD5SumFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *MD5SumFileTask) String() string {
-	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetOffset(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Path: %v, Size: %v, Storage: %v}", t.GetOffset(), t.GetPath(), t.GetSize(), t.GetStorage())
 }
 
 // NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
@@ -2110,13 +2118,13 @@ func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
-func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
+func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
-func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
+// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
+func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
 	return NewSegmentInit(task)
 }
 
