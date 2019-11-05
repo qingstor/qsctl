@@ -742,7 +742,6 @@ type DeleteDirTask struct {
 	types.Storage
 
 	// Output value
-	types.PathScheduleFunc
 }
 
 // NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
@@ -1125,7 +1124,7 @@ type IterateFileTask struct {
 
 	// Input value
 	types.Path
-	types.PathScheduleFunc
+	types.PathFunc
 	types.Recursive
 	types.Storage
 
@@ -1149,8 +1148,8 @@ func (t *IterateFileTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task IterateFile value Path is invalid"))
 	}
-	if !t.ValidatePathScheduleFunc() {
-		panic(fmt.Errorf("Task IterateFile value PathScheduleFunc is invalid"))
+	if !t.ValidatePathFunc() {
+		panic(fmt.Errorf("Task IterateFile value PathFunc is invalid"))
 	}
 	if !t.ValidateRecursive() {
 		panic(fmt.Errorf("Task IterateFile value Recursive is invalid"))
@@ -1165,7 +1164,7 @@ func (t *IterateFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
-	types.LoadPathScheduleFunc(task, t)
+	types.LoadPathFunc(task, t)
 	types.LoadRecursive(task, t)
 	types.LoadStorage(task, t)
 }
@@ -1212,7 +1211,7 @@ type IterateSegmentTask struct {
 
 	// Input value
 	types.Path
-	types.SegmentIDScheduleFunc
+	types.SegmentIDFunc
 	types.Storage
 
 	// Output value
@@ -1235,8 +1234,8 @@ func (t *IterateSegmentTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task IterateSegment value Path is invalid"))
 	}
-	if !t.ValidateSegmentIDScheduleFunc() {
-		panic(fmt.Errorf("Task IterateSegment value SegmentIDScheduleFunc is invalid"))
+	if !t.ValidateSegmentIDFunc() {
+		panic(fmt.Errorf("Task IterateSegment value SegmentIDFunc is invalid"))
 	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task IterateSegment value Storage is invalid"))
@@ -1248,7 +1247,7 @@ func (t *IterateSegmentTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
-	types.LoadSegmentIDScheduleFunc(task, t)
+	types.LoadSegmentIDFunc(task, t)
 	types.LoadStorage(task, t)
 }
 
@@ -2087,13 +2086,13 @@ func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
-func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
+// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
+func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
-func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
+// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
+func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewSegmentInit(task)
 }
 

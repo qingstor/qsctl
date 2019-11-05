@@ -7,10 +7,7 @@ func (t *IterateFileTask) run() {
 	t.GetScheduler().Async(listTask)
 
 	for o := range listTask.GetObjectChannel() {
-		x := t.GetPathScheduleFunc()(t)
-		x.SetPath(o.Name)
-
-		t.GetScheduler().Async(x)
+		t.GetPathFunc()(o.Name)
 	}
 }
 
@@ -21,9 +18,6 @@ func (t *IterateSegmentTask) run() {
 	t.GetScheduler().Async(listTask)
 
 	for o := range listTask.GetSegmentChannel() {
-		x := t.GetSegmentIDScheduleFunc()(t)
-		x.SetSegmentID(o.ID)
-
-		t.GetScheduler().Async(x)
+		t.GetSegmentIDFunc()(o.ID)
 	}
 }
