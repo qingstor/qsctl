@@ -2,7 +2,6 @@ package task
 
 import (
 	typ "github.com/Xuanwo/storage/types"
-	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -14,6 +13,4 @@ func (t *ReachFileTask) run() {
 		return
 	}
 	t.SetURL(url)
-	log.Debugf("Task <%s> for key <%s> finished, get signed URL <%s>",
-		"ObjectPresignTask", t.GetPath(), "")
 }

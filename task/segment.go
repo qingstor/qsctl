@@ -6,14 +6,11 @@ import (
 
 	"github.com/Xuanwo/storage/pkg/iterator"
 	typ "github.com/Xuanwo/storage/types"
-	log "github.com/sirupsen/logrus"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *SegmentInitTask) new() {}
 func (t *SegmentInitTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "SegmentInitTask", t.GetPath())
-
 	id, err := t.GetStorage().InitSegment(t.GetPath(),
 		typ.WithPartSize(t.GetPartSize()))
 	if err != nil {
@@ -21,14 +18,10 @@ func (t *SegmentInitTask) run() {
 		return
 	}
 	t.SetSegmentID(id)
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "SegmentInitTask", t.GetPath())
 }
 
 func (t *SegmentFileCopyTask) new() {}
 func (t *SegmentFileCopyTask) run() {
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> started.", "SegmentFileUploadTask", t.GetSourcePath(), t.GetOffset())
-
 	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(t.GetSize()), typ.WithOffset(t.GetOffset()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
@@ -42,37 +35,26 @@ func (t *SegmentFileCopyTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-
-	log.Debugf("Task <%s> for File <%s> at Offset <%d> finished.", "SegmentFileUploadTask", t.GetSourcePath(), t.GetOffset())
 }
 func (t *SegmentStreamCopyTask) new() {}
 func (t *SegmentStreamCopyTask) run() {
-	log.Debugf("Task <%s> for Stream at Offset <%d> started.", "SegmentStreamUploadTask", t.GetOffset())
-
 	// TODO: Add checksum support
 	err := t.GetDestinationStorage().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-
-	log.Debugf("Task <%s> for Stream at Offset <%d> finished.", "SegmentStreamUploadTask", t.GetOffset())
 }
 func (t *SegmentCompleteTask) new() {}
 func (t *SegmentCompleteTask) run() {
-	log.Debugf("Task <%s> for Object <%s> started.", "SegmentCompleteTask", t.GetPath())
-
 	err := t.GetStorage().CompleteSegment(t.GetSegmentID())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-
-	log.Debugf("Task <%s> for Object <%s> finished.", "SegmentCompleteTask", t.GetPath())
 }
 func (t *SegmentAbortAllTask) new() {}
 func (t *SegmentAbortAllTask) run() {
-	log.Debugf("Task <%s> for Bucket started.", "AbortSegmentTask")
 	it := t.GetStorage().ListSegments("")
 
 	for {
@@ -89,6 +71,4 @@ func (t *SegmentAbortAllTask) run() {
 			return
 		}
 	}
-
-	log.Debugf("Task <%s> for Bucket finished.", "AbortSegmentTask")
 }
