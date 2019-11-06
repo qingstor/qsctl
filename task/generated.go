@@ -801,11 +801,6 @@ func NewDeleteDirTask(task navvy.Task) navvy.Task {
 	return NewDeleteDir(task)
 }
 
-// NewDeleteDirPathRequirement will create a DeleteDirTask which meets PathRequirement.
-func NewDeleteDirPathRequirement(task navvy.Task) types.PathRequirement {
-	return NewDeleteDir(task)
-}
-
 // DeleteFileTask will will delete a file from storage.
 type DeleteFileTask struct {
 	// Predefined value
@@ -875,11 +870,6 @@ func (t *DeleteFileTask) String() string {
 
 // NewDeleteFileTask will create a DeleteFileTask which meets navvy.Task.
 func NewDeleteFileTask(task navvy.Task) navvy.Task {
-	return NewDeleteFile(task)
-}
-
-// NewDeleteFilePathRequirement will create a DeleteFileTask which meets PathRequirement.
-func NewDeleteFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewDeleteFile(task)
 }
 
@@ -955,11 +945,6 @@ func NewDeleteSegmentTask(task navvy.Task) navvy.Task {
 	return NewDeleteSegment(task)
 }
 
-// NewDeleteSegmentSegmentIDRequirement will create a DeleteSegmentTask which meets SegmentIDRequirement.
-func NewDeleteSegmentSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
-	return NewDeleteSegment(task)
-}
-
 // DeleteSegmentDirTask will delete all segments under a path.
 type DeleteSegmentDirTask struct {
 	// Predefined value
@@ -1029,11 +1014,6 @@ func (t *DeleteSegmentDirTask) String() string {
 
 // NewDeleteSegmentDirTask will create a DeleteSegmentDirTask which meets navvy.Task.
 func NewDeleteSegmentDirTask(task navvy.Task) navvy.Task {
-	return NewDeleteSegmentDir(task)
-}
-
-// NewDeleteSegmentDirPathRequirement will create a DeleteSegmentDirTask which meets PathRequirement.
-func NewDeleteSegmentDirPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewDeleteSegmentDir(task)
 }
 
@@ -1188,16 +1168,11 @@ func (t *IterateFileTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *IterateFileTask) String() string {
-	return fmt.Sprintf("IterateFileTask {Path: %v, PathScheduleFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathScheduleFunc(), t.GetRecursive(), t.GetStorage())
+	return fmt.Sprintf("IterateFileTask {Path: %v, PathFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathFunc(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
 func NewIterateFileTask(task navvy.Task) navvy.Task {
-	return NewIterateFile(task)
-}
-
-// NewIterateFilePathRequirement will create a IterateFileTask which meets PathRequirement.
-func NewIterateFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewIterateFile(task)
 }
 
@@ -1270,16 +1245,11 @@ func (t *IterateSegmentTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *IterateSegmentTask) String() string {
-	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDScheduleFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDScheduleFunc(), t.GetStorage())
+	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDFunc(), t.GetStorage())
 }
 
 // NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
 func NewIterateSegmentTask(task navvy.Task) navvy.Task {
-	return NewIterateSegment(task)
-}
-
-// NewIterateSegmentPathRequirement will create a IterateSegmentTask which meets PathRequirement.
-func NewIterateSegmentPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewIterateSegment(task)
 }
 
@@ -1361,11 +1331,6 @@ func NewListFileTask(task navvy.Task) navvy.Task {
 	return NewListFile(task)
 }
 
-// NewListFilePathRequirement will create a ListFileTask which meets PathRequirement.
-func NewListFilePathRequirement(task navvy.Task) types.PathRequirement {
-	return NewListFile(task)
-}
-
 // ListSegmentTask will list segments.
 type ListSegmentTask struct {
 	// Predefined value
@@ -1436,11 +1401,6 @@ func (t *ListSegmentTask) String() string {
 
 // NewListSegmentTask will create a ListSegmentTask which meets navvy.Task.
 func NewListSegmentTask(task navvy.Task) navvy.Task {
-	return NewListSegment(task)
-}
-
-// NewListSegmentPathRequirement will create a ListSegmentTask which meets PathRequirement.
-func NewListSegmentPathRequirement(task navvy.Task) types.PathRequirement {
 	return NewListSegment(task)
 }
 
@@ -1742,11 +1702,6 @@ func NewReachFileTask(task navvy.Task) navvy.Task {
 	return NewReachFile(task)
 }
 
-// NewReachFilePathRequirement will create a ReachFileTask which meets PathRequirement.
-func NewReachFilePathRequirement(task navvy.Task) types.PathRequirement {
-	return NewReachFile(task)
-}
-
 // SegmentAbortAllTask will abort all multipart uploads in a bucket.
 type SegmentAbortAllTask struct {
 	// Predefined value
@@ -1893,16 +1848,6 @@ func (t *SegmentCompleteTask) String() string {
 
 // NewSegmentCompleteTask will create a SegmentCompleteTask which meets navvy.Task.
 func NewSegmentCompleteTask(task navvy.Task) navvy.Task {
-	return NewSegmentComplete(task)
-}
-
-// NewSegmentCompletePathRequirement will create a SegmentCompleteTask which meets PathRequirement.
-func NewSegmentCompletePathRequirement(task navvy.Task) types.PathRequirement {
-	return NewSegmentComplete(task)
-}
-
-// NewSegmentCompleteSegmentIDRequirement will create a SegmentCompleteTask which meets SegmentIDRequirement.
-func NewSegmentCompleteSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
 	return NewSegmentComplete(task)
 }
 
@@ -2086,16 +2031,6 @@ func NewSegmentInitTask(task navvy.Task) navvy.Task {
 	return NewSegmentInit(task)
 }
 
-// NewSegmentInitSegmentIDRequirement will create a SegmentInitTask which meets SegmentIDRequirement.
-func NewSegmentInitSegmentIDRequirement(task navvy.Task) types.SegmentIDRequirement {
-	return NewSegmentInit(task)
-}
-
-// NewSegmentInitPathRequirement will create a SegmentInitTask which meets PathRequirement.
-func NewSegmentInitPathRequirement(task navvy.Task) types.PathRequirement {
-	return NewSegmentInit(task)
-}
-
 // SegmentStreamCopyTask will copy a segment stream.
 type SegmentStreamCopyTask struct {
 	// Predefined value
@@ -2263,10 +2198,5 @@ func (t *StatFileTask) String() string {
 
 // NewStatFileTask will create a StatFileTask which meets navvy.Task.
 func NewStatFileTask(task navvy.Task) navvy.Task {
-	return NewStatFile(task)
-}
-
-// NewStatFilePathRequirement will create a StatFileTask which meets PathRequirement.
-func NewStatFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewStatFile(task)
 }
