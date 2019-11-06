@@ -11,7 +11,9 @@ import (
 	"github.com/yunify/qsctl/v2/utils"
 )
 
-func (t *CopyFileTask) new() {
+func (t *CopyFileTask) new() {}
+
+func (t *CopyFileTask) run() {
 	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
@@ -24,24 +26,24 @@ func (t *CopyFileTask) new() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-	t.SetTotalSize(size)
-}
 
-func (t *CopyFileTask) run() {
-	if t.GetTotalSize() >= constants.MaximumAutoMultipartSize {
-		t.GetScheduler().Sync(NewCopyLargeFileTask(t))
+	if size >= constants.MaximumAutoMultipartSize {
+		x := NewCopyLargeFile(t)
+		x.SetTotalSize(size)
+		t.GetScheduler().Sync(x)
 	} else {
-		t.GetScheduler().Sync(NewCopySmallFileTask(t))
+		x := NewCopySmallFile(t)
+		x.SetSize(size)
+		t.GetScheduler().Sync(x)
 	}
 }
 
-func (t *CopySmallFileTask) new() {
-	t.SetOffset(0)
-	t.SetSize(t.GetTotalSize())
-}
+func (t *CopySmallFileTask) new() {}
 
 func (t *CopySmallFileTask) run() {
 	md5Task := NewMD5SumFile(t)
+	utils.ChooseSourceStorage(md5Task, t)
+	md5Task.SetOffset(0)
 	t.GetScheduler().Sync(md5Task)
 
 	fileCopyTask := NewCopySingleFile(t)
@@ -104,6 +106,7 @@ func (t *CopyPartialFileTask) new() {
 
 func (t *CopyPartialFileTask) run() {
 	md5Task := NewMD5SumFile(t)
+	utils.ChooseSourceStorage(md5Task, t)
 	t.GetScheduler().Sync(md5Task)
 
 	fileCopyTask := NewSegmentFileCopy(t)
@@ -167,6 +170,8 @@ func (t *CopyPartialStreamTask) new() {
 	t.SetContent(b)
 	if n < partSize {
 		t.SetDone(true)
+	} else {
+		t.SetDone(false)
 	}
 }
 
@@ -190,4 +195,19 @@ func (t *CopySingleFileTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
+}
+
+func (t *CopyDirTask) new() {}
+
+func (t *CopyDirTask) run() {
+	x := NewIterateFile(t)
+	utils.ChooseSourceStorage(x, t)
+	x.SetPathFunc(func(key string) {
+		sf := NewCopyFile(t)
+		sf.SetSourcePath(key)
+		sf.SetDestinationPath(key)
+		t.GetScheduler().Async(sf)
+	})
+	x.SetRecursive(true)
+	t.GetScheduler().Sync(x)
 }

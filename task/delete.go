@@ -8,7 +8,11 @@ func (t *DeleteDirTask) new() {}
 
 func (t *DeleteDirTask) run() {
 	x := NewIterateFile(t)
-	x.SetPathScheduleFunc(NewDeleteFilePathRequirement)
+	x.SetPathFunc(func(key string) {
+		sf := NewDeleteFile(t)
+		sf.SetPath(key)
+		t.GetScheduler().Async(sf)
+	})
 	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
 }
@@ -66,7 +70,10 @@ func (t *DeleteSegmentDirTask) new() {}
 
 func (t *DeleteSegmentDirTask) run() {
 	x := NewIterateSegment(t)
-	x.SetSegmentIDScheduleFunc(NewDeleteSegmentSegmentIDRequirement)
-
+	x.SetSegmentIDFunc(func(id string) {
+		sf := NewDeleteSegment(t)
+		sf.SetSegmentID(id)
+		t.GetScheduler().Async(sf)
+	})
 	t.GetScheduler().Sync(x)
 }

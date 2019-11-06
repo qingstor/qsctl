@@ -43,7 +43,11 @@ func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrLocalFileNotExist(err, p))
+		// if not exist, we use path's suffix to determine object type
+		if strings.HasSuffix(p, string(os.PathSeparator)) {
+			return typ.ObjectTypeDir, nil
+		}
+		return typ.ObjectTypeFile, nil
 	}
 	if err != nil {
 		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrUnhandled(err))

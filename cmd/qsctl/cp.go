@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
+
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -12,6 +16,7 @@ import (
 var cpInput struct {
 	ExpectSize           string
 	MaximumMemoryContent string
+	Recursive            bool
 }
 
 // CpCommand will handle copy command.
@@ -43,6 +48,11 @@ func initCpFlag() {
 		"maximum content loaded in memory\n"+
 			"(only used for input from stdin)",
 	)
+	CpCommand.Flags().BoolVarP(&cpInput.Recursive,
+		constants.RecursiveFlag,
+		"r",
+		false,
+		"copy directory recursively")
 }
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
@@ -52,11 +62,30 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpInput.Recursive {
+		return fmt.Errorf("-r is required to delete a directory")
+	}
+
+	if cpInput.Recursive {
+		t := task.NewCopyDir(rootTask)
+		t.Run()
+
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+		cpOutput(args[0])
+		return
+	}
 	t := task.NewCopyFile(rootTask)
 
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+	cpOutput(args[0])
 	return
+}
+
+func cpOutput(path string) {
+	fmt.Printf("Key <%s> copied.\n", path)
 }

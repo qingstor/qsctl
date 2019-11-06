@@ -16,6 +16,86 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
+// CopyDirTask will copy a directory recursively between two storager.
+type CopyDirTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+}
+
+// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
+func NewCopyDir(task navvy.Task) *CopyDirTask {
+	t := &CopyDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyDirTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyDir value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyDir value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyDir value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyDir value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyDirTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *CopyDirTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *CopyDirTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+// String will implement Stringer interface.
+func (t *CopyDirTask) String() string {
+	return fmt.Sprintf("CopyDirTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewCopyDirTask will create a CopyDirTask which meets navvy.Task.
+func NewCopyDirTask(task navvy.Task) navvy.Task {
+	return NewCopyDir(task)
+}
+
 // CopyFileTask will copy a file between two storager.
 type CopyFileTask struct {
 	// Predefined value
@@ -31,7 +111,6 @@ type CopyFileTask struct {
 	types.SourceStorage
 
 	// Output value
-	types.TotalSize
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
@@ -496,14 +575,12 @@ type CopySmallFileTask struct {
 	// Input value
 	types.DestinationPath
 	types.DestinationStorage
+	types.Size
 	types.SourcePath
 	types.SourceStorage
-	types.TotalSize
 
 	// Output value
 	types.MD5Sum
-	types.Offset
-	types.Size
 }
 
 // NewCopySmallFile will create a CopySmallFileTask struct and fetch inherited data from parent task.
@@ -528,14 +605,14 @@ func (t *CopySmallFileTask) validateInput() {
 	if !t.ValidateDestinationStorage() {
 		panic(fmt.Errorf("Task CopySmallFile value DestinationStorage is invalid"))
 	}
+	if !t.ValidateSize() {
+		panic(fmt.Errorf("Task CopySmallFile value Size is invalid"))
+	}
 	if !t.ValidateSourcePath() {
 		panic(fmt.Errorf("Task CopySmallFile value SourcePath is invalid"))
 	}
 	if !t.ValidateSourceStorage() {
 		panic(fmt.Errorf("Task CopySmallFile value SourceStorage is invalid"))
-	}
-	if !t.ValidateTotalSize() {
-		panic(fmt.Errorf("Task CopySmallFile value TotalSize is invalid"))
 	}
 }
 
@@ -545,9 +622,9 @@ func (t *CopySmallFileTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadDestinationPath(task, t)
 	types.LoadDestinationStorage(task, t)
+	types.LoadSize(task, t)
 	types.LoadSourcePath(task, t)
 	types.LoadSourceStorage(task, t)
-	types.LoadTotalSize(task, t)
 }
 
 // Run implement navvy.Task
@@ -567,7 +644,7 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *CopySmallFileTask) String() string {
-	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
+	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopySmallFileTask will create a CopySmallFileTask which meets navvy.Task.
@@ -742,7 +819,6 @@ type DeleteDirTask struct {
 	types.Storage
 
 	// Output value
-	types.PathScheduleFunc
 }
 
 // NewDeleteDir will create a DeleteDirTask struct and fetch inherited data from parent task.
@@ -1125,7 +1201,7 @@ type IterateFileTask struct {
 
 	// Input value
 	types.Path
-	types.PathScheduleFunc
+	types.PathFunc
 	types.Recursive
 	types.Storage
 
@@ -1151,8 +1227,8 @@ func (t *IterateFileTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task IterateFile value Path is invalid"))
 	}
-	if !t.ValidatePathScheduleFunc() {
-		panic(fmt.Errorf("Task IterateFile value PathScheduleFunc is invalid"))
+	if !t.ValidatePathFunc() {
+		panic(fmt.Errorf("Task IterateFile value PathFunc is invalid"))
 	}
 	if !t.ValidateRecursive() {
 		panic(fmt.Errorf("Task IterateFile value Recursive is invalid"))
@@ -1167,7 +1243,7 @@ func (t *IterateFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
-	types.LoadPathScheduleFunc(task, t)
+	types.LoadPathFunc(task, t)
 	types.LoadRecursive(task, t)
 	types.LoadStorage(task, t)
 }
@@ -1189,7 +1265,7 @@ func (t *IterateFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IterateFileTask) String() string {
-	return fmt.Sprintf("IterateFileTask {Path: %v, PathScheduleFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathScheduleFunc(), t.GetRecursive(), t.GetStorage())
+	return fmt.Sprintf("IterateFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
@@ -1212,7 +1288,7 @@ type IterateSegmentTask struct {
 
 	// Input value
 	types.Path
-	types.SegmentIDScheduleFunc
+	types.SegmentIDFunc
 	types.Storage
 
 	// Output value
@@ -1237,8 +1313,8 @@ func (t *IterateSegmentTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task IterateSegment value Path is invalid"))
 	}
-	if !t.ValidateSegmentIDScheduleFunc() {
-		panic(fmt.Errorf("Task IterateSegment value SegmentIDScheduleFunc is invalid"))
+	if !t.ValidateSegmentIDFunc() {
+		panic(fmt.Errorf("Task IterateSegment value SegmentIDFunc is invalid"))
 	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task IterateSegment value Storage is invalid"))
@@ -1250,7 +1326,7 @@ func (t *IterateSegmentTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
-	types.LoadSegmentIDScheduleFunc(task, t)
+	types.LoadSegmentIDFunc(task, t)
 	types.LoadStorage(task, t)
 }
 
@@ -1271,7 +1347,7 @@ func (t *IterateSegmentTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IterateSegmentTask) String() string {
-	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDScheduleFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDScheduleFunc(), t.GetStorage())
+	return fmt.Sprintf("IterateSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
@@ -1524,9 +1600,9 @@ type MD5SumFileTask struct {
 
 	// Input value
 	types.Offset
+	types.Path
 	types.Size
-	types.SourcePath
-	types.SourceStorage
+	types.Storage
 
 	// Output value
 	types.MD5Sum
@@ -1551,14 +1627,14 @@ func (t *MD5SumFileTask) validateInput() {
 	if !t.ValidateOffset() {
 		panic(fmt.Errorf("Task MD5SumFile value Offset is invalid"))
 	}
+	if !t.ValidatePath() {
+		panic(fmt.Errorf("Task MD5SumFile value Path is invalid"))
+	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task MD5SumFile value Size is invalid"))
 	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task MD5SumFile value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task MD5SumFile value SourceStorage is invalid"))
+	if !t.ValidateStorage() {
+		panic(fmt.Errorf("Task MD5SumFile value Storage is invalid"))
 	}
 }
 
@@ -1567,9 +1643,9 @@ func (t *MD5SumFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadOffset(task, t)
+	types.LoadPath(task, t)
 	types.LoadSize(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
+	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
@@ -1589,11 +1665,16 @@ func (t *MD5SumFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *MD5SumFileTask) String() string {
-	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetOffset(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Path: %v, Size: %v, Storage: %v}", t.GetOffset(), t.GetPath(), t.GetSize(), t.GetStorage())
 }
 
 // NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
 func NewMD5SumFileTask(task navvy.Task) navvy.Task {
+	return NewMD5SumFile(task)
+}
+
+// NewMD5SumFilePathRequirement will create a MD5SumFileTask which meets PathRequirement.
+func NewMD5SumFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewMD5SumFile(task)
 }
 

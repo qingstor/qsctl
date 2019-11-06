@@ -15,6 +15,14 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
+func TestCopyDirTask_TriggerFault(t *testing.T) {
+	task := &CopyDirTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
 func TestCopyFileTask_TriggerFault(t *testing.T) {
 	task := &CopyFileTask{}
 	task.SetFault(fault.New())
