@@ -1,7 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
+
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
 	"github.com/yunify/qsctl/v2/constants"
@@ -12,6 +17,7 @@ import (
 var cpInput struct {
 	ExpectSize           string
 	MaximumMemoryContent string
+	Recursive            bool
 }
 
 // CpCommand will handle copy command.
@@ -43,6 +49,11 @@ func initCpFlag() {
 		"maximum content loaded in memory\n"+
 			"(only used for input from stdin)",
 	)
+	CpCommand.Flags().BoolVarP(&cpInput.Recursive,
+		constants.RecursiveFlag,
+		"r",
+		false,
+		"copy directory recursively")
 }
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
@@ -52,11 +63,75 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	t := task.NewCopyFile(rootTask)
+	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpInput.Recursive {
+		return fmt.Errorf("-r is required to delete a directory")
+	}
 
+	if err = HandleCpStorageBaseAndPath(rootTask); err != nil {
+		return err
+	}
+
+	if cpInput.Recursive {
+		t := task.NewCopyDir(rootTask)
+		t.Run()
+
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+		cpOutput(args[0])
+		return nil
+	}
+
+	t := task.NewCopyFile(rootTask)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+	cpOutput(args[0])
 	return
+}
+
+func cpOutput(path string) {
+	fmt.Printf("Key <%s> copied.\n", path)
+}
+
+// HandleCpStorageBaseAndPath set work dir and path for cp cmd.
+func HandleCpStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
+	// In operation cp, we set source storage to dir of the source path.
+	srcPath, err := filepath.Abs(t.GetSourcePath())
+	if err != nil {
+		return err
+	}
+	if err = t.GetSourceStorage().Init(types.WithWorkDir(filepath.Dir(srcPath))); err != nil {
+		return err
+	}
+	t.SetSourcePath(filepath.Base(srcPath))
+
+	// Destination path depends on different condition.
+	dstPath, err := filepath.Abs(t.GetDestinationPath())
+	if err != nil {
+		return err
+	}
+	// if copy dir
+	if cpInput.Recursive {
+		if err := t.GetDestinationStorage().Init(types.WithWorkDir(dstPath)); err != nil {
+			return err
+		}
+		t.SetDestinationPath("")
+		return nil
+	}
+	// NOT copy dir. Copy file to a dir, we need to get destination key from the source.
+	if t.GetDestinationType() == types.ObjectTypeDir {
+		if err := t.GetDestinationStorage().Init(types.WithWorkDir(dstPath)); err != nil {
+			return err
+		}
+		t.SetDestinationPath(t.GetSourcePath())
+		return nil
+	}
+	// Copy to a file, get destination directly.
+	if err := t.GetDestinationStorage().Init(types.WithWorkDir(filepath.Dir(dstPath))); err != nil {
+		return err
+	}
+	t.SetDestinationPath(filepath.Base(dstPath))
+	return nil
 }

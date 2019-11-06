@@ -63,6 +63,9 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	if err = HandleLsStorageBaseAndPath(rootTask); err != nil {
+		return err
+	}
 	t := task.NewListFile(rootTask)
 	t.SetRecursive(lsInput.Recursive)
 
@@ -140,4 +143,13 @@ func listObjectOutput(t *task.ListFileTask) {
 		// join with two space
 		fmt.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, v.Name)
 	}
+}
+
+// HandleLsStorageBaseAndPath set work dir and path for ls cmd.
+func HandleLsStorageBaseAndPath(t *taskutils.AtStorageTask) error {
+	if err := t.GetStorage().Init(typ.WithWorkDir(t.GetPath())); err != nil {
+		return err
+	}
+	t.SetPath("")
+	return nil
 }

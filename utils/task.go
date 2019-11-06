@@ -43,7 +43,11 @@ func ParseLocalPath(p string) (pathType typ.ObjectType, err error) {
 
 	fi, err := os.Stat(p)
 	if os.IsNotExist(err) {
-		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrLocalFileNotExist(err, p))
+		// if not exist, we use path's suffix to determine object type
+		if strings.HasSuffix(p, string(os.PathSeparator)) {
+			return typ.ObjectTypeDir, nil
+		}
+		return typ.ObjectTypeFile, nil
 	}
 	if err != nil {
 		return typ.ObjectTypeInvalid, fmt.Errorf("parse path failed: {%w}", types.NewErrUnhandled(err))
@@ -85,11 +89,6 @@ func ParseStorageInput(input string, storageType typ.StoragerType) (path string,
 		}
 		path = input
 		store = posixfs.NewClient()
-		err = store.Init(typ.WithBase(path))
-		if err != nil {
-			return
-		}
-		path = "" // set path to blank means the rel path to base
 		return
 	case qingstor.StoragerType:
 		var bucketName, objectKey string
@@ -108,11 +107,6 @@ func ParseStorageInput(input string, storageType typ.StoragerType) (path string,
 			return
 		}
 		path = objectKey
-		err = store.Init(typ.WithBase(path))
-		if err != nil {
-			return
-		}
-		path = "" // set path to blank means the rel path to base
 		return
 	default:
 		panic(fmt.Errorf("no supported storager type %s", storageType))
@@ -190,11 +184,13 @@ func ParseBetweenStorageInput(t interface {
 		if err != nil {
 			return
 		}
+		dstPath = "/" + dstPath // Add / on qingstor path for base.
 	case constants.FlowToLocal:
 		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.StoragerType)
 		if err != nil {
 			return
 		}
+		srcPath = "/" + srcPath // Add / on qingstor path for base.
 		dstPath, dstType, dstStore, err = ParseStorageInput(dst, posixfs.StoragerType)
 		if err != nil {
 			return
