@@ -1168,7 +1168,7 @@ func (t *IterateFileTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *IterateFileTask) String() string {
-	return fmt.Sprintf("IterateFileTask {Path: %v, PathFunc: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetPathFunc(), t.GetRecursive(), t.GetStorage())
+	return fmt.Sprintf("IterateFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
 }
 
 // NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
@@ -1245,7 +1245,7 @@ func (t *IterateSegmentTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *IterateSegmentTask) String() string {
-	return fmt.Sprintf("IterateSegmentTask {Path: %v, SegmentIDFunc: %v, Storage: %v}", t.GetPath(), t.GetSegmentIDFunc(), t.GetStorage())
+	return fmt.Sprintf("IterateSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.

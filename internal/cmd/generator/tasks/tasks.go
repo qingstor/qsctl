@@ -212,10 +212,14 @@ func (t *{{ .Name }}Task) IOWorkload() {}
 func (t *{{ .Name }}Task) String() string {
 	return fmt.Sprintf("{{ .Name }}Task {
 {{- range $k, $v := .Input -}}
+{{- if not (endwith $v "Func") -}}
 	{{ if ne $k 0 }}, {{end}}{{$v}}: %v
 {{- end -}}
+{{- end -}}
 }", {{- range $k, $v := .Input -}}
+{{- if not (endwith $v "Func") -}}
 	{{ if ne $k 0 }}, {{end}}t.Get{{$v}}()
+{{- end -}}
 {{- end -}})
 }
 
