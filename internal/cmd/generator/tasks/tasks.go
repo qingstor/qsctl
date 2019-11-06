@@ -17,6 +17,7 @@ import (
 type task struct {
 	Name        string   `json:"-"`
 	Description string   `json:"description"`
+	Workload    string   `json:"workload"`
 	Input       []string `json:"input,omitempty"`
 	Output      []string `json:"output,omitempty"`
 
@@ -205,6 +206,8 @@ type {{ .Name }}Task struct {
 {{- end }}
 }
 
+
+
 // New{{ .Name }} will create a {{ .Name }}Task struct and fetch inherited data from parent task.
 func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
 	t := &{{ .Name }}Task{}
@@ -216,6 +219,14 @@ func New{{ .Name }}(task navvy.Task) *{{ .Name }}Task {
 	t.new()
 	return t
 }
+
+{{ if eq .Workload "void" }}
+func (t *{{ .Name }}Task) VoidWorkLoad() {}
+{{ else if eq .Workload "io" }}
+func (t *{{ .Name }}Task) IOWorkLoad() {}
+{{ else if eq .Workload "cpu" }}
+func (t *{{ .Name }}Task) CPUWorkLoad() {}
+{{ end }}
 
 // validateInput will validate all input before run task.
 func (t *{{ .Name }}Task) validateInput() {

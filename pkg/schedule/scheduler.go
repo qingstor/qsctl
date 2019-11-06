@@ -18,6 +18,18 @@ type Scheduler interface {
 	Wait()
 }
 
+type IOWorkLoader interface {
+	IOWorkLoad()
+}
+
+type CPUWorkLoader interface {
+	CPUWorkLoad()
+}
+
+type VoidWorkLoader interface {
+	VoidWorkLoad()
+}
+
 type task struct {
 	s *RealScheduler
 	t navvy.Task
@@ -53,14 +65,31 @@ func (t *task) Run() {
 	t.t.Run()
 }
 
+type Pool struct {
+	ioPool  *navvy.Pool
+	cpuPool *navvy.Pool
+
+	voidPool *navvy.Pool
+}
+
+// NewPool will create a new Pool.
+func NewPool() *Pool {
+	// TODO: we should allow user set the value.
+	return &Pool{
+		ioPool:   navvy.NewPool(10),
+		cpuPool:  navvy.NewPool(10),
+		voidPool: navvy.NewPool(1024),
+	}
+}
+
 // RealScheduler will hold the task's sub tasks.
 type RealScheduler struct {
 	wg   *sync.WaitGroup
-	pool *navvy.Pool
+	pool *Pool
 }
 
 // NewScheduler will create a new RealScheduler.
-func NewScheduler(pool *navvy.Pool) *RealScheduler {
+func NewScheduler(pool *Pool) *RealScheduler {
 	return &RealScheduler{
 		wg:   &sync.WaitGroup{},
 		pool: pool,
@@ -71,14 +100,41 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 func (s *RealScheduler) Sync(task navvy.Task) {
 	s.wg.Add(1)
 	t := newSyncTask(s, task)
-	s.pool.Submit(t)
+	switch task.(type) {
+	case CPUWorkLoader:
+		s.pool.cpuPool.Submit(t)
+	case IOWorkLoader:
+		s.pool.ioPool.Submit(t)
+	case VoidWorkLoader:
+		p := s.pool.voidPool
+		if p.Free() == 0 {
+			p.Tune(p.Cap() << 1)
+		}
+		s.pool.voidPool.Submit(t)
+	default:
+		panic("invalid task workload type")
+	}
 	t.c.Wait()
 }
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
-	s.pool.Submit(newTask(s, task))
+	t := newTask(s, task)
+	switch task.(type) {
+	case CPUWorkLoader:
+		s.pool.cpuPool.Submit(t)
+	case IOWorkLoader:
+		s.pool.ioPool.Submit(t)
+	case VoidWorkLoader:
+		p := s.pool.voidPool
+		if p.Free() == 0 {
+			p.Tune(p.Cap() << 1)
+		}
+		s.pool.voidPool.Submit(t)
+	default:
+		panic("invalid task workload type")
+	}
 }
 
 // Wait will wait until a task finished.

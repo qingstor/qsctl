@@ -1609,16 +1609,16 @@ func LoadPathScheduleFunc(t navvy.Task, v PathScheduleFuncSetter) {
 
 type Pool struct {
 	valid bool
-	v     *navvy.Pool
+	v     *schedule.Pool
 
 	l sync.RWMutex
 }
 
 type PoolGetter interface {
-	GetPool() *navvy.Pool
+	GetPool() *schedule.Pool
 }
 
-func (o *Pool) GetPool() *navvy.Pool {
+func (o *Pool) GetPool() *schedule.Pool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
@@ -1629,10 +1629,10 @@ func (o *Pool) GetPool() *navvy.Pool {
 }
 
 type PoolSetter interface {
-	SetPool(*navvy.Pool)
+	SetPool(*schedule.Pool)
 }
 
-func (o *Pool) SetPool(v *navvy.Pool) {
+func (o *Pool) SetPool(v *schedule.Pool) {
 	o.l.Lock()
 	defer o.l.Unlock()
 

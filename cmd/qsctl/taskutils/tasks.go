@@ -3,6 +3,7 @@ package taskutils
 import (
 	"github.com/Xuanwo/navvy"
 	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/schedule"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
@@ -18,7 +19,7 @@ type AtServiceTask struct {
 // NewAtServiceTask will create a new between storage task.
 func NewAtServiceTask(poolSize int) *AtServiceTask {
 	t := &AtServiceTask{}
-	t.SetPool(navvy.NewPool(poolSize))
+	t.SetPool(schedule.NewPool())
 	t.SetFault(fault.New())
 	return t
 }
@@ -37,7 +38,7 @@ type AtStorageTask struct {
 // NewAtStorageTask will create a new between storage task.
 func NewAtStorageTask(poolSize int) *AtStorageTask {
 	t := &AtStorageTask{}
-	t.SetPool(navvy.NewPool(poolSize))
+	t.SetPool(schedule.NewPool())
 	t.SetFault(fault.New())
 	return t
 }
@@ -59,7 +60,7 @@ type BetweenStorageTask struct {
 // NewBetweenStorageTask will create a new between storage task.
 func NewBetweenStorageTask(poolSize int) *BetweenStorageTask {
 	t := &BetweenStorageTask{}
-	t.SetPool(navvy.NewPool(poolSize))
+	t.SetPool(schedule.NewPool())
 	t.SetFault(fault.New())
 	return t
 }

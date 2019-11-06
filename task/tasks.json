@@ -1,6 +1,7 @@
 {
   "CopyFile": {
     "description": "copy a file between two storager",
+    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -13,6 +14,7 @@
   },
   "CopyLargeFile": {
     "description": "copy a large file between two storager",
+    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -28,6 +30,7 @@
   },
   "CopyPartialFile": {
     "description": "copy a partial file to between two storager",
+    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -45,6 +48,7 @@
   },
   "CopyPartialStream": {
     "description": "copy a partial stream between two storager",
+    "workload": "void",
     "input": [
       "BytesPool",
       "DestinationPath",
@@ -62,6 +66,7 @@
   },
   "CopySingleFile": {
     "description": "execute a file copy operation between towo storager",
+    "workload": "io",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -73,6 +78,7 @@
   },
   "CopySmallFile": {
     "description": "copy a small file between two storager",
+    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -88,6 +94,7 @@
   },
   "CopyStream": {
     "description": "copy a stream between two storager",
+    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -102,6 +109,7 @@
   },
   "CreateStorage": {
     "description": "create a storage",
+    "workload": "io",
     "input": [
       "Service"
     ],
@@ -112,6 +120,7 @@
   },
   "DeleteDir": {
     "description": "will delete a dir recursively",
+    "workload": "void",
     "input": [
       "Path",
       "Storage"
@@ -122,6 +131,7 @@
   },
   "DeleteFile": {
     "description": "will delete a file from storage",
+    "workload": "io",
     "input": [
       "Path",
       "Storage"
@@ -129,6 +139,7 @@
   },
   "DeleteSegment": {
     "description": "delete all segments with a given path",
+    "workload": "io",
     "input": [
       "SegmentID",
       "Storage"
@@ -136,6 +147,7 @@
   },
   "DeleteSegmentDir": {
     "description": "delete all segments under a path",
+    "workload": "void",
     "input": [
       "Path",
       "Storage"
@@ -143,6 +155,7 @@
   },
   "DeleteStorage": {
     "description": "delete a storage",
+    "workload": "void",
     "input": [
       "Force",
       "Service",
@@ -151,6 +164,7 @@
   },
   "IterateFile": {
     "description": "iterate file and execute operations on it",
+    "workload": "io",
     "input": [
       "Path",
       "PathScheduleFunc",
@@ -160,6 +174,7 @@
   },
   "IterateSegment": {
     "description": "iterate segment and execute operations on it",
+    "workload": "io",
     "input": [
       "Path",
       "SegmentIDScheduleFunc",
@@ -168,6 +183,7 @@
   },
   "ListFile": {
     "description": "list files",
+    "workload": "io",
     "input": [
       "Path",
       "Recursive",
@@ -179,6 +195,7 @@
   },
   "ListSegment": {
     "description": "list segments",
+    "workload": "io",
     "input": [
       "Path",
       "Storage"
@@ -189,6 +206,7 @@
   },
   "ListStorage": {
     "description": "send get request to get bucket list",
+    "workload": "io",
     "input": [
       "Service"
     ],
@@ -199,6 +217,7 @@
   },
   "MD5SumFile": {
     "description": "get file's md5 sum",
+    "workload": "cpu",
     "input": [
       "Offset",
       "Size",
@@ -211,6 +230,7 @@
   },
   "MD5SumStream": {
     "description": "get stream's md5 sum",
+    "workload": "cpu",
     "input": [
       "Content"
     ],
@@ -220,6 +240,7 @@
   },
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
+    "workload": "io",
     "input": [
       "Expire",
       "Path",
@@ -231,6 +252,7 @@
   },
   "SegmentAbortAll": {
     "description": "abort all multipart uploads in a bucket",
+    "workload": "io",
     "input": [
       "Storage",
       "StorageName"
@@ -238,6 +260,7 @@
   },
   "SegmentComplete": {
     "description": "complete a segment",
+    "workload": "io",
     "input": [
       "Path",
       "SegmentID",
@@ -246,6 +269,7 @@
   },
   "SegmentFileCopy": {
     "description": "copy a segment file",
+    "workload": "io",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -259,6 +283,7 @@
   },
   "SegmentInit": {
     "description": "init a segment upload",
+    "workload": "io",
     "input": [
       "PartSize",
       "Path",
@@ -270,6 +295,7 @@
   },
   "SegmentStreamCopy": {
     "description": "copy a segment stream",
+    "workload": "io",
     "input": [
       "Content",
       "DestinationPath",
@@ -282,6 +308,7 @@
   },
   "StatFile": {
     "description": "stat a remote object by request headObject",
+    "workload": "io",
     "input": [
       "Path",
       "Storage"

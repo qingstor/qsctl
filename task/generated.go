@@ -46,6 +46,8 @@ func NewCopyFile(task navvy.Task) *CopyFileTask {
 	return t
 }
 
+func (t *CopyFileTask) VoidWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CopyFileTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -129,6 +131,8 @@ func NewCopyLargeFile(task navvy.Task) *CopyLargeFileTask {
 	t.new()
 	return t
 }
+
+func (t *CopyLargeFileTask) VoidWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *CopyLargeFileTask) validateInput() {
@@ -219,6 +223,8 @@ func NewCopyPartialFile(task navvy.Task) *CopyPartialFileTask {
 	t.new()
 	return t
 }
+
+func (t *CopyPartialFileTask) VoidWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *CopyPartialFileTask) validateInput() {
@@ -322,6 +328,8 @@ func NewCopyPartialStream(task navvy.Task) *CopyPartialStreamTask {
 	return t
 }
 
+func (t *CopyPartialStreamTask) VoidWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CopyPartialStreamTask) validateInput() {
 	if !t.ValidateBytesPool() {
@@ -416,6 +424,8 @@ func NewCopySingleFile(task navvy.Task) *CopySingleFileTask {
 	return t
 }
 
+func (t *CopySingleFileTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CopySingleFileTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -508,6 +518,8 @@ func NewCopySmallFile(task navvy.Task) *CopySmallFileTask {
 	return t
 }
 
+func (t *CopySmallFileTask) VoidWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CopySmallFileTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -595,6 +607,8 @@ func NewCopyStream(task navvy.Task) *CopyStreamTask {
 	return t
 }
 
+func (t *CopyStreamTask) VoidWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CopyStreamTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -674,6 +688,8 @@ func NewCreateStorage(task navvy.Task) *CreateStorageTask {
 	return t
 }
 
+func (t *CreateStorageTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *CreateStorageTask) validateInput() {
 	if !t.ValidateService() {
@@ -740,6 +756,8 @@ func NewDeleteDir(task navvy.Task) *DeleteDirTask {
 	t.new()
 	return t
 }
+
+func (t *DeleteDirTask) VoidWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *DeleteDirTask) validateInput() {
@@ -816,6 +834,8 @@ func NewDeleteFile(task navvy.Task) *DeleteFileTask {
 	return t
 }
 
+func (t *DeleteFileTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *DeleteFileTask) validateInput() {
 	if !t.ValidatePath() {
@@ -891,6 +911,8 @@ func NewDeleteSegment(task navvy.Task) *DeleteSegmentTask {
 	return t
 }
 
+func (t *DeleteSegmentTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *DeleteSegmentTask) validateInput() {
 	if !t.ValidateSegmentID() {
@@ -965,6 +987,8 @@ func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
 	t.new()
 	return t
 }
+
+func (t *DeleteSegmentDirTask) VoidWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *DeleteSegmentDirTask) validateInput() {
@@ -1042,6 +1066,8 @@ func NewDeleteStorage(task navvy.Task) *DeleteStorageTask {
 	return t
 }
 
+func (t *DeleteStorageTask) VoidWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *DeleteStorageTask) validateInput() {
 	if !t.ValidateForce() {
@@ -1117,6 +1143,8 @@ func NewIterateFile(task navvy.Task) *IterateFileTask {
 	t.new()
 	return t
 }
+
+func (t *IterateFileTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *IterateFileTask) validateInput() {
@@ -1202,6 +1230,8 @@ func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
 	return t
 }
 
+func (t *IterateSegmentTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *IterateSegmentTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1283,6 +1313,8 @@ func NewListFile(task navvy.Task) *ListFileTask {
 	return t
 }
 
+func (t *ListFileTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *ListFileTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1363,6 +1395,8 @@ func NewListSegment(task navvy.Task) *ListSegmentTask {
 	return t
 }
 
+func (t *ListSegmentTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *ListSegmentTask) validateInput() {
 	if !t.ValidatePath() {
@@ -1439,6 +1473,8 @@ func NewListStorage(task navvy.Task) *ListStorageTask {
 	return t
 }
 
+func (t *ListStorageTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *ListStorageTask) validateInput() {
 	if !t.ValidateService() {
@@ -1507,6 +1543,8 @@ func NewMD5SumFile(task navvy.Task) *MD5SumFileTask {
 	t.new()
 	return t
 }
+
+func (t *MD5SumFileTask) CPUWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *MD5SumFileTask) validateInput() {
@@ -1586,6 +1624,8 @@ func NewMD5SumStream(task navvy.Task) *MD5SumStreamTask {
 	return t
 }
 
+func (t *MD5SumStreamTask) CPUWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *MD5SumStreamTask) validateInput() {
 	if !t.ValidateContent() {
@@ -1653,6 +1693,8 @@ func NewReachFile(task navvy.Task) *ReachFileTask {
 	t.new()
 	return t
 }
+
+func (t *ReachFileTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *ReachFileTask) validateInput() {
@@ -1733,6 +1775,8 @@ func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
 	return t
 }
 
+func (t *SegmentAbortAllTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *SegmentAbortAllTask) validateInput() {
 	if !t.ValidateStorage() {
@@ -1803,6 +1847,8 @@ func NewSegmentComplete(task navvy.Task) *SegmentCompleteTask {
 	t.new()
 	return t
 }
+
+func (t *SegmentCompleteTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *SegmentCompleteTask) validateInput() {
@@ -1893,6 +1939,8 @@ func NewSegmentFileCopy(task navvy.Task) *SegmentFileCopyTask {
 	t.new()
 	return t
 }
+
+func (t *SegmentFileCopyTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *SegmentFileCopyTask) validateInput() {
@@ -1990,6 +2038,8 @@ func NewSegmentInit(task navvy.Task) *SegmentInitTask {
 	return t
 }
 
+func (t *SegmentInitTask) IOWorkLoad() {}
+
 // validateInput will validate all input before run task.
 func (t *SegmentInitTask) validateInput() {
 	if !t.ValidatePartSize() {
@@ -2078,6 +2128,8 @@ func NewSegmentStreamCopy(task navvy.Task) *SegmentStreamCopyTask {
 	t.new()
 	return t
 }
+
+func (t *SegmentStreamCopyTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *SegmentStreamCopyTask) validateInput() {
@@ -2169,6 +2221,8 @@ func NewStatFile(task navvy.Task) *StatFileTask {
 	t.new()
 	return t
 }
+
+func (t *StatFileTask) IOWorkLoad() {}
 
 // validateInput will validate all input before run task.
 func (t *StatFileTask) validateInput() {
