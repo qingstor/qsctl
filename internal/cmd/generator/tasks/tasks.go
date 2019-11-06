@@ -17,6 +17,7 @@ import (
 type task struct {
 	Name        string   `json:"-"`
 	Description string   `json:"description"`
+	Workload    string   `json:"workload"`
 	Input       []string `json:"input,omitempty"`
 	Output      []string `json:"output,omitempty"`
 
@@ -250,6 +251,12 @@ func (t *{{ .Name }}Task) Run() {
 func (t *{{ .Name }}Task) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}",t , err))
 }
+
+{{ if eq .Workload "void" }}
+func (t *{{ .Name }}Task) VoidWorkload() {}
+{{ else if eq .Workload "io" }}
+func (t *{{ .Name }}Task) IOWorkload() {}
+{{ end }}
 
 // String will implement Stringer interface.
 func (t *{{ .Name }}Task) String() string {

@@ -86,6 +86,8 @@ func (t *CopyDirTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopyDirTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopyDirTask) String() string {
 	return fmt.Sprintf("CopyDirTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
@@ -165,6 +167,8 @@ func (t *CopyFileTask) Run() {
 func (t *CopyFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *CopyFileTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *CopyFileTask) String() string {
@@ -253,6 +257,8 @@ func (t *CopyLargeFileTask) Run() {
 func (t *CopyLargeFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *CopyLargeFileTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *CopyLargeFileTask) String() string {
@@ -356,6 +362,8 @@ func (t *CopyPartialFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopyPartialFileTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopyPartialFileTask) String() string {
 	return fmt.Sprintf("CopyPartialFileTask {DestinationPath: %v, DestinationStorage: %v, Offset: %v, PartSize: %v, SegmentID: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetOffset(), t.GetPartSize(), t.GetSegmentID(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
@@ -454,6 +462,8 @@ func (t *CopyPartialStreamTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopyPartialStreamTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopyPartialStreamTask) String() string {
 	return fmt.Sprintf("CopyPartialStreamTask {BytesPool: %v, DestinationPath: %v, DestinationStorage: %v, PartSize: %v, SegmentID: %v, SourcePath: %v, SourceStorage: %v}", t.GetBytesPool(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetPartSize(), t.GetSegmentID(), t.GetSourcePath(), t.GetSourceStorage())
@@ -544,6 +554,8 @@ func (t *CopySingleFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopySingleFileTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopySingleFileTask) String() string {
 	return fmt.Sprintf("CopySingleFileTask {DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
@@ -630,6 +642,8 @@ func (t *CopySmallFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopySmallFileTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopySmallFileTask) String() string {
 	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
@@ -713,6 +727,8 @@ func (t *CopyStreamTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *CopyStreamTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *CopyStreamTask) String() string {
 	return fmt.Sprintf("CopyStreamTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
@@ -779,6 +795,8 @@ func (t *CreateStorageTask) Run() {
 func (t *CreateStorageTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *CreateStorageTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *CreateStorageTask) String() string {
@@ -849,6 +867,8 @@ func (t *DeleteDirTask) Run() {
 func (t *DeleteDirTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *DeleteDirTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *DeleteDirTask) String() string {
@@ -925,6 +945,8 @@ func (t *DeleteFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *DeleteFileTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *DeleteFileTask) String() string {
 	return fmt.Sprintf("DeleteFileTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
@@ -1000,6 +1022,8 @@ func (t *DeleteSegmentTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *DeleteSegmentTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *DeleteSegmentTask) String() string {
 	return fmt.Sprintf("DeleteSegmentTask {SegmentID: %v, Storage: %v}", t.GetSegmentID(), t.GetStorage())
@@ -1074,6 +1098,8 @@ func (t *DeleteSegmentDirTask) Run() {
 func (t *DeleteSegmentDirTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *DeleteSegmentDirTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *DeleteSegmentDirTask) String() string {
@@ -1155,6 +1181,8 @@ func (t *DeleteStorageTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *DeleteStorageTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *DeleteStorageTask) String() string {
 	return fmt.Sprintf("DeleteStorageTask {Force: %v, Service: %v, StorageName: %v}", t.GetForce(), t.GetService(), t.GetStorageName())
@@ -1235,6 +1263,8 @@ func (t *IterateFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *IterateFileTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *IterateFileTask) String() string {
 	return fmt.Sprintf("IterateFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
@@ -1314,6 +1344,8 @@ func (t *IterateSegmentTask) Run() {
 func (t *IterateSegmentTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *IterateSegmentTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *IterateSegmentTask) String() string {
@@ -1396,6 +1428,8 @@ func (t *ListFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *ListFileTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *ListFileTask) String() string {
 	return fmt.Sprintf("ListFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
@@ -1472,6 +1506,8 @@ func (t *ListSegmentTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *ListSegmentTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *ListSegmentTask) String() string {
 	return fmt.Sprintf("ListSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
@@ -1543,6 +1579,8 @@ func (t *ListStorageTask) Run() {
 func (t *ListStorageTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *ListStorageTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *ListStorageTask) String() string {
@@ -1625,6 +1663,8 @@ func (t *MD5SumFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *MD5SumFileTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *MD5SumFileTask) String() string {
 	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Path: %v, Size: %v, Storage: %v}", t.GetOffset(), t.GetPath(), t.GetSize(), t.GetStorage())
@@ -1695,6 +1735,8 @@ func (t *MD5SumStreamTask) Run() {
 func (t *MD5SumStreamTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *MD5SumStreamTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *MD5SumStreamTask) String() string {
@@ -1772,6 +1814,8 @@ func (t *ReachFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *ReachFileTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *ReachFileTask) String() string {
 	return fmt.Sprintf("ReachFileTask {Expire: %v, Path: %v, Storage: %v}", t.GetExpire(), t.GetPath(), t.GetStorage())
@@ -1847,6 +1891,8 @@ func (t *SegmentAbortAllTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *SegmentAbortAllTask) VoidWorkload() {}
+
 // String will implement Stringer interface.
 func (t *SegmentAbortAllTask) String() string {
 	return fmt.Sprintf("SegmentAbortAllTask {Storage: %v, StorageName: %v}", t.GetStorage(), t.GetStorageName())
@@ -1921,6 +1967,8 @@ func (t *SegmentCompleteTask) Run() {
 func (t *SegmentCompleteTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *SegmentCompleteTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentCompleteTask) String() string {
@@ -2032,6 +2080,8 @@ func (t *SegmentFileCopyTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *SegmentFileCopyTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *SegmentFileCopyTask) String() string {
 	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
@@ -2107,6 +2157,8 @@ func (t *SegmentInitTask) Run() {
 func (t *SegmentInitTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *SegmentInitTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentInitTask) String() string {
@@ -2213,6 +2265,8 @@ func (t *SegmentStreamCopyTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
+func (t *SegmentStreamCopyTask) IOWorkload() {}
+
 // String will implement Stringer interface.
 func (t *SegmentStreamCopyTask) String() string {
 	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize())
@@ -2283,6 +2337,8 @@ func (t *StatFileTask) Run() {
 func (t *StatFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
+
+func (t *StatFileTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *StatFileTask) String() string {

@@ -18,6 +18,14 @@ type Scheduler interface {
 	Wait()
 }
 
+type VoidWorkloader interface {
+	VoidWorkload()
+}
+
+type IOWorkloader interface {
+	IOWorkload()
+}
+
 type task struct {
 	s *RealScheduler
 	t navvy.Task
@@ -71,14 +79,25 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 func (s *RealScheduler) Sync(task navvy.Task) {
 	s.wg.Add(1)
 	t := newSyncTask(s, task)
-	s.pool.Submit(t)
+	switch task.(type) {
+	case VoidWorkloader:
+		go t.Run()
+	default:
+		s.pool.Submit(t)
+	}
 	t.c.Wait()
 }
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
-	s.pool.Submit(newTask(s, task))
+	t := newTask(s, task)
+	switch task.(type) {
+	case VoidWorkloader:
+		go t.Run()
+	default:
+		s.pool.Submit(t)
+	}
 }
 
 // Wait will wait until a task finished.
