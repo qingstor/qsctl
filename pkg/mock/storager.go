@@ -112,25 +112,6 @@ func (mr *MockStoragerMockRecorder) Copy(arg0, arg1 interface{}, arg2 ...interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Copy", reflect.TypeOf((*MockStorager)(nil).Copy), varargs...)
 }
 
-// CreateDir mocks base method
-func (m *MockStorager) CreateDir(arg0 string, arg1 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CreateDir", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateDir indicates an expected call of CreateDir
-func (mr *MockStoragerMockRecorder) CreateDir(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDir", reflect.TypeOf((*MockStorager)(nil).CreateDir), varargs...)
-}
-
 // Delete mocks base method
 func (m *MockStorager) Delete(arg0 string, arg1 ...*types.Pair) error {
 	m.ctrl.T.Helper()

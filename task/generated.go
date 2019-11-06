@@ -33,6 +33,18 @@ type CopyDirTask struct {
 	// Output value
 }
 
+// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
+func NewCopyDir(task navvy.Task) *CopyDirTask {
+	t := &CopyDirTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
 // validateInput will validate all input before run task.
 func (t *CopyDirTask) validateInput() {
 	if !t.ValidateDestinationPath() {
@@ -63,24 +75,22 @@ func (t *CopyDirTask) loadInput(task navvy.Task) {
 func (t *CopyDirTask) Run() {
 	t.validateInput()
 
+	log.Debugf("Started %s", t)
 	t.run()
 	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
 }
 
+// TriggerFault will be used to trigger a task related fault.
 func (t *CopyDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Task CopyDir failed: {%w}", err))
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-// NewCopyDir will create a CopyDirTask struct and fetch inherited data from parent task.
-func NewCopyDir(task navvy.Task) *CopyDirTask {
-	t := &CopyDirTask{}
-	t.SetID(uuid.New().String())
+func (t *CopyDirTask) VoidWorkload() {}
 
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
+// String will implement Stringer interface.
+func (t *CopyDirTask) String() string {
+	return fmt.Sprintf("CopyDirTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyDirTask will create a CopyDirTask which meets navvy.Task.
@@ -636,7 +646,7 @@ func (t *CopySmallFileTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *CopySmallFileTask) String() string {
-	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v, TotalSize: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage(), t.GetTotalSize())
+	return fmt.Sprintf("CopySmallFileTask {DestinationPath: %v, DestinationStorage: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopySmallFileTask will create a CopySmallFileTask which meets navvy.Task.
@@ -1617,16 +1627,11 @@ func (t *MD5SumFileTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *MD5SumFileTask) String() string {
-	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetOffset(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("MD5SumFileTask {Offset: %v, Path: %v, Size: %v, Storage: %v}", t.GetOffset(), t.GetPath(), t.GetSize(), t.GetStorage())
 }
 
 // NewMD5SumFileTask will create a MD5SumFileTask which meets navvy.Task.
 func NewMD5SumFileTask(task navvy.Task) navvy.Task {
-	return NewMD5SumFile(task)
-}
-
-// NewMD5SumFilePathRequirement will create a MD5SumFileTask which meets PathRequirement.
-func NewMD5SumFilePathRequirement(task navvy.Task) types.PathRequirement {
 	return NewMD5SumFile(task)
 }
 
