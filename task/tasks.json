@@ -124,9 +124,6 @@
     "input": [
       "Path",
       "Storage"
-    ],
-    "output": [
-      "PathScheduleFunc"
     ]
   },
   "DeleteFile": {
@@ -167,7 +164,7 @@
     "workload": "void",
     "input": [
       "Path",
-      "PathScheduleFunc",
+      "PathFunc",
       "Recursive",
       "Storage"
     ]
@@ -177,7 +174,7 @@
     "workload": "void",
     "input": [
       "Path",
-      "SegmentIDScheduleFunc",
+      "SegmentIDFunc",
       "Storage"
     ]
   },

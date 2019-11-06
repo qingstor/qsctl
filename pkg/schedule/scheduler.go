@@ -18,10 +18,12 @@ type Scheduler interface {
 	Wait()
 }
 
+// VoidWorkloader will not be included in Worker Pool.
 type VoidWorkloader interface {
 	VoidWorkload()
 }
 
+// IOWorkloader will be included in Worker Pool.
 type IOWorkloader interface {
 	IOWorkload()
 }
