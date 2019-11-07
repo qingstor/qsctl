@@ -2279,3 +2279,85 @@ func (t *StatFileTask) String() string {
 func NewStatFileTask(task navvy.Task) navvy.Task {
 	return NewStatFile(task)
 }
+
+// SyncTask will sync directory between two storage.
+type SyncTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+}
+
+// NewSync will create a SyncTask struct and fetch inherited data from parent task.
+func NewSync(task navvy.Task) *SyncTask {
+	t := &SyncTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *SyncTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task Sync value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task Sync value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task Sync value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task Sync value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *SyncTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *SyncTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *SyncTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+func (t *SyncTask) VoidWorkload() {}
+
+// String will implement Stringer interface.
+func (t *SyncTask) String() string {
+	return fmt.Sprintf("SyncTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewSyncTask will create a SyncTask which meets navvy.Task.
+func NewSyncTask(task navvy.Task) navvy.Task {
+	return NewSync(task)
+}

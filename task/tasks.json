@@ -318,5 +318,15 @@
     "output": [
       "Object"
     ]
+  },
+  "Sync": {
+    "description": "sync directory between two storage",
+    "workload": "void",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ]
   }
 }
