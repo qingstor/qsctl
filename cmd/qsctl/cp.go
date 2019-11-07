@@ -107,6 +107,11 @@ func HandleCpStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
 	}
 	t.SetSourcePath(filepath.Base(srcPath))
 
+	// if source path == source work dir，which means cp from '/', transfer to cp /*
+	if filepath.Base(srcPath) == filepath.Dir(srcPath) {
+		t.SetSourcePath("")
+	}
+
 	// Destination path depends on different condition.
 	dstPath, err := filepath.Abs(t.GetDestinationPath())
 	if err != nil {
