@@ -36,6 +36,7 @@ func init() {
 	initRbFlag()
 	initRmFlag()
 	initStatFlag()
+	initSyncFlag()
 	initTeeFlag()
 
 	// init config before command run
@@ -52,6 +53,7 @@ func init() {
 	rootCmd.AddCommand(RbCommand)
 	rootCmd.AddCommand(RmCommand)
 	rootCmd.AddCommand(StatCommand)
+	rootCmd.AddCommand(SyncCommand)
 	rootCmd.AddCommand(TeeCommand)
 }
 

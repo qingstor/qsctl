@@ -3,6 +3,7 @@
   "ByteSize": "string",
   "BytesPool": "*sync.Pool",
   "Content": "*bytes.Buffer",
+  "Delete": "bool",
   "DestinationPath": "string",
   "DestinationService": "storage.Servicer",
   "DestinationStorage": "storage.Storager",
@@ -45,5 +46,6 @@
   "TotalSize": "int64",
   "Type": "types.ObjectType",
   "URL": "string",
+  "WholeFile": "bool",
   "Zone": "string"
 }

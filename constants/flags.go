@@ -4,6 +4,8 @@ package constants
 const (
 	// BenchFlag represents the flag bench
 	BenchFlag = "bench"
+	// DeleteFlag represents the flag delete
+	DeleteFlag = "delete"
 	// ExpectSizeFlag represents the flag expect-size
 	ExpectSizeFlag = "expect-size"
 	// ExpireFlag represents the flag expire
@@ -21,7 +23,9 @@ const (
 	// RecursiveFlag represents the flag recursive
 	RecursiveFlag = "recursive"
 	// ReverseFlag represents the flag reverse
-	ReverseFlag = "reverse"
+	// ReverseFlag = "reverse"
+	// WholeFileFlag represents the flag whole-file
+	WholeFileFlag = "whole-file"
 	// ZoneFlag represents the flag zone
 	ZoneFlag = "zone"
 )

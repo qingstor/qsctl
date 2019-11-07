@@ -250,6 +250,65 @@ func LoadContent(t navvy.Task, v ContentSetter) {
 	v.SetContent(x.GetContent())
 }
 
+type Delete struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type DeleteGetter interface {
+	GetDelete() bool
+}
+
+func (o *Delete) GetDelete() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Delete value is not valid")
+	}
+	return o.v
+}
+
+type DeleteSetter interface {
+	SetDelete(bool)
+}
+
+func (o *Delete) SetDelete(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type DeleteValidator interface {
+	ValidateDelete() bool
+}
+
+func (o *Delete) ValidateDelete() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadDelete(t navvy.Task, v DeleteSetter) {
+	x, ok := t.(interface {
+		DeleteGetter
+		DeleteValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDelete() {
+		return
+	}
+
+	v.SetDelete(x.GetDelete())
+}
+
 type DestinationPath struct {
 	valid bool
 	v     string
@@ -2726,6 +2785,65 @@ func LoadURL(t navvy.Task, v URLSetter) {
 	}
 
 	v.SetURL(x.GetURL())
+}
+
+type WholeFile struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type WholeFileGetter interface {
+	GetWholeFile() bool
+}
+
+func (o *WholeFile) GetWholeFile() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("WholeFile value is not valid")
+	}
+	return o.v
+}
+
+type WholeFileSetter interface {
+	SetWholeFile(bool)
+}
+
+func (o *WholeFile) SetWholeFile(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type WholeFileValidator interface {
+	ValidateWholeFile() bool
+}
+
+func (o *WholeFile) ValidateWholeFile() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadWholeFile(t navvy.Task, v WholeFileSetter) {
+	x, ok := t.(interface {
+		WholeFileGetter
+		WholeFileValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateWholeFile() {
+		return
+	}
+
+	v.SetWholeFile(x.GetWholeFile())
 }
 
 type Zone struct {
