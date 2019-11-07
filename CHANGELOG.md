@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-beta.1] - 2019-11-07
+
+### Added
+
+- Rm -r based on async list (#132)
+- Implement feature rb -f (#134)
+- makefile: Make go build reproducible (#148)
+- cmd: Support set config interactively (#152)
+- task: Implement workload based scheduler (#159)
+- cmd/cp: Implement cp -r (#155)
+- cmd/sync: Implement sync (#162)
+- cmd/cp: Add support for cp -r from root path. (#164)
+
+### Changed
+
+- Replace local file system operations to posixfs storager (#130)
+- *: Refactor task scheduler system (#146)
+- pkg/schedule: Submit task directly (#147)
+- *: Refactor task type system (#151)
+
+### Fixed
+
+- cmd/ls: fix ls output, exit until output finish (#128)
+- task: Fix segment upload not correctly (#154)
+- cmd/utils/setup: Fix bug while creating config file but directory not exists (#165)
+
 ## [2.0.0-alpha.8] - 2019-10-17
 
 ### Added
@@ -20,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - cmd: Unify error handle by using TriggerFault (#116)
 - pkg: Move types to pkg and merge utils for better share (#111)
 - Use new task execution framework (#107)
-- Modify cmd by using new task framework: cp(#107), mb(#110), presign(#114), rb(#115), rm(#119), stat(#112) 
+- Modify cmd by using new task framework: cp(#107), mb(#110), presign(#114), rb(#115), rm(#119), stat(#112)
 
 ## [2.0.0-alpha.7] - 2019-07-15
 
@@ -351,6 +377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-beta.1]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.8...v2.0.0-beta.1
 [2.0.0-alpha.8]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.7...v2.0.0-alpha.8
 [2.0.0-alpha.7]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.6...v2.0.0-alpha.7
 [2.0.0-alpha.6]: https://github.com/yunify/qsctl/compare/v2.0.0-alpha.5...v2.0.0-alpha.6
