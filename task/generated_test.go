@@ -262,3 +262,11 @@ func TestSyncTask_TriggerFault(t *testing.T) {
 	task.TriggerFault(err)
 	assert.True(t, task.GetFault().HasError())
 }
+
+func TestSyncFileTask_TriggerFault(t *testing.T) {
+	task := &SyncFileTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}

@@ -2453,10 +2453,14 @@ type SyncTask struct {
 	types.Scheduler
 
 	// Input value
+	types.Delete
 	types.DestinationPath
 	types.DestinationStorage
+	types.Existing
 	types.SourcePath
 	types.SourceStorage
+	types.Update
+	types.WholeFile
 
 	// Output value
 }
@@ -2475,11 +2479,17 @@ func NewSync(task navvy.Task) *SyncTask {
 
 // validateInput will validate all input before run task.
 func (t *SyncTask) validateInput() {
+	if !t.ValidateDelete() {
+		panic(fmt.Errorf("Task Sync value Delete is invalid"))
+	}
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task Sync value DestinationPath is invalid"))
 	}
 	if !t.ValidateDestinationStorage() {
 		panic(fmt.Errorf("Task Sync value DestinationStorage is invalid"))
+	}
+	if !t.ValidateExisting() {
+		panic(fmt.Errorf("Task Sync value Existing is invalid"))
 	}
 	if !t.ValidateSourcePath() {
 		panic(fmt.Errorf("Task Sync value SourcePath is invalid"))
@@ -2487,16 +2497,26 @@ func (t *SyncTask) validateInput() {
 	if !t.ValidateSourceStorage() {
 		panic(fmt.Errorf("Task Sync value SourceStorage is invalid"))
 	}
+	if !t.ValidateUpdate() {
+		panic(fmt.Errorf("Task Sync value Update is invalid"))
+	}
+	if !t.ValidateWholeFile() {
+		panic(fmt.Errorf("Task Sync value WholeFile is invalid"))
+	}
 }
 
 // loadInput will check and load all input before new task.
 func (t *SyncTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadDelete(task, t)
 	types.LoadDestinationPath(task, t)
 	types.LoadDestinationStorage(task, t)
+	types.LoadExisting(task, t)
 	types.LoadSourcePath(task, t)
 	types.LoadSourceStorage(task, t)
+	types.LoadUpdate(task, t)
+	types.LoadWholeFile(task, t)
 }
 
 // Run implement navvy.Task
@@ -2518,10 +2538,112 @@ func (t *SyncTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SyncTask) String() string {
-	return fmt.Sprintf("SyncTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("SyncTask {Delete: %v, DestinationPath: %v, DestinationStorage: %v, Existing: %v, SourcePath: %v, SourceStorage: %v, Update: %v, WholeFile: %v}", t.GetDelete(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetExisting(), t.GetSourcePath(), t.GetSourceStorage(), t.GetUpdate(), t.GetWholeFile())
 }
 
 // NewSyncTask will create a SyncTask which meets navvy.Task.
 func NewSyncTask(task navvy.Task) navvy.Task {
 	return NewSync(task)
+}
+
+// SyncFileTask will sync file handle the logic of sync algorithm.
+type SyncFileTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.Delete
+	types.DestinationPath
+	types.DestinationStorage
+	types.Existing
+	types.SourcePath
+	types.SourceStorage
+	types.Update
+	types.WholeFile
+
+	// Output value
+}
+
+// NewSyncFile will create a SyncFileTask struct and fetch inherited data from parent task.
+func NewSyncFile(task navvy.Task) *SyncFileTask {
+	t := &SyncFileTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *SyncFileTask) validateInput() {
+	if !t.ValidateDelete() {
+		panic(fmt.Errorf("Task SyncFile value Delete is invalid"))
+	}
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task SyncFile value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task SyncFile value DestinationStorage is invalid"))
+	}
+	if !t.ValidateExisting() {
+		panic(fmt.Errorf("Task SyncFile value Existing is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task SyncFile value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task SyncFile value SourceStorage is invalid"))
+	}
+	if !t.ValidateUpdate() {
+		panic(fmt.Errorf("Task SyncFile value Update is invalid"))
+	}
+	if !t.ValidateWholeFile() {
+		panic(fmt.Errorf("Task SyncFile value WholeFile is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *SyncFileTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDelete(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadExisting(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+	types.LoadUpdate(task, t)
+	types.LoadWholeFile(task, t)
+}
+
+// Run implement navvy.Task
+func (t *SyncFileTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *SyncFileTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+func (t *SyncFileTask) VoidWorkload() {}
+
+// String will implement Stringer interface.
+func (t *SyncFileTask) String() string {
+	return fmt.Sprintf("SyncFileTask {Delete: %v, DestinationPath: %v, DestinationStorage: %v, Existing: %v, SourcePath: %v, SourceStorage: %v, Update: %v, WholeFile: %v}", t.GetDelete(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetExisting(), t.GetSourcePath(), t.GetSourceStorage(), t.GetUpdate(), t.GetWholeFile())
+}
+
+// NewSyncFileTask will create a SyncFileTask which meets navvy.Task.
+func NewSyncFileTask(task navvy.Task) navvy.Task {
+	return NewSyncFile(task)
 }

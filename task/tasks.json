@@ -343,10 +343,28 @@
     "description": "sync directory between two storage",
     "workload": "void",
     "input": [
+      "Delete",
       "DestinationPath",
       "DestinationStorage",
+      "Existing",
       "SourcePath",
-      "SourceStorage"
+      "SourceStorage",
+      "Update",
+      "WholeFile"
+    ]
+  },
+  "SyncFile": {
+    "description": "sync file handle the logic of sync algorithm",
+    "workload": "void",
+    "input": [
+      "Delete",
+      "DestinationPath",
+      "DestinationStorage",
+      "Existing",
+      "SourcePath",
+      "SourceStorage",
+      "Update",
+      "WholeFile"
     ]
   }
 }

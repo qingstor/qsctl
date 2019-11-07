@@ -10,6 +10,7 @@
   "DestinationType": "types.ObjectType",
   "Done": "bool",
   "EnableBenchmark": "bool",
+  "Existing": "bool",
   "ExpectSize": "int64",
   "Expire": "int",
   "Fault": "*fault.Fault",
@@ -46,6 +47,7 @@
   "TotalSize": "int64",
   "Type": "types.ObjectType",
   "URL": "string",
+  "Update": "bool",
   "WholeFile": "bool",
   "Zone": "string"
 }

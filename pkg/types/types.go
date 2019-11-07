@@ -663,6 +663,65 @@ func LoadEnableBenchmark(t navvy.Task, v EnableBenchmarkSetter) {
 	v.SetEnableBenchmark(x.GetEnableBenchmark())
 }
 
+type Existing struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type ExistingGetter interface {
+	GetExisting() bool
+}
+
+func (o *Existing) GetExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Existing value is not valid")
+	}
+	return o.v
+}
+
+type ExistingSetter interface {
+	SetExisting(bool)
+}
+
+func (o *Existing) SetExisting(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type ExistingValidator interface {
+	ValidateExisting() bool
+}
+
+func (o *Existing) ValidateExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadExisting(t navvy.Task, v ExistingSetter) {
+	x, ok := t.(interface {
+		ExistingGetter
+		ExistingValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateExisting() {
+		return
+	}
+
+	v.SetExisting(x.GetExisting())
+}
+
 type ExpectSize struct {
 	valid bool
 	v     int64
@@ -2785,6 +2844,65 @@ func LoadURL(t navvy.Task, v URLSetter) {
 	}
 
 	v.SetURL(x.GetURL())
+}
+
+type Update struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type UpdateGetter interface {
+	GetUpdate() bool
+}
+
+func (o *Update) GetUpdate() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Update value is not valid")
+	}
+	return o.v
+}
+
+type UpdateSetter interface {
+	SetUpdate(bool)
+}
+
+func (o *Update) SetUpdate(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type UpdateValidator interface {
+	ValidateUpdate() bool
+}
+
+func (o *Update) ValidateUpdate() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadUpdate(t navvy.Task, v UpdateSetter) {
+	x, ok := t.(interface {
+		UpdateGetter
+		UpdateValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateUpdate() {
+		return
+	}
+
+	v.SetUpdate(x.GetUpdate())
 }
 
 type WholeFile struct {
