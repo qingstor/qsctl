@@ -67,7 +67,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("-r is required to delete a directory")
 	}
 
-	if err = HandleCpStorageBaseAndPath(rootTask); err != nil {
+	if err = HandleCpStorageWdAndPath(rootTask); err != nil {
 		return err
 	}
 
@@ -95,8 +95,8 @@ func cpOutput(path string) {
 	fmt.Printf("Key <%s> copied.\n", path)
 }
 
-// HandleCpStorageBaseAndPath set work dir and path for cp cmd.
-func HandleCpStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
+// HandleCpStorageWdAndPath set work dir and path for cp cmd.
+func HandleCpStorageWdAndPath(t *taskutils.BetweenStorageTask) error {
 	// In operation cp, we set source storage to dir of the source path.
 	srcPath, err := filepath.Abs(t.GetSourcePath())
 	if err != nil {

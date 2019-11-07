@@ -183,6 +183,22 @@ func TestMD5SumStreamTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.GetFault().HasError())
 }
 
+func TestMoveDirTask_TriggerFault(t *testing.T) {
+	task := &MoveDirTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestMoveFileTask_TriggerFault(t *testing.T) {
+	task := &MoveFileTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
 func TestReachFileTask_TriggerFault(t *testing.T) {
 	task := &ReachFileTask{}
 	task.SetFault(fault.New())
