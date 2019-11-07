@@ -133,6 +133,10 @@ func SetupConfigInteractive() (fileName string, err error) {
 	}
 
 	fileName = filepath.Join(homeDir, ".qingstor/config.yaml")
+	if err = os.MkdirAll(filepath.Dir(fileName), 0755); err != nil {
+		return "", err
+	}
+
 	f, err := os.Create(fileName)
 	if err != nil {
 		return "", err
