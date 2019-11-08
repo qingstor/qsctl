@@ -33,7 +33,10 @@ key(file) will be overwritten only if the source one newer than destination one.
 	Example: utils.AlignPrintWithColon(
 		"Sync local directory to QS-Directory: qsctl sync . qs://bucket-name",
 		"Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/",
-		"Sync delete files not existing in bucket: qsctl sync qs://bucket-name/test/ test_local/ --delete",
+		"Sync skip creating new files, only copy newer: qsctl sync . qs://bucket-name --existing",
+		"Sync skip files that are newer, only create new ones: qsctl sync . qs://bucket-name --update",
+		"Sync files whole (without sync algorithm check): qsctl sync . qs://bucket-name --whole-file",
+		"Sync delete files not existing in dst dirs: qsctl sync qs://bucket-name/test/ test_local/ --delete",
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: syncRun,

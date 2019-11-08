@@ -23,6 +23,30 @@ func (t *SyncTask) run() {
 	})
 	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
+
+	// if delete flag not set, return now
+	if !t.GetDelete() {
+		return
+	}
+	// otherwise, iterate in destination storage and delete files not exist in source storage
+	t.GetScheduler().Wait()
+	df := NewIterateFile(t)
+	utils.ChooseDestinationStorage(df, t)
+	df.SetPathFunc(func(key string) {
+		_, err := t.GetSourceStorage().Stat(key)
+		if err != nil && !errors.Is(err, typ.ErrObjectNotExist) {
+			t.TriggerFault(types.NewErrUnhandled(err))
+			return
+		}
+		if err != nil && errors.Is(err, typ.ErrObjectNotExist) {
+			sf := NewDeleteFile(t)
+			utils.ChooseDestinationStorage(sf, t)
+			sf.SetPath(key)
+			t.GetScheduler().Async(sf)
+		}
+	})
+	df.SetRecursive(true)
+	t.GetScheduler().Sync(df)
 }
 
 func (t *SyncFileTask) new() {}
