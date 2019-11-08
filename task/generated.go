@@ -16,6 +16,109 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
+// CopyCheckTask will check whether copy or not while sync/cp.
+type CopyCheckTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.Delete
+	types.DestinationPath
+	types.DestinationStorage
+	types.Existing
+	types.SourcePath
+	types.SourceStorage
+	types.Update
+	types.WholeFile
+
+	// Output value
+	types.Passed
+}
+
+// NewCopyCheck will create a CopyCheckTask struct and fetch inherited data from parent task.
+func NewCopyCheck(task navvy.Task) *CopyCheckTask {
+	t := &CopyCheckTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *CopyCheckTask) validateInput() {
+	if !t.ValidateDelete() {
+		panic(fmt.Errorf("Task CopyCheck value Delete is invalid"))
+	}
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task CopyCheck value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task CopyCheck value DestinationStorage is invalid"))
+	}
+	if !t.ValidateExisting() {
+		panic(fmt.Errorf("Task CopyCheck value Existing is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task CopyCheck value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task CopyCheck value SourceStorage is invalid"))
+	}
+	if !t.ValidateUpdate() {
+		panic(fmt.Errorf("Task CopyCheck value Update is invalid"))
+	}
+	if !t.ValidateWholeFile() {
+		panic(fmt.Errorf("Task CopyCheck value WholeFile is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *CopyCheckTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDelete(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadExisting(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+	types.LoadUpdate(task, t)
+	types.LoadWholeFile(task, t)
+}
+
+// Run implement navvy.Task
+func (t *CopyCheckTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *CopyCheckTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+func (t *CopyCheckTask) VoidWorkload() {}
+
+// String will implement Stringer interface.
+func (t *CopyCheckTask) String() string {
+	return fmt.Sprintf("CopyCheckTask {Delete: %v, DestinationPath: %v, DestinationStorage: %v, Existing: %v, SourcePath: %v, SourceStorage: %v, Update: %v, WholeFile: %v}", t.GetDelete(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetExisting(), t.GetSourcePath(), t.GetSourceStorage(), t.GetUpdate(), t.GetWholeFile())
+}
+
+// NewCopyCheckTask will create a CopyCheckTask which meets navvy.Task.
+func NewCopyCheckTask(task navvy.Task) navvy.Task {
+	return NewCopyCheck(task)
+}
+
 // CopyDirTask will copy a directory recursively between two storager.
 type CopyDirTask struct {
 	// Predefined value
@@ -2646,4 +2749,86 @@ func (t *SyncFileTask) String() string {
 // NewSyncFileTask will create a SyncFileTask which meets navvy.Task.
 func NewSyncFileTask(task navvy.Task) navvy.Task {
 	return NewSyncFile(task)
+}
+
+// SyncFileDeleteTask will delete destination files not exist in source storage.
+type SyncFileDeleteTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+}
+
+// NewSyncFileDelete will create a SyncFileDeleteTask struct and fetch inherited data from parent task.
+func NewSyncFileDelete(task navvy.Task) *SyncFileDeleteTask {
+	t := &SyncFileDeleteTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *SyncFileDeleteTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task SyncFileDelete value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task SyncFileDelete value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task SyncFileDelete value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task SyncFileDelete value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *SyncFileDeleteTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *SyncFileDeleteTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *SyncFileDeleteTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+func (t *SyncFileDeleteTask) VoidWorkload() {}
+
+// String will implement Stringer interface.
+func (t *SyncFileDeleteTask) String() string {
+	return fmt.Sprintf("SyncFileDeleteTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewSyncFileDeleteTask will create a SyncFileDeleteTask which meets navvy.Task.
+func NewSyncFileDeleteTask(task navvy.Task) navvy.Task {
+	return NewSyncFileDelete(task)
 }

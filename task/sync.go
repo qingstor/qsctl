@@ -2,7 +2,6 @@ package task
 
 import (
 	"errors"
-	"time"
 
 	typ "github.com/Xuanwo/storage/types"
 
@@ -33,17 +32,9 @@ func (t *SyncTask) run() {
 	df := NewIterateFile(t)
 	utils.ChooseDestinationStorage(df, t)
 	df.SetPathFunc(func(key string) {
-		_, err := t.GetSourceStorage().Stat(key)
-		if err != nil && !errors.Is(err, typ.ErrObjectNotExist) {
-			t.TriggerFault(types.NewErrUnhandled(err))
-			return
-		}
-		if err != nil && errors.Is(err, typ.ErrObjectNotExist) {
-			sf := NewDeleteFile(t)
-			utils.ChooseDestinationStorage(sf, t)
-			sf.SetPath(key)
-			t.GetScheduler().Async(sf)
-		}
+		sf := NewSyncFileDelete(t)
+		sf.SetDestinationPath(key)
+		t.GetScheduler().Async(sf)
 	})
 	df.SetRecursive(true)
 	t.GetScheduler().Sync(df)
@@ -52,12 +43,14 @@ func (t *SyncTask) run() {
 func (t *SyncFileTask) new() {}
 
 func (t *SyncFileTask) run() {
-	needCopy, err := t.needCopy()
-	if err != nil {
-		t.TriggerFault(types.NewErrUnhandled(err))
+	checkTask := NewCopyCheck(t)
+	t.GetScheduler().Sync(checkTask)
+
+	if !checkTask.ValidatePassed() {
 		return
 	}
-	if !needCopy {
+
+	if !checkTask.GetPassed() {
 		return
 	}
 
@@ -65,39 +58,17 @@ func (t *SyncFileTask) run() {
 	t.GetScheduler().Async(sf)
 }
 
-// needCopy checks flags and time and return whether an object should be copied or not.
-func (t *SyncFileTask) needCopy() (bool, error) {
-	var srcUpdate time.Time
-	var dstUpdate time.Time
+func (t *SyncFileDeleteTask) new() {}
 
-	if t.GetWholeFile() {
-		return true, nil
-	}
-
-	dstObj, err := t.GetDestinationStorage().Stat(t.GetDestinationPath())
-	// if got error, and error not not-exist
+func (t *SyncFileDeleteTask) run() {
+	_, err := t.GetSourceStorage().Stat(t.GetDestinationPath())
 	if err != nil && !errors.Is(err, typ.ErrObjectNotExist) {
-		return false, err
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
 	}
-	// if obj does not exist
 	if err != nil && errors.Is(err, typ.ErrObjectNotExist) {
-		// if existing was set, don't copy, otherwise, copy
-		return !t.GetExisting(), nil
+		sf := NewDeleteFile(t)
+		utils.ChooseDestinationStorage(sf, t)
+		t.GetScheduler().Sync(sf)
 	}
-	// if obj exists, and set update flag, don't copy
-	if t.GetUpdate() {
-		return false, nil
-	}
-
-	srcObj, err := t.GetSourceStorage().Stat(t.GetSourcePath())
-	if err != nil {
-		return false, err
-	}
-	dstUpdate, dstOk := dstObj.GetUpdatedAt()
-	srcUpdate, srcOk := srcObj.GetUpdatedAt()
-	// both update get and src is newer than dst, then copy
-	if dstOk && srcOk && dstUpdate.Unix() < srcUpdate.Unix() {
-		return true, nil
-	}
-	return false, nil
 }

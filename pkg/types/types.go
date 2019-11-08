@@ -1607,6 +1607,65 @@ func LoadPartSize(t navvy.Task, v PartSizeSetter) {
 	v.SetPartSize(x.GetPartSize())
 }
 
+type Passed struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type PassedGetter interface {
+	GetPassed() bool
+}
+
+func (o *Passed) GetPassed() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Passed value is not valid")
+	}
+	return o.v
+}
+
+type PassedSetter interface {
+	SetPassed(bool)
+}
+
+func (o *Passed) SetPassed(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type PassedValidator interface {
+	ValidatePassed() bool
+}
+
+func (o *Passed) ValidatePassed() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadPassed(t navvy.Task, v PassedSetter) {
+	x, ok := t.(interface {
+		PassedGetter
+		PassedValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePassed() {
+		return
+	}
+
+	v.SetPassed(x.GetPassed())
+}
+
 type Path struct {
 	valid bool
 	v     string

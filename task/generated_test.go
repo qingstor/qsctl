@@ -15,6 +15,14 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
+func TestCopyCheckTask_TriggerFault(t *testing.T) {
+	task := &CopyCheckTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
 func TestCopyDirTask_TriggerFault(t *testing.T) {
 	task := &CopyDirTask{}
 	task.SetFault(fault.New())
@@ -265,6 +273,14 @@ func TestSyncTask_TriggerFault(t *testing.T) {
 
 func TestSyncFileTask_TriggerFault(t *testing.T) {
 	task := &SyncFileTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestSyncFileDeleteTask_TriggerFault(t *testing.T) {
+	task := &SyncFileDeleteTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)

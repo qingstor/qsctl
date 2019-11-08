@@ -26,6 +26,7 @@
   "Offset": "int64",
   "PartNumber": "int",
   "PartSize": "int64",
+  "Passed": "bool",
   "Path": "string",
   "PathFunc": "func(string)",
   "Pool": "*navvy.Pool",

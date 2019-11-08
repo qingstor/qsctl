@@ -1,4 +1,21 @@
 {
+  "CopyCheck": {
+    "description": "check whether copy or not while sync/cp",
+    "workload": "void",
+    "input": [
+      "Delete",
+      "DestinationPath",
+      "DestinationStorage",
+      "Existing",
+      "SourcePath",
+      "SourceStorage",
+      "Update",
+      "WholeFile"
+    ],
+    "output": [
+      "Passed"
+    ]
+  },
   "CopyDir": {
     "description": "copy a directory recursively between two storager",
     "workload": "void",
@@ -365,6 +382,16 @@
       "SourceStorage",
       "Update",
       "WholeFile"
+    ]
+  },
+  "SyncFileDelete": {
+    "description": "delete destination files not exist in source storage",
+    "workload": "void",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
     ]
   }
 }
