@@ -240,6 +240,26 @@
       "MD5Sum"
     ]
   },
+  "MoveDir": {
+    "description": "move a directory recursively between two storager",
+    "workload": "void",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
+  "MoveFile": {
+    "description": "move a file between two storager",
+    "workload": "void",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ]
+  },
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
     "workload": "io",
