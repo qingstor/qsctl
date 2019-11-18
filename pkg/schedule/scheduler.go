@@ -40,16 +40,6 @@ func newTask(s *RealScheduler, t navvy.Task) *task {
 	}
 }
 
-func newSyncTask(s *RealScheduler, t navvy.Task) *task {
-	lock := &sync.Mutex{}
-	lock.Lock()
-
-	return &task{
-		s: s,
-		t: t,
-	}
-}
-
 func (t *task) Run() {
 	defer func() {
 		t.s.wg.Done()
