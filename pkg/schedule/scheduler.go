@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"runtime"
 	"sync"
 
 	"github.com/Xuanwo/navvy"
@@ -60,6 +61,7 @@ func (t *task) Run() {
 		}
 	}()
 
+	runtime.Gosched()
 	t.t.Run()
 }
 
@@ -81,25 +83,30 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 func (s *RealScheduler) Sync(task navvy.Task) {
 	s.wg.Add(1)
 	t := newSyncTask(s, task)
-	switch task.(type) {
-	case VoidWorkloader:
-		go t.Run()
-	default:
-		s.pool.Submit(t)
-	}
-	t.c.Wait()
+	// switch task.(type) {
+	// case VoidWorkloader:
+	// 	// go t.Run()
+	// 	go s.pool.Submit(t)
+	// default:
+	// 	s.pool.Submit(t)
+	// }
+	// TODO: we need a better way to handle this.
+	t.Run()
+	// t.c.Wait()
 }
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
 	t := newTask(s, task)
-	switch task.(type) {
-	case VoidWorkloader:
-		go t.Run()
-	default:
-		s.pool.Submit(t)
-	}
+	// switch task.(type) {
+	// case VoidWorkloader:
+	// 	// go s.pool.Submit(t)
+	// default:
+	// 	s.pool.Submit(t)
+	// }
+	// TODO: we need a better way to handle this.
+	go t.Run()
 }
 
 // Wait will wait until a task finished.
