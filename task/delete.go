@@ -22,7 +22,6 @@ func (t *DeleteDirTask) run() {
 		sf.SetPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
-	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
 }
 

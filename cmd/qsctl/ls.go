@@ -68,7 +68,8 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return err
 	}
 	t := task.NewListDir(rootTask)
-	t.SetFileFunc(listObjectOutput)
+	t.SetFileFunc(listFileOutput)
+	t.SetDirFunc(func(object *typ.Object) {})
 
 	t.Run()
 
@@ -107,7 +108,7 @@ func listBucketOutput(s storage.Storager) {
 	fmt.Println(name)
 }
 
-func listObjectOutput(o *typ.Object) {
+func listFileOutput(o *typ.Object) {
 	if !lsInput.LongFormat {
 		fmt.Println(o.Name)
 		return

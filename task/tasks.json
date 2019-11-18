@@ -163,7 +163,6 @@
       "DirFunc",
       "FileFunc",
       "Path",
-      "Recursive",
       "Storage"
     ]
   },

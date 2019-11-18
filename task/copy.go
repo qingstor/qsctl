@@ -213,6 +213,5 @@ func (t *CopyDirTask) run() {
 		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
-	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
 }

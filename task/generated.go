@@ -1113,7 +1113,6 @@ type ListDirTask struct {
 	types.DirFunc
 	types.FileFunc
 	types.Path
-	types.Recursive
 	types.Storage
 
 	// Output value
@@ -1142,9 +1141,6 @@ func (t *ListDirTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task ListDir value Path is invalid"))
 	}
-	if !t.ValidateRecursive() {
-		panic(fmt.Errorf("Task ListDir value Recursive is invalid"))
-	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task ListDir value Storage is invalid"))
 	}
@@ -1157,7 +1153,6 @@ func (t *ListDirTask) loadInput(task navvy.Task) {
 	types.LoadDirFunc(task, t)
 	types.LoadFileFunc(task, t)
 	types.LoadPath(task, t)
-	types.LoadRecursive(task, t)
 	types.LoadStorage(task, t)
 }
 
@@ -1180,7 +1175,7 @@ func (t *ListDirTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *ListDirTask) String() string {
-	return fmt.Sprintf("ListDirTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
+	return fmt.Sprintf("ListDirTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
 }
 
 // NewListDirTask will create a ListDirTask which meets navvy.Task.
