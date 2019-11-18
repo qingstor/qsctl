@@ -144,15 +144,7 @@
     "workload": "io",
     "input": [
       "SegmentID",
-      "Storage"
-    ]
-  },
-  "DeleteSegmentDir": {
-    "description": "delete all segments under a path",
-    "workload": "void",
-    "input": [
-      "Path",
-      "Storage"
+      "Segmenter"
     ]
   },
   "DeleteStorage": {
@@ -181,7 +173,7 @@
     "input": [
       "Path",
       "SegmentFunc",
-      "Storage"
+      "Segmenter"
     ]
   },
   "ListStorage": {
@@ -242,18 +234,10 @@
     "input": [
       "Expire",
       "Path",
-      "Storage"
+      "Reacher"
     ],
     "output": [
       "URL"
-    ]
-  },
-  "SegmentAbortAll": {
-    "description": "abort all multipart uploads in a bucket",
-    "workload": "void",
-    "input": [
-      "Storage",
-      "StorageName"
     ]
   },
   "SegmentComplete": {
@@ -262,7 +246,7 @@
     "input": [
       "Path",
       "SegmentID",
-      "Storage"
+      "Segmenter"
     ]
   },
   "SegmentFileCopy": {
@@ -270,10 +254,10 @@
     "workload": "io",
     "input": [
       "DestinationPath",
-      "DestinationStorage",
       "MD5Sum",
       "Offset",
       "SegmentID",
+      "Segmenter",
       "Size",
       "SourcePath",
       "SourceStorage"
@@ -285,7 +269,7 @@
     "input": [
       "PartSize",
       "Path",
-      "Storage"
+      "Segmenter"
     ],
     "output": [
       "SegmentID"
@@ -297,10 +281,10 @@
     "input": [
       "Content",
       "DestinationPath",
-      "DestinationStorage",
       "MD5Sum",
       "Offset",
       "SegmentID",
+      "Segmenter",
       "Size"
     ]
   },

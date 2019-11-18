@@ -14,65 +14,6 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
-type BucketList struct {
-	valid bool
-	v     []string
-
-	l sync.RWMutex
-}
-
-type BucketListGetter interface {
-	GetBucketList() []string
-}
-
-func (o *BucketList) GetBucketList() []string {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("BucketList value is not valid")
-	}
-	return o.v
-}
-
-type BucketListSetter interface {
-	SetBucketList([]string)
-}
-
-func (o *BucketList) SetBucketList(v []string) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type BucketListValidator interface {
-	ValidateBucketList() bool
-}
-
-func (o *BucketList) ValidateBucketList() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadBucketList(t navvy.Task, v BucketListSetter) {
-	x, ok := t.(interface {
-		BucketListGetter
-		BucketListValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateBucketList() {
-		return
-	}
-
-	v.SetBucketList(x.GetBucketList())
-}
-
 type ByteSize struct {
 	valid bool
 	v     string
@@ -1371,65 +1312,6 @@ func LoadObject(t navvy.Task, v ObjectSetter) {
 	v.SetObject(x.GetObject())
 }
 
-type ObjectLongList struct {
-	valid bool
-	v     *[][]string
-
-	l sync.RWMutex
-}
-
-type ObjectLongListGetter interface {
-	GetObjectLongList() *[][]string
-}
-
-func (o *ObjectLongList) GetObjectLongList() *[][]string {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("ObjectLongList value is not valid")
-	}
-	return o.v
-}
-
-type ObjectLongListSetter interface {
-	SetObjectLongList(*[][]string)
-}
-
-func (o *ObjectLongList) SetObjectLongList(v *[][]string) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type ObjectLongListValidator interface {
-	ValidateObjectLongList() bool
-}
-
-func (o *ObjectLongList) ValidateObjectLongList() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadObjectLongList(t navvy.Task, v ObjectLongListSetter) {
-	x, ok := t.(interface {
-		ObjectLongListGetter
-		ObjectLongListValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateObjectLongList() {
-		return
-	}
-
-	v.SetObjectLongList(x.GetObjectLongList())
-}
-
 type Offset struct {
 	valid bool
 	v     int64
@@ -1723,6 +1605,65 @@ func LoadPool(t navvy.Task, v PoolSetter) {
 	}
 
 	v.SetPool(x.GetPool())
+}
+
+type Reacher struct {
+	valid bool
+	v     storage.Reacher
+
+	l sync.RWMutex
+}
+
+type ReacherGetter interface {
+	GetReacher() storage.Reacher
+}
+
+func (o *Reacher) GetReacher() storage.Reacher {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Reacher value is not valid")
+	}
+	return o.v
+}
+
+type ReacherSetter interface {
+	SetReacher(storage.Reacher)
+}
+
+func (o *Reacher) SetReacher(v storage.Reacher) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type ReacherValidator interface {
+	ValidateReacher() bool
+}
+
+func (o *Reacher) ValidateReacher() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadReacher(t navvy.Task, v ReacherSetter) {
+	x, ok := t.(interface {
+		ReacherGetter
+		ReacherValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateReacher() {
+		return
+	}
+
+	v.SetReacher(x.GetReacher())
 }
 
 type ReadableSize struct {

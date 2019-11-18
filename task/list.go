@@ -1,8 +1,6 @@
 package task
 
 import (
-	"errors"
-
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/yunify/qsctl/v2/pkg/types"
@@ -25,13 +23,7 @@ func (t *ListDirTask) run() {
 func (t *ListSegmentTask) new() {}
 
 func (t *ListSegmentTask) run() {
-	segmenter, ok := t.GetStorage().(storage.Segmenter)
-	if !ok {
-		t.TriggerFault(types.NewErrUnhandled(errors.New("no supported")))
-		return
-	}
-
-	err := segmenter.ListSegments(t.GetPath(),
+	err := t.GetSegmenter().ListSegments(t.GetPath(),
 		pairs.WithSegmentFunc(t.GetSegmentFunc()))
 	if err != nil {
 		t.TriggerFault(err)
@@ -42,7 +34,7 @@ func (t *ListSegmentTask) run() {
 func (t *ListStorageTask) new() {}
 func (t *ListStorageTask) run() {
 	err := t.GetService().List(pairs.WithLocation(t.GetZone()), pairs.WithStoragerFunc(func(storager storage.Storager) {
-		t.GetStoragerFunc()
+		t.GetStoragerFunc()(storager)
 	}))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))

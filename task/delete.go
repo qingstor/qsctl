@@ -1,16 +1,20 @@
 package task
 
 import (
-	"errors"
-
-	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *DeleteDirTask) new() {}
+func (t *DeleteFileTask) new() {}
+func (t *DeleteFileTask) run() {
+	if err := t.GetStorage().Delete(t.GetPath()); err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+}
 
+func (t *DeleteDirTask) new() {}
 func (t *DeleteDirTask) run() {
 	x := NewListDir(t)
 	x.SetFileFunc(func(o *typ.Object) {
@@ -22,18 +26,15 @@ func (t *DeleteDirTask) run() {
 	t.GetScheduler().Sync(x)
 }
 
-func (t *DeleteFileTask) new() {}
-
-func (t *DeleteFileTask) run() {
-	if err := t.GetStorage().Delete(t.GetPath()); err != nil {
+func (t *DeleteSegmentTask) new() {}
+func (t *DeleteSegmentTask) run() {
+	if err := t.GetSegmenter().AbortSegment(t.GetSegmentID()); err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
 }
 
-func (t *DeleteStorageTask) new() {
-}
-
+func (t *DeleteStorageTask) new() {}
 func (t *DeleteStorageTask) run() {
 	if t.GetForce() {
 		store, err := t.GetService().Get(t.GetStorageName())
@@ -48,11 +49,15 @@ func (t *DeleteStorageTask) run() {
 
 		t.GetScheduler().Async(deleteDir)
 
-		deleteSegment := NewDeleteSegmentDir(t)
-		deleteSegment.SetPath("") // set path "" means delete all segments
-		deleteSegment.SetStorage(store)
+		listSegments := NewListSegment(t)
+		listSegments.SetSegmentFunc(func(s *segment.Segment) {
+			sf := NewDeleteSegment(t)
+			sf.SetSegmentID(s.ID)
 
-		t.GetScheduler().Async(deleteSegment)
+			t.GetScheduler().Async(sf)
+		})
+
+		t.GetScheduler().Async(listSegments)
 		t.GetScheduler().Wait()
 	}
 
@@ -61,30 +66,4 @@ func (t *DeleteStorageTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-}
-
-func (t *DeleteSegmentTask) new() {}
-func (t *DeleteSegmentTask) run() {
-	segmenter, ok := t.GetStorage().(storage.Segmenter)
-	if !ok {
-		t.TriggerFault(types.NewErrUnhandled(errors.New("no supported")))
-		return
-	}
-
-	if err := segmenter.AbortSegment(t.GetSegmentID()); err != nil {
-		t.TriggerFault(types.NewErrUnhandled(err))
-		return
-	}
-}
-
-func (t *DeleteSegmentDirTask) new() {}
-
-func (t *DeleteSegmentDirTask) run() {
-	x := NewListSegment(t)
-	x.SetSegmentFunc(func(s *segment.Segment) {
-		sf := NewDeleteSegment(t)
-		sf.SetSegmentID(s.ID)
-		t.GetScheduler().Async(sf)
-	})
-	t.GetScheduler().Sync(x)
 }

@@ -91,6 +91,25 @@ func NewErrStorageBucketInitFailed(err error, storageName string, zone string) e
 	return f
 }
 
+type StorageInsufficientAbility struct {
+	err error
+}
+
+func (f *StorageInsufficientAbility) Error() string {
+	return fmt.Sprintf(`Storage's ability is insufficient`)
+}
+
+func (f *StorageInsufficientAbility) Unwrap() error {
+	return f.err
+}
+
+func NewErrStorageInsufficientAbility(err error) error {
+	f := &StorageInsufficientAbility{}
+	f.err = err
+
+	return f
+}
+
 type StorageObjectNoPermission struct {
 	err error
 	DestinationPath

@@ -277,3 +277,21 @@ func ChooseSourceStorage(x interface {
 	x.SetPath(y.GetSourcePath())
 	x.SetStorage(y.GetSourceStorage())
 }
+
+// ChooseDestinationStorageAsSegment will choose the destination storage as a segmenter.
+func ChooseDestinationStorageAsSegment(x interface {
+	types.PathSetter
+	types.SegmenterSetter
+}, y interface {
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+}) (err error) {
+	x.SetPath(y.GetDestinationPath())
+
+	segmenter, ok := y.GetDestinationStorage().(storage.Segmenter)
+	if !ok {
+		return types.NewErrStorageInsufficientAbility(nil)
+	}
+	x.SetSegmenter(segmenter)
+	return
+}

@@ -13,7 +13,6 @@ import (
 )
 
 func (t *CopyFileTask) new() {}
-
 func (t *CopyFileTask) run() {
 	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
@@ -40,7 +39,6 @@ func (t *CopyFileTask) run() {
 }
 
 func (t *CopySmallFileTask) new() {}
-
 func (t *CopySmallFileTask) run() {
 	md5Task := NewMD5SumFile(t)
 	utils.ChooseSourceStorage(md5Task, t)
@@ -53,9 +51,7 @@ func (t *CopySmallFileTask) run() {
 }
 
 // newCopyLargeFileTask will create a new Task.
-func (t *CopyLargeFileTask) new() {
-}
-
+func (t *CopyLargeFileTask) new() {}
 func (t *CopyLargeFileTask) run() {
 	// Set segment part size.
 	partSize, err := utils.CalculatePartSize(t.GetTotalSize())
@@ -66,7 +62,11 @@ func (t *CopyLargeFileTask) run() {
 	t.SetPartSize(partSize)
 
 	initTask := NewSegmentInit(t)
-	utils.ChooseDestinationStorage(initTask, t)
+	err = utils.ChooseDestinationStorageAsSegment(initTask, t)
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
 
 	t.GetScheduler().Sync(initTask)
 	t.SetSegmentID(initTask.GetSegmentID())
@@ -127,7 +127,11 @@ func (t *CopyStreamTask) new() {
 
 func (t *CopyStreamTask) run() {
 	initTask := NewSegmentInit(t)
-	utils.ChooseDestinationStorage(initTask, t)
+	err := utils.ChooseDestinationStorageAsSegment(initTask, t)
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
 
 	// TODO: we will use expect size to calculate part size later.
 	partSize := int64(constants.DefaultPartSize)

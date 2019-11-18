@@ -24,6 +24,9 @@
     ],
     "message": "`Storage bucket [%s] in zone [%s] initiate failed: {%v}`, f.GetStorageName(), f.GetZone(), f.err"
   },
+  "StorageInsufficientAbility": {
+    "message": "`Storage's ability is insufficient`"
+  },
   "StorageObjectNoPermission": {
     "value": [
       "DestinationPath"

@@ -962,7 +962,7 @@ type DeleteSegmentTask struct {
 
 	// Input value
 	types.SegmentID
-	types.Storage
+	types.Segmenter
 
 	// Output value
 }
@@ -984,8 +984,8 @@ func (t *DeleteSegmentTask) validateInput() {
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task DeleteSegment value SegmentID is invalid"))
 	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task DeleteSegment value Storage is invalid"))
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task DeleteSegment value Segmenter is invalid"))
 	}
 }
 
@@ -994,7 +994,7 @@ func (t *DeleteSegmentTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadSegmentID(task, t)
-	types.LoadStorage(task, t)
+	types.LoadSegmenter(task, t)
 }
 
 // Run implement navvy.Task
@@ -1016,84 +1016,12 @@ func (t *DeleteSegmentTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *DeleteSegmentTask) String() string {
-	return fmt.Sprintf("DeleteSegmentTask {SegmentID: %v, Storage: %v}", t.GetSegmentID(), t.GetStorage())
+	return fmt.Sprintf("DeleteSegmentTask {SegmentID: %v, Segmenter: %v}", t.GetSegmentID(), t.GetSegmenter())
 }
 
 // NewDeleteSegmentTask will create a DeleteSegmentTask which meets navvy.Task.
 func NewDeleteSegmentTask(task navvy.Task) navvy.Task {
 	return NewDeleteSegment(task)
-}
-
-// DeleteSegmentDirTask will delete all segments under a path.
-type DeleteSegmentDirTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.Path
-	types.Storage
-
-	// Output value
-}
-
-// NewDeleteSegmentDir will create a DeleteSegmentDirTask struct and fetch inherited data from parent task.
-func NewDeleteSegmentDir(task navvy.Task) *DeleteSegmentDirTask {
-	t := &DeleteSegmentDirTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *DeleteSegmentDirTask) validateInput() {
-	if !t.ValidatePath() {
-		panic(fmt.Errorf("Task DeleteSegmentDir value Path is invalid"))
-	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task DeleteSegmentDir value Storage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *DeleteSegmentDirTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadPath(task, t)
-	types.LoadStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *DeleteSegmentDirTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *DeleteSegmentDirTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-func (t *DeleteSegmentDirTask) VoidWorkload() {}
-
-// String will implement Stringer interface.
-func (t *DeleteSegmentDirTask) String() string {
-	return fmt.Sprintf("DeleteSegmentDirTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
-}
-
-// NewDeleteSegmentDirTask will create a DeleteSegmentDirTask which meets navvy.Task.
-func NewDeleteSegmentDirTask(task navvy.Task) navvy.Task {
-	return NewDeleteSegmentDir(task)
 }
 
 // DeleteStorageTask will delete a storage.
@@ -1271,7 +1199,7 @@ type ListSegmentTask struct {
 	// Input value
 	types.Path
 	types.SegmentFunc
-	types.Storage
+	types.Segmenter
 
 	// Output value
 }
@@ -1296,8 +1224,8 @@ func (t *ListSegmentTask) validateInput() {
 	if !t.ValidateSegmentFunc() {
 		panic(fmt.Errorf("Task ListSegment value SegmentFunc is invalid"))
 	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task ListSegment value Storage is invalid"))
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task ListSegment value Segmenter is invalid"))
 	}
 }
 
@@ -1307,7 +1235,7 @@ func (t *ListSegmentTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
 	types.LoadSegmentFunc(task, t)
-	types.LoadStorage(task, t)
+	types.LoadSegmenter(task, t)
 }
 
 // Run implement navvy.Task
@@ -1329,7 +1257,7 @@ func (t *ListSegmentTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *ListSegmentTask) String() string {
-	return fmt.Sprintf("ListSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
+	return fmt.Sprintf("ListSegmentTask {Path: %v, Segmenter: %v}", t.GetPath(), t.GetSegmenter())
 }
 
 // NewListSegmentTask will create a ListSegmentTask which meets navvy.Task.
@@ -1740,7 +1668,7 @@ type ReachFileTask struct {
 	// Input value
 	types.Expire
 	types.Path
-	types.Storage
+	types.Reacher
 
 	// Output value
 	types.URL
@@ -1766,8 +1694,8 @@ func (t *ReachFileTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task ReachFile value Path is invalid"))
 	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task ReachFile value Storage is invalid"))
+	if !t.ValidateReacher() {
+		panic(fmt.Errorf("Task ReachFile value Reacher is invalid"))
 	}
 }
 
@@ -1777,7 +1705,7 @@ func (t *ReachFileTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadExpire(task, t)
 	types.LoadPath(task, t)
-	types.LoadStorage(task, t)
+	types.LoadReacher(task, t)
 }
 
 // Run implement navvy.Task
@@ -1799,84 +1727,12 @@ func (t *ReachFileTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *ReachFileTask) String() string {
-	return fmt.Sprintf("ReachFileTask {Expire: %v, Path: %v, Storage: %v}", t.GetExpire(), t.GetPath(), t.GetStorage())
+	return fmt.Sprintf("ReachFileTask {Expire: %v, Path: %v, Reacher: %v}", t.GetExpire(), t.GetPath(), t.GetReacher())
 }
 
 // NewReachFileTask will create a ReachFileTask which meets navvy.Task.
 func NewReachFileTask(task navvy.Task) navvy.Task {
 	return NewReachFile(task)
-}
-
-// SegmentAbortAllTask will abort all multipart uploads in a bucket.
-type SegmentAbortAllTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.Storage
-	types.StorageName
-
-	// Output value
-}
-
-// NewSegmentAbortAll will create a SegmentAbortAllTask struct and fetch inherited data from parent task.
-func NewSegmentAbortAll(task navvy.Task) *SegmentAbortAllTask {
-	t := &SegmentAbortAllTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *SegmentAbortAllTask) validateInput() {
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task SegmentAbortAll value Storage is invalid"))
-	}
-	if !t.ValidateStorageName() {
-		panic(fmt.Errorf("Task SegmentAbortAll value StorageName is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *SegmentAbortAllTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadStorage(task, t)
-	types.LoadStorageName(task, t)
-}
-
-// Run implement navvy.Task
-func (t *SegmentAbortAllTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *SegmentAbortAllTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-func (t *SegmentAbortAllTask) VoidWorkload() {}
-
-// String will implement Stringer interface.
-func (t *SegmentAbortAllTask) String() string {
-	return fmt.Sprintf("SegmentAbortAllTask {Storage: %v, StorageName: %v}", t.GetStorage(), t.GetStorageName())
-}
-
-// NewSegmentAbortAllTask will create a SegmentAbortAllTask which meets navvy.Task.
-func NewSegmentAbortAllTask(task navvy.Task) navvy.Task {
-	return NewSegmentAbortAll(task)
 }
 
 // SegmentCompleteTask will complete a segment.
@@ -1890,7 +1746,7 @@ type SegmentCompleteTask struct {
 	// Input value
 	types.Path
 	types.SegmentID
-	types.Storage
+	types.Segmenter
 
 	// Output value
 }
@@ -1915,8 +1771,8 @@ func (t *SegmentCompleteTask) validateInput() {
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task SegmentComplete value SegmentID is invalid"))
 	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task SegmentComplete value Storage is invalid"))
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task SegmentComplete value Segmenter is invalid"))
 	}
 }
 
@@ -1926,7 +1782,7 @@ func (t *SegmentCompleteTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
 	types.LoadSegmentID(task, t)
-	types.LoadStorage(task, t)
+	types.LoadSegmenter(task, t)
 }
 
 // Run implement navvy.Task
@@ -1948,7 +1804,7 @@ func (t *SegmentCompleteTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentCompleteTask) String() string {
-	return fmt.Sprintf("SegmentCompleteTask {Path: %v, SegmentID: %v, Storage: %v}", t.GetPath(), t.GetSegmentID(), t.GetStorage())
+	return fmt.Sprintf("SegmentCompleteTask {Path: %v, SegmentID: %v, Segmenter: %v}", t.GetPath(), t.GetSegmentID(), t.GetSegmenter())
 }
 
 // NewSegmentCompleteTask will create a SegmentCompleteTask which meets navvy.Task.
@@ -1966,10 +1822,10 @@ type SegmentFileCopyTask struct {
 
 	// Input value
 	types.DestinationPath
-	types.DestinationStorage
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
+	types.Segmenter
 	types.Size
 	types.SourcePath
 	types.SourceStorage
@@ -1994,9 +1850,6 @@ func (t *SegmentFileCopyTask) validateInput() {
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task SegmentFileCopy value DestinationPath is invalid"))
 	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task SegmentFileCopy value DestinationStorage is invalid"))
-	}
 	if !t.ValidateMD5Sum() {
 		panic(fmt.Errorf("Task SegmentFileCopy value MD5Sum is invalid"))
 	}
@@ -2005,6 +1858,9 @@ func (t *SegmentFileCopyTask) validateInput() {
 	}
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task SegmentFileCopy value SegmentID is invalid"))
+	}
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task SegmentFileCopy value Segmenter is invalid"))
 	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task SegmentFileCopy value Size is invalid"))
@@ -2022,10 +1878,10 @@ func (t *SegmentFileCopyTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
 	types.LoadMD5Sum(task, t)
 	types.LoadOffset(task, t)
 	types.LoadSegmentID(task, t)
+	types.LoadSegmenter(task, t)
 	types.LoadSize(task, t)
 	types.LoadSourcePath(task, t)
 	types.LoadSourceStorage(task, t)
@@ -2050,7 +1906,7 @@ func (t *SegmentFileCopyTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentFileCopyTask) String() string {
-	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Segmenter: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSegmenter(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewSegmentFileCopyTask will create a SegmentFileCopyTask which meets navvy.Task.
@@ -2069,7 +1925,7 @@ type SegmentInitTask struct {
 	// Input value
 	types.PartSize
 	types.Path
-	types.Storage
+	types.Segmenter
 
 	// Output value
 	types.SegmentID
@@ -2095,8 +1951,8 @@ func (t *SegmentInitTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task SegmentInit value Path is invalid"))
 	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task SegmentInit value Storage is invalid"))
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task SegmentInit value Segmenter is invalid"))
 	}
 }
 
@@ -2106,7 +1962,7 @@ func (t *SegmentInitTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadPartSize(task, t)
 	types.LoadPath(task, t)
-	types.LoadStorage(task, t)
+	types.LoadSegmenter(task, t)
 }
 
 // Run implement navvy.Task
@@ -2128,7 +1984,7 @@ func (t *SegmentInitTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentInitTask) String() string {
-	return fmt.Sprintf("SegmentInitTask {PartSize: %v, Path: %v, Storage: %v}", t.GetPartSize(), t.GetPath(), t.GetStorage())
+	return fmt.Sprintf("SegmentInitTask {PartSize: %v, Path: %v, Segmenter: %v}", t.GetPartSize(), t.GetPath(), t.GetSegmenter())
 }
 
 // NewSegmentInitTask will create a SegmentInitTask which meets navvy.Task.
@@ -2147,10 +2003,10 @@ type SegmentStreamCopyTask struct {
 	// Input value
 	types.Content
 	types.DestinationPath
-	types.DestinationStorage
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
+	types.Segmenter
 	types.Size
 
 	// Output value
@@ -2176,9 +2032,6 @@ func (t *SegmentStreamCopyTask) validateInput() {
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationPath is invalid"))
 	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationStorage is invalid"))
-	}
 	if !t.ValidateMD5Sum() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value MD5Sum is invalid"))
 	}
@@ -2187,6 +2040,9 @@ func (t *SegmentStreamCopyTask) validateInput() {
 	}
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value SegmentID is invalid"))
+	}
+	if !t.ValidateSegmenter() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value Segmenter is invalid"))
 	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value Size is invalid"))
@@ -2199,10 +2055,10 @@ func (t *SegmentStreamCopyTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadContent(task, t)
 	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
 	types.LoadMD5Sum(task, t)
 	types.LoadOffset(task, t)
 	types.LoadSegmentID(task, t)
+	types.LoadSegmenter(task, t)
 	types.LoadSize(task, t)
 }
 
@@ -2225,7 +2081,7 @@ func (t *SegmentStreamCopyTask) IOWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SegmentStreamCopyTask) String() string {
-	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, DestinationStorage: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize())
+	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Segmenter: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSegmenter(), t.GetSize())
 }
 
 // NewSegmentStreamCopyTask will create a SegmentStreamCopyTask which meets navvy.Task.

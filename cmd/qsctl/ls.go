@@ -100,7 +100,11 @@ func listBucketOutput(s storage.Storager) {
 	if err != nil {
 		log.Debugf("listBucketOutput: %v", err)
 	}
-	fmt.Println(m.GetName())
+	name, ok := m.GetName()
+	if !ok {
+		log.Warnf("bucket failed to get name")
+	}
+	fmt.Println(name)
 }
 
 func listObjectOutput(o *typ.Object) {
