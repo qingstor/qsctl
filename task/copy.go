@@ -213,5 +213,11 @@ func (t *CopyDirTask) run() {
 		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
+	x.SetDirFunc(func(o *typ.Object) {
+		sf := NewCopyDir(t)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
+		t.GetScheduler().Async(sf)
+	})
 	t.GetScheduler().Sync(x)
 }
