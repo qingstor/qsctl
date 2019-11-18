@@ -133,7 +133,6 @@ func listObjectOutput(o *typ.Object) {
 		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
 		if err != nil {
 			log.Debugf("parse size <%o> failed [%o], key: <%s>", size, err, o.Name)
-			err = nil
 		}
 	}
 
