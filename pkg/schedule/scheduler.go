@@ -1,7 +1,6 @@
 package schedule
 
 import (
-	"runtime"
 	"sync"
 
 	"github.com/Xuanwo/navvy"
@@ -32,7 +31,6 @@ type IOWorkloader interface {
 type task struct {
 	s *RealScheduler
 	t navvy.Task
-	c *sync.Cond
 }
 
 func newTask(s *RealScheduler, t navvy.Task) *task {
@@ -49,19 +47,14 @@ func newSyncTask(s *RealScheduler, t navvy.Task) *task {
 	return &task{
 		s: s,
 		t: t,
-		c: sync.NewCond(lock),
 	}
 }
 
 func (t *task) Run() {
 	defer func() {
 		t.s.wg.Done()
-		if t.c != nil {
-			t.c.Broadcast()
-		}
 	}()
 
-	runtime.Gosched()
 	t.t.Run()
 }
 
@@ -82,31 +75,19 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 // Sync will return after this task finished.
 func (s *RealScheduler) Sync(task navvy.Task) {
 	s.wg.Add(1)
-	t := newSyncTask(s, task)
-	// switch task.(type) {
-	// case VoidWorkloader:
-	// 	// go t.Run()
-	// 	go s.pool.Submit(t)
-	// default:
-	// 	s.pool.Submit(t)
-	// }
-	// TODO: we need a better way to handle this.
-	t.Run()
-	// t.c.Wait()
+
+	defer func() {
+		s.wg.Done()
+	}()
+	task.Run()
 }
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
+
 	t := newTask(s, task)
-	// switch task.(type) {
-	// case VoidWorkloader:
-	// 	// go s.pool.Submit(t)
-	// default:
-	// 	s.pool.Submit(t)
-	// }
-	// TODO: we need a better way to handle this.
-	go t.Run()
+	s.pool.Submit(t)
 }
 
 // Wait will wait until a task finished.
