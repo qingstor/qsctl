@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
@@ -82,7 +83,7 @@ func HandleSyncStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
 	if err != nil {
 		return err
 	}
-	if err := t.GetSourceStorage().Init(types.WithWorkDir(srcPath)); err != nil {
+	if err := t.GetSourceStorage().Init(pairs.WithWorkDir(srcPath)); err != nil {
 		return err
 	}
 	t.SetSourcePath("")
@@ -91,7 +92,7 @@ func HandleSyncStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
 	if err != nil {
 		return err
 	}
-	if err := t.GetDestinationStorage().Init(types.WithWorkDir(dstPath)); err != nil {
+	if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(dstPath)); err != nil {
 		return err
 	}
 	t.SetDestinationPath("")

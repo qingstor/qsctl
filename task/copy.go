@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
@@ -153,7 +154,7 @@ func (t *CopyPartialStreamTask) new() {
 	// Set size and update offset.
 	partSize := t.GetPartSize()
 
-	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), typ.WithSize(partSize))
+	r, err := t.GetSourceStorage().Read(t.GetSourcePath(), pairs.WithSize(partSize))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
@@ -190,7 +191,7 @@ func (t *CopySingleFileTask) run() {
 	defer r.Close()
 
 	// TODO: add checksum support
-	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, typ.WithSize(t.GetSize()))
+	err = t.GetDestinationStorage().Write(t.GetDestinationPath(), r, pairs.WithSize(t.GetSize()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
@@ -200,12 +201,12 @@ func (t *CopySingleFileTask) run() {
 func (t *CopyDirTask) new() {}
 
 func (t *CopyDirTask) run() {
-	x := NewIterateFile(t)
+	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
-	x.SetPathFunc(func(key string) {
+	x.SetFileFunc(func(o *typ.Object) {
 		sf := NewCopyFile(t)
-		sf.SetSourcePath(key)
-		sf.SetDestinationPath(key)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
 	x.SetRecursive(true)

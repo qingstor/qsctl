@@ -1,16 +1,21 @@
 package task
 
 import (
+	"errors"
+
+	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/pkg/segment"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
 func (t *DeleteDirTask) new() {}
 
 func (t *DeleteDirTask) run() {
-	x := NewIterateFile(t)
-	x.SetPathFunc(func(key string) {
+	x := NewListDir(t)
+	x.SetFileFunc(func(o *typ.Object) {
 		sf := NewDeleteFile(t)
-		sf.SetPath(key)
+		sf.SetPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
 	x.SetRecursive(true)
@@ -60,7 +65,13 @@ func (t *DeleteStorageTask) run() {
 
 func (t *DeleteSegmentTask) new() {}
 func (t *DeleteSegmentTask) run() {
-	if err := t.GetStorage().AbortSegment(t.GetSegmentID()); err != nil {
+	segmenter, ok := t.GetStorage().(storage.Segmenter)
+	if !ok {
+		t.TriggerFault(types.NewErrUnhandled(errors.New("no supported")))
+		return
+	}
+
+	if err := segmenter.AbortSegment(t.GetSegmentID()); err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
@@ -69,10 +80,10 @@ func (t *DeleteSegmentTask) run() {
 func (t *DeleteSegmentDirTask) new() {}
 
 func (t *DeleteSegmentDirTask) run() {
-	x := NewIterateSegment(t)
-	x.SetSegmentIDFunc(func(id string) {
+	x := NewListSegment(t)
+	x.SetSegmentFunc(func(s *segment.Segment) {
 		sf := NewDeleteSegment(t)
-		sf.SetSegmentID(id)
+		sf.SetSegmentID(s.ID)
 		t.GetScheduler().Async(sf)
 	})
 	t.GetScheduler().Sync(x)

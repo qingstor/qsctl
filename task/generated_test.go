@@ -127,24 +127,8 @@ func TestDeleteStorageTask_TriggerFault(t *testing.T) {
 	assert.True(t, task.GetFault().HasError())
 }
 
-func TestIterateFileTask_TriggerFault(t *testing.T) {
-	task := &IterateFileTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestIterateSegmentTask_TriggerFault(t *testing.T) {
-	task := &IterateSegmentTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestListFileTask_TriggerFault(t *testing.T) {
-	task := &ListFileTask{}
+func TestListDirTask_TriggerFault(t *testing.T) {
+	task := &ListDirTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)

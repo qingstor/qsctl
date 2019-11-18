@@ -3,77 +3,49 @@ package task
 import (
 	"errors"
 
-	"github.com/Xuanwo/storage/pkg/iterator"
-	"github.com/Xuanwo/storage/pkg/segment"
-	typ "github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
-func (t *ListFileTask) new() {
-	oc := make(chan *typ.Object)
-	t.SetObjectChannel(oc)
-}
+func (t *ListDirTask) new() {}
 
-func (t *ListFileTask) run() {
-	it := t.GetStorage().ListDir(t.GetPath(), typ.WithRecursive(t.GetRecursive()))
-
-	// Always close the object channel.
-	defer close(t.GetObjectChannel())
-
-	for {
-		o, err := it.Next()
-		if err != nil && errors.Is(err, iterator.ErrDone) {
-			break
-		}
-		if err != nil {
-			t.TriggerFault(types.NewErrUnhandled(err))
-			return
-		}
-		t.GetObjectChannel() <- o
+func (t *ListDirTask) run() {
+	err := t.GetStorage().ListDir(
+		t.GetPath(),
+		pairs.WithDirFunc(t.GetDirFunc()),
+		pairs.WithFileFunc(t.GetFileFunc()),
+	)
+	if err != nil {
+		t.TriggerFault(err)
+		return
 	}
 }
 
-func (t *ListSegmentTask) new() {
-	sc := make(chan *segment.Segment)
-	t.SetSegmentChannel(sc)
-}
+func (t *ListSegmentTask) new() {}
 
 func (t *ListSegmentTask) run() {
-	it := t.GetStorage().ListSegments(t.GetPath())
+	segmenter, ok := t.GetStorage().(storage.Segmenter)
+	if !ok {
+		t.TriggerFault(types.NewErrUnhandled(errors.New("no supported")))
+		return
+	}
 
-	// Always close the segment channel.
-	defer close(t.GetSegmentChannel())
-
-	for {
-		o, err := it.Next()
-		if err != nil && errors.Is(err, iterator.ErrDone) {
-			break
-		}
-		if err != nil {
-			t.TriggerFault(types.NewErrUnhandled(err))
-			return
-		}
-		t.GetSegmentChannel() <- o
+	err := segmenter.ListSegments(t.GetPath(),
+		pairs.WithSegmentFunc(t.GetSegmentFunc()))
+	if err != nil {
+		t.TriggerFault(err)
+		return
 	}
 }
 
 func (t *ListStorageTask) new() {}
 func (t *ListStorageTask) run() {
-	resp, err := t.GetService().List(typ.WithLocation(t.GetZone()))
+	err := t.GetService().List(pairs.WithLocation(t.GetZone()), pairs.WithStoragerFunc(func(storager storage.Storager) {
+		t.GetStoragerFunc()
+	}))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-	buckets := make([]string, 0, len(resp))
-	for _, v := range resp {
-		b, err := v.Metadata()
-		if err != nil {
-			t.TriggerFault(types.NewErrUnhandled(err))
-			return
-		}
-		if name, ok := b.GetName(); ok {
-			buckets = append(buckets, name)
-		}
-	}
-	t.SetBucketList(buckets)
 }

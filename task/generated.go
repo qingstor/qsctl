@@ -1173,8 +1173,8 @@ func NewDeleteStorageTask(task navvy.Task) navvy.Task {
 	return NewDeleteStorage(task)
 }
 
-// IterateFileTask will iterate file and execute operations on it.
-type IterateFileTask struct {
+// ListDirTask will list dirs.
+type ListDirTask struct {
 	// Predefined value
 	types.Fault
 	types.ID
@@ -1182,176 +1182,18 @@ type IterateFileTask struct {
 	types.Scheduler
 
 	// Input value
-	types.Path
-	types.PathFunc
-	types.Recursive
-	types.Storage
-
-	// Output value
-}
-
-// NewIterateFile will create a IterateFileTask struct and fetch inherited data from parent task.
-func NewIterateFile(task navvy.Task) *IterateFileTask {
-	t := &IterateFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *IterateFileTask) validateInput() {
-	if !t.ValidatePath() {
-		panic(fmt.Errorf("Task IterateFile value Path is invalid"))
-	}
-	if !t.ValidatePathFunc() {
-		panic(fmt.Errorf("Task IterateFile value PathFunc is invalid"))
-	}
-	if !t.ValidateRecursive() {
-		panic(fmt.Errorf("Task IterateFile value Recursive is invalid"))
-	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task IterateFile value Storage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *IterateFileTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadPath(task, t)
-	types.LoadPathFunc(task, t)
-	types.LoadRecursive(task, t)
-	types.LoadStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *IterateFileTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *IterateFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-func (t *IterateFileTask) VoidWorkload() {}
-
-// String will implement Stringer interface.
-func (t *IterateFileTask) String() string {
-	return fmt.Sprintf("IterateFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
-}
-
-// NewIterateFileTask will create a IterateFileTask which meets navvy.Task.
-func NewIterateFileTask(task navvy.Task) navvy.Task {
-	return NewIterateFile(task)
-}
-
-// IterateSegmentTask will iterate segment and execute operations on it.
-type IterateSegmentTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.Path
-	types.SegmentIDFunc
-	types.Storage
-
-	// Output value
-}
-
-// NewIterateSegment will create a IterateSegmentTask struct and fetch inherited data from parent task.
-func NewIterateSegment(task navvy.Task) *IterateSegmentTask {
-	t := &IterateSegmentTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *IterateSegmentTask) validateInput() {
-	if !t.ValidatePath() {
-		panic(fmt.Errorf("Task IterateSegment value Path is invalid"))
-	}
-	if !t.ValidateSegmentIDFunc() {
-		panic(fmt.Errorf("Task IterateSegment value SegmentIDFunc is invalid"))
-	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task IterateSegment value Storage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *IterateSegmentTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadPath(task, t)
-	types.LoadSegmentIDFunc(task, t)
-	types.LoadStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *IterateSegmentTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *IterateSegmentTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-func (t *IterateSegmentTask) VoidWorkload() {}
-
-// String will implement Stringer interface.
-func (t *IterateSegmentTask) String() string {
-	return fmt.Sprintf("IterateSegmentTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
-}
-
-// NewIterateSegmentTask will create a IterateSegmentTask which meets navvy.Task.
-func NewIterateSegmentTask(task navvy.Task) navvy.Task {
-	return NewIterateSegment(task)
-}
-
-// ListFileTask will list files.
-type ListFileTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
+	types.DirFunc
+	types.FileFunc
 	types.Path
 	types.Recursive
 	types.Storage
 
 	// Output value
-	types.ObjectChannel
 }
 
-// NewListFile will create a ListFileTask struct and fetch inherited data from parent task.
-func NewListFile(task navvy.Task) *ListFileTask {
-	t := &ListFileTask{}
+// NewListDir will create a ListDirTask struct and fetch inherited data from parent task.
+func NewListDir(task navvy.Task) *ListDirTask {
+	t := &ListDirTask{}
 	t.SetID(uuid.New().String())
 
 	t.loadInput(task)
@@ -1362,29 +1204,37 @@ func NewListFile(task navvy.Task) *ListFileTask {
 }
 
 // validateInput will validate all input before run task.
-func (t *ListFileTask) validateInput() {
+func (t *ListDirTask) validateInput() {
+	if !t.ValidateDirFunc() {
+		panic(fmt.Errorf("Task ListDir value DirFunc is invalid"))
+	}
+	if !t.ValidateFileFunc() {
+		panic(fmt.Errorf("Task ListDir value FileFunc is invalid"))
+	}
 	if !t.ValidatePath() {
-		panic(fmt.Errorf("Task ListFile value Path is invalid"))
+		panic(fmt.Errorf("Task ListDir value Path is invalid"))
 	}
 	if !t.ValidateRecursive() {
-		panic(fmt.Errorf("Task ListFile value Recursive is invalid"))
+		panic(fmt.Errorf("Task ListDir value Recursive is invalid"))
 	}
 	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task ListFile value Storage is invalid"))
+		panic(fmt.Errorf("Task ListDir value Storage is invalid"))
 	}
 }
 
 // loadInput will check and load all input before new task.
-func (t *ListFileTask) loadInput(task navvy.Task) {
+func (t *ListDirTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadDirFunc(task, t)
+	types.LoadFileFunc(task, t)
 	types.LoadPath(task, t)
 	types.LoadRecursive(task, t)
 	types.LoadStorage(task, t)
 }
 
 // Run implement navvy.Task
-func (t *ListFileTask) Run() {
+func (t *ListDirTask) Run() {
 	t.validateInput()
 
 	log.Debugf("Started %s", t)
@@ -1394,20 +1244,20 @@ func (t *ListFileTask) Run() {
 }
 
 // TriggerFault will be used to trigger a task related fault.
-func (t *ListFileTask) TriggerFault(err error) {
+func (t *ListDirTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-func (t *ListFileTask) VoidWorkload() {}
+func (t *ListDirTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
-func (t *ListFileTask) String() string {
-	return fmt.Sprintf("ListFileTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
+func (t *ListDirTask) String() string {
+	return fmt.Sprintf("ListDirTask {Path: %v, Recursive: %v, Storage: %v}", t.GetPath(), t.GetRecursive(), t.GetStorage())
 }
 
-// NewListFileTask will create a ListFileTask which meets navvy.Task.
-func NewListFileTask(task navvy.Task) navvy.Task {
-	return NewListFile(task)
+// NewListDirTask will create a ListDirTask which meets navvy.Task.
+func NewListDirTask(task navvy.Task) navvy.Task {
+	return NewListDir(task)
 }
 
 // ListSegmentTask will list segments.
@@ -1420,10 +1270,10 @@ type ListSegmentTask struct {
 
 	// Input value
 	types.Path
+	types.SegmentFunc
 	types.Storage
 
 	// Output value
-	types.SegmentChannel
 }
 
 // NewListSegment will create a ListSegmentTask struct and fetch inherited data from parent task.
@@ -1443,6 +1293,9 @@ func (t *ListSegmentTask) validateInput() {
 	if !t.ValidatePath() {
 		panic(fmt.Errorf("Task ListSegment value Path is invalid"))
 	}
+	if !t.ValidateSegmentFunc() {
+		panic(fmt.Errorf("Task ListSegment value SegmentFunc is invalid"))
+	}
 	if !t.ValidateStorage() {
 		panic(fmt.Errorf("Task ListSegment value Storage is invalid"))
 	}
@@ -1453,6 +1306,7 @@ func (t *ListSegmentTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadPath(task, t)
+	types.LoadSegmentFunc(task, t)
 	types.LoadStorage(task, t)
 }
 
@@ -1493,10 +1347,10 @@ type ListStorageTask struct {
 
 	// Input value
 	types.Service
+	types.StoragerFunc
+	types.Zone
 
 	// Output value
-	types.BucketList
-	types.Zone
 }
 
 // NewListStorage will create a ListStorageTask struct and fetch inherited data from parent task.
@@ -1516,6 +1370,12 @@ func (t *ListStorageTask) validateInput() {
 	if !t.ValidateService() {
 		panic(fmt.Errorf("Task ListStorage value Service is invalid"))
 	}
+	if !t.ValidateStoragerFunc() {
+		panic(fmt.Errorf("Task ListStorage value StoragerFunc is invalid"))
+	}
+	if !t.ValidateZone() {
+		panic(fmt.Errorf("Task ListStorage value Zone is invalid"))
+	}
 }
 
 // loadInput will check and load all input before new task.
@@ -1523,6 +1383,8 @@ func (t *ListStorageTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadService(task, t)
+	types.LoadStoragerFunc(task, t)
+	types.LoadZone(task, t)
 }
 
 // Run implement navvy.Task
@@ -1544,7 +1406,7 @@ func (t *ListStorageTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *ListStorageTask) String() string {
-	return fmt.Sprintf("ListStorageTask {Service: %v}", t.GetService())
+	return fmt.Sprintf("ListStorageTask {Service: %v, Zone: %v}", t.GetService(), t.GetZone())
 }
 
 // NewListStorageTask will create a ListStorageTask which meets navvy.Task.

@@ -211,14 +211,19 @@ func (t *{{ .Name }}Task) IOWorkload() {}
 // String will implement Stringer interface.
 func (t *{{ .Name }}Task) String() string {
 	return fmt.Sprintf("{{ .Name }}Task {
+{{- $called := false -}}
 {{- range $k, $v := .Input -}}
 {{- if not (endwith $v "Func") -}}
-	{{ if ne $k 0 }}, {{end}}{{$v}}: %v
+	{{ if $called }}, {{end}}{{$v}}: %v
+	{{- $called = true -}}
 {{- end -}}
 {{- end -}}
-}", {{- range $k, $v := .Input -}}
+}", 
+{{- $called := false -}}
+{{- range $k, $v := .Input -}}
 {{- if not (endwith $v "Func") -}}
-	{{ if ne $k 0 }}, {{end}}t.Get{{$v}}()
+	{{ if $called }}, {{end}}t.Get{{$v}}()
+	{{- $called = true -}}
 {{- end -}}
 {{- end -}})
 }

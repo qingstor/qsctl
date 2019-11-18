@@ -164,35 +164,15 @@
       "StorageName"
     ]
   },
-  "IterateFile": {
-    "description": "iterate file and execute operations on it",
+  "ListDir": {
+    "description": "list dirs",
     "workload": "void",
     "input": [
-      "Path",
-      "PathFunc",
-      "Recursive",
-      "Storage"
-    ]
-  },
-  "IterateSegment": {
-    "description": "iterate segment and execute operations on it",
-    "workload": "void",
-    "input": [
-      "Path",
-      "SegmentIDFunc",
-      "Storage"
-    ]
-  },
-  "ListFile": {
-    "description": "list files",
-    "workload": "void",
-    "input": [
+      "DirFunc",
+      "FileFunc",
       "Path",
       "Recursive",
       "Storage"
-    ],
-    "output": [
-      "ObjectChannel"
     ]
   },
   "ListSegment": {
@@ -200,20 +180,16 @@
     "workload": "void",
     "input": [
       "Path",
+      "SegmentFunc",
       "Storage"
-    ],
-    "output": [
-      "SegmentChannel"
     ]
   },
   "ListStorage": {
     "description": "send get request to get bucket list",
     "workload": "void",
     "input": [
-      "Service"
-    ],
-    "output": [
-      "BucketList",
+      "Service",
+      "StoragerFunc",
       "Zone"
     ]
   },
