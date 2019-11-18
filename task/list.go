@@ -7,7 +7,6 @@ import (
 )
 
 func (t *ListDirTask) new() {}
-
 func (t *ListDirTask) run() {
 	err := t.GetStorage().ListDir(
 		t.GetPath(),
@@ -21,7 +20,6 @@ func (t *ListDirTask) run() {
 }
 
 func (t *ListSegmentTask) new() {}
-
 func (t *ListSegmentTask) run() {
 	err := t.GetSegmenter().ListSegments(t.GetPath(),
 		pairs.WithSegmentFunc(t.GetSegmentFunc()))

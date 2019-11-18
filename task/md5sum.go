@@ -9,7 +9,6 @@ import (
 )
 
 func (t *MD5SumFileTask) new() {}
-
 func (t *MD5SumFileTask) run() {
 	r, err := t.GetStorage().Read(t.GetPath(), pairs.WithSize(t.GetSize()), pairs.WithOffset(t.GetOffset()))
 	if err != nil {
@@ -27,8 +26,8 @@ func (t *MD5SumFileTask) run() {
 
 	t.SetMD5Sum(h.Sum(nil)[:])
 }
-func (t *MD5SumStreamTask) new() {}
 
+func (t *MD5SumStreamTask) new() {}
 func (t *MD5SumStreamTask) run() {
 	md5Sum := md5.Sum(t.GetContent().Bytes())
 	t.SetMD5Sum(md5Sum[:])

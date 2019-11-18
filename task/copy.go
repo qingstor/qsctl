@@ -7,10 +7,30 @@ import (
 
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/Xuanwo/storage/types/pairs"
+
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
 )
+
+func (t *CopyDirTask) new() {}
+func (t *CopyDirTask) run() {
+	x := NewListDir(t)
+	utils.ChooseSourceStorage(x, t)
+	x.SetFileFunc(func(o *typ.Object) {
+		sf := NewCopyFile(t)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
+		t.GetScheduler().Async(sf)
+	})
+	x.SetDirFunc(func(o *typ.Object) {
+		sf := NewCopyDir(t)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
+		t.GetScheduler().Sync(sf)
+	})
+	t.GetScheduler().Sync(x)
+}
 
 func (t *CopyFileTask) new() {}
 func (t *CopyFileTask) run() {
@@ -50,7 +70,6 @@ func (t *CopySmallFileTask) run() {
 	t.GetScheduler().Sync(fileCopyTask)
 }
 
-// newCopyLargeFileTask will create a new Task.
 func (t *CopyLargeFileTask) new() {}
 func (t *CopyLargeFileTask) run() {
 	// Set segment part size.
@@ -90,7 +109,6 @@ func (t *CopyLargeFileTask) run() {
 	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
-// NewCopyPartialFileTask will create a new Task.
 func (t *CopyPartialFileTask) new() {
 	totalSize := t.GetTotalSize()
 	partSize := t.GetPartSize()
@@ -104,7 +122,6 @@ func (t *CopyPartialFileTask) new() {
 		t.SetDone(false)
 	}
 }
-
 func (t *CopyPartialFileTask) run() {
 	md5Task := NewMD5SumFile(t)
 	utils.ChooseSourceStorage(md5Task, t)
@@ -115,7 +132,6 @@ func (t *CopyPartialFileTask) run() {
 	t.GetScheduler().Sync(fileCopyTask)
 }
 
-// NewCopyStreamTask will create a copy stream task.
 func (t *CopyStreamTask) new() {
 	bytesPool := &sync.Pool{
 		New: func() interface{} {
@@ -124,7 +140,6 @@ func (t *CopyStreamTask) new() {
 	}
 	t.SetBytesPool(bytesPool)
 }
-
 func (t *CopyStreamTask) run() {
 	initTask := NewSegmentInit(t)
 	err := utils.ChooseDestinationStorageAsSegment(initTask, t)
@@ -153,7 +168,6 @@ func (t *CopyStreamTask) run() {
 	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
 }
 
-// NewCopyPartialStreamTask will create a new Task.
 func (t *CopyPartialStreamTask) new() {
 	// Set size and update offset.
 	partSize := t.GetPartSize()
@@ -179,7 +193,6 @@ func (t *CopyPartialStreamTask) new() {
 		t.SetDone(false)
 	}
 }
-
 func (t *CopyPartialStreamTask) run() {
 	t.GetScheduler().Sync(NewMD5SumStreamTask(t))
 	t.GetScheduler().Sync(NewSegmentStreamCopyTask(t))
@@ -200,24 +213,4 @@ func (t *CopySingleFileTask) run() {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
 	}
-}
-
-func (t *CopyDirTask) new() {}
-
-func (t *CopyDirTask) run() {
-	x := NewListDir(t)
-	utils.ChooseSourceStorage(x, t)
-	x.SetFileFunc(func(o *typ.Object) {
-		sf := NewCopyFile(t)
-		sf.SetSourcePath(o.Name)
-		sf.SetDestinationPath(o.Name)
-		t.GetScheduler().Async(sf)
-	})
-	x.SetDirFunc(func(o *typ.Object) {
-		sf := NewCopyDir(t)
-		sf.SetSourcePath(o.Name)
-		sf.SetDestinationPath(o.Name)
-		t.GetScheduler().Sync(sf)
-	})
-	t.GetScheduler().Sync(x)
 }

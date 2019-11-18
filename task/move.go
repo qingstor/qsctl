@@ -7,7 +7,6 @@ import (
 )
 
 func (t *MoveDirTask) new() {}
-
 func (t *MoveDirTask) run() {
 	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
@@ -19,12 +18,9 @@ func (t *MoveDirTask) run() {
 		t.GetScheduler().Async(sf)
 	})
 	t.GetScheduler().Sync(x)
-
-	t.GetScheduler().Wait()
 }
 
 func (t *MoveFileTask) new() {}
-
 func (t *MoveFileTask) run() {
 	ct := NewCopyFile(t)
 	t.GetScheduler().Sync(ct)

@@ -34,6 +34,7 @@ func (t *SegmentFileCopyTask) run() {
 		return
 	}
 }
+
 func (t *SegmentStreamCopyTask) new() {}
 func (t *SegmentStreamCopyTask) run() {
 	// TODO: Add checksum support
@@ -43,6 +44,7 @@ func (t *SegmentStreamCopyTask) run() {
 		return
 	}
 }
+
 func (t *SegmentCompleteTask) new() {}
 func (t *SegmentCompleteTask) run() {
 	err := t.GetSegmenter().CompleteSegment(t.GetSegmentID())

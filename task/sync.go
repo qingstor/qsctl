@@ -2,11 +2,11 @@ package task
 
 import (
 	"github.com/Xuanwo/storage/types"
+
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 func (t *SyncTask) new() {}
-
 func (t *SyncTask) run() {
 	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)

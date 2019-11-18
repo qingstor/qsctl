@@ -3,6 +3,7 @@ package task
 import (
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
+
 	"github.com/yunify/qsctl/v2/pkg/types"
 )
 
