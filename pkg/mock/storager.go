@@ -6,8 +6,8 @@ package mock
 
 import (
 	storage "github.com/Xuanwo/storage"
-	iterator "github.com/Xuanwo/storage/pkg/iterator"
 	types "github.com/Xuanwo/storage/types"
+	metadata "github.com/Xuanwo/storage/types/metadata"
 	gomock "github.com/golang/mock/gomock"
 	io "io"
 	reflect "reflect"
@@ -34,82 +34,6 @@ func NewMockStorager(ctrl *gomock.Controller) *MockStorager {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockStorager) EXPECT() *MockStoragerMockRecorder {
 	return m.recorder
-}
-
-// AbortSegment mocks base method
-func (m *MockStorager) AbortSegment(arg0 string, arg1 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AbortSegment", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AbortSegment indicates an expected call of AbortSegment
-func (mr *MockStoragerMockRecorder) AbortSegment(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AbortSegment", reflect.TypeOf((*MockStorager)(nil).AbortSegment), varargs...)
-}
-
-// Capable mocks base method
-func (m *MockStorager) Capable(arg0 string, arg1 ...string) bool {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Capable", varargs...)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// Capable indicates an expected call of Capable
-func (mr *MockStoragerMockRecorder) Capable(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Capable", reflect.TypeOf((*MockStorager)(nil).Capable), varargs...)
-}
-
-// CompleteSegment mocks base method
-func (m *MockStorager) CompleteSegment(arg0 string, arg1 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CompleteSegment", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CompleteSegment indicates an expected call of CompleteSegment
-func (mr *MockStoragerMockRecorder) CompleteSegment(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteSegment", reflect.TypeOf((*MockStorager)(nil).CompleteSegment), varargs...)
-}
-
-// Copy mocks base method
-func (m *MockStorager) Copy(arg0, arg1 string, arg2 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Copy", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Copy indicates an expected call of Copy
-func (mr *MockStoragerMockRecorder) Copy(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Copy", reflect.TypeOf((*MockStorager)(nil).Copy), varargs...)
 }
 
 // Delete mocks base method
@@ -149,35 +73,15 @@ func (mr *MockStoragerMockRecorder) Init(arg0 ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockStorager)(nil).Init), arg0...)
 }
 
-// InitSegment mocks base method
-func (m *MockStorager) InitSegment(arg0 string, arg1 ...*types.Pair) (string, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "InitSegment", varargs...)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// InitSegment indicates an expected call of InitSegment
-func (mr *MockStoragerMockRecorder) InitSegment(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitSegment", reflect.TypeOf((*MockStorager)(nil).InitSegment), varargs...)
-}
-
 // ListDir mocks base method
-func (m *MockStorager) ListDir(arg0 string, arg1 ...*types.Pair) iterator.ObjectIterator {
+func (m *MockStorager) ListDir(arg0 string, arg1 ...*types.Pair) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListDir", varargs...)
-	ret0, _ := ret[0].(iterator.ObjectIterator)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -188,30 +92,11 @@ func (mr *MockStoragerMockRecorder) ListDir(arg0 interface{}, arg1 ...interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDir", reflect.TypeOf((*MockStorager)(nil).ListDir), varargs...)
 }
 
-// ListSegments mocks base method
-func (m *MockStorager) ListSegments(arg0 string, arg1 ...*types.Pair) iterator.SegmentIterator {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListSegments", varargs...)
-	ret0, _ := ret[0].(iterator.SegmentIterator)
-	return ret0
-}
-
-// ListSegments indicates an expected call of ListSegments
-func (mr *MockStoragerMockRecorder) ListSegments(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSegments", reflect.TypeOf((*MockStorager)(nil).ListSegments), varargs...)
-}
-
 // Metadata mocks base method
-func (m *MockStorager) Metadata() (types.Metadata, error) {
+func (m *MockStorager) Metadata() (metadata.Metadata, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Metadata")
-	ret0, _ := ret[0].(types.Metadata)
+	ret0, _ := ret[0].(metadata.Metadata)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -220,45 +105,6 @@ func (m *MockStorager) Metadata() (types.Metadata, error) {
 func (mr *MockStoragerMockRecorder) Metadata() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Metadata", reflect.TypeOf((*MockStorager)(nil).Metadata))
-}
-
-// Move mocks base method
-func (m *MockStorager) Move(arg0, arg1 string, arg2 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Move", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Move indicates an expected call of Move
-func (mr *MockStoragerMockRecorder) Move(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockStorager)(nil).Move), varargs...)
-}
-
-// Reach mocks base method
-func (m *MockStorager) Reach(arg0 string, arg1 ...*types.Pair) (string, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Reach", varargs...)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Reach indicates an expected call of Reach
-func (mr *MockStoragerMockRecorder) Reach(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reach", reflect.TypeOf((*MockStorager)(nil).Reach), varargs...)
 }
 
 // Read mocks base method
@@ -332,25 +178,6 @@ func (mr *MockStoragerMockRecorder) Write(arg0, arg1 interface{}, arg2 ...interf
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockStorager)(nil).Write), varargs...)
-}
-
-// WriteSegment mocks base method
-func (m *MockStorager) WriteSegment(arg0 string, arg1, arg2 int64, arg3 io.Reader, arg4 ...*types.Pair) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1, arg2, arg3}
-	for _, a := range arg4 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "WriteSegment", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// WriteSegment indicates an expected call of WriteSegment
-func (mr *MockStoragerMockRecorder) WriteSegment(arg0, arg1, arg2, arg3 interface{}, arg4 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1, arg2, arg3}, arg4...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteSegment", reflect.TypeOf((*MockStorager)(nil).WriteSegment), varargs...)
 }
 
 // MockServicer is a mock of Servicer interface
@@ -454,20 +281,33 @@ func (mr *MockServicerMockRecorder) Init(arg0 ...interface{}) *gomock.Call {
 }
 
 // List mocks base method
-func (m *MockServicer) List(arg0 ...*types.Pair) ([]storage.Storager, error) {
+func (m *MockServicer) List(arg0 ...*types.Pair) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "List", varargs...)
-	ret0, _ := ret[0].([]storage.Storager)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // List indicates an expected call of List
 func (mr *MockServicerMockRecorder) List(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockServicer)(nil).List), arg0...)
+}
+
+// String mocks base method
+func (m *MockServicer) String() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "String")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// String indicates an expected call of String
+func (mr *MockServicerMockRecorder) String() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "String", reflect.TypeOf((*MockServicer)(nil).String))
 }

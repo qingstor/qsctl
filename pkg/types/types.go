@@ -14,65 +14,6 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
-type BucketList struct {
-	valid bool
-	v     []string
-
-	l sync.RWMutex
-}
-
-type BucketListGetter interface {
-	GetBucketList() []string
-}
-
-func (o *BucketList) GetBucketList() []string {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("BucketList value is not valid")
-	}
-	return o.v
-}
-
-type BucketListSetter interface {
-	SetBucketList([]string)
-}
-
-func (o *BucketList) SetBucketList(v []string) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type BucketListValidator interface {
-	ValidateBucketList() bool
-}
-
-func (o *BucketList) ValidateBucketList() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadBucketList(t navvy.Task, v BucketListSetter) {
-	x, ok := t.(interface {
-		BucketListGetter
-		BucketListValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateBucketList() {
-		return
-	}
-
-	v.SetBucketList(x.GetBucketList())
-}
-
 type ByteSize struct {
 	valid bool
 	v     string
@@ -368,6 +309,65 @@ func LoadDestinationPath(t navvy.Task, v DestinationPathSetter) {
 	v.SetDestinationPath(x.GetDestinationPath())
 }
 
+type DestinationSegmenter struct {
+	valid bool
+	v     storage.Segmenter
+
+	l sync.RWMutex
+}
+
+type DestinationSegmenterGetter interface {
+	GetDestinationSegmenter() storage.Segmenter
+}
+
+func (o *DestinationSegmenter) GetDestinationSegmenter() storage.Segmenter {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("DestinationSegmenter value is not valid")
+	}
+	return o.v
+}
+
+type DestinationSegmenterSetter interface {
+	SetDestinationSegmenter(storage.Segmenter)
+}
+
+func (o *DestinationSegmenter) SetDestinationSegmenter(v storage.Segmenter) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type DestinationSegmenterValidator interface {
+	ValidateDestinationSegmenter() bool
+}
+
+func (o *DestinationSegmenter) ValidateDestinationSegmenter() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadDestinationSegmenter(t navvy.Task, v DestinationSegmenterSetter) {
+	x, ok := t.(interface {
+		DestinationSegmenterGetter
+		DestinationSegmenterValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationSegmenter() {
+		return
+	}
+
+	v.SetDestinationSegmenter(x.GetDestinationSegmenter())
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer
@@ -543,6 +543,65 @@ func LoadDestinationType(t navvy.Task, v DestinationTypeSetter) {
 	}
 
 	v.SetDestinationType(x.GetDestinationType())
+}
+
+type DirFunc struct {
+	valid bool
+	v     func(*types.Object)
+
+	l sync.RWMutex
+}
+
+type DirFuncGetter interface {
+	GetDirFunc() func(*types.Object)
+}
+
+func (o *DirFunc) GetDirFunc() func(*types.Object) {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("DirFunc value is not valid")
+	}
+	return o.v
+}
+
+type DirFuncSetter interface {
+	SetDirFunc(func(*types.Object))
+}
+
+func (o *DirFunc) SetDirFunc(v func(*types.Object)) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type DirFuncValidator interface {
+	ValidateDirFunc() bool
+}
+
+func (o *DirFunc) ValidateDirFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadDirFunc(t navvy.Task, v DirFuncSetter) {
+	x, ok := t.(interface {
+		DirFuncGetter
+		DirFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDirFunc() {
+		return
+	}
+
+	v.SetDirFunc(x.GetDirFunc())
 }
 
 type Done struct {
@@ -838,6 +897,65 @@ func LoadFault(t navvy.Task, v FaultSetter) {
 	}
 
 	v.SetFault(x.GetFault())
+}
+
+type FileFunc struct {
+	valid bool
+	v     func(*types.Object)
+
+	l sync.RWMutex
+}
+
+type FileFuncGetter interface {
+	GetFileFunc() func(*types.Object)
+}
+
+func (o *FileFunc) GetFileFunc() func(*types.Object) {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("FileFunc value is not valid")
+	}
+	return o.v
+}
+
+type FileFuncSetter interface {
+	SetFileFunc(func(*types.Object))
+}
+
+func (o *FileFunc) SetFileFunc(v func(*types.Object)) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type FileFuncValidator interface {
+	ValidateFileFunc() bool
+}
+
+func (o *FileFunc) ValidateFileFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadFileFunc(t navvy.Task, v FileFuncSetter) {
+	x, ok := t.(interface {
+		FileFuncGetter
+		FileFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateFileFunc() {
+		return
+	}
+
+	v.SetFileFunc(x.GetFileFunc())
 }
 
 type Force struct {
@@ -1253,124 +1371,6 @@ func LoadObject(t navvy.Task, v ObjectSetter) {
 	v.SetObject(x.GetObject())
 }
 
-type ObjectChannel struct {
-	valid bool
-	v     chan *types.Object
-
-	l sync.RWMutex
-}
-
-type ObjectChannelGetter interface {
-	GetObjectChannel() chan *types.Object
-}
-
-func (o *ObjectChannel) GetObjectChannel() chan *types.Object {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("ObjectChannel value is not valid")
-	}
-	return o.v
-}
-
-type ObjectChannelSetter interface {
-	SetObjectChannel(chan *types.Object)
-}
-
-func (o *ObjectChannel) SetObjectChannel(v chan *types.Object) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type ObjectChannelValidator interface {
-	ValidateObjectChannel() bool
-}
-
-func (o *ObjectChannel) ValidateObjectChannel() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadObjectChannel(t navvy.Task, v ObjectChannelSetter) {
-	x, ok := t.(interface {
-		ObjectChannelGetter
-		ObjectChannelValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateObjectChannel() {
-		return
-	}
-
-	v.SetObjectChannel(x.GetObjectChannel())
-}
-
-type ObjectLongList struct {
-	valid bool
-	v     *[][]string
-
-	l sync.RWMutex
-}
-
-type ObjectLongListGetter interface {
-	GetObjectLongList() *[][]string
-}
-
-func (o *ObjectLongList) GetObjectLongList() *[][]string {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("ObjectLongList value is not valid")
-	}
-	return o.v
-}
-
-type ObjectLongListSetter interface {
-	SetObjectLongList(*[][]string)
-}
-
-func (o *ObjectLongList) SetObjectLongList(v *[][]string) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type ObjectLongListValidator interface {
-	ValidateObjectLongList() bool
-}
-
-func (o *ObjectLongList) ValidateObjectLongList() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadObjectLongList(t navvy.Task, v ObjectLongListSetter) {
-	x, ok := t.(interface {
-		ObjectLongListGetter
-		ObjectLongListValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateObjectLongList() {
-		return
-	}
-
-	v.SetObjectLongList(x.GetObjectLongList())
-}
-
 type Offset struct {
 	valid bool
 	v     int64
@@ -1607,65 +1607,6 @@ func LoadPath(t navvy.Task, v PathSetter) {
 	v.SetPath(x.GetPath())
 }
 
-type PathFunc struct {
-	valid bool
-	v     func(string)
-
-	l sync.RWMutex
-}
-
-type PathFuncGetter interface {
-	GetPathFunc() func(string)
-}
-
-func (o *PathFunc) GetPathFunc() func(string) {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("PathFunc value is not valid")
-	}
-	return o.v
-}
-
-type PathFuncSetter interface {
-	SetPathFunc(func(string))
-}
-
-func (o *PathFunc) SetPathFunc(v func(string)) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type PathFuncValidator interface {
-	ValidatePathFunc() bool
-}
-
-func (o *PathFunc) ValidatePathFunc() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadPathFunc(t navvy.Task, v PathFuncSetter) {
-	x, ok := t.(interface {
-		PathFuncGetter
-		PathFuncValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidatePathFunc() {
-		return
-	}
-
-	v.SetPathFunc(x.GetPathFunc())
-}
-
 type Pool struct {
 	valid bool
 	v     *navvy.Pool
@@ -1723,6 +1664,65 @@ func LoadPool(t navvy.Task, v PoolSetter) {
 	}
 
 	v.SetPool(x.GetPool())
+}
+
+type Reacher struct {
+	valid bool
+	v     storage.Reacher
+
+	l sync.RWMutex
+}
+
+type ReacherGetter interface {
+	GetReacher() storage.Reacher
+}
+
+func (o *Reacher) GetReacher() storage.Reacher {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Reacher value is not valid")
+	}
+	return o.v
+}
+
+type ReacherSetter interface {
+	SetReacher(storage.Reacher)
+}
+
+func (o *Reacher) SetReacher(v storage.Reacher) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type ReacherValidator interface {
+	ValidateReacher() bool
+}
+
+func (o *Reacher) ValidateReacher() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadReacher(t navvy.Task, v ReacherSetter) {
+	x, ok := t.(interface {
+		ReacherGetter
+		ReacherValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateReacher() {
+		return
+	}
+
+	v.SetReacher(x.GetReacher())
 }
 
 type ReadableSize struct {
@@ -1961,32 +1961,32 @@ func LoadScheduler(t navvy.Task, v SchedulerSetter) {
 	v.SetScheduler(x.GetScheduler())
 }
 
-type SegmentChannel struct {
+type SegmentFunc struct {
 	valid bool
-	v     chan *segment.Segment
+	v     func(*segment.Segment)
 
 	l sync.RWMutex
 }
 
-type SegmentChannelGetter interface {
-	GetSegmentChannel() chan *segment.Segment
+type SegmentFuncGetter interface {
+	GetSegmentFunc() func(*segment.Segment)
 }
 
-func (o *SegmentChannel) GetSegmentChannel() chan *segment.Segment {
+func (o *SegmentFunc) GetSegmentFunc() func(*segment.Segment) {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	if !o.valid {
-		panic("SegmentChannel value is not valid")
+		panic("SegmentFunc value is not valid")
 	}
 	return o.v
 }
 
-type SegmentChannelSetter interface {
-	SetSegmentChannel(chan *segment.Segment)
+type SegmentFuncSetter interface {
+	SetSegmentFunc(func(*segment.Segment))
 }
 
-func (o *SegmentChannel) SetSegmentChannel(v chan *segment.Segment) {
+func (o *SegmentFunc) SetSegmentFunc(v func(*segment.Segment)) {
 	o.l.Lock()
 	defer o.l.Unlock()
 
@@ -1994,30 +1994,30 @@ func (o *SegmentChannel) SetSegmentChannel(v chan *segment.Segment) {
 	o.valid = true
 }
 
-type SegmentChannelValidator interface {
-	ValidateSegmentChannel() bool
+type SegmentFuncValidator interface {
+	ValidateSegmentFunc() bool
 }
 
-func (o *SegmentChannel) ValidateSegmentChannel() bool {
+func (o *SegmentFunc) ValidateSegmentFunc() bool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	return o.valid
 }
 
-func LoadSegmentChannel(t navvy.Task, v SegmentChannelSetter) {
+func LoadSegmentFunc(t navvy.Task, v SegmentFuncSetter) {
 	x, ok := t.(interface {
-		SegmentChannelGetter
-		SegmentChannelValidator
+		SegmentFuncGetter
+		SegmentFuncValidator
 	})
 	if !ok {
 		return
 	}
-	if !x.ValidateSegmentChannel() {
+	if !x.ValidateSegmentFunc() {
 		return
 	}
 
-	v.SetSegmentChannel(x.GetSegmentChannel())
+	v.SetSegmentFunc(x.GetSegmentFunc())
 }
 
 type SegmentID struct {
@@ -2079,32 +2079,32 @@ func LoadSegmentID(t navvy.Task, v SegmentIDSetter) {
 	v.SetSegmentID(x.GetSegmentID())
 }
 
-type SegmentIDFunc struct {
+type Segmenter struct {
 	valid bool
-	v     func(string)
+	v     storage.Segmenter
 
 	l sync.RWMutex
 }
 
-type SegmentIDFuncGetter interface {
-	GetSegmentIDFunc() func(string)
+type SegmenterGetter interface {
+	GetSegmenter() storage.Segmenter
 }
 
-func (o *SegmentIDFunc) GetSegmentIDFunc() func(string) {
+func (o *Segmenter) GetSegmenter() storage.Segmenter {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	if !o.valid {
-		panic("SegmentIDFunc value is not valid")
+		panic("Segmenter value is not valid")
 	}
 	return o.v
 }
 
-type SegmentIDFuncSetter interface {
-	SetSegmentIDFunc(func(string))
+type SegmenterSetter interface {
+	SetSegmenter(storage.Segmenter)
 }
 
-func (o *SegmentIDFunc) SetSegmentIDFunc(v func(string)) {
+func (o *Segmenter) SetSegmenter(v storage.Segmenter) {
 	o.l.Lock()
 	defer o.l.Unlock()
 
@@ -2112,30 +2112,30 @@ func (o *SegmentIDFunc) SetSegmentIDFunc(v func(string)) {
 	o.valid = true
 }
 
-type SegmentIDFuncValidator interface {
-	ValidateSegmentIDFunc() bool
+type SegmenterValidator interface {
+	ValidateSegmenter() bool
 }
 
-func (o *SegmentIDFunc) ValidateSegmentIDFunc() bool {
+func (o *Segmenter) ValidateSegmenter() bool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	return o.valid
 }
 
-func LoadSegmentIDFunc(t navvy.Task, v SegmentIDFuncSetter) {
+func LoadSegmenter(t navvy.Task, v SegmenterSetter) {
 	x, ok := t.(interface {
-		SegmentIDFuncGetter
-		SegmentIDFuncValidator
+		SegmenterGetter
+		SegmenterValidator
 	})
 	if !ok {
 		return
 	}
-	if !x.ValidateSegmentIDFunc() {
+	if !x.ValidateSegmenter() {
 		return
 	}
 
-	v.SetSegmentIDFunc(x.GetSegmentIDFunc())
+	v.SetSegmenter(x.GetSegmenter())
 }
 
 type Service struct {
@@ -2608,6 +2608,65 @@ func LoadStorageName(t navvy.Task, v StorageNameSetter) {
 	}
 
 	v.SetStorageName(x.GetStorageName())
+}
+
+type StoragerFunc struct {
+	valid bool
+	v     storage.StoragerFunc
+
+	l sync.RWMutex
+}
+
+type StoragerFuncGetter interface {
+	GetStoragerFunc() storage.StoragerFunc
+}
+
+func (o *StoragerFunc) GetStoragerFunc() storage.StoragerFunc {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("StoragerFunc value is not valid")
+	}
+	return o.v
+}
+
+type StoragerFuncSetter interface {
+	SetStoragerFunc(storage.StoragerFunc)
+}
+
+func (o *StoragerFunc) SetStoragerFunc(v storage.StoragerFunc) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type StoragerFuncValidator interface {
+	ValidateStoragerFunc() bool
+}
+
+func (o *StoragerFunc) ValidateStoragerFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadStoragerFunc(t navvy.Task, v StoragerFuncSetter) {
+	x, ok := t.(interface {
+		StoragerFuncGetter
+		StoragerFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateStoragerFunc() {
+		return
+	}
+
+	v.SetStoragerFunc(x.GetStoragerFunc())
 }
 
 type TotalSize struct {

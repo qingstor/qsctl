@@ -1,18 +1,20 @@
 package task
 
-import "github.com/yunify/qsctl/v2/utils"
+import (
+	"github.com/Xuanwo/storage/types"
+
+	"github.com/yunify/qsctl/v2/utils"
+)
 
 func (t *SyncTask) new() {}
-
 func (t *SyncTask) run() {
-	x := NewIterateFile(t)
+	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
-	x.SetPathFunc(func(key string) {
+	x.SetFileFunc(func(o *types.Object) {
 		sf := NewCopyFile(t)
-		sf.SetSourcePath(key)
-		sf.SetDestinationPath(key)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
-	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
 }

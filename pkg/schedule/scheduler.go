@@ -31,7 +31,6 @@ type IOWorkloader interface {
 type task struct {
 	s *RealScheduler
 	t navvy.Task
-	c *sync.Cond
 }
 
 func newTask(s *RealScheduler, t navvy.Task) *task {
@@ -41,23 +40,9 @@ func newTask(s *RealScheduler, t navvy.Task) *task {
 	}
 }
 
-func newSyncTask(s *RealScheduler, t navvy.Task) *task {
-	lock := &sync.Mutex{}
-	lock.Lock()
-
-	return &task{
-		s: s,
-		t: t,
-		c: sync.NewCond(lock),
-	}
-}
-
 func (t *task) Run() {
 	defer func() {
 		t.s.wg.Done()
-		if t.c != nil {
-			t.c.Broadcast()
-		}
 	}()
 
 	t.t.Run()
@@ -80,26 +65,19 @@ func NewScheduler(pool *navvy.Pool) *RealScheduler {
 // Sync will return after this task finished.
 func (s *RealScheduler) Sync(task navvy.Task) {
 	s.wg.Add(1)
-	t := newSyncTask(s, task)
-	switch task.(type) {
-	case VoidWorkloader:
-		go t.Run()
-	default:
-		s.pool.Submit(t)
-	}
-	t.c.Wait()
+
+	defer func() {
+		s.wg.Done()
+	}()
+	task.Run()
 }
 
 // Async will create a new task immediately.
 func (s *RealScheduler) Async(task navvy.Task) {
 	s.wg.Add(1)
+
 	t := newTask(s, task)
-	switch task.(type) {
-	case VoidWorkloader:
-		go t.Run()
-	default:
-		s.pool.Submit(t)
-	}
+	s.pool.Submit(t)
 }
 
 // Wait will wait until a task finished.

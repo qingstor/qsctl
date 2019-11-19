@@ -9,6 +9,7 @@ import (
 	"github.com/Xuanwo/storage/services/posixfs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage/types/pairs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -244,11 +245,11 @@ func setupService(t interface {
 func NewQingStorService() (*qingstor.Service, error) {
 	srv := qingstor.New()
 	err := srv.Init(
-		typ.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
-		typ.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
-		typ.WithHost(viper.GetString(constants.ConfigHost)),
-		typ.WithPort(viper.GetInt(constants.ConfigPort)),
-		typ.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+		pairs.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
+		pairs.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
+		pairs.WithHost(viper.GetString(constants.ConfigHost)),
+		pairs.WithPort(viper.GetInt(constants.ConfigPort)),
+		pairs.WithProtocol(viper.GetString(constants.ConfigProtocol)),
 	)
 	return srv, err
 }
@@ -275,4 +276,40 @@ func ChooseSourceStorage(x interface {
 }) {
 	x.SetPath(y.GetSourcePath())
 	x.SetStorage(y.GetSourceStorage())
+}
+
+// ChooseDestinationStorageAsSegmenter will choose the destination storage as a segmenter.
+func ChooseDestinationStorageAsSegmenter(x interface {
+	types.PathSetter
+	types.SegmenterSetter
+}, y interface {
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+}) (err error) {
+	x.SetPath(y.GetDestinationPath())
+
+	segmenter, ok := y.GetDestinationStorage().(storage.Segmenter)
+	if !ok {
+		return types.NewErrStorageInsufficientAbility(nil)
+	}
+	x.SetSegmenter(segmenter)
+	return
+}
+
+// ChooseDestinationSegmenter will choose the destination storage as a segmenter.
+func ChooseDestinationSegmenter(x interface {
+	types.DestinationPathSetter
+	types.DestinationSegmenterSetter
+}, y interface {
+	types.DestinationPathGetter
+	types.DestinationStorageGetter
+}) (err error) {
+	x.SetDestinationPath(y.GetDestinationPath())
+
+	segmenter, ok := y.GetDestinationStorage().(storage.Segmenter)
+	if !ok {
+		return types.NewErrStorageInsufficientAbility(nil)
+	}
+	x.SetDestinationSegmenter(segmenter)
+	return
 }
