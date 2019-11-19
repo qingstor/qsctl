@@ -107,8 +107,6 @@ func (t *CopyCheckTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-func (t *CopyCheckTask) VoidWorkload() {}
-
 // String will implement Stringer interface.
 func (t *CopyCheckTask) String() string {
 	return fmt.Sprintf("CopyCheckTask {Delete: %v, DestinationPath: %v, DestinationStorage: %v, Existing: %v, SourcePath: %v, SourceStorage: %v, Update: %v, WholeFile: %v}", t.GetDelete(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetExisting(), t.GetSourcePath(), t.GetSourceStorage(), t.GetUpdate(), t.GetWholeFile())
@@ -2398,8 +2396,6 @@ func (t *SyncFileTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
 
-func (t *SyncFileTask) VoidWorkload() {}
-
 // String will implement Stringer interface.
 func (t *SyncFileTask) String() string {
 	return fmt.Sprintf("SyncFileTask {Delete: %v, DestinationPath: %v, DestinationStorage: %v, Existing: %v, SourcePath: %v, SourceStorage: %v, Update: %v, WholeFile: %v}", t.GetDelete(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetExisting(), t.GetSourcePath(), t.GetSourceStorage(), t.GetUpdate(), t.GetWholeFile())
@@ -2479,8 +2475,6 @@ func (t *SyncFileDeleteTask) Run() {
 func (t *SyncFileDeleteTask) TriggerFault(err error) {
 	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
 }
-
-func (t *SyncFileDeleteTask) VoidWorkload() {}
 
 // String will implement Stringer interface.
 func (t *SyncFileDeleteTask) String() string {

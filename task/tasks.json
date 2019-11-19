@@ -1,7 +1,6 @@
 {
   "CopyCheck": {
     "description": "check whether copy or not while sync/cp",
-    "workload": "void",
     "input": [
       "Delete",
       "DestinationPath",
@@ -304,7 +303,6 @@
   },
   "SyncFile": {
     "description": "sync file handle the logic of sync algorithm",
-    "workload": "void",
     "input": [
       "Delete",
       "DestinationPath",
@@ -318,7 +316,6 @@
   },
   "SyncFileDelete": {
     "description": "delete destination files not exist in source storage",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",

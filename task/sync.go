@@ -1,7 +1,10 @@
 package task
 
 import (
-	"github.com/Xuanwo/storage/types"
+	"errors"
+
+	typ "github.com/Xuanwo/storage/types"
+	"github.com/yunify/qsctl/v2/pkg/types"
 
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -10,7 +13,7 @@ func (t *SyncTask) new() {}
 func (t *SyncTask) run() {
 	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
-	x.SetFileFunc(func(o *types.Object) {
+	x.SetFileFunc(func(o *typ.Object) {
 		sf := NewCopyFile(t)
 		sf.SetSourcePath(o.Name)
 		sf.SetDestinationPath(o.Name)
@@ -24,19 +27,17 @@ func (t *SyncTask) run() {
 	}
 	// otherwise, iterate in destination storage and delete files not exist in source storage
 	t.GetScheduler().Wait()
-	df := NewIterateFile(t)
+	df := NewListDir(t)
 	utils.ChooseDestinationStorage(df, t)
-	df.SetPathFunc(func(key string) {
+	df.SetFileFunc(func(o *typ.Object) {
 		sf := NewSyncFileDelete(t)
-		sf.SetDestinationPath(key)
+		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
-	df.SetRecursive(true)
 	t.GetScheduler().Sync(df)
 }
 
 func (t *SyncFileTask) new() {}
-
 func (t *SyncFileTask) run() {
 	checkTask := NewCopyCheck(t)
 	t.GetScheduler().Sync(checkTask)
@@ -54,7 +55,6 @@ func (t *SyncFileTask) run() {
 }
 
 func (t *SyncFileDeleteTask) new() {}
-
 func (t *SyncFileDeleteTask) run() {
 	_, err := t.GetSourceStorage().Stat(t.GetDestinationPath())
 	if err != nil && !errors.Is(err, typ.ErrObjectNotExist) {
