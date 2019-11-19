@@ -1,26 +1,21 @@
 package task
 
 import (
-	"errors"
+	"github.com/Xuanwo/storage/types"
 
-	typ "github.com/Xuanwo/storage/types"
-
-	"github.com/yunify/qsctl/v2/pkg/types"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 func (t *SyncTask) new() {}
-
 func (t *SyncTask) run() {
-	x := NewIterateFile(t)
+	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
-	x.SetPathFunc(func(key string) {
-		sf := NewSyncFile(t)
-		sf.SetSourcePath(key)
-		sf.SetDestinationPath(key)
+	x.SetFileFunc(func(o *types.Object) {
+		sf := NewCopyFile(t)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
-	x.SetRecursive(true)
 	t.GetScheduler().Sync(x)
 
 	// if delete flag not set, return now

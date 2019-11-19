@@ -18,7 +18,6 @@
   },
   "CopyDir": {
     "description": "copy a directory recursively between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -28,7 +27,6 @@
   },
   "CopyFile": {
     "description": "copy a file between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -38,7 +36,6 @@
   },
   "CopyLargeFile": {
     "description": "copy a large file between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -54,7 +51,6 @@
   },
   "CopyPartialFile": {
     "description": "copy a partial file to between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -72,7 +68,6 @@
   },
   "CopyPartialStream": {
     "description": "copy a partial stream between two storager",
-    "workload": "void",
     "input": [
       "BytesPool",
       "DestinationPath",
@@ -90,7 +85,6 @@
   },
   "CopySingleFile": {
     "description": "execute a file copy operation between towo storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -102,7 +96,6 @@
   },
   "CopySmallFile": {
     "description": "copy a small file between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -116,7 +109,6 @@
   },
   "CopyStream": {
     "description": "copy a stream between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -131,7 +123,6 @@
   },
   "CreateStorage": {
     "description": "create a storage",
-    "workload": "io",
     "input": [
       "Service"
     ],
@@ -142,7 +133,6 @@
   },
   "DeleteDir": {
     "description": "will delete a dir recursively",
-    "workload": "void",
     "input": [
       "Path",
       "Storage"
@@ -150,7 +140,6 @@
   },
   "DeleteFile": {
     "description": "will delete a file from storage",
-    "workload": "io",
     "input": [
       "Path",
       "Storage"
@@ -158,85 +147,46 @@
   },
   "DeleteSegment": {
     "description": "delete all segments with a given path",
-    "workload": "io",
     "input": [
       "SegmentID",
-      "Storage"
-    ]
-  },
-  "DeleteSegmentDir": {
-    "description": "delete all segments under a path",
-    "workload": "void",
-    "input": [
-      "Path",
-      "Storage"
+      "Segmenter"
     ]
   },
   "DeleteStorage": {
     "description": "delete a storage",
-    "workload": "io",
     "input": [
       "Force",
       "Service",
       "StorageName"
     ]
   },
-  "IterateFile": {
-    "description": "iterate file and execute operations on it",
-    "workload": "void",
+  "ListDir": {
+    "description": "list dirs",
     "input": [
+      "DirFunc",
+      "FileFunc",
       "Path",
-      "PathFunc",
-      "Recursive",
       "Storage"
-    ]
-  },
-  "IterateSegment": {
-    "description": "iterate segment and execute operations on it",
-    "workload": "void",
-    "input": [
-      "Path",
-      "SegmentIDFunc",
-      "Storage"
-    ]
-  },
-  "ListFile": {
-    "description": "list files",
-    "workload": "void",
-    "input": [
-      "Path",
-      "Recursive",
-      "Storage"
-    ],
-    "output": [
-      "ObjectChannel"
     ]
   },
   "ListSegment": {
     "description": "list segments",
-    "workload": "void",
     "input": [
       "Path",
-      "Storage"
-    ],
-    "output": [
-      "SegmentChannel"
+      "SegmentFunc",
+      "Segmenter"
     ]
   },
   "ListStorage": {
     "description": "send get request to get bucket list",
-    "workload": "void",
     "input": [
-      "Service"
-    ],
-    "output": [
-      "BucketList",
+      "Service",
+      "StoragerFunc",
       "Zone"
     ]
   },
   "MD5SumFile": {
     "description": "get file's md5 sum",
-    "workload": "io",
     "input": [
       "Offset",
       "Path",
@@ -249,7 +199,6 @@
   },
   "MD5SumStream": {
     "description": "get stream's md5 sum",
-    "workload": "io",
     "input": [
       "Content"
     ],
@@ -259,7 +208,6 @@
   },
   "MoveDir": {
     "description": "move a directory recursively between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -269,7 +217,6 @@
   },
   "MoveFile": {
     "description": "move a file between two storager",
-    "workload": "void",
     "input": [
       "DestinationPath",
       "DestinationStorage",
@@ -279,39 +226,28 @@
   },
   "ReachFile": {
     "description": "will reach a remote object and return the signed url",
-    "workload": "io",
     "input": [
       "Expire",
       "Path",
-      "Storage"
+      "Reacher"
     ],
     "output": [
       "URL"
     ]
   },
-  "SegmentAbortAll": {
-    "description": "abort all multipart uploads in a bucket",
-    "workload": "void",
-    "input": [
-      "Storage",
-      "StorageName"
-    ]
-  },
   "SegmentComplete": {
     "description": "complete a segment",
-    "workload": "io",
     "input": [
       "Path",
       "SegmentID",
-      "Storage"
+      "Segmenter"
     ]
   },
   "SegmentFileCopy": {
     "description": "copy a segment file",
-    "workload": "io",
     "input": [
       "DestinationPath",
-      "DestinationStorage",
+      "DestinationSegmenter",
       "MD5Sum",
       "Offset",
       "SegmentID",
@@ -322,11 +258,10 @@
   },
   "SegmentInit": {
     "description": "init a segment upload",
-    "workload": "io",
     "input": [
       "PartSize",
       "Path",
-      "Storage"
+      "Segmenter"
     ],
     "output": [
       "SegmentID"
@@ -334,20 +269,18 @@
   },
   "SegmentStreamCopy": {
     "description": "copy a segment stream",
-    "workload": "io",
     "input": [
       "Content",
       "DestinationPath",
-      "DestinationStorage",
       "MD5Sum",
       "Offset",
       "SegmentID",
+      "Segmenter",
       "Size"
     ]
   },
   "StatFile": {
     "description": "stat a remote object by request headObject",
-    "workload": "io",
     "input": [
       "Path",
       "Storage"
@@ -358,7 +291,6 @@
   },
   "Sync": {
     "description": "sync directory between two storage",
-    "workload": "void",
     "input": [
       "Delete",
       "DestinationPath",

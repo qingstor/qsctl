@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
@@ -102,7 +103,7 @@ func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bo
 	if err != nil {
 		return err
 	}
-	if err = t.GetSourceStorage().Init(types.WithWorkDir(filepath.Dir(srcPath))); err != nil {
+	if err = t.GetSourceStorage().Init(pairs.WithWorkDir(filepath.Dir(srcPath))); err != nil {
 		return err
 	}
 	t.SetSourcePath(filepath.Base(srcPath))
@@ -119,7 +120,7 @@ func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bo
 	}
 	// if copy dir
 	if recursive {
-		if err := t.GetDestinationStorage().Init(types.WithWorkDir(dstPath)); err != nil {
+		if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(dstPath)); err != nil {
 			return err
 		}
 		t.SetDestinationPath("")
@@ -127,14 +128,14 @@ func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bo
 	}
 	// NOT copy dir. Copy file to a dir, we need to get destination key from the source.
 	if t.GetDestinationType() == types.ObjectTypeDir {
-		if err := t.GetDestinationStorage().Init(types.WithWorkDir(dstPath)); err != nil {
+		if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(dstPath)); err != nil {
 			return err
 		}
 		t.SetDestinationPath(t.GetSourcePath())
 		return nil
 	}
 	// Copy to a file, get destination directly.
-	if err := t.GetDestinationStorage().Init(types.WithWorkDir(filepath.Dir(dstPath))); err != nil {
+	if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(filepath.Dir(dstPath))); err != nil {
 		return err
 	}
 	t.SetDestinationPath(filepath.Base(dstPath))
