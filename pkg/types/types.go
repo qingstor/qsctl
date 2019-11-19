@@ -309,6 +309,65 @@ func LoadDestinationPath(t navvy.Task, v DestinationPathSetter) {
 	v.SetDestinationPath(x.GetDestinationPath())
 }
 
+type DestinationSegmenter struct {
+	valid bool
+	v     storage.Segmenter
+
+	l sync.RWMutex
+}
+
+type DestinationSegmenterGetter interface {
+	GetDestinationSegmenter() storage.Segmenter
+}
+
+func (o *DestinationSegmenter) GetDestinationSegmenter() storage.Segmenter {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("DestinationSegmenter value is not valid")
+	}
+	return o.v
+}
+
+type DestinationSegmenterSetter interface {
+	SetDestinationSegmenter(storage.Segmenter)
+}
+
+func (o *DestinationSegmenter) SetDestinationSegmenter(v storage.Segmenter) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type DestinationSegmenterValidator interface {
+	ValidateDestinationSegmenter() bool
+}
+
+func (o *DestinationSegmenter) ValidateDestinationSegmenter() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadDestinationSegmenter(t navvy.Task, v DestinationSegmenterSetter) {
+	x, ok := t.(interface {
+		DestinationSegmenterGetter
+		DestinationSegmenterValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationSegmenter() {
+		return
+	}
+
+	v.SetDestinationSegmenter(x.GetDestinationSegmenter())
+}
+
 type DestinationService struct {
 	valid bool
 	v     storage.Servicer

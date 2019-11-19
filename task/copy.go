@@ -81,7 +81,7 @@ func (t *CopyLargeFileTask) run() {
 	t.SetPartSize(partSize)
 
 	initTask := NewSegmentInit(t)
-	err = utils.ChooseDestinationStorageAsSegment(initTask, t)
+	err = utils.ChooseDestinationStorageAsSegmenter(initTask, t)
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return
@@ -129,6 +129,11 @@ func (t *CopyPartialFileTask) run() {
 
 	fileCopyTask := NewSegmentFileCopy(t)
 	fileCopyTask.SetMD5Sum(md5Task.GetMD5Sum())
+	err := utils.ChooseDestinationSegmenter(fileCopyTask, t)
+	if err != nil {
+		t.TriggerFault(err)
+		return
+	}
 	t.GetScheduler().Sync(fileCopyTask)
 }
 
@@ -142,7 +147,7 @@ func (t *CopyStreamTask) new() {
 }
 func (t *CopyStreamTask) run() {
 	initTask := NewSegmentInit(t)
-	err := utils.ChooseDestinationStorageAsSegment(initTask, t)
+	err := utils.ChooseDestinationStorageAsSegmenter(initTask, t)
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return

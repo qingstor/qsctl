@@ -230,10 +230,10 @@
     "description": "copy a segment file",
     "input": [
       "DestinationPath",
+      "DestinationSegmenter",
       "MD5Sum",
       "Offset",
       "SegmentID",
-      "Segmenter",
       "Size",
       "SourcePath",
       "SourceStorage"

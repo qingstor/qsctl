@@ -28,7 +28,7 @@ func (t *SegmentFileCopyTask) run() {
 	defer r.Close()
 
 	// TODO: Add checksum support.
-	err = t.GetSegmenter().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), r)
+	err = t.GetDestinationSegmenter().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), r)
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return

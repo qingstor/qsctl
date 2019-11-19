@@ -4,6 +4,7 @@
   "Content": "*bytes.Buffer",
   "Delete": "bool",
   "DestinationPath": "string",
+  "DestinationSegmenter": "storage.Segmenter",
   "DestinationService": "storage.Servicer",
   "DestinationStorage": "storage.Storager",
   "DestinationType": "types.ObjectType",

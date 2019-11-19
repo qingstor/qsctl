@@ -1773,10 +1773,10 @@ type SegmentFileCopyTask struct {
 
 	// Input value
 	types.DestinationPath
+	types.DestinationSegmenter
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
-	types.Segmenter
 	types.Size
 	types.SourcePath
 	types.SourceStorage
@@ -1801,6 +1801,9 @@ func (t *SegmentFileCopyTask) validateInput() {
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task SegmentFileCopy value DestinationPath is invalid"))
 	}
+	if !t.ValidateDestinationSegmenter() {
+		panic(fmt.Errorf("Task SegmentFileCopy value DestinationSegmenter is invalid"))
+	}
 	if !t.ValidateMD5Sum() {
 		panic(fmt.Errorf("Task SegmentFileCopy value MD5Sum is invalid"))
 	}
@@ -1809,9 +1812,6 @@ func (t *SegmentFileCopyTask) validateInput() {
 	}
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task SegmentFileCopy value SegmentID is invalid"))
-	}
-	if !t.ValidateSegmenter() {
-		panic(fmt.Errorf("Task SegmentFileCopy value Segmenter is invalid"))
 	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task SegmentFileCopy value Size is invalid"))
@@ -1829,10 +1829,10 @@ func (t *SegmentFileCopyTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
 	types.LoadDestinationPath(task, t)
+	types.LoadDestinationSegmenter(task, t)
 	types.LoadMD5Sum(task, t)
 	types.LoadOffset(task, t)
 	types.LoadSegmentID(task, t)
-	types.LoadSegmenter(task, t)
 	types.LoadSize(task, t)
 	types.LoadSourcePath(task, t)
 	types.LoadSourceStorage(task, t)
@@ -1855,7 +1855,7 @@ func (t *SegmentFileCopyTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *SegmentFileCopyTask) String() string {
-	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Segmenter: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSegmenter(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("SegmentFileCopyTask {DestinationPath: %v, DestinationSegmenter: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationSegmenter(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewSegmentFileCopyTask will create a SegmentFileCopyTask which meets navvy.Task.
