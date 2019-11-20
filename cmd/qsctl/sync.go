@@ -64,7 +64,7 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func initSyncFlag() {
-	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "--ignore-existing", false,
+	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "ignore-existing", false,
 		`skip creating new files in dest dirs, only copy newer by time`)
 }
 
