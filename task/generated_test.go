@@ -15,8 +15,24 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
-func TestCopyCheckTask_TriggerFault(t *testing.T) {
-	task := &CopyCheckTask{}
+func TestCheckExistenceTask_TriggerFault(t *testing.T) {
+	task := &CheckExistenceTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestCheckSizeTask_TriggerFault(t *testing.T) {
+	task := &CheckSizeTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestCheckUpdateAtTask_TriggerFault(t *testing.T) {
+	task := &CheckUpdateAtTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -241,14 +257,6 @@ func TestSyncTask_TriggerFault(t *testing.T) {
 
 func TestSyncFileTask_TriggerFault(t *testing.T) {
 	task := &SyncFileTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestSyncFileDeleteTask_TriggerFault(t *testing.T) {
-	task := &SyncFileDeleteTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)

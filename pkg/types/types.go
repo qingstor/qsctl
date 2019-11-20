@@ -14,6 +14,65 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
+type BoolResult struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type BoolResultGetter interface {
+	GetBoolResult() bool
+}
+
+func (o *BoolResult) GetBoolResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("BoolResult value is not valid")
+	}
+	return o.v
+}
+
+type BoolResultSetter interface {
+	SetBoolResult(bool)
+}
+
+func (o *BoolResult) SetBoolResult(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type BoolResultValidator interface {
+	ValidateBoolResult() bool
+}
+
+func (o *BoolResult) ValidateBoolResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadBoolResult(t navvy.Task, v BoolResultSetter) {
+	x, ok := t.(interface {
+		BoolResultGetter
+		BoolResultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateBoolResult() {
+		return
+	}
+
+	v.SetBoolResult(x.GetBoolResult())
+}
+
 type ByteSize struct {
 	valid bool
 	v     string
@@ -130,6 +189,124 @@ func LoadBytesPool(t navvy.Task, v BytesPoolSetter) {
 	}
 
 	v.SetBytesPool(x.GetBytesPool())
+}
+
+type CheckFunc struct {
+	valid bool
+	v     func() bool
+
+	l sync.RWMutex
+}
+
+type CheckFuncGetter interface {
+	GetCheckFunc() func() bool
+}
+
+func (o *CheckFunc) GetCheckFunc() func() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("CheckFunc value is not valid")
+	}
+	return o.v
+}
+
+type CheckFuncSetter interface {
+	SetCheckFunc(func() bool)
+}
+
+func (o *CheckFunc) SetCheckFunc(v func() bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type CheckFuncValidator interface {
+	ValidateCheckFunc() bool
+}
+
+func (o *CheckFunc) ValidateCheckFunc() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadCheckFunc(t navvy.Task, v CheckFuncSetter) {
+	x, ok := t.(interface {
+		CheckFuncGetter
+		CheckFuncValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateCheckFunc() {
+		return
+	}
+
+	v.SetCheckFunc(x.GetCheckFunc())
+}
+
+type CompareResult struct {
+	valid bool
+	v     int
+
+	l sync.RWMutex
+}
+
+type CompareResultGetter interface {
+	GetCompareResult() int
+}
+
+func (o *CompareResult) GetCompareResult() int {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("CompareResult value is not valid")
+	}
+	return o.v
+}
+
+type CompareResultSetter interface {
+	SetCompareResult(int)
+}
+
+func (o *CompareResult) SetCompareResult(v int) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type CompareResultValidator interface {
+	ValidateCompareResult() bool
+}
+
+func (o *CompareResult) ValidateCompareResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadCompareResult(t navvy.Task, v CompareResultSetter) {
+	x, ok := t.(interface {
+		CompareResultGetter
+		CompareResultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateCompareResult() {
+		return
+	}
+
+	v.SetCompareResult(x.GetCompareResult())
 }
 
 type Content struct {
@@ -722,65 +899,6 @@ func LoadEnableBenchmark(t navvy.Task, v EnableBenchmarkSetter) {
 	v.SetEnableBenchmark(x.GetEnableBenchmark())
 }
 
-type Existing struct {
-	valid bool
-	v     bool
-
-	l sync.RWMutex
-}
-
-type ExistingGetter interface {
-	GetExisting() bool
-}
-
-func (o *Existing) GetExisting() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("Existing value is not valid")
-	}
-	return o.v
-}
-
-type ExistingSetter interface {
-	SetExisting(bool)
-}
-
-func (o *Existing) SetExisting(v bool) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type ExistingValidator interface {
-	ValidateExisting() bool
-}
-
-func (o *Existing) ValidateExisting() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadExisting(t navvy.Task, v ExistingSetter) {
-	x, ok := t.(interface {
-		ExistingGetter
-		ExistingValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateExisting() {
-		return
-	}
-
-	v.SetExisting(x.GetExisting())
-}
-
 type ExpectSize struct {
 	valid bool
 	v     int64
@@ -1192,6 +1310,65 @@ func LoadID(t navvy.Task, v IDSetter) {
 	}
 
 	v.SetID(x.GetID())
+}
+
+type IgnoreExisting struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type IgnoreExistingGetter interface {
+	GetIgnoreExisting() bool
+}
+
+func (o *IgnoreExisting) GetIgnoreExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("IgnoreExisting value is not valid")
+	}
+	return o.v
+}
+
+type IgnoreExistingSetter interface {
+	SetIgnoreExisting(bool)
+}
+
+func (o *IgnoreExisting) SetIgnoreExisting(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type IgnoreExistingValidator interface {
+	ValidateIgnoreExisting() bool
+}
+
+func (o *IgnoreExisting) ValidateIgnoreExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadIgnoreExisting(t navvy.Task, v IgnoreExistingSetter) {
+	x, ok := t.(interface {
+		IgnoreExistingGetter
+		IgnoreExistingValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateIgnoreExisting() {
+		return
+	}
+
+	v.SetIgnoreExisting(x.GetIgnoreExisting())
 }
 
 type LongFormat struct {

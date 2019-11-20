@@ -9,16 +9,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 var syncInput struct {
-	Delete    bool
-	Existing  bool
-	Update    bool
-	WholeFile bool
+	IgnoreExisting bool
 }
 
 // SyncCommand will handle sync command.
@@ -34,10 +30,7 @@ key(file) will be overwritten only if the source one newer than destination one.
 	Example: utils.AlignPrintWithColon(
 		"Sync local directory to QS-Directory: qsctl sync . qs://bucket-name",
 		"Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/",
-		"Sync skip creating new files, only copy newer: qsctl sync . qs://bucket-name --existing",
-		"Sync skip files that are newer, only create new ones: qsctl sync . qs://bucket-name --update",
-		"Sync files whole (without sync algorithm check): qsctl sync . qs://bucket-name --whole-file",
-		"Sync delete files not existing in dst dirs: qsctl sync qs://bucket-name/test/ test_local/ --delete",
+		"Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing",
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: syncRun,
@@ -50,10 +43,6 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if syncInput.Existing && syncInput.Update {
-		return fmt.Errorf("flag existing and update cannot be set true at the same time")
-	}
-
 	if rootTask.GetSourceType() != types.ObjectTypeDir || rootTask.GetDestinationType() != types.ObjectTypeDir {
 		return fmt.Errorf("both source and destination should be directories")
 	}
@@ -63,10 +52,7 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewSync(rootTask)
-	t.SetDelete(syncInput.Delete)
-	t.SetExisting(syncInput.Existing)
-	t.SetUpdate(syncInput.Update)
-	t.SetWholeFile(syncInput.WholeFile)
+	t.SetIgnoreExisting(syncInput.IgnoreExisting)
 	t.Run()
 
 	if t.GetFault().HasError() {
@@ -78,14 +64,8 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func initSyncFlag() {
-	SyncCommand.Flags().BoolVar(&syncInput.Delete, constants.DeleteFlag, false,
-		`delete extraneous files from dest dirs`)
-	SyncCommand.Flags().BoolVar(&syncInput.Existing, constants.ExistingFlag, false,
+	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "--ignore-existing", false,
 		`skip creating new files in dest dirs, only copy newer by time`)
-	SyncCommand.Flags().BoolVarP(&syncInput.Update, constants.UpdateFlag, "u", false,
-		`skip copy files that are newer in dest dirs, only create new ones`)
-	SyncCommand.Flags().BoolVarP(&syncInput.WholeFile, constants.WholeFileFlag, "W", false,
-		`copy files whole (without sync algorithm check)`)
 }
 
 func syncOutput(t *task.SyncTask) {

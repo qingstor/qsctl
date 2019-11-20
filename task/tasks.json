@@ -1,18 +1,36 @@
 {
-  "CopyCheck": {
-    "description": "check whether copy or not while sync/cp",
+  "CheckExistence": {
+    "description": "",
     "input": [
-      "Delete",
-      "DestinationPath",
-      "DestinationStorage",
-      "Existing",
-      "SourcePath",
-      "SourceStorage",
-      "Update",
-      "WholeFile"
+      "Path",
+      "Storage"
     ],
     "output": [
-      "Passed"
+      "BoolResult"
+    ]
+  },
+  "CheckSize": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "CompareResult"
+    ]
+  },
+  "CheckUpdateAt": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "CompareResult"
     ]
   },
   "CopyDir": {
@@ -291,32 +309,17 @@
   "Sync": {
     "description": "sync directory between two storage",
     "input": [
-      "Delete",
       "DestinationPath",
       "DestinationStorage",
-      "Existing",
+      "IgnoreExisting",
       "SourcePath",
-      "SourceStorage",
-      "Update",
-      "WholeFile"
+      "SourceStorage"
     ]
   },
   "SyncFile": {
     "description": "sync file handle the logic of sync algorithm",
     "input": [
-      "Delete",
-      "DestinationPath",
-      "DestinationStorage",
-      "Existing",
-      "SourcePath",
-      "SourceStorage",
-      "Update",
-      "WholeFile"
-    ]
-  },
-  "SyncFileDelete": {
-    "description": "delete destination files not exist in source storage",
-    "input": [
+      "CheckFunc",
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
