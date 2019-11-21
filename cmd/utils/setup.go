@@ -20,7 +20,6 @@ type InputConfig struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Protocol string `yaml:"protocol"`
-	LogLevel string `yaml:"log_level"`
 }
 
 // NewInputConfig setup InputConfig and return the struct
@@ -31,7 +30,6 @@ func NewInputConfig() InputConfig {
 		Host:            constants.DefaultHost,
 		Port:            constants.DefaultPort,
 		Protocol:        constants.DefaultProtocol,
-		LogLevel:        constants.DefaultLogLevel,
 	}
 }
 
@@ -82,11 +80,6 @@ var privatePrompt = []*survey.Question{
 	},
 }
 
-var logLevelPrompt = &survey.Select{
-	Message: "Log level:",
-	Options: []string{"debug", "info", "warn", "error", "fatal"},
-}
-
 var confirm = false
 var confirmPrompt = &survey.Confirm{
 	Message: "Confirm your config?",
@@ -108,10 +101,6 @@ func SetupConfigInteractive() (fileName string, err error) {
 		if err = survey.Ask(privatePrompt, &in); err != nil {
 			return "", err
 		}
-	}
-
-	if err = survey.AskOne(logLevelPrompt, &in.LogLevel); err != nil {
-		return "", err
 	}
 
 	if err = survey.AskOne(confirmPrompt, &confirm); err != nil {
