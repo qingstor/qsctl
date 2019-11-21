@@ -9,16 +9,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
-	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
 	"github.com/yunify/qsctl/v2/utils"
 )
 
 var syncInput struct {
-	Delete    bool
-	Existing  bool
-	Update    bool
-	WholeFile bool
+	IgnoreExisting bool
 }
 
 // SyncCommand will handle sync command.
@@ -34,7 +30,7 @@ key(file) will be overwritten only if the source one newer than destination one.
 	Example: utils.AlignPrintWithColon(
 		"Sync local directory to QS-Directory: qsctl sync . qs://bucket-name",
 		"Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/",
-		"Sync delete files not existing in bucket: qsctl sync qs://bucket-name/test/ test_local/ --delete",
+		"Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing",
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: syncRun,
@@ -56,6 +52,7 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewSync(rootTask)
+	t.SetIgnoreExisting(syncInput.IgnoreExisting)
 	t.Run()
 
 	if t.GetFault().HasError() {
@@ -67,10 +64,8 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func initSyncFlag() {
-	SyncCommand.Flags().BoolVar(&syncInput.Delete, constants.DeleteFlag, false,
-		`delete extraneous files from dest dirs`)
-	SyncCommand.Flags().BoolVarP(&syncInput.WholeFile, constants.WholeFileFlag, "W", false,
-		`copy files whole (without sync algorithm check)`)
+	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "ignore-existing", false,
+		`skip creating new files in dest dirs, only copy newer by time`)
 }
 
 func syncOutput(t *task.SyncTask) {

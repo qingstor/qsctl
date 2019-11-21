@@ -77,10 +77,8 @@ func statFormat(input string, om *typ.Object) string {
 	if v, ok := om.GetSize(); ok {
 		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
 	}
-	if v, ok := om.GetUpdatedAt(); ok {
-		input = strings.ReplaceAll(input, "%y", v.String())
-		input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(v.Unix(), 10))
-	}
+	input = strings.ReplaceAll(input, "%y", om.UpdatedAt.String())
+	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.UpdatedAt.Unix(), 10))
 
 	return input
 }
@@ -102,15 +100,13 @@ func statOutput(t *task.StatFileTask, format string) {
 	if v, ok := om.GetType(); ok {
 		content = append(content, "Type: "+v)
 	}
-	if v, ok := om.GetStorageClass(); ok {
+	if v, ok := om.GetClass(); ok {
 		content = append(content, "StorageClass: "+v)
 	}
 	if v, ok := om.GetChecksum(); ok {
 		content = append(content, "MD5: "+v)
 	}
-	if v, ok := om.GetUpdatedAt(); ok {
-		content = append(content, "UpdatedAt: "+v.String())
-	}
+	content = append(content, "UpdatedAt: "+om.UpdatedAt.String())
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 }

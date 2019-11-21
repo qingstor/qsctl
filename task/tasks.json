@@ -11,6 +11,7 @@
   "CopyFile": {
     "description": "copy a file between two storager",
     "input": [
+      "CheckTasks",
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
@@ -141,6 +142,40 @@
       "Force",
       "Service",
       "StorageName"
+    ]
+  },
+  "IsDestinationObjectExist": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage"
+    ],
+    "output": [
+      "Result"
+    ]
+  },
+  "IsSizeEqual": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "Result"
+    ]
+  },
+  "IsUpdateAtGreater": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "Result"
     ]
   },
   "ListDir": {
@@ -277,6 +312,7 @@
     "input": [
       "DestinationPath",
       "DestinationStorage",
+      "IgnoreExisting",
       "SourcePath",
       "SourceStorage"
     ]

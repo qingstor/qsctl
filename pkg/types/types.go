@@ -132,6 +132,65 @@ func LoadBytesPool(t navvy.Task, v BytesPoolSetter) {
 	v.SetBytesPool(x.GetBytesPool())
 }
 
+type CheckTasks struct {
+	valid bool
+	v     []func(t navvy.Task) navvy.Task
+
+	l sync.RWMutex
+}
+
+type CheckTasksGetter interface {
+	GetCheckTasks() []func(t navvy.Task) navvy.Task
+}
+
+func (o *CheckTasks) GetCheckTasks() []func(t navvy.Task) navvy.Task {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("CheckTasks value is not valid")
+	}
+	return o.v
+}
+
+type CheckTasksSetter interface {
+	SetCheckTasks([]func(t navvy.Task) navvy.Task)
+}
+
+func (o *CheckTasks) SetCheckTasks(v []func(t navvy.Task) navvy.Task) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type CheckTasksValidator interface {
+	ValidateCheckTasks() bool
+}
+
+func (o *CheckTasks) ValidateCheckTasks() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadCheckTasks(t navvy.Task, v CheckTasksSetter) {
+	x, ok := t.(interface {
+		CheckTasksGetter
+		CheckTasksValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateCheckTasks() {
+		return
+	}
+
+	v.SetCheckTasks(x.GetCheckTasks())
+}
+
 type Content struct {
 	valid bool
 	v     *bytes.Buffer
@@ -1135,6 +1194,65 @@ func LoadID(t navvy.Task, v IDSetter) {
 	v.SetID(x.GetID())
 }
 
+type IgnoreExisting struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type IgnoreExistingGetter interface {
+	GetIgnoreExisting() bool
+}
+
+func (o *IgnoreExisting) GetIgnoreExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("IgnoreExisting value is not valid")
+	}
+	return o.v
+}
+
+type IgnoreExistingSetter interface {
+	SetIgnoreExisting(bool)
+}
+
+func (o *IgnoreExisting) SetIgnoreExisting(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type IgnoreExistingValidator interface {
+	ValidateIgnoreExisting() bool
+}
+
+func (o *IgnoreExisting) ValidateIgnoreExisting() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadIgnoreExisting(t navvy.Task, v IgnoreExistingSetter) {
+	x, ok := t.(interface {
+		IgnoreExistingGetter
+		IgnoreExistingValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateIgnoreExisting() {
+		return
+	}
+
+	v.SetIgnoreExisting(x.GetIgnoreExisting())
+}
+
 type LongFormat struct {
 	valid bool
 	v     bool
@@ -1548,6 +1666,65 @@ func LoadPartSize(t navvy.Task, v PartSizeSetter) {
 	v.SetPartSize(x.GetPartSize())
 }
 
+type Passed struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type PassedGetter interface {
+	GetPassed() bool
+}
+
+func (o *Passed) GetPassed() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Passed value is not valid")
+	}
+	return o.v
+}
+
+type PassedSetter interface {
+	SetPassed(bool)
+}
+
+func (o *Passed) SetPassed(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type PassedValidator interface {
+	ValidatePassed() bool
+}
+
+func (o *Passed) ValidatePassed() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadPassed(t navvy.Task, v PassedSetter) {
+	x, ok := t.(interface {
+		PassedGetter
+		PassedValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidatePassed() {
+		return
+	}
+
+	v.SetPassed(x.GetPassed())
+}
+
 type Path struct {
 	valid bool
 	v     string
@@ -1841,6 +2018,65 @@ func LoadRecursive(t navvy.Task, v RecursiveSetter) {
 	}
 
 	v.SetRecursive(x.GetRecursive())
+}
+
+type Result struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type ResultGetter interface {
+	GetResult() bool
+}
+
+func (o *Result) GetResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Result value is not valid")
+	}
+	return o.v
+}
+
+type ResultSetter interface {
+	SetResult(bool)
+}
+
+func (o *Result) SetResult(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type ResultValidator interface {
+	ValidateResult() bool
+}
+
+func (o *Result) ValidateResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadResult(t navvy.Task, v ResultSetter) {
+	x, ok := t.(interface {
+		ResultGetter
+		ResultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateResult() {
+		return
+	}
+
+	v.SetResult(x.GetResult())
 }
 
 type ScheduleFunc struct {
@@ -2844,6 +3080,65 @@ func LoadURL(t navvy.Task, v URLSetter) {
 	}
 
 	v.SetURL(x.GetURL())
+}
+
+type Update struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type UpdateGetter interface {
+	GetUpdate() bool
+}
+
+func (o *Update) GetUpdate() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Update value is not valid")
+	}
+	return o.v
+}
+
+type UpdateSetter interface {
+	SetUpdate(bool)
+}
+
+func (o *Update) SetUpdate(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type UpdateValidator interface {
+	ValidateUpdate() bool
+}
+
+func (o *Update) ValidateUpdate() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadUpdate(t navvy.Task, v UpdateSetter) {
+	x, ok := t.(interface {
+		UpdateGetter
+		UpdateValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateUpdate() {
+		return
+	}
+
+	v.SetUpdate(x.GetUpdate())
 }
 
 type WholeFile struct {

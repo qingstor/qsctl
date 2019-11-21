@@ -1,6 +1,7 @@
 {
   "ByteSize": "string",
   "BytesPool": "*sync.Pool",
+  "CheckTasks": "[]func(t navvy.Task) navvy.Task",
   "Content": "*bytes.Buffer",
   "Delete": "bool",
   "DestinationPath": "string",
@@ -18,6 +19,7 @@
   "Force": "bool",
   "HumanReadable": "bool",
   "ID": "string",
+  "IgnoreExisting": "bool",
   "LongFormat": "bool",
   "MD5Sum": "[]byte",
   "Name": "string",
@@ -25,11 +27,13 @@
   "Offset": "int64",
   "PartNumber": "int",
   "PartSize": "int64",
+  "Passed": "bool",
   "Path": "string",
   "Pool": "*navvy.Pool",
   "Reacher": "storage.Reacher",
   "ReadableSize": "string",
   "Recursive": "bool",
+  "Result": "bool",
   "ScheduleFunc": "schedule.TaskFunc",
   "Scheduler": "schedule.Scheduler",
   "SegmentFunc": "func(*segment.Segment)",
@@ -47,6 +51,7 @@
   "TotalSize": "int64",
   "Type": "types.ObjectType",
   "URL": "string",
+  "Update": "bool",
   "WholeFile": "bool",
   "Zone": "string"
 }

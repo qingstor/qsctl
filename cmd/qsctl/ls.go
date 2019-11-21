@@ -138,10 +138,7 @@ func listFileOutput(o *typ.Object) {
 	}
 
 	// if modified not exists (like dir), init str with blank
-	modifiedStr := ""
-	if modified, ok := o.Metadata.GetUpdatedAt(); ok {
-		modifiedStr = modified.Format(constants.LsDefaultFormat)
-	}
+	modifiedStr := o.UpdatedAt.Format(constants.LsDefaultFormat)
 	// output order: acl  size  lastModified  key
 	// join with two space
 	fmt.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
