@@ -84,6 +84,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewCopyFile(rootTask)
+	t.SetCheckTasks(nil)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()

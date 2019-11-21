@@ -23,6 +23,7 @@ func (t *MoveDirTask) run() {
 func (t *MoveFileTask) new() {}
 func (t *MoveFileTask) run() {
 	ct := NewCopyFile(t)
+	ct.SetCheckTasks(nil)
 	t.GetScheduler().Sync(ct)
 
 	dt := NewDeleteFile(t)
