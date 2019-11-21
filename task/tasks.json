@@ -1,38 +1,4 @@
 {
-  "CheckExistence": {
-    "description": "",
-    "input": [
-      "Path",
-      "Storage"
-    ],
-    "output": [
-      "BoolResult"
-    ]
-  },
-  "CheckSize": {
-    "description": "",
-    "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
-    ],
-    "output": [
-      "CompareResult"
-    ]
-  },
-  "CheckUpdateAt": {
-    "description": "",
-    "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
-    ],
-    "output": [
-      "CompareResult"
-    ]
-  },
   "CopyDir": {
     "description": "copy a directory recursively between two storager",
     "input": [
@@ -45,6 +11,7 @@
   "CopyFile": {
     "description": "copy a file between two storager",
     "input": [
+      "CheckTasks",
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",
@@ -175,6 +142,40 @@
       "Force",
       "Service",
       "StorageName"
+    ]
+  },
+  "IsDestinationObjectExist": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage"
+    ],
+    "output": [
+      "Result"
+    ]
+  },
+  "IsSizeEqual": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "Result"
+    ]
+  },
+  "IsUpdateAtGreater": {
+    "description": "",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "Result"
     ]
   },
   "ListDir": {
@@ -312,16 +313,6 @@
       "DestinationPath",
       "DestinationStorage",
       "IgnoreExisting",
-      "SourcePath",
-      "SourceStorage"
-    ]
-  },
-  "SyncFile": {
-    "description": "sync file handle the logic of sync algorithm",
-    "input": [
-      "CheckFunc",
-      "DestinationPath",
-      "DestinationStorage",
       "SourcePath",
       "SourceStorage"
     ]

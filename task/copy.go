@@ -34,6 +34,17 @@ func (t *CopyDirTask) run() {
 
 func (t *CopyFileTask) new() {}
 func (t *CopyFileTask) run() {
+	// Execute check tasks
+	for _, v := range t.GetCheckTasks() {
+		ct := v(t)
+		t.GetScheduler().Sync(ct)
+		if result := ct.(types.ResultGetter); !result.GetResult() {
+			break
+		}
+		// If all check passed, we should return directly.
+		return
+	}
+
 	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))

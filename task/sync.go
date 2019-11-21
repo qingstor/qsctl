@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/Xuanwo/navvy"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/yunify/qsctl/v2/utils"
 )
@@ -15,50 +16,22 @@ func (t *SyncTask) run() {
 		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Sync(sf)
 	})
+
+	var fn []func(task navvy.Task) navvy.Task
+	if t.GetIgnoreExisting() {
+		fn = append(fn,
+			NewIsDestinationObjectExistTask,
+			NewIsSizeEqualTask,
+			NewIsUpdateAtGreaterTask,
+		)
+	}
 	x.SetFileFunc(func(o *typ.Object) {
-		sf := NewSyncFile(t)
+		sf := NewCopyFile(t)
 		sf.SetSourcePath(o.Name)
 		sf.SetDestinationPath(o.Name)
-		if t.GetIgnoreExisting() {
-			sf.SetCheckFunc(func() bool {
-				existence := NewCheckExistence(t)
-				utils.ChooseDestinationStorage(existence, t)
-				existence.SetPath(o.Name)
-				t.GetScheduler().Sync(existence)
-				if existence.ValidateBoolResult() && !existence.GetBoolResult() {
-					return false
-				}
+		sf.SetCheckTasks(fn)
 
-				sizeTask := NewCheckSize(t)
-				sizeTask.SetSourcePath(o.Name)
-				sizeTask.SetDestinationPath(o.Name)
-				t.GetScheduler().Sync(sizeTask)
-				if sizeTask.ValidateCompareResult() && sizeTask.GetCompareResult() != 0 {
-					return false
-				}
-
-				updateAtTask := NewCheckUpdateAt(t)
-				updateAtTask.SetSourcePath(o.Name)
-				updateAtTask.SetDestinationPath(o.Name)
-				t.GetScheduler().Sync(updateAtTask)
-				if updateAtTask.ValidateCompareResult() && updateAtTask.GetCompareResult() > 0 {
-					return false
-				}
-
-				return true
-			})
-		}
 		t.GetScheduler().Async(sf)
 	})
 	t.GetScheduler().Sync(x)
-}
-
-func (t *SyncFileTask) new() {}
-func (t *SyncFileTask) run() {
-	if t.GetCheckFunc()() {
-		return
-	}
-
-	sf := NewCopyFile(t)
-	t.GetScheduler().Sync(sf)
 }

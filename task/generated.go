@@ -16,239 +16,6 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
-// CheckExistenceTask will .
-type CheckExistenceTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.Path
-	types.Storage
-
-	// Output value
-	types.BoolResult
-}
-
-// NewCheckExistence will create a CheckExistenceTask struct and fetch inherited data from parent task.
-func NewCheckExistence(task navvy.Task) *CheckExistenceTask {
-	t := &CheckExistenceTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *CheckExistenceTask) validateInput() {
-	if !t.ValidatePath() {
-		panic(fmt.Errorf("Task CheckExistence value Path is invalid"))
-	}
-	if !t.ValidateStorage() {
-		panic(fmt.Errorf("Task CheckExistence value Storage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *CheckExistenceTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadPath(task, t)
-	types.LoadStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *CheckExistenceTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *CheckExistenceTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-// String will implement Stringer interface.
-func (t *CheckExistenceTask) String() string {
-	return fmt.Sprintf("CheckExistenceTask {Path: %v, Storage: %v}", t.GetPath(), t.GetStorage())
-}
-
-// NewCheckExistenceTask will create a CheckExistenceTask which meets navvy.Task.
-func NewCheckExistenceTask(task navvy.Task) navvy.Task {
-	return NewCheckExistence(task)
-}
-
-// CheckSizeTask will .
-type CheckSizeTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.DestinationPath
-	types.DestinationStorage
-	types.SourcePath
-	types.SourceStorage
-
-	// Output value
-	types.CompareResult
-}
-
-// NewCheckSize will create a CheckSizeTask struct and fetch inherited data from parent task.
-func NewCheckSize(task navvy.Task) *CheckSizeTask {
-	t := &CheckSizeTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *CheckSizeTask) validateInput() {
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task CheckSize value DestinationPath is invalid"))
-	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task CheckSize value DestinationStorage is invalid"))
-	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task CheckSize value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task CheckSize value SourceStorage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *CheckSizeTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *CheckSizeTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *CheckSizeTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-// String will implement Stringer interface.
-func (t *CheckSizeTask) String() string {
-	return fmt.Sprintf("CheckSizeTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
-}
-
-// NewCheckSizeTask will create a CheckSizeTask which meets navvy.Task.
-func NewCheckSizeTask(task navvy.Task) navvy.Task {
-	return NewCheckSize(task)
-}
-
-// CheckUpdateAtTask will .
-type CheckUpdateAtTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.DestinationPath
-	types.DestinationStorage
-	types.SourcePath
-	types.SourceStorage
-
-	// Output value
-	types.CompareResult
-}
-
-// NewCheckUpdateAt will create a CheckUpdateAtTask struct and fetch inherited data from parent task.
-func NewCheckUpdateAt(task navvy.Task) *CheckUpdateAtTask {
-	t := &CheckUpdateAtTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *CheckUpdateAtTask) validateInput() {
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task CheckUpdateAt value DestinationPath is invalid"))
-	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task CheckUpdateAt value DestinationStorage is invalid"))
-	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task CheckUpdateAt value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task CheckUpdateAt value SourceStorage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *CheckUpdateAtTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *CheckUpdateAtTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *CheckUpdateAtTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-// String will implement Stringer interface.
-func (t *CheckUpdateAtTask) String() string {
-	return fmt.Sprintf("CheckUpdateAtTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
-}
-
-// NewCheckUpdateAtTask will create a CheckUpdateAtTask which meets navvy.Task.
-func NewCheckUpdateAtTask(task navvy.Task) navvy.Task {
-	return NewCheckUpdateAt(task)
-}
-
 // CopyDirTask will copy a directory recursively between two storager.
 type CopyDirTask struct {
 	// Predefined value
@@ -338,6 +105,7 @@ type CopyFileTask struct {
 	types.Scheduler
 
 	// Input value
+	types.CheckTasks
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
@@ -360,6 +128,9 @@ func NewCopyFile(task navvy.Task) *CopyFileTask {
 
 // validateInput will validate all input before run task.
 func (t *CopyFileTask) validateInput() {
+	if !t.ValidateCheckTasks() {
+		panic(fmt.Errorf("Task CopyFile value CheckTasks is invalid"))
+	}
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task CopyFile value DestinationPath is invalid"))
 	}
@@ -378,6 +149,7 @@ func (t *CopyFileTask) validateInput() {
 func (t *CopyFileTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadCheckTasks(task, t)
 	types.LoadDestinationPath(task, t)
 	types.LoadDestinationStorage(task, t)
 	types.LoadSourcePath(task, t)
@@ -401,7 +173,7 @@ func (t *CopyFileTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *CopyFileTask) String() string {
-	return fmt.Sprintf("CopyFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("CopyFileTask {CheckTasks: %v, DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetCheckTasks(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyFileTask will create a CopyFileTask which meets navvy.Task.
@@ -1306,6 +1078,239 @@ func (t *DeleteStorageTask) String() string {
 // NewDeleteStorageTask will create a DeleteStorageTask which meets navvy.Task.
 func NewDeleteStorageTask(task navvy.Task) navvy.Task {
 	return NewDeleteStorage(task)
+}
+
+// IsDestinationObjectExistTask will .
+type IsDestinationObjectExistTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+
+	// Output value
+	types.Result
+}
+
+// NewIsDestinationObjectExist will create a IsDestinationObjectExistTask struct and fetch inherited data from parent task.
+func NewIsDestinationObjectExist(task navvy.Task) *IsDestinationObjectExistTask {
+	t := &IsDestinationObjectExistTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *IsDestinationObjectExistTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task IsDestinationObjectExist value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task IsDestinationObjectExist value DestinationStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *IsDestinationObjectExistTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *IsDestinationObjectExistTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *IsDestinationObjectExistTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+// String will implement Stringer interface.
+func (t *IsDestinationObjectExistTask) String() string {
+	return fmt.Sprintf("IsDestinationObjectExistTask {DestinationPath: %v, DestinationStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage())
+}
+
+// NewIsDestinationObjectExistTask will create a IsDestinationObjectExistTask which meets navvy.Task.
+func NewIsDestinationObjectExistTask(task navvy.Task) navvy.Task {
+	return NewIsDestinationObjectExist(task)
+}
+
+// IsSizeEqualTask will .
+type IsSizeEqualTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+	types.Result
+}
+
+// NewIsSizeEqual will create a IsSizeEqualTask struct and fetch inherited data from parent task.
+func NewIsSizeEqual(task navvy.Task) *IsSizeEqualTask {
+	t := &IsSizeEqualTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *IsSizeEqualTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task IsSizeEqual value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task IsSizeEqual value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task IsSizeEqual value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task IsSizeEqual value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *IsSizeEqualTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *IsSizeEqualTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *IsSizeEqualTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+// String will implement Stringer interface.
+func (t *IsSizeEqualTask) String() string {
+	return fmt.Sprintf("IsSizeEqualTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewIsSizeEqualTask will create a IsSizeEqualTask which meets navvy.Task.
+func NewIsSizeEqualTask(task navvy.Task) navvy.Task {
+	return NewIsSizeEqual(task)
+}
+
+// IsUpdateAtGreaterTask will .
+type IsUpdateAtGreaterTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+	types.Result
+}
+
+// NewIsUpdateAtGreater will create a IsUpdateAtGreaterTask struct and fetch inherited data from parent task.
+func NewIsUpdateAtGreater(task navvy.Task) *IsUpdateAtGreaterTask {
+	t := &IsUpdateAtGreaterTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *IsUpdateAtGreaterTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *IsUpdateAtGreaterTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *IsUpdateAtGreaterTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *IsUpdateAtGreaterTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+// String will implement Stringer interface.
+func (t *IsUpdateAtGreaterTask) String() string {
+	return fmt.Sprintf("IsUpdateAtGreaterTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewIsUpdateAtGreaterTask will create a IsUpdateAtGreaterTask which meets navvy.Task.
+func NewIsUpdateAtGreaterTask(task navvy.Task) navvy.Task {
+	return NewIsUpdateAtGreater(task)
 }
 
 // ListDirTask will list dirs.
@@ -2421,89 +2426,4 @@ func (t *SyncTask) String() string {
 // NewSyncTask will create a SyncTask which meets navvy.Task.
 func NewSyncTask(task navvy.Task) navvy.Task {
 	return NewSync(task)
-}
-
-// SyncFileTask will sync file handle the logic of sync algorithm.
-type SyncFileTask struct {
-	// Predefined value
-	types.Fault
-	types.ID
-	types.Pool
-	types.Scheduler
-
-	// Input value
-	types.CheckFunc
-	types.DestinationPath
-	types.DestinationStorage
-	types.SourcePath
-	types.SourceStorage
-
-	// Output value
-}
-
-// NewSyncFile will create a SyncFileTask struct and fetch inherited data from parent task.
-func NewSyncFile(task navvy.Task) *SyncFileTask {
-	t := &SyncFileTask{}
-	t.SetID(uuid.New().String())
-
-	t.loadInput(task)
-	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
-
-	t.new()
-	return t
-}
-
-// validateInput will validate all input before run task.
-func (t *SyncFileTask) validateInput() {
-	if !t.ValidateCheckFunc() {
-		panic(fmt.Errorf("Task SyncFile value CheckFunc is invalid"))
-	}
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task SyncFile value DestinationPath is invalid"))
-	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task SyncFile value DestinationStorage is invalid"))
-	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task SyncFile value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task SyncFile value SourceStorage is invalid"))
-	}
-}
-
-// loadInput will check and load all input before new task.
-func (t *SyncFileTask) loadInput(task navvy.Task) {
-	types.LoadFault(task, t)
-	types.LoadPool(task, t)
-	types.LoadCheckFunc(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
-}
-
-// Run implement navvy.Task
-func (t *SyncFileTask) Run() {
-	t.validateInput()
-
-	log.Debugf("Started %s", t)
-	t.run()
-	t.GetScheduler().Wait()
-	log.Debugf("Finished %s", t)
-}
-
-// TriggerFault will be used to trigger a task related fault.
-func (t *SyncFileTask) TriggerFault(err error) {
-	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
-}
-
-// String will implement Stringer interface.
-func (t *SyncFileTask) String() string {
-	return fmt.Sprintf("SyncFileTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
-}
-
-// NewSyncFileTask will create a SyncFileTask which meets navvy.Task.
-func NewSyncFileTask(task navvy.Task) navvy.Task {
-	return NewSyncFile(task)
 }

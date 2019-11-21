@@ -14,65 +14,6 @@ import (
 	"github.com/yunify/qsctl/v2/pkg/schedule"
 )
 
-type BoolResult struct {
-	valid bool
-	v     bool
-
-	l sync.RWMutex
-}
-
-type BoolResultGetter interface {
-	GetBoolResult() bool
-}
-
-func (o *BoolResult) GetBoolResult() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("BoolResult value is not valid")
-	}
-	return o.v
-}
-
-type BoolResultSetter interface {
-	SetBoolResult(bool)
-}
-
-func (o *BoolResult) SetBoolResult(v bool) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type BoolResultValidator interface {
-	ValidateBoolResult() bool
-}
-
-func (o *BoolResult) ValidateBoolResult() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadBoolResult(t navvy.Task, v BoolResultSetter) {
-	x, ok := t.(interface {
-		BoolResultGetter
-		BoolResultValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateBoolResult() {
-		return
-	}
-
-	v.SetBoolResult(x.GetBoolResult())
-}
-
 type ByteSize struct {
 	valid bool
 	v     string
@@ -191,32 +132,32 @@ func LoadBytesPool(t navvy.Task, v BytesPoolSetter) {
 	v.SetBytesPool(x.GetBytesPool())
 }
 
-type CheckFunc struct {
+type CheckTasks struct {
 	valid bool
-	v     func() bool
+	v     []func(t navvy.Task) navvy.Task
 
 	l sync.RWMutex
 }
 
-type CheckFuncGetter interface {
-	GetCheckFunc() func() bool
+type CheckTasksGetter interface {
+	GetCheckTasks() []func(t navvy.Task) navvy.Task
 }
 
-func (o *CheckFunc) GetCheckFunc() func() bool {
+func (o *CheckTasks) GetCheckTasks() []func(t navvy.Task) navvy.Task {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	if !o.valid {
-		panic("CheckFunc value is not valid")
+		panic("CheckTasks value is not valid")
 	}
 	return o.v
 }
 
-type CheckFuncSetter interface {
-	SetCheckFunc(func() bool)
+type CheckTasksSetter interface {
+	SetCheckTasks([]func(t navvy.Task) navvy.Task)
 }
 
-func (o *CheckFunc) SetCheckFunc(v func() bool) {
+func (o *CheckTasks) SetCheckTasks(v []func(t navvy.Task) navvy.Task) {
 	o.l.Lock()
 	defer o.l.Unlock()
 
@@ -224,89 +165,30 @@ func (o *CheckFunc) SetCheckFunc(v func() bool) {
 	o.valid = true
 }
 
-type CheckFuncValidator interface {
-	ValidateCheckFunc() bool
+type CheckTasksValidator interface {
+	ValidateCheckTasks() bool
 }
 
-func (o *CheckFunc) ValidateCheckFunc() bool {
+func (o *CheckTasks) ValidateCheckTasks() bool {
 	o.l.RLock()
 	defer o.l.RUnlock()
 
 	return o.valid
 }
 
-func LoadCheckFunc(t navvy.Task, v CheckFuncSetter) {
+func LoadCheckTasks(t navvy.Task, v CheckTasksSetter) {
 	x, ok := t.(interface {
-		CheckFuncGetter
-		CheckFuncValidator
+		CheckTasksGetter
+		CheckTasksValidator
 	})
 	if !ok {
 		return
 	}
-	if !x.ValidateCheckFunc() {
+	if !x.ValidateCheckTasks() {
 		return
 	}
 
-	v.SetCheckFunc(x.GetCheckFunc())
-}
-
-type CompareResult struct {
-	valid bool
-	v     int
-
-	l sync.RWMutex
-}
-
-type CompareResultGetter interface {
-	GetCompareResult() int
-}
-
-func (o *CompareResult) GetCompareResult() int {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	if !o.valid {
-		panic("CompareResult value is not valid")
-	}
-	return o.v
-}
-
-type CompareResultSetter interface {
-	SetCompareResult(int)
-}
-
-func (o *CompareResult) SetCompareResult(v int) {
-	o.l.Lock()
-	defer o.l.Unlock()
-
-	o.v = v
-	o.valid = true
-}
-
-type CompareResultValidator interface {
-	ValidateCompareResult() bool
-}
-
-func (o *CompareResult) ValidateCompareResult() bool {
-	o.l.RLock()
-	defer o.l.RUnlock()
-
-	return o.valid
-}
-
-func LoadCompareResult(t navvy.Task, v CompareResultSetter) {
-	x, ok := t.(interface {
-		CompareResultGetter
-		CompareResultValidator
-	})
-	if !ok {
-		return
-	}
-	if !x.ValidateCompareResult() {
-		return
-	}
-
-	v.SetCompareResult(x.GetCompareResult())
+	v.SetCheckTasks(x.GetCheckTasks())
 }
 
 type Content struct {
@@ -2136,6 +2018,65 @@ func LoadRecursive(t navvy.Task, v RecursiveSetter) {
 	}
 
 	v.SetRecursive(x.GetRecursive())
+}
+
+type Result struct {
+	valid bool
+	v     bool
+
+	l sync.RWMutex
+}
+
+type ResultGetter interface {
+	GetResult() bool
+}
+
+func (o *Result) GetResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("Result value is not valid")
+	}
+	return o.v
+}
+
+type ResultSetter interface {
+	SetResult(bool)
+}
+
+func (o *Result) SetResult(v bool) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type ResultValidator interface {
+	ValidateResult() bool
+}
+
+func (o *Result) ValidateResult() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadResult(t navvy.Task, v ResultSetter) {
+	x, ok := t.(interface {
+		ResultGetter
+		ResultValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateResult() {
+		return
+	}
+
+	v.SetResult(x.GetResult())
 }
 
 type ScheduleFunc struct {

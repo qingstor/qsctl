@@ -15,30 +15,6 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
-func TestCheckExistenceTask_TriggerFault(t *testing.T) {
-	task := &CheckExistenceTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestCheckSizeTask_TriggerFault(t *testing.T) {
-	task := &CheckSizeTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestCheckUpdateAtTask_TriggerFault(t *testing.T) {
-	task := &CheckUpdateAtTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
 func TestCopyDirTask_TriggerFault(t *testing.T) {
 	task := &CopyDirTask{}
 	task.SetFault(fault.New())
@@ -137,6 +113,30 @@ func TestDeleteSegmentTask_TriggerFault(t *testing.T) {
 
 func TestDeleteStorageTask_TriggerFault(t *testing.T) {
 	task := &DeleteStorageTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestIsDestinationObjectExistTask_TriggerFault(t *testing.T) {
+	task := &IsDestinationObjectExistTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestIsSizeEqualTask_TriggerFault(t *testing.T) {
+	task := &IsSizeEqualTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
+func TestIsUpdateAtGreaterTask_TriggerFault(t *testing.T) {
+	task := &IsUpdateAtGreaterTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)
@@ -249,14 +249,6 @@ func TestStatFileTask_TriggerFault(t *testing.T) {
 
 func TestSyncTask_TriggerFault(t *testing.T) {
 	task := &SyncTask{}
-	task.SetFault(fault.New())
-	err := errors.New("test error")
-	task.TriggerFault(err)
-	assert.True(t, task.GetFault().HasError())
-}
-
-func TestSyncFileTask_TriggerFault(t *testing.T) {
-	task := &SyncFileTask{}
 	task.SetFault(fault.New())
 	err := errors.New("test error")
 	task.TriggerFault(err)

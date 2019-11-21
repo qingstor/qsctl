@@ -1,9 +1,7 @@
 {
-  "BoolResult": "bool",
   "ByteSize": "string",
   "BytesPool": "*sync.Pool",
-  "CheckFunc": "func() bool",
-  "CompareResult": "int",
+  "CheckTasks": "[]func(t navvy.Task) navvy.Task",
   "Content": "*bytes.Buffer",
   "Delete": "bool",
   "DestinationPath": "string",
@@ -35,6 +33,7 @@
   "Reacher": "storage.Reacher",
   "ReadableSize": "string",
   "Recursive": "bool",
+  "Result": "bool",
   "ScheduleFunc": "schedule.TaskFunc",
   "Scheduler": "schedule.Scheduler",
   "SegmentFunc": "func(*segment.Segment)",
