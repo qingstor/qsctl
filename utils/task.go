@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/Xuanwo/storage"
+	"github.com/Xuanwo/storage/pkg/credential"
+	"github.com/Xuanwo/storage/pkg/endpoint"
 	"github.com/Xuanwo/storage/services/posixfs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
@@ -245,11 +247,15 @@ func setupService(t interface {
 func NewQingStorService() (*qingstor.Service, error) {
 	srv := qingstor.New()
 	err := srv.Init(
-		pairs.WithAccessKey(viper.GetString(constants.ConfigAccessKeyID)),
-		pairs.WithSecretKey(viper.GetString(constants.ConfigSecretAccessKey)),
-		pairs.WithHost(viper.GetString(constants.ConfigHost)),
-		pairs.WithPort(viper.GetInt(constants.ConfigPort)),
-		pairs.WithProtocol(viper.GetString(constants.ConfigProtocol)),
+		pairs.WithEndpoint(endpoint.NewStaticFromParsedURL(
+			viper.GetString(constants.ConfigProtocol),
+			viper.GetString(constants.ConfigHost),
+			viper.GetInt(constants.ConfigPort),
+		)),
+		pairs.WithCredential(credential.NewStatic(
+			viper.GetString(constants.ConfigAccessKeyID),
+			viper.GetString(constants.ConfigSecretAccessKey),
+		)),
 	)
 	return srv, err
 }
