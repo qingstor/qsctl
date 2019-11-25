@@ -1,4 +1,4 @@
-commit_message: "[ci skip] i18n: Translations of %original_file_name% from Crowdin"
+commit_message: '[ci skip] i18n: Translations of %original_file_name% from Crowdin'
 files:
   - source: /translations/en_US/*.json
     translation: /translations/%locale_with_underscore%/%original_file_name%
