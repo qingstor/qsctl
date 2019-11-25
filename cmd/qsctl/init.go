@@ -11,6 +11,8 @@ import (
 	"github.com/yunify/qsctl/v2/constants"
 )
 
+//go:generate go run ../../internal/cmd/generator/i18nextract
+
 // register available flag vars here
 var (
 	// bench will be set if bench flag was set
