@@ -12,6 +12,7 @@ import (
 )
 
 //go:generate go run ../../internal/cmd/generator/i18nextract
+//go:generate go run ../../internal/cmd/generator/i18ngenerator
 
 // register available flag vars here
 var (
