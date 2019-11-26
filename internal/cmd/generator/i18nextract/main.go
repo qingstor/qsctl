@@ -57,7 +57,8 @@ func main() {
 				return true
 			}
 
-			log.Printf("%v", str.Value)
+			// Keep this for later debug usage.
+			// log.Printf("%v", str.Value)
 			data[str.Value[1:len(str.Value)-1]] = str.Value[1 : len(str.Value)-1]
 			return true
 		})

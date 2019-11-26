@@ -6,8 +6,17 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"text/template"
 )
+
+var funcs = template.FuncMap{
+	"funcName": func(lang string) string {
+		lang = strings.ReplaceAll(lang, "_", "")
+		lang = strings.ToUpper(lang[:1]) + lang[1:]
+		return lang
+	},
+}
 
 func main() {
 	const translationPath = "../../translations"
@@ -57,28 +66,32 @@ func main() {
 	}
 }
 
-var i18nTmpl = template.Must(template.New("task").Parse(`
-package i18n
+var i18nTmpl = template.Must(template.New("i18n").Funcs(funcs).Parse(`package i18n
 
 import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
+// Init will init i18n support via input language.
 func Init(lang string) {
 	switch lang {
 {{- range $k, $v := .Data }}
 	case "{{$k}}":
-		languageTag := language.MustParse("{{ $k }}")
-{{- range $k, $v := $v }}
-		_ = message.SetString(languageTag, {{$.BackQuote}}{{$k}}{{$.BackQuote}}, {{$.BackQuote}}{{$v}}{{$.BackQuote}})
-{{- end }}
+		init{{ funcName $k }}()
 {{- end }}
 	default:
-		languageTag := language.MustParse("en_US")
-		{{- range $k, $v := index .Data "en_US" }}
-		_ = message.SetString(languageTag, {{$.BackQuote}}{{$k}}{{$.BackQuote}}, {{$.BackQuote}}{{$v}}{{$.BackQuote}})
+		initEnUS()
+	}
+}
+
+{{- range $k, $v := .Data }}
+// init{{ funcName $k }} will init {{ $k }} support.
+func init{{ funcName $k }}() {
+	languageTag := language.MustParse("{{ $k }}")
+	{{- range $k, $v := $v }}
+	_ = message.SetString(languageTag, {{$.BackQuote}}{{$k}}{{$.BackQuote}}, {{$.BackQuote}}{{$v}}{{$.BackQuote}})
 {{- end }}
 }
-}
+{{- end }}
 `))
