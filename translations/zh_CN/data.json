@@ -11,7 +11,7 @@
   "\"Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.\"": "\"Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.\"",
   "\"Dir <%s> and <%s> synced.\\n\"": "\"Dir <%s> and <%s> synced.\\n\"",
   "\"Dir <%s> removed.\\n\"": "\"Dir <%s> removed.\\n\"",
-  "\"Key \u003c%s\u003e copied.\\n\"": "\"文件 \u003c%s\u003e 已复制\\n\"",
+  "\"Key <%s> copied.\\n\"": "\"Key <%s> copied.\\n\"",
   "\"Key <%s> moved.\\n\"": "\"Key <%s> moved.\\n\"",
   "\"List bucket's all objects: qsctl ls qs://bucket-name -R\"": "\"List bucket's all objects: qsctl ls qs://bucket-name -R\"",
   "\"List buckets: qsctl ls\"": "\"List buckets: qsctl ls\"",
