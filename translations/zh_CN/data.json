@@ -1,0 +1,4 @@
+{
+  "Copy file: qsctl cp /path/to/file qs://prefix/a": "复制文件：qsctl cp / path/to/file qs://prefix/a",
+  "Key <%s> copied.\\n": "文件 <%s> 已复制\\n"
+}
