@@ -5,6 +5,7 @@ import (
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/yunify/qsctl/v2/constants"
@@ -19,11 +20,11 @@ var mvInput struct {
 // MvCommand will handle move command.
 var MvCommand = &cobra.Command{
 	Use:   "mv <source-path> <dest-path>",
-	Short: "move from/to qingstor",
-	Long:  "qsctl mv can move file/folder to qingstor or move qingstor objects to local",
+	Short: i18n.Sprint("move from/to qingstor"),
+	Long:  i18n.Sprint("qsctl mv can move file/folder to qingstor or move qingstor objects to local"),
 	Example: utils.AlignPrintWithColon(
-		"Move file: qsctl mv /path/to/file qs://prefix/a",
-		"Move folder: qsctl mv qs://prefix/a /path/to/folder -r",
+		i18n.Sprint("Move file: qsctl mv /path/to/file qs://prefix/a"),
+		i18n.Sprint("Move folder: qsctl mv qs://prefix/a /path/to/folder -r"),
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: mvRun,
@@ -34,7 +35,7 @@ func initMvFlag() {
 		constants.RecursiveFlag,
 		"r",
 		false,
-		"move directory recursively")
+		i18n.Sprint("move directory recursively"))
 }
 
 func mvRun(_ *cobra.Command, args []string) (err error) {
@@ -75,5 +76,5 @@ func mvRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func mvOutput(path string) {
-	fmt.Printf("Key <%s> moved.\n", path)
+	i18n.Printf("Key <%s> moved.\n", path)
 }

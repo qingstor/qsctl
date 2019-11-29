@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/utils"
@@ -15,13 +16,13 @@ var teeInput struct {
 // TeeCommand will handle tee command.
 var TeeCommand = &cobra.Command{
 	Use:   "tee qs://<bucket_name>/<object_key>",
-	Short: "tee a remote object from stdin",
-	Long: `qsctl tee can tee a remote object from stdin.
+	Short: i18n.Sprint("tee a remote object from stdin"),
+	Long: i18n.Sprint(`qsctl tee can tee a remote object from stdin.
 
 NOTICE: qsctl will not tee the content to stdout like linux tee command does.
-`,
+`),
 	Example: utils.AlignPrintWithColon(
-		"Tee object: qsctl tee qs://prefix/a",
+		i18n.Sprint("Tee object: qsctl tee qs://prefix/a"),
 	),
 	Args:    cobra.ExactArgs(1),
 	RunE:    teeRun,
@@ -36,15 +37,15 @@ func initTeeFlag() {
 	TeeCommand.PersistentFlags().StringVar(&teeInput.ExpectSize,
 		constants.ExpectSizeFlag,
 		"",
-		"expected size of the input file"+
+		i18n.Sprint("expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
-			"(only used and required for input from stdin)",
+			"(only used and required for input from stdin)"),
 	)
 	TeeCommand.PersistentFlags().StringVar(&teeInput.MaxMemory,
 		constants.MaximumMemoryContentFlag,
 		"",
-		"maximum content loaded in memory\n"+
-			"(only used for input from stdin)",
+		i18n.Sprint("maximum content loaded in memory\n"+
+			"(only used for input from stdin)"),
 	)
 }
 

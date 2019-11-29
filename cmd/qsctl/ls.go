@@ -10,6 +10,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/yunify/qsctl/v2/constants"
@@ -26,14 +27,14 @@ var lsInput struct {
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
-	Use:   "ls [qs://<bucket-name/prefix>]",
-	Short: "list objects or buckets",
-	Long:  `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`,
+	Use:   i18n.Sprint("ls [qs://<bucket-name/prefix>]"),
+	Short: i18n.Sprint("list objects or buckets"),
+	Long:  i18n.Sprint(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
 	Example: utils.AlignPrintWithColon(
-		"List buckets: qsctl ls",
-		"List bucket's all objects: qsctl ls qs://bucket-name -R",
-		"List objects with prefix: qsctl ls qs://bucket-name/prefix",
-		"List objects by long format: qsctl ls qs://bucket-name -l",
+		i18n.Sprint("List buckets: qsctl ls"),
+		i18n.Sprint("List bucket's all objects: qsctl ls qs://bucket-name -R"),
+		i18n.Sprint("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
+		i18n.Sprint("List objects by long format: qsctl ls qs://bucket-name -l"),
 	),
 	Args: cobra.MaximumNArgs(1),
 	RunE: lsRun,
@@ -82,17 +83,17 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 
 func initLsFlag() {
 	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
-		"print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
-			" in order to reduce the number of digits to three or less using base 2 for sizes")
+		i18n.Sprint("print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
+			" in order to reduce the number of digits to three or less using base 2 for sizes"))
 	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
-		"list in long format and a total sum for all the file sizes is"+
-			" output on a line before the long listing")
+		i18n.Sprint("list in long format and a total sum for all the file sizes is"+
+			" output on a line before the long listing"))
 	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
-		"recursively list subdirectories encountered")
+		i18n.Sprint("recursively list subdirectories encountered"))
 	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 	// 	"reverse the order of the sort to get reverse lexicographical order")
 	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
-		"in which zone to do the operation")
+		i18n.Sprint("in which zone to do the operation"))
 }
 
 // listBucketOutput list buckets with normal slice
@@ -141,7 +142,7 @@ func listFileOutput(o *typ.Object) {
 	modifiedStr := o.UpdatedAt.Format(constants.LsDefaultFormat)
 	// output order: acl  size  lastModified  key
 	// join with two space
-	fmt.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
+	i18n.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
 }
 
 // HandleLsStorageWdAndPath set work dir and path for ls cmd.

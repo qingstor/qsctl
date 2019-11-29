@@ -22,14 +22,14 @@ var cpInput struct {
 
 // CpCommand will handle copy command.
 var CpCommand = &cobra.Command{
-	Use:   "cp <source-path> <dest-path>",
-	Short: "copy from/to qingstor",
-	Long:  "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout",
+	Use:   i18n.Sprint("cp <source-path> <dest-path>"),
+	Short: i18n.Sprint("copy from/to qingstor"),
+	Long:  i18n.Sprint("qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout"),
 	Example: utils.AlignPrintWithColon(
-		"Copy file: qsctl cp /path/to/file qs://prefix/a",
-		"Copy folder: qsctl cp qs://prefix/a /path/to/folder -r",
-		"Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin",
-		"Write to stdout: qsctl cp qs://prefix/b - > /path/to/file",
+		i18n.Sprint("Copy file: qsctl cp /path/to/file qs://prefix/a"),
+		i18n.Sprint("Copy folder: qsctl cp qs://prefix/a /path/to/folder -r"),
+		i18n.Sprint("Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin"),
+		i18n.Sprint("Write to stdout: qsctl cp qs://prefix/b - > /path/to/file"),
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: cpRun,
@@ -39,21 +39,22 @@ func initCpFlag() {
 	CpCommand.PersistentFlags().StringVar(&cpInput.ExpectSize,
 		constants.ExpectSizeFlag,
 		"",
-		"expected size of the input file"+
+		i18n.Sprint("expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
-			"(only used and required for input from stdin)",
+			"(only used and required for input from stdin)"),
 	)
 	CpCommand.PersistentFlags().StringVar(&cpInput.MaximumMemoryContent,
 		constants.MaximumMemoryContentFlag,
 		"",
-		"maximum content loaded in memory\n"+
-			"(only used for input from stdin)",
+		i18n.Sprint("maximum content loaded in memory\n"+
+			"(only used for input from stdin)"),
 	)
 	CpCommand.Flags().BoolVarP(&cpInput.Recursive,
 		constants.RecursiveFlag,
 		"r",
 		false,
-		"copy directory recursively")
+		i18n.Sprint("copy directory recursively"),
+	)
 }
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
@@ -64,7 +65,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpInput.Recursive {
-		return fmt.Errorf("-r is required to delete a directory")
+		return fmt.Errorf(i18n.Sprint("-r is required to delete a directory"))
 	}
 
 	if err = HandleBetweenStorageWdAndPath(rootTask, cpInput.Recursive); err != nil {
