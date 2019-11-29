@@ -73,18 +73,6 @@ import (
 	"golang.org/x/text/message"
 )
 
-// Init will init i18n support via input language.
-func Init(lang string) {
-	switch lang {
-{{- range $k, $v := .Data }}
-	case "{{$k}}":
-		init{{ funcName $k }}()
-{{- end }}
-	default:
-		initEnUS()
-	}
-}
-
 {{- range $k, $v := .Data }}
 // init{{ funcName $k }} will init {{ $k }} support.
 func init{{ funcName $k }}() {

@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/Xuanwo/go-locale"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/cmd/utils"
 	"github.com/yunify/qsctl/v2/constants"
@@ -51,6 +53,13 @@ func init() {
 		} else {
 			log.SetLevel(log.PanicLevel)
 		}
+
+		tag, err := locale.Detect()
+		if err != nil {
+			return err
+		}
+		i18n.Setup(tag)
+
 		return initConfig()
 	}
 

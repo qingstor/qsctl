@@ -5,18 +5,6 @@ import (
 	"golang.org/x/text/message"
 )
 
-// Init will init i18n support via input language.
-func Init(lang string) {
-	switch lang {
-	case "en_US":
-		initEnUS()
-	case "zh_CN":
-		initZhCN()
-	default:
-		initEnUS()
-	}
-}
-
 // initEnUS will init en_US support.
 func initEnUS() {
 	languageTag := language.MustParse("en_US")

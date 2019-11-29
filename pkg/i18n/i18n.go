@@ -15,6 +15,18 @@ func Setup(lang language.Tag) {
 	p = message.NewPrinter(lang)
 }
 
+// Init will init i18n support via input language.
+func Init(lang language.Tag) {
+	switch lang {
+	case language.AmericanEnglish, language.English:
+		initEnUS()
+	case language.SimplifiedChinese, language.Chinese:
+		initZhCN()
+	default:
+		initEnUS()
+	}
+}
+
 // Fprintf is like fmt.Fprintf, but using language-specific formatting.
 func Fprintf(w io.Writer, key message.Reference, a ...interface{}) (n int, err error) {
 	return p.Fprintf(os.Stdout, key, a...)
