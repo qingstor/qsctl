@@ -59,7 +59,7 @@ func main() {
 
 			// Keep this for later debug usage.
 			// log.Printf("%v", str.Value)
-			data[str.Value[1:len(str.Value)-1]] = str.Value[1 : len(str.Value)-1]
+			data[str.Value] = str.Value
 			return true
 		})
 	}
