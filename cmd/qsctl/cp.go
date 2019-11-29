@@ -7,6 +7,7 @@ import (
 	"github.com/Xuanwo/storage/types"
 	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/spf13/cobra"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
 
@@ -27,7 +28,7 @@ var CpCommand = &cobra.Command{
 	Short: "copy from/to qingstor",
 	Long:  "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout",
 	Example: utils.AlignPrintWithColon(
-		"Copy file: qsctl cp /path/to/file qs://prefix/a",
+		i18n.Sprint("Copy file: qsctl cp /path/to/file qs://prefix/a"),
 		"Copy folder: qsctl cp qs://prefix/a /path/to/folder -r",
 		"Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin",
 		"Write to stdout: qsctl cp qs://prefix/b - > /path/to/file",
@@ -94,7 +95,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func cpOutput(path string) {
-	fmt.Printf("Key <%s> copied.\n", path)
+	i18n.Printf("Key <%s> copied.\n", path)
 }
 
 // HandleBetweenStorageWdAndPath set work dir and path for cp cmd.
