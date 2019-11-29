@@ -75,10 +75,9 @@ import (
 
 {{- range $k, $v := .Data }}
 // init{{ funcName $k }} will init {{ $k }} support.
-func init{{ funcName $k }}() {
-	languageTag := language.MustParse("{{ $k }}")
+func init{{ funcName $k }}(tag language.Tag) {
 	{{- range $k, $v := $v }}
-	_ = message.SetString(languageTag, {{$.BackQuote}}{{$k}}{{$.BackQuote}}, {{$.BackQuote}}{{$v}}{{$.BackQuote}})
+	_ = message.SetString(tag, {{$k}}, {{$v}})
 {{- end }}
 }
 {{- end }}

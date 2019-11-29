@@ -3,14 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/Xuanwo/go-locale"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yunify/qsctl/v2/pkg/i18n"
-
 	"github.com/yunify/qsctl/v2/cmd/utils"
 	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 )
 
 //go:generate go run ../../internal/cmd/generator/i18nextract
@@ -53,12 +51,6 @@ func init() {
 		} else {
 			log.SetLevel(log.PanicLevel)
 		}
-
-		tag, err := locale.Detect()
-		if err != nil {
-			return err
-		}
-		i18n.Setup(tag)
 
 		return initConfig()
 	}
@@ -107,24 +99,24 @@ func initConfig() (err error) {
 		return
 	}
 	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-		fmt.Printf("Load config failed [%v]", err)
+		i18n.Printf("Load config failed [%v]", err)
 		return
 	}
 
 	// if env not set, start interactive setup
 	if viper.GetString(constants.ConfigAccessKeyID) == "" && viper.GetString(constants.ConfigSecretAccessKey) == "" {
-		fmt.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
+		i18n.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 		fileName, err := utils.SetupConfigInteractive()
 		if err != nil {
 			return fmt.Errorf("setup config failed [%v], please try again", err)
 		}
-		fmt.Printf("Your config has been set to <%v>. You can still modify it manually.", fileName)
+		i18n.Printf("Your config has been set to <%v>. You can still modify it manually.", fileName)
 		viper.SetConfigFile(fileName)
 		if err = viper.ReadInConfig(); err != nil {
 			return err
 		}
 	} else {
-		fmt.Printf("Config not loaded, use default and environment value instead.")
+		i18n.Printf("Config not loaded, use default and environment value instead.")
 	}
 
 	return nil
@@ -133,11 +125,11 @@ func initConfig() (err error) {
 func initGlobalFlag() {
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
-		"", "assign config path manually")
+		"", i18n.Sprint("assign config path manually"))
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
-		false, "enable benchmark or not")
+		false, i18n.Sprint("enable benchmark or not"))
 	// Overwrite the default help flag to free -h shorthand.
-	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "print logs for debug")
+	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprint("help for this command"))
+	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprint("print logs for debug"))
 }

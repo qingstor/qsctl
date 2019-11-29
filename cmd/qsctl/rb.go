@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -18,11 +17,11 @@ var rbInput struct {
 // RbCommand will handle remove object command.
 var RbCommand = &cobra.Command{
 	Use:   "rb [qs://]<bucket_name> [--force/-f]",
-	Short: "delete a bucket",
-	Long:  "qsctl rb delete a qingstor bucket",
+	Short: i18n.Sprint("delete a bucket"),
+	Long:  i18n.Sprint("qsctl rb delete a qingstor bucket"),
 	Example: utils.AlignPrintWithColon(
-		"delete an empty bucket: qsctl rb qs://bucket-name",
-		"forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f",
+		i18n.Sprint("delete an empty bucket: qsctl rb qs://bucket-name"),
+		i18n.Sprint("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: rbRun,
@@ -30,7 +29,7 @@ var RbCommand = &cobra.Command{
 
 func initRbFlag() {
 	RbCommand.Flags().BoolVarP(&rbInput.force, constants.ForceFlag, "f", false,
-		"Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.",
+		i18n.Sprint("Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket."),
 	)
 }
 
@@ -60,5 +59,5 @@ func rbRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func rbOutput(t *task.DeleteStorageTask) {
-	fmt.Printf("Bucket <%s> removed.\n", t.GetStorageName())
+	i18n.Printf("Bucket <%s> removed.\n", t.GetStorageName())
 }

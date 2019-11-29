@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -18,10 +17,10 @@ var rmInput struct {
 // RmCommand will handle remove object command.
 var RmCommand = &cobra.Command{
 	Use:   "rm qs://<bucket_name>/<object_key>",
-	Short: "remove a remote object",
-	Long:  "qsctl rm remove the object with given object key",
+	Short: i18n.Sprint("remove a remote object"),
+	Long:  i18n.Sprint("qsctl rm remove the object with given object key"),
 	Example: utils.AlignPrintWithColon(
-		"Remove a single object: qsctl rm qs://bucket-name/object-key",
+		i18n.Sprint("Remove a single object: qsctl rm qs://bucket-name/object-key"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: rmRun,
@@ -29,7 +28,7 @@ var RmCommand = &cobra.Command{
 
 func initRmFlag() {
 	RmCommand.Flags().BoolVarP(&rmInput.recursive, constants.RecursiveFlag, "r",
-		false, "recursively delete keys under a specific prefix")
+		false, i18n.Sprint("recursively delete keys under a specific prefix"))
 }
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
@@ -61,9 +60,9 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 }
 
 func rmOutput(t *task.DeleteFileTask) {
-	fmt.Printf("Object <%s> removed.\n", t.GetPath())
+	i18n.Printf("Object <%s> removed.\n", t.GetPath())
 }
 
 func rmDirOutput(t *task.DeleteDirTask) {
-	fmt.Printf("Dir <%s> removed.\n", t.GetPath())
+	i18n.Printf("Dir <%s> removed.\n", t.GetPath())
 }

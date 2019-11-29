@@ -9,6 +9,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/spf13/cobra"
 	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/yunify/qsctl/v2/pkg/i18n"
 
 	"github.com/yunify/qsctl/v2/constants"
 	"github.com/yunify/qsctl/v2/task"
@@ -22,10 +23,10 @@ var statInput struct {
 // StatCommand will handle stat command.
 var StatCommand = &cobra.Command{
 	Use:   "stat qs://<bucket_name>/<object_key>",
-	Short: "stat a remote object",
-	Long:  "qsctl stat show the detailed info of this object",
+	Short: i18n.Sprint("stat a remote object"),
+	Long:  i18n.Sprint("qsctl stat show the detailed info of this object"),
 	Example: utils.AlignPrintWithColon(
-		"Stat object: qsctl stat qs://prefix/a",
+		i18n.Sprint("Stat object: qsctl stat qs://prefix/a"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: statRun,
@@ -50,7 +51,7 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 
 func initStatFlag() {
 	StatCommand.Flags().StringVar(&statInput.format, constants.FormatFlag, "",
-		`use the specified FORMAT instead of the default;
+		i18n.Sprint(`use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 
 The valid format sequences for files:
@@ -61,7 +62,7 @@ The valid format sequences for files:
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
-	`,
+	`),
 	)
 }
 
