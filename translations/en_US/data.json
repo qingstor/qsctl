@@ -1,0 +1,4 @@
+{
+  "Copy file: qsctl cp /path/to/file qs://prefix/a": "Copy file: qsctl cp /path/to/file qs://prefix/a",
+  "Key \u003c%s\u003e copied.\\n": "Key \u003c%s\u003e copied.\\n"
+}
