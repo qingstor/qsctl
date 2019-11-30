@@ -2,18 +2,14 @@ package i18n
 
 import (
 	"io"
+	"os"
 
+	"github.com/Xuanwo/go-locale"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
 var p *message.Printer
-
-// Setup will set the global printer.
-func Setup(lang language.Tag) {
-	Init(lang)
-	p = message.NewPrinter(lang)
-}
 
 // Init will init i18n support via input language.
 func Init(lang language.Tag) {
@@ -48,5 +44,10 @@ func Sprint(a ...interface{}) string {
 }
 
 func init() {
-	p = message.NewPrinter(language.English)
+	tag, err := locale.Detect()
+	if err != nil {
+		os.Exit(1)
+	}
+	Init(tag)
+	p = message.NewPrinter(tag)
 }

@@ -27,14 +27,14 @@ var lsInput struct {
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
-	Use:   i18n.Sprint("ls [qs://<bucket-name/prefix>]"),
-	Short: i18n.Sprint("list objects or buckets"),
-	Long:  i18n.Sprint(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
+	Use:   i18n.Sprintf("ls [qs://<bucket-name/prefix>]"),
+	Short: i18n.Sprintf("list objects or buckets"),
+	Long:  i18n.Sprintf(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("List buckets: qsctl ls"),
-		i18n.Sprint("List bucket's all objects: qsctl ls qs://bucket-name -R"),
-		i18n.Sprint("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
-		i18n.Sprint("List objects by long format: qsctl ls qs://bucket-name -l"),
+		i18n.Sprintf("List buckets: qsctl ls"),
+		i18n.Sprintf("List bucket's all objects: qsctl ls qs://bucket-name -R"),
+		i18n.Sprintf("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
+		i18n.Sprintf("List objects by long format: qsctl ls qs://bucket-name -l"),
 	),
 	Args: cobra.MaximumNArgs(1),
 	RunE: lsRun,
@@ -83,17 +83,17 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 
 func initLsFlag() {
 	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
-		i18n.Sprint("print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
+		i18n.Sprintf("print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
 			" in order to reduce the number of digits to three or less using base 2 for sizes"))
 	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
-		i18n.Sprint("list in long format and a total sum for all the file sizes is"+
+		i18n.Sprintf("list in long format and a total sum for all the file sizes is"+
 			" output on a line before the long listing"))
 	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
-		i18n.Sprint("recursively list subdirectories encountered"))
+		i18n.Sprintf("recursively list subdirectories encountered"))
 	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 	// 	"reverse the order of the sort to get reverse lexicographical order")
 	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
-		i18n.Sprint("in which zone to do the operation"))
+		i18n.Sprintf("in which zone to do the operation"))
 }
 
 // listBucketOutput list buckets with normal slice

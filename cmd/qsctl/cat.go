@@ -9,11 +9,11 @@ import (
 
 // CatCommand will handle cat command.
 var CatCommand = &cobra.Command{
-	Use:   i18n.Sprint("cat qs://<bucket_name>/<object_key>"),
-	Short: i18n.Sprint("cat a remote object to stdout"),
-	Long:  i18n.Sprint("qsctl cat can cat a remote object to stdout"),
+	Use:   i18n.Sprintf("cat qs://<bucket_name>/<object_key>"),
+	Short: i18n.Sprintf("cat a remote object to stdout"),
+	Long:  i18n.Sprintf("qsctl cat can cat a remote object to stdout"),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Cat object: qsctl cat qs://prefix/a"),
+		i18n.Sprintf("Cat object: qsctl cat qs://prefix/a"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: catRun,

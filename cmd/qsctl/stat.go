@@ -23,10 +23,10 @@ var statInput struct {
 // StatCommand will handle stat command.
 var StatCommand = &cobra.Command{
 	Use:   "stat qs://<bucket_name>/<object_key>",
-	Short: i18n.Sprint("stat a remote object"),
-	Long:  i18n.Sprint("qsctl stat show the detailed info of this object"),
+	Short: i18n.Sprintf("stat a remote object"),
+	Long:  i18n.Sprintf("qsctl stat show the detailed info of this object"),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Stat object: qsctl stat qs://prefix/a"),
+		i18n.Sprintf("Stat object: qsctl stat qs://prefix/a"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: statRun,
@@ -51,7 +51,7 @@ func statRun(_ *cobra.Command, args []string) (err error) {
 
 func initStatFlag() {
 	StatCommand.Flags().StringVar(&statInput.format, constants.FormatFlag, "",
-		i18n.Sprint(`use the specified FORMAT instead of the default;
+		i18n.Sprintf(`use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 
 The valid format sequences for files:

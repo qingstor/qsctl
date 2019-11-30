@@ -125,11 +125,11 @@ func initConfig() (err error) {
 func initGlobalFlag() {
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
-		"", i18n.Sprint("assign config path manually"))
+		"", i18n.Sprintf("assign config path manually"))
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
-		false, i18n.Sprint("enable benchmark or not"))
+		false, i18n.Sprintf("enable benchmark or not"))
 	// Overwrite the default help flag to free -h shorthand.
-	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprint("help for this command"))
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprint("print logs for debug"))
+	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprintf("help for this command"))
+	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprintf("print logs for debug"))
 }

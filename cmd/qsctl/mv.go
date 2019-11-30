@@ -20,11 +20,11 @@ var mvInput struct {
 // MvCommand will handle move command.
 var MvCommand = &cobra.Command{
 	Use:   "mv <source-path> <dest-path>",
-	Short: i18n.Sprint("move from/to qingstor"),
-	Long:  i18n.Sprint("qsctl mv can move file/folder to qingstor or move qingstor objects to local"),
+	Short: i18n.Sprintf("move from/to qingstor"),
+	Long:  i18n.Sprintf("qsctl mv can move file/folder to qingstor or move qingstor objects to local"),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Move file: qsctl mv /path/to/file qs://prefix/a"),
-		i18n.Sprint("Move folder: qsctl mv qs://prefix/a /path/to/folder -r"),
+		i18n.Sprintf("Move file: qsctl mv /path/to/file qs://prefix/a"),
+		i18n.Sprintf("Move folder: qsctl mv qs://prefix/a /path/to/folder -r"),
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: mvRun,
@@ -35,7 +35,7 @@ func initMvFlag() {
 		constants.RecursiveFlag,
 		"r",
 		false,
-		i18n.Sprint("move directory recursively"))
+		i18n.Sprintf("move directory recursively"))
 }
 
 func mvRun(_ *cobra.Command, args []string) (err error) {
