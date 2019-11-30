@@ -65,6 +65,8 @@
   "\"sync between local directory and QS-Directory\"": "\"同步本地目录和对象存储目录\"",
   "\"tee a remote object from stdin\"": "\"从标准输入读取内容并上传\"",
   "\"the number of seconds until the pre-signed URL expires. Default is 300 seconds\"": "\"预签名URL到期前的秒数。默认值为300秒\"",
+  "`expected size of the input file\naccept: 100MB, 1.8G\n(only used and required for input from stdin)`": "`expected size of the input file\naccept: 100MB, 1.8G\n(only used and required for input from stdin)`",
+  "`maximum content loaded in memory\n(only used for input from stdin)`": "`maximum content loaded in memory\n(only used for input from stdin)`",
   "`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`": "`qsctl ls 可以列出所有 Bucket 或者按前缀列出 QingStor 对象。`",
   "`qsctl mb can make a new bucket with the specific name,\n\nbucket name should follow DNS name rule with:\n* length between 6 and 63;\n* can only contains lowercase letters, numbers and hyphen -\n* must start and end with lowercase letter or number\n* must not be an available IP address\n\t`": "`qsctl mb 可以用指定名称创建一个新的 Bucket。\n\nbucket 名称应该遵循DNS名称规则：\n* 长度介于 6 到 63 之间。\n* 只能包含小写字母 数字和连线 -\n* 必须以小写字母或数字开头和结尾\n* 不能是可用的 IP 地址\n`",
   "`qsctl presign can generate a pre-signed URL for the object.\nWithin the given expire time, anyone who receives this URL can retrieve\nthe object with an HTTP GET request. If an object belongs to a public bucket,\ngenerate a URL spliced by bucket name, zone and its name, anyone who receives\nthis URL can always retrieve the object with an HTTP GET request.`": "`qsctl presign 可以为对象生成一个预签名的 URL。\n在给定的时间内，任何拥有该链接的人都可以通过 HTTP GET 请求获取这个文件。如果这个文件属于一个公开的 Bucket，任何拥有该链接的人总是能够通过 HTTP GET 请求访问这个文件。`",
