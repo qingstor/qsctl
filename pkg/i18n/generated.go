@@ -157,7 +157,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey 和 SecretKey 未找到。现在请设置您的配置，或者退出以手动设置。")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> 已创建。\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> 已删除。\n")
-	_ = message.SetString(tag, "Cat object: qsctl cat qs://prefix/a", "输出一个文件的内容到标准输出： qsctl cat qs://prefix/a")
+	_ = message.SetString(tag, "Cat object: qsctl cat qs://prefix/a", "输出一个文件的内容到标准输出: qsctl cat qs://prefix/a")
 	_ = message.SetString(tag, "Config not loaded, use default and environment value instead.", "配置未加载，使用默认值和环境变量代替。")
 	_ = message.SetString(tag, "Copy file: qsctl cp /path/to/file qs://prefix/a", "复制文件: qsctl cp / path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Copy folder: qsctl cp qs://prefix/a /path/to/folder -r", "复制文件夹: qsctl cp qs://prefix/a /path/to/folder -r")
@@ -176,13 +176,13 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Move folder: qsctl mv qs://prefix/a /path/to/folder -r", "移动文件夹: qsctl mv qs://prefix/a /path/to/folder -r")
 	_ = message.SetString(tag, "Object <%s> removed.\n", "对象 <%s> 已删除。\n")
 	_ = message.SetString(tag, "Presign object: qsctl qs://bucket-name/object-name", "预签名对象: qsctl qs://bucket-name/object-name")
-	_ = message.SetString(tag, "Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin", "从 stdin 读取并上传：cat /path/to/file | qsctl cp - qs://prefix/stdin")
+	_ = message.SetString(tag, "Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin", "从 stdin 读取并上传: cat /path/to/file | qsctl cp - qs://prefix/stdin")
 	_ = message.SetString(tag, "Remove a single object: qsctl rm qs://bucket-name/object-key", "删除单个对象: qsctl rm qs://bucket-name/object-key")
 	_ = message.SetString(tag, "Stat object: qsctl stat qs://prefix/a", "查看文件信息: qsctl stat qs://prefix/a")
 	_ = message.SetString(tag, "Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/", "同步 QS-Directory 到本地目录: qsctl sync qs://bucket-name/test/ test_local/")
 	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name", "同步本地目录到 QS-Directory: qsctl sync . qs://bucket-name")
 	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing", "同步并跳过更新接收端已经存在的文件: qsctl sync . qs://bucket-name --ignore-existing")
-	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "输出一个文件的内容到标准输出： qsctl tee qs://prefix/a")
+	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "输出一个文件的内容到标准输出: qsctl tee qs://prefix/a")
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "写入到标准输出: qsctl cp qs://prefix/b - > /path/to/file")
 	_ = message.SetString(tag, "Your config has been set to <%v>. You can still modify it manually.", "您的配置已设置为 <%v>。您仍然可以手动修改它。")
 	_ = message.SetString(tag, "assign config path manually", "手动分配配置路径")
@@ -218,6 +218,14 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "同步本地目录和对象存储目录")
 	_ = message.SetString(tag, "tee a remote object from stdin", "从标准输入读取内容并上传")
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "预签名URL到期前的秒数。默认值为300秒")
+	_ = message.SetString(tag, `expected size of the input file
+accept: 100MB, 1.8G
+(only used and required for input from stdin)`, `预计输入文件的大小
+接受的大小形似: 100MB, 1.8G
+(仅用于标准输入) `)
+	_ = message.SetString(tag, `maximum content loaded in memory
+(only used for input from stdin)`, `在内存中加载的最大内容
+(仅用于标准输入)`)
 	_ = message.SetString(tag, `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`, `qsctl ls 可以列出所有 Bucket 或者按前缀列出 QingStor 对象。`)
 	_ = message.SetString(tag, `qsctl mb can make a new bucket with the specific name,
 
@@ -228,7 +236,7 @@ bucket name should follow DNS name rule with:
 * must not be an available IP address
 	`, `qsctl mb 可以用指定名称创建一个新的 Bucket。
 
-bucket 名称应该遵循DNS名称规则：
+bucket 名称应该遵循DNS名称规则:
 * 长度介于 6 到 63 之间。
 * 只能包含小写字母 数字和连线 -
 * 必须以小写字母或数字开头和结尾
@@ -273,7 +281,7 @@ The valid format sequences for files:
 	`, `使用指定的 FORMAT 而不是默认值；
 每次使用 FORMAT
 
-文件的有效格式序列后输出一条新行：
+文件的有效格式序列后输出一条新行:
 
   %F   文件类型
   %h   文件的 md5 内容
