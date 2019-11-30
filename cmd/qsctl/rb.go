@@ -17,11 +17,11 @@ var rbInput struct {
 // RbCommand will handle remove object command.
 var RbCommand = &cobra.Command{
 	Use:   "rb [qs://]<bucket_name> [--force/-f]",
-	Short: i18n.Sprint("delete a bucket"),
-	Long:  i18n.Sprint("qsctl rb delete a qingstor bucket"),
+	Short: i18n.Sprintf("delete a bucket"),
+	Long:  i18n.Sprintf("qsctl rb delete a qingstor bucket"),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("delete an empty bucket: qsctl rb qs://bucket-name"),
-		i18n.Sprint("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
+		i18n.Sprintf("delete an empty bucket: qsctl rb qs://bucket-name"),
+		i18n.Sprintf("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: rbRun,
@@ -29,7 +29,7 @@ var RbCommand = &cobra.Command{
 
 func initRbFlag() {
 	RbCommand.Flags().BoolVarP(&rbInput.force, constants.ForceFlag, "f", false,
-		i18n.Sprint("Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket."),
+		i18n.Sprintf("Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket."),
 	)
 }
 

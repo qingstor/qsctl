@@ -17,10 +17,10 @@ var rmInput struct {
 // RmCommand will handle remove object command.
 var RmCommand = &cobra.Command{
 	Use:   "rm qs://<bucket_name>/<object_key>",
-	Short: i18n.Sprint("remove a remote object"),
-	Long:  i18n.Sprint("qsctl rm remove the object with given object key"),
+	Short: i18n.Sprintf("remove a remote object"),
+	Long:  i18n.Sprintf("qsctl rm remove the object with given object key"),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Remove a single object: qsctl rm qs://bucket-name/object-key"),
+		i18n.Sprintf("Remove a single object: qsctl rm qs://bucket-name/object-key"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: rmRun,
@@ -28,7 +28,7 @@ var RmCommand = &cobra.Command{
 
 func initRmFlag() {
 	RmCommand.Flags().BoolVarP(&rmInput.recursive, constants.RecursiveFlag, "r",
-		false, i18n.Sprint("recursively delete keys under a specific prefix"))
+		false, i18n.Sprintf("recursively delete keys under a specific prefix"))
 }
 
 func rmRun(_ *cobra.Command, args []string) (err error) {

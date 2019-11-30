@@ -16,13 +16,13 @@ var teeInput struct {
 // TeeCommand will handle tee command.
 var TeeCommand = &cobra.Command{
 	Use:   "tee qs://<bucket_name>/<object_key>",
-	Short: i18n.Sprint("tee a remote object from stdin"),
-	Long: i18n.Sprint(`qsctl tee can tee a remote object from stdin.
+	Short: i18n.Sprintf("tee a remote object from stdin"),
+	Long: i18n.Sprintf(`qsctl tee can tee a remote object from stdin.
 
 NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 `),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Tee object: qsctl tee qs://prefix/a"),
+		i18n.Sprintf("Tee object: qsctl tee qs://prefix/a"),
 	),
 	Args:    cobra.ExactArgs(1),
 	RunE:    teeRun,
@@ -37,14 +37,14 @@ func initTeeFlag() {
 	TeeCommand.PersistentFlags().StringVar(&teeInput.ExpectSize,
 		constants.ExpectSizeFlag,
 		"",
-		i18n.Sprint("expected size of the input file"+
+		i18n.Sprintf("expected size of the input file"+
 			"accept: 100MB, 1.8G\n"+
 			"(only used and required for input from stdin)"),
 	)
 	TeeCommand.PersistentFlags().StringVar(&teeInput.MaxMemory,
 		constants.MaximumMemoryContentFlag,
 		"",
-		i18n.Sprint("maximum content loaded in memory\n"+
+		i18n.Sprintf("maximum content loaded in memory\n"+
 			"(only used for input from stdin)"),
 	)
 }

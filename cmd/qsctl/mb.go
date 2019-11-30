@@ -19,8 +19,8 @@ var mbInput struct {
 // MbCommand will handle make bucket command.
 var MbCommand = &cobra.Command{
 	Use:   "mb [qs://]<bucket-name>",
-	Short: i18n.Sprint("make a new bucket"),
-	Long: i18n.Sprint(`qsctl mb can make a new bucket with the specific name,
+	Short: i18n.Sprintf("make a new bucket"),
+	Long: i18n.Sprintf(`qsctl mb can make a new bucket with the specific name,
 
 bucket name should follow DNS name rule with:
 * length between 6 and 63;
@@ -29,7 +29,7 @@ bucket name should follow DNS name rule with:
 * must not be an available IP address
 	`),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprint("Make bucket: qsctl mb bucket-name"),
+		i18n.Sprintf("Make bucket: qsctl mb bucket-name"),
 	),
 	Args:    cobra.ExactArgs(1),
 	RunE:    mbRun,
@@ -67,7 +67,7 @@ func mbOutput(t *task.CreateStorageTask) {
 
 func initMbFlag() {
 	MbCommand.Flags().StringVarP(&mbInput.Zone, constants.ZoneFlag, "z",
-		"", i18n.Sprint("in which zone to make the bucket (required)"))
+		"", i18n.Sprintf("in which zone to make the bucket (required)"))
 }
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
