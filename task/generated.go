@@ -112,6 +112,8 @@ type CopyFileTask struct {
 	types.SourceStorage
 
 	// Output value
+	types.DestinationObject
+	types.SourceObject
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.
@@ -1089,8 +1091,7 @@ type IsDestinationObjectExistTask struct {
 	types.Scheduler
 
 	// Input value
-	types.DestinationPath
-	types.DestinationStorage
+	types.DestinationObject
 
 	// Output value
 	types.Result
@@ -1110,11 +1111,8 @@ func NewIsDestinationObjectExist(task navvy.Task) *IsDestinationObjectExistTask 
 
 // validateInput will validate all input before run task.
 func (t *IsDestinationObjectExistTask) validateInput() {
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task IsDestinationObjectExist value DestinationPath is invalid"))
-	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task IsDestinationObjectExist value DestinationStorage is invalid"))
+	if !t.ValidateDestinationObject() {
+		panic(fmt.Errorf("Task IsDestinationObjectExist value DestinationObject is invalid"))
 	}
 }
 
@@ -1122,8 +1120,7 @@ func (t *IsDestinationObjectExistTask) validateInput() {
 func (t *IsDestinationObjectExistTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
+	types.LoadDestinationObject(task, t)
 }
 
 // Run implement navvy.Task
@@ -1143,7 +1140,7 @@ func (t *IsDestinationObjectExistTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IsDestinationObjectExistTask) String() string {
-	return fmt.Sprintf("IsDestinationObjectExistTask {DestinationPath: %v, DestinationStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage())
+	return fmt.Sprintf("IsDestinationObjectExistTask {DestinationObject: %v}", t.GetDestinationObject())
 }
 
 // NewIsDestinationObjectExistTask will create a IsDestinationObjectExistTask which meets navvy.Task.
@@ -1160,10 +1157,8 @@ type IsSizeEqualTask struct {
 	types.Scheduler
 
 	// Input value
-	types.DestinationPath
-	types.DestinationStorage
-	types.SourcePath
-	types.SourceStorage
+	types.DestinationObject
+	types.SourceObject
 
 	// Output value
 	types.Result
@@ -1183,17 +1178,11 @@ func NewIsSizeEqual(task navvy.Task) *IsSizeEqualTask {
 
 // validateInput will validate all input before run task.
 func (t *IsSizeEqualTask) validateInput() {
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task IsSizeEqual value DestinationPath is invalid"))
+	if !t.ValidateDestinationObject() {
+		panic(fmt.Errorf("Task IsSizeEqual value DestinationObject is invalid"))
 	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task IsSizeEqual value DestinationStorage is invalid"))
-	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task IsSizeEqual value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task IsSizeEqual value SourceStorage is invalid"))
+	if !t.ValidateSourceObject() {
+		panic(fmt.Errorf("Task IsSizeEqual value SourceObject is invalid"))
 	}
 }
 
@@ -1201,10 +1190,8 @@ func (t *IsSizeEqualTask) validateInput() {
 func (t *IsSizeEqualTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
+	types.LoadDestinationObject(task, t)
+	types.LoadSourceObject(task, t)
 }
 
 // Run implement navvy.Task
@@ -1224,7 +1211,7 @@ func (t *IsSizeEqualTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IsSizeEqualTask) String() string {
-	return fmt.Sprintf("IsSizeEqualTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("IsSizeEqualTask {DestinationObject: %v, SourceObject: %v}", t.GetDestinationObject(), t.GetSourceObject())
 }
 
 // NewIsSizeEqualTask will create a IsSizeEqualTask which meets navvy.Task.
@@ -1241,10 +1228,8 @@ type IsUpdateAtGreaterTask struct {
 	types.Scheduler
 
 	// Input value
-	types.DestinationPath
-	types.DestinationStorage
-	types.SourcePath
-	types.SourceStorage
+	types.DestinationObject
+	types.SourceObject
 
 	// Output value
 	types.Result
@@ -1264,17 +1249,11 @@ func NewIsUpdateAtGreater(task navvy.Task) *IsUpdateAtGreaterTask {
 
 // validateInput will validate all input before run task.
 func (t *IsUpdateAtGreaterTask) validateInput() {
-	if !t.ValidateDestinationPath() {
-		panic(fmt.Errorf("Task IsUpdateAtGreater value DestinationPath is invalid"))
+	if !t.ValidateDestinationObject() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value DestinationObject is invalid"))
 	}
-	if !t.ValidateDestinationStorage() {
-		panic(fmt.Errorf("Task IsUpdateAtGreater value DestinationStorage is invalid"))
-	}
-	if !t.ValidateSourcePath() {
-		panic(fmt.Errorf("Task IsUpdateAtGreater value SourcePath is invalid"))
-	}
-	if !t.ValidateSourceStorage() {
-		panic(fmt.Errorf("Task IsUpdateAtGreater value SourceStorage is invalid"))
+	if !t.ValidateSourceObject() {
+		panic(fmt.Errorf("Task IsUpdateAtGreater value SourceObject is invalid"))
 	}
 }
 
@@ -1282,10 +1261,8 @@ func (t *IsUpdateAtGreaterTask) validateInput() {
 func (t *IsUpdateAtGreaterTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
-	types.LoadDestinationPath(task, t)
-	types.LoadDestinationStorage(task, t)
-	types.LoadSourcePath(task, t)
-	types.LoadSourceStorage(task, t)
+	types.LoadDestinationObject(task, t)
+	types.LoadSourceObject(task, t)
 }
 
 // Run implement navvy.Task
@@ -1305,7 +1282,7 @@ func (t *IsUpdateAtGreaterTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *IsUpdateAtGreaterTask) String() string {
-	return fmt.Sprintf("IsUpdateAtGreaterTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("IsUpdateAtGreaterTask {DestinationObject: %v, SourceObject: %v}", t.GetDestinationObject(), t.GetSourceObject())
 }
 
 // NewIsUpdateAtGreaterTask will create a IsUpdateAtGreaterTask which meets navvy.Task.

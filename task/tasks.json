@@ -16,6 +16,10 @@
       "DestinationStorage",
       "SourcePath",
       "SourceStorage"
+    ],
+    "output": [
+      "DestinationObject",
+      "SourceObject"
     ]
   },
   "CopyLargeFile": {
@@ -147,8 +151,7 @@
   "IsDestinationObjectExist": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage"
+      "DestinationObject"
     ],
     "output": [
       "Result"
@@ -157,10 +160,8 @@
   "IsSizeEqual": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
+      "DestinationObject",
+      "SourceObject"
     ],
     "output": [
       "Result"
@@ -169,10 +170,8 @@
   "IsUpdateAtGreater": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
+      "DestinationObject",
+      "SourceObject"
     ],
     "output": [
       "Result"

@@ -309,6 +309,65 @@ func LoadDelete(t navvy.Task, v DeleteSetter) {
 	v.SetDelete(x.GetDelete())
 }
 
+type DestinationObject struct {
+	valid bool
+	v     *types.Object
+
+	l sync.RWMutex
+}
+
+type DestinationObjectGetter interface {
+	GetDestinationObject() *types.Object
+}
+
+func (o *DestinationObject) GetDestinationObject() *types.Object {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("DestinationObject value is not valid")
+	}
+	return o.v
+}
+
+type DestinationObjectSetter interface {
+	SetDestinationObject(*types.Object)
+}
+
+func (o *DestinationObject) SetDestinationObject(v *types.Object) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type DestinationObjectValidator interface {
+	ValidateDestinationObject() bool
+}
+
+func (o *DestinationObject) ValidateDestinationObject() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadDestinationObject(t navvy.Task, v DestinationObjectSetter) {
+	x, ok := t.(interface {
+		DestinationObjectGetter
+		DestinationObjectValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateDestinationObject() {
+		return
+	}
+
+	v.SetDestinationObject(x.GetDestinationObject())
+}
+
 type DestinationPath struct {
 	valid bool
 	v     string
@@ -2490,6 +2549,65 @@ func LoadSize(t navvy.Task, v SizeSetter) {
 	}
 
 	v.SetSize(x.GetSize())
+}
+
+type SourceObject struct {
+	valid bool
+	v     *types.Object
+
+	l sync.RWMutex
+}
+
+type SourceObjectGetter interface {
+	GetSourceObject() *types.Object
+}
+
+func (o *SourceObject) GetSourceObject() *types.Object {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	if !o.valid {
+		panic("SourceObject value is not valid")
+	}
+	return o.v
+}
+
+type SourceObjectSetter interface {
+	SetSourceObject(*types.Object)
+}
+
+func (o *SourceObject) SetSourceObject(v *types.Object) {
+	o.l.Lock()
+	defer o.l.Unlock()
+
+	o.v = v
+	o.valid = true
+}
+
+type SourceObjectValidator interface {
+	ValidateSourceObject() bool
+}
+
+func (o *SourceObject) ValidateSourceObject() bool {
+	o.l.RLock()
+	defer o.l.RUnlock()
+
+	return o.valid
+}
+
+func LoadSourceObject(t navvy.Task, v SourceObjectSetter) {
+	x, ok := t.(interface {
+		SourceObjectGetter
+		SourceObjectValidator
+	})
+	if !ok {
+		return
+	}
+	if !x.ValidateSourceObject() {
+		return
+	}
+
+	v.SetSourceObject(x.GetSourceObject())
 }
 
 type SourcePath struct {

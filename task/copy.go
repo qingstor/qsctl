@@ -2,6 +2,7 @@ package task
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"sync"
 
@@ -34,6 +35,23 @@ func (t *CopyDirTask) run() {
 
 func (t *CopyFileTask) new() {}
 func (t *CopyFileTask) run() {
+	// Source Object must be exist.
+	src, err := t.GetSourceStorage().Stat(t.GetSourcePath())
+	if err != nil {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+	t.SetSourceObject(src)
+
+	// If Destination Object not exist, we will set DestinationObject to nil.
+	// So we can check its existences later.
+	dst, err := t.GetDestinationStorage().Stat(t.GetDestinationPath())
+	if err != nil && !errors.Is(err, typ.ErrObjectNotExist) {
+		t.TriggerFault(types.NewErrUnhandled(err))
+		return
+	}
+	t.SetDestinationObject(dst)
+
 	// Execute check tasks
 	for _, v := range t.GetCheckTasks() {
 		ct := v(t)
@@ -45,19 +63,13 @@ func (t *CopyFileTask) run() {
 		return
 	}
 
-	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
-	if err != nil {
-		t.TriggerFault(types.NewErrUnhandled(err))
-		return
-	}
-
-	if o.Size >= constants.MaximumAutoMultipartSize {
+	if src.Size >= constants.MaximumAutoMultipartSize {
 		x := NewCopyLargeFile(t)
-		x.SetTotalSize(o.Size)
+		x.SetTotalSize(src.Size)
 		t.GetScheduler().Sync(x)
 	} else {
 		x := NewCopySmallFile(t)
-		x.SetSize(o.Size)
+		x.SetSize(src.Size)
 		t.GetScheduler().Sync(x)
 	}
 }
