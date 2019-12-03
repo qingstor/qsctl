@@ -4,9 +4,14 @@ import (
 	"testing"
 
 	"github.com/Xuanwo/navvy"
+	"github.com/Xuanwo/storage"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/yunify/qsctl/v2/constants"
+	"github.com/yunify/qsctl/v2/pkg/fault"
 	"github.com/yunify/qsctl/v2/pkg/mock"
 )
 
@@ -33,4 +38,152 @@ func TestCopyDirTask_run(t *testing.T) {
 		})
 		task.run()
 	})
+}
+
+func TestCopyFileTask_run(t *testing.T) {
+	t.Run("normal case", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		cases := []struct {
+			name string
+			size int64
+		}{
+			{
+				"large file",
+				constants.MaximumAutoMultipartSize + 1,
+			},
+			{
+				"small file",
+				constants.MaximumAutoMultipartSize - 1,
+			},
+		}
+
+		for _, tt := range cases {
+			t.Run(tt.name, func(t *testing.T) {
+				ctrl := gomock.NewController(t)
+				defer ctrl.Finish()
+
+				sche := mock.NewMockScheduler(ctrl)
+				srcStore := mock.NewMockStorager(ctrl)
+				srcPath := uuid.New().String()
+				dstStore := mock.NewMockStorager(ctrl)
+				dstPath := uuid.New().String()
+
+				task := &CopyFileTask{}
+				task.SetPool(navvy.NewPool(10))
+				task.SetScheduler(sche)
+				task.SetCheckTasks(nil)
+				task.SetSourcePath(srcPath)
+				task.SetSourceStorage(srcStore)
+				task.SetDestinationPath(dstPath)
+				task.SetDestinationStorage(dstStore)
+
+				sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+					switch v := task.(type) {
+					case *BetweenStorageCheckTask:
+						v.SetSourceObject(&typ.Object{Name: srcPath, Size: tt.size})
+						v.SetDestinationObject(&typ.Object{Name: dstPath})
+					case *CopyLargeFileTask:
+						assert.True(t, tt.size >= constants.MaximumAutoMultipartSize)
+					case *CopySmallFileTask:
+						assert.True(t, tt.size < constants.MaximumAutoMultipartSize)
+					}
+				}).AnyTimes()
+
+				task.run()
+			})
+		}
+	})
+}
+
+func TestCopySmallFileTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	sche := mock.NewMockScheduler(ctrl)
+	srcStore := mock.NewMockStorager(ctrl)
+	srcPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstPath := uuid.New().String()
+
+	task := &CopySmallFileTask{}
+	task.SetPool(navvy.NewPool(10))
+	task.SetSourcePath(srcPath)
+	task.SetSourceStorage(srcStore)
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(dstStore)
+	task.SetScheduler(sche)
+	task.SetSize(1024)
+
+	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *MD5SumFileTask:
+			assert.Equal(t, srcPath, v.GetPath())
+			assert.Equal(t, int64(0), v.GetOffset())
+			v.SetMD5Sum([]byte("string"))
+		case *CopySingleFileTask:
+			assert.Equal(t, []byte("string"), v.GetMD5Sum())
+		}
+	}).AnyTimes()
+
+	task.run()
+}
+
+func TestCopyLargeFileTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	sche := mock.NewMockScheduler(ctrl)
+	srcStore := mock.NewMockStorager(ctrl)
+	srcPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstSegmenter := mock.NewMockSegmenter(ctrl)
+	dstPath := uuid.New().String()
+	segmentID := uuid.New().String()
+
+	task := &CopyLargeFileTask{}
+	task.SetPool(navvy.NewPool(10))
+	task.SetSourcePath(srcPath)
+	task.SetSourceStorage(srcStore)
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(struct {
+		storage.Storager
+		storage.Segmenter
+	}{
+		dstStore,
+		dstSegmenter,
+	})
+	task.SetScheduler(sche)
+	task.SetFault(fault.New())
+	// 50G
+	task.SetTotalSize(10 * constants.MaximumPartSize)
+
+	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *SegmentInitTask:
+			assert.Equal(t, dstPath, v.GetPath())
+			v.SetSegmentID(segmentID)
+		case *SegmentCompleteTask:
+			assert.Equal(t, dstPath, v.GetPath())
+			assert.Equal(t, segmentID, v.GetSegmentID())
+		default:
+			panic("xxxx")
+		}
+	}).AnyTimes()
+	sche.EXPECT().Async(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *CopyPartialFileTask:
+			assert.Equal(t, srcPath, v.GetSourcePath())
+			assert.Equal(t, dstPath, v.GetDestinationPath())
+			assert.Equal(t, segmentID, v.GetSegmentID())
+			v.SetDone(true)
+		default:
+			panic("xxxx")
+		}
+	}).AnyTimes()
+	sche.EXPECT().Wait().Do(func() {})
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
 }
