@@ -17,12 +17,12 @@ func TestSegmentInitTask_run(t *testing.T) {
 	defer ctrl.Finish()
 
 	t.Run("normal", func(t *testing.T) {
-		store := mock.NewMockStorager(ctrl)
+		store := mock.NewMockSegmenter(ctrl)
 		path := uuid.New().String()
 		segmentID := uuid.New().String()
 
 		task := SegmentInitTask{}
-		task.SetStorage(store)
+		task.SetSegmenter(store)
 		task.SetPath(path)
 		task.SetPartSize(1000)
 
@@ -40,18 +40,15 @@ func TestSegmentInitTask_run(t *testing.T) {
 	})
 
 	t.Run("init segment returned error", func(t *testing.T) {
-		store := mock.NewMockStorager(ctrl)
+		store := mock.NewMockSegmenter(ctrl)
 		path := uuid.New().String()
 
 		task := SegmentInitTask{}
 		task.SetFault(fault.New())
-		task.SetStorage(store)
+		task.SetSegmenter(store)
 		task.SetPath(path)
 		task.SetPartSize(1000)
 
-		store.EXPECT().String().DoAndReturn(func() string {
-			return "test storager"
-		})
 		store.EXPECT().InitSegment(gomock.Any(), gomock.Any()).DoAndReturn(
 			func(inputPath string, pairs ...*typ.Pair) (string, error) {
 				assert.Equal(t, inputPath, path)
