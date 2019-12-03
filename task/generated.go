@@ -16,6 +16,88 @@ var _ navvy.Pool
 var _ types.Pool
 var _ = uuid.New()
 
+// BetweenStorageCheckTask will Do check for between storage task.
+type BetweenStorageCheckTask struct {
+	// Predefined value
+	types.Fault
+	types.ID
+	types.Pool
+	types.Scheduler
+
+	// Input value
+	types.DestinationPath
+	types.DestinationStorage
+	types.SourcePath
+	types.SourceStorage
+
+	// Output value
+	types.DestinationObject
+	types.SourceObject
+}
+
+// NewBetweenStorageCheck will create a BetweenStorageCheckTask struct and fetch inherited data from parent task.
+func NewBetweenStorageCheck(task navvy.Task) *BetweenStorageCheckTask {
+	t := &BetweenStorageCheckTask{}
+	t.SetID(uuid.New().String())
+
+	t.loadInput(task)
+	t.SetScheduler(schedule.NewScheduler(t.GetPool()))
+
+	t.new()
+	return t
+}
+
+// validateInput will validate all input before run task.
+func (t *BetweenStorageCheckTask) validateInput() {
+	if !t.ValidateDestinationPath() {
+		panic(fmt.Errorf("Task BetweenStorageCheck value DestinationPath is invalid"))
+	}
+	if !t.ValidateDestinationStorage() {
+		panic(fmt.Errorf("Task BetweenStorageCheck value DestinationStorage is invalid"))
+	}
+	if !t.ValidateSourcePath() {
+		panic(fmt.Errorf("Task BetweenStorageCheck value SourcePath is invalid"))
+	}
+	if !t.ValidateSourceStorage() {
+		panic(fmt.Errorf("Task BetweenStorageCheck value SourceStorage is invalid"))
+	}
+}
+
+// loadInput will check and load all input before new task.
+func (t *BetweenStorageCheckTask) loadInput(task navvy.Task) {
+	types.LoadFault(task, t)
+	types.LoadPool(task, t)
+	types.LoadDestinationPath(task, t)
+	types.LoadDestinationStorage(task, t)
+	types.LoadSourcePath(task, t)
+	types.LoadSourceStorage(task, t)
+}
+
+// Run implement navvy.Task
+func (t *BetweenStorageCheckTask) Run() {
+	t.validateInput()
+
+	log.Debugf("Started %s", t)
+	t.run()
+	t.GetScheduler().Wait()
+	log.Debugf("Finished %s", t)
+}
+
+// TriggerFault will be used to trigger a task related fault.
+func (t *BetweenStorageCheckTask) TriggerFault(err error) {
+	t.GetFault().Append(fmt.Errorf("Failed %s: {%w}", t, err))
+}
+
+// String will implement Stringer interface.
+func (t *BetweenStorageCheckTask) String() string {
+	return fmt.Sprintf("BetweenStorageCheckTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+}
+
+// NewBetweenStorageCheckTask will create a BetweenStorageCheckTask which meets navvy.Task.
+func NewBetweenStorageCheckTask(task navvy.Task) navvy.Task {
+	return NewBetweenStorageCheck(task)
+}
+
 // CopyDirTask will copy a directory recursively between two storager.
 type CopyDirTask struct {
 	// Predefined value
@@ -112,8 +194,6 @@ type CopyFileTask struct {
 	types.SourceStorage
 
 	// Output value
-	types.DestinationObject
-	types.SourceObject
 }
 
 // NewCopyFile will create a CopyFileTask struct and fetch inherited data from parent task.

@@ -15,6 +15,14 @@ import (
 var _ navvy.Pool
 var _ types.Pool
 
+func TestBetweenStorageCheckTask_TriggerFault(t *testing.T) {
+	task := &BetweenStorageCheckTask{}
+	task.SetFault(fault.New())
+	err := errors.New("test error")
+	task.TriggerFault(err)
+	assert.True(t, task.GetFault().HasError())
+}
+
 func TestCopyDirTask_TriggerFault(t *testing.T) {
 	task := &CopyDirTask{}
 	task.SetFault(fault.New())
