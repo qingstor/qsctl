@@ -5,8 +5,86 @@ import (
 	"time"
 
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/yunify/qsctl/v2/pkg/mock"
 )
+
+func TestBetweenStorageCheckTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cases := []struct {
+		name         string
+		expectObject *typ.Object
+		expectErr    error
+	}{
+		{
+			"normal",
+			&typ.Object{},
+			nil,
+		},
+		{
+			"dst object not exist",
+			nil,
+			typ.ErrObjectNotExist,
+		},
+		{
+			"error",
+			nil,
+			typ.ErrUnhandledError,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			srcStore := mock.NewMockStorager(ctrl)
+			dstStore := mock.NewMockStorager(ctrl)
+			srcPath := uuid.New().String()
+			dstPath := uuid.New().String()
+
+			task := BetweenStorageCheckTask{}
+			task.SetSourceStorage(srcStore)
+			task.SetDestinationStorage(dstStore)
+			task.SetSourcePath(srcPath)
+			task.SetDestinationPath(dstPath)
+			task.SetFault(fault.New())
+
+			srcStore.EXPECT().Stat(gomock.Any()).DoAndReturn(func(path string, pairs ...*typ.Pair) (o *typ.Object, err error) {
+				assert.Equal(t, srcPath, path)
+				return &typ.Object{Name: srcPath}, nil
+			})
+			srcStore.EXPECT().String().DoAndReturn(func() string {
+				return "src"
+			}).AnyTimes()
+			dstStore.EXPECT().Stat(gomock.Any()).DoAndReturn(func(path string, pairs ...*typ.Pair) (o *typ.Object, err error) {
+				assert.Equal(t, dstPath, path)
+				return tt.expectObject, tt.expectErr
+			})
+			dstStore.EXPECT().String().DoAndReturn(func() string {
+				return "dst"
+			}).AnyTimes()
+
+			task.run()
+
+			assert.NotNil(t, task.GetSourceObject())
+			if tt.expectObject != nil {
+				assert.NotNil(t, task.GetDestinationObject())
+			} else {
+				if tt.expectErr == typ.ErrObjectNotExist {
+					assert.Nil(t, task.GetDestinationObject())
+				} else {
+					assert.Panics(t, func() {
+						task.GetDestinationObject()
+					})
+				}
+			}
+		})
+	}
+}
 
 func TestIsDestinationObjectExistTask_run(t *testing.T) {
 	t.Run("destination object not exist", func(t *testing.T) {
