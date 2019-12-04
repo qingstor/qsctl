@@ -421,3 +421,37 @@ func TestCopyPartialStreamTask_run(t *testing.T) {
 	task.run()
 	assert.Empty(t, task.GetFault().Error())
 }
+
+func TestCopySingleFileTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	srcReader := mock.NewMockReadCloser(ctrl)
+
+	srcStore := mock.NewMockStorager(ctrl)
+	srcPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstPath := uuid.New().String()
+
+	task := CopySingleFileTask{}
+	task.SetFault(fault.New())
+	task.SetSourcePath(srcPath)
+	task.SetSourceStorage(srcStore)
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(dstStore)
+	task.SetSize(1024)
+
+	srcReader.EXPECT().Close().Do(func() {})
+	srcStore.EXPECT().Read(gomock.Any()).DoAndReturn(func(path string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
+		assert.Equal(t, srcPath, path)
+		return srcReader, nil
+	})
+	dstStore.EXPECT().Write(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(path string, r io.Reader, pairs ...*typ.Pair) (err error) {
+		assert.Equal(t, dstPath, path)
+		assert.Equal(t, int64(1024), pairs[0].Value.(int64))
+		return nil
+	})
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
+}
