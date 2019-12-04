@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/Xuanwo/navvy"
@@ -168,7 +169,7 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 			assert.Equal(t, dstPath, v.GetPath())
 			assert.Equal(t, segmentID, v.GetSegmentID())
 		default:
-			panic("xxxx")
+			panic(fmt.Errorf("invalid task %v", v))
 		}
 	}).AnyTimes()
 	sche.EXPECT().Async(gomock.Any()).Do(func(task navvy.Task) {
@@ -179,7 +180,7 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 			assert.Equal(t, segmentID, v.GetSegmentID())
 			v.SetDone(true)
 		default:
-			panic("xxxx")
+			panic(fmt.Errorf("invalid task %v", v))
 		}
 	}).AnyTimes()
 	sche.EXPECT().Wait().Do(func() {})
