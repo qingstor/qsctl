@@ -23,6 +23,11 @@ func (t *DeleteDirTask) run() {
 		sf.SetPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
+	x.SetDirFunc(func(o *typ.Object) {
+		sf := NewDeleteDir(t)
+		sf.SetPath(o.Name)
+		t.GetScheduler().Sync(sf)
+	})
 	t.GetScheduler().Sync(x)
 }
 
