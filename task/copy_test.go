@@ -125,6 +125,8 @@ func TestCopySmallFileTask_run(t *testing.T) {
 			v.SetMD5Sum([]byte("string"))
 		case *CopySingleFileTask:
 			assert.Equal(t, []byte("string"), v.GetMD5Sum())
+		default:
+			panic(fmt.Errorf("unexpected task %v", v))
 		}
 	}).AnyTimes()
 
@@ -180,10 +182,115 @@ func TestCopyLargeFileTask_run(t *testing.T) {
 			assert.Equal(t, segmentID, v.GetSegmentID())
 			v.SetDone(true)
 		default:
-			panic(fmt.Errorf("invalid task %v", v))
+			panic(fmt.Errorf("unexpected task %v", v))
 		}
 	}).AnyTimes()
 	sche.EXPECT().Wait().Do(func() {})
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
+}
+
+func TestCopyPartialFileTask_new(t *testing.T) {
+	cases := []struct {
+		name       string
+		totalsize  int64
+		offset     int64
+		partsize   int64
+		expectSize int64
+		expectDone bool
+	}{
+		{
+			"middle part",
+			1024,
+			128,
+			128,
+			128,
+			false,
+		},
+		{
+			"last fulfilled part",
+			1024,
+			512,
+			512,
+			512,
+			true,
+		},
+		{
+			"last not fulfilled part",
+			1024,
+			768,
+			512,
+			256,
+			true,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			task := &CopyPartialFileTask{}
+			task.SetTotalSize(tt.totalsize)
+			task.SetOffset(tt.offset)
+			task.SetPartSize(tt.partsize)
+
+			task.new()
+
+			assert.Equal(t, tt.expectSize, task.GetSize())
+			assert.Equal(t, tt.expectDone, task.GetDone())
+		})
+	}
+}
+
+func TestCopyPartialFileTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	sche := mock.NewMockScheduler(ctrl)
+	srcStore := mock.NewMockStorager(ctrl)
+	srcPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstSegmenter := mock.NewMockSegmenter(ctrl)
+	dstPath := uuid.New().String()
+	segmentID := uuid.New().String()
+
+	task := &CopyPartialFileTask{}
+	task.SetFault(fault.New())
+	task.SetPool(navvy.NewPool(10))
+	task.SetSourcePath(srcPath)
+	task.SetSourceStorage(srcStore)
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(struct {
+		storage.Storager
+		storage.Segmenter
+	}{
+		dstStore,
+		dstSegmenter,
+	})
+	task.SetScheduler(sche)
+	task.SetSize(1024)
+	task.SetOffset(512)
+	task.SetSegmentID(segmentID)
+
+	srcStore.EXPECT().String().Do(func() {}).AnyTimes()
+	dstStore.EXPECT().String().Do(func() {}).AnyTimes()
+
+	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+		t.Logf("Got task %v", task)
+
+		switch v := task.(type) {
+		case *MD5SumFileTask:
+			assert.Equal(t, srcPath, v.GetPath())
+			assert.Equal(t, int64(512), v.GetOffset())
+			v.SetMD5Sum([]byte("string"))
+		case *SegmentFileCopyTask:
+			assert.Equal(t, []byte("string"), v.GetMD5Sum())
+		default:
+			panic(fmt.Errorf("unexpected task %v", v))
+		}
+	}).AnyTimes()
 
 	task.run()
 	assert.Empty(t, task.GetFault().Error())
