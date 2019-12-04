@@ -172,7 +172,7 @@ func (t *CopyStreamTask) run() {
 	}
 
 	t.GetScheduler().Wait()
-	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
+	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
 func (t *CopyPartialStreamTask) new() {

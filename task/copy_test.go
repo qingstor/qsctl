@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"bou.ke/monkey"
 	"github.com/Xuanwo/navvy"
 	"github.com/Xuanwo/storage"
 	typ "github.com/Xuanwo/storage/types"
@@ -274,8 +275,8 @@ func TestCopyPartialFileTask_run(t *testing.T) {
 	task.SetOffset(512)
 	task.SetSegmentID(segmentID)
 
-	srcStore.EXPECT().String().Do(func() {}).AnyTimes()
-	dstStore.EXPECT().String().Do(func() {}).AnyTimes()
+	srcStore.EXPECT().String().DoAndReturn(func() string { return "src" }).AnyTimes()
+	dstStore.EXPECT().String().DoAndReturn(func() string { return "dst" }).AnyTimes()
 
 	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
 		t.Logf("Got task %v", task)
@@ -291,6 +292,71 @@ func TestCopyPartialFileTask_run(t *testing.T) {
 			panic(fmt.Errorf("unexpected task %v", v))
 		}
 	}).AnyTimes()
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
+}
+
+func TestCopyStreamTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	monkey.Patch(NewCopyPartialStream, func(task navvy.Task) *CopyPartialStreamTask {
+		t := &CopyPartialStreamTask{}
+		t.loadInput(task)
+		t.SetDone(true)
+		return t
+	})
+	defer monkey.Unpatch(NewCopyPartialStream)
+
+	sche := mock.NewMockScheduler(ctrl)
+	srcStore := mock.NewMockStorager(ctrl)
+	srcPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstSegmenter := mock.NewMockSegmenter(ctrl)
+	dstPath := uuid.New().String()
+	segmentID := uuid.New().String()
+
+	task := &CopyStreamTask{}
+	task.new()
+
+	task.SetPool(navvy.NewPool(10))
+	task.SetSourcePath(srcPath)
+	task.SetSourceStorage(srcStore)
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(struct {
+		storage.Storager
+		storage.Segmenter
+	}{
+		dstStore,
+		dstSegmenter,
+	})
+	task.SetScheduler(sche)
+	task.SetFault(fault.New())
+
+	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *SegmentInitTask:
+			assert.Equal(t, dstPath, v.GetPath())
+			v.SetSegmentID(segmentID)
+		case *SegmentCompleteTask:
+			assert.Equal(t, dstPath, v.GetPath())
+			assert.Equal(t, segmentID, v.GetSegmentID())
+		default:
+			panic(fmt.Errorf("unexpected task %v", v))
+		}
+	}).AnyTimes()
+	sche.EXPECT().Async(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *CopyPartialStreamTask:
+			assert.Equal(t, dstPath, v.GetDestinationPath())
+			assert.Equal(t, segmentID, v.GetSegmentID())
+			v.SetDone(true)
+		default:
+			panic(fmt.Errorf("unexpected task %v", v))
+		}
+	}).AnyTimes()
+	sche.EXPECT().Wait().Do(func() {})
 
 	task.run()
 	assert.Empty(t, task.GetFault().Error())
