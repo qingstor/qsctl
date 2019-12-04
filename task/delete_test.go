@@ -61,3 +61,24 @@ func TestDeleteDirTask_run(t *testing.T) {
 	task.run()
 	assert.Empty(t, task.GetFault().Error())
 }
+
+func TestDeleteSegmentTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	segmenter := mock.NewMockSegmenter(ctrl)
+	segmentID := uuid.New().String()
+
+	task := DeleteSegmentTask{}
+	task.SetFault(fault.New())
+	task.SetSegmenter(segmenter)
+	task.SetSegmentID(segmentID)
+
+	segmenter.EXPECT().AbortSegment(gomock.Any()).Do(func(id string) error {
+		assert.Equal(t, segmentID, id)
+		return nil
+	})
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
+}
