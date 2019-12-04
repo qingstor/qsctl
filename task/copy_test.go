@@ -1,7 +1,10 @@
 package task
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"sync"
 	"testing"
 
 	"bou.ke/monkey"
@@ -357,6 +360,63 @@ func TestCopyStreamTask_run(t *testing.T) {
 		}
 	}).AnyTimes()
 	sche.EXPECT().Wait().Do(func() {})
+
+	task.run()
+	assert.Empty(t, task.GetFault().Error())
+}
+
+func TestCopyPartialStreamTask_new(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	srcPath := uuid.New().String()
+	srcStore := mock.NewMockStorager(ctrl)
+	srcReader := mock.NewMockReadCloser(ctrl)
+
+	task := CopyPartialStreamTask{}
+	task.SetPartSize(1024)
+	task.SetSourceStorage(srcStore)
+	task.SetSourcePath(srcPath)
+	task.SetBytesPool(&sync.Pool{
+		New: func() interface{} {
+			return bytes.NewBuffer(make([]byte, 0, 1024))
+		},
+	})
+
+	srcStore.EXPECT().Read(gomock.Any(), gomock.Any()).DoAndReturn(func(path string, pairs ...*typ.Pair) (r io.ReadCloser, err error) {
+		assert.Equal(t, srcPath, path)
+		assert.Equal(t, int64(1024), pairs[0].Value.(int64))
+		return srcReader, nil
+	})
+	srcReader.EXPECT().Read(gomock.Any()).DoAndReturn(func(p []byte) (n int, err error) {
+		return 768, io.EOF
+	})
+
+	task.new()
+
+	assert.True(t, task.ValidateContent())
+	assert.Equal(t, int64(768), task.GetSize())
+	assert.Equal(t, true, task.GetDone())
+}
+
+func TestCopyPartialStreamTask_run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	sche := mock.NewMockScheduler(ctrl)
+
+	task := CopyPartialStreamTask{}
+	task.SetPool(navvy.NewPool(10))
+	task.SetScheduler(sche)
+	task.SetFault(fault.New())
+
+	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
+		switch v := task.(type) {
+		case *MD5SumStreamTask, *SegmentStreamCopyTask:
+		default:
+			panic(fmt.Errorf("unexpected task %v", v))
+		}
+	}).AnyTimes()
 
 	task.run()
 	assert.Empty(t, task.GetFault().Error())
