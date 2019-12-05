@@ -10,7 +10,6 @@ func (t *MoveDirTask) new() {}
 func (t *MoveDirTask) run() {
 	x := NewListDir(t)
 	utils.ChooseSourceStorage(x, t)
-	// TODO: we should handle dir here.
 	x.SetFileFunc(func(o *typ.Object) {
 		sf := NewMoveFile(t)
 		sf.SetSourcePath(o.Name)
