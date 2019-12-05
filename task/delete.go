@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
 
@@ -22,6 +23,11 @@ func (t *DeleteDirTask) run() {
 		sf := NewDeleteFile(t)
 		sf.SetPath(o.Name)
 		t.GetScheduler().Async(sf)
+	})
+	x.SetDirFunc(func(o *typ.Object) {
+		sf := NewDeleteDir(t)
+		sf.SetPath(o.Name)
+		t.GetScheduler().Sync(sf)
 	})
 	t.GetScheduler().Sync(x)
 }
@@ -49,15 +55,21 @@ func (t *DeleteStorageTask) run() {
 
 		t.GetScheduler().Async(deleteDir)
 
-		listSegments := NewListSegment(t)
-		listSegments.SetSegmentFunc(func(s *segment.Segment) {
-			sf := NewDeleteSegment(t)
-			sf.SetSegmentID(s.ID)
+		segmenter, ok := store.(storage.Segmenter)
+		if ok {
+			listSegments := NewListSegment(t)
+			listSegments.SetSegmenter(segmenter)
+			listSegments.SetPath("")
+			listSegments.SetSegmentFunc(func(s *segment.Segment) {
+				sf := NewDeleteSegment(t)
+				sf.SetSegmentID(s.ID)
 
-			t.GetScheduler().Async(sf)
-		})
+				t.GetScheduler().Async(sf)
+			})
 
-		t.GetScheduler().Async(listSegments)
+			t.GetScheduler().Async(listSegments)
+		}
+
 		t.GetScheduler().Wait()
 	}
 

@@ -3,6 +3,7 @@ module github.com/yunify/qsctl/v2
 go 1.12
 
 require (
+	bou.ke/monkey v1.0.1
 	github.com/AlecAivazis/survey/v2 v2.0.4
 	github.com/Xuanwo/go-locale v0.0.0-20191129070319-0c6c7d0f828f
 	github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27

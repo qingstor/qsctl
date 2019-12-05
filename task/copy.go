@@ -34,9 +34,12 @@ func (t *CopyDirTask) run() {
 
 func (t *CopyFileTask) new() {}
 func (t *CopyFileTask) run() {
+	check := NewBetweenStorageCheck(t)
+	t.GetScheduler().Sync(check)
+
 	// Execute check tasks
 	for _, v := range t.GetCheckTasks() {
-		ct := v(t)
+		ct := v(check)
 		t.GetScheduler().Sync(ct)
 		if result := ct.(types.ResultGetter); !result.GetResult() {
 			break
@@ -45,19 +48,14 @@ func (t *CopyFileTask) run() {
 		return
 	}
 
-	o, err := t.GetSourceStorage().Stat(t.GetSourcePath())
-	if err != nil {
-		t.TriggerFault(types.NewErrUnhandled(err))
-		return
-	}
-
-	if o.Size >= constants.MaximumAutoMultipartSize {
+	srcSize := check.GetSourceObject().Size
+	if srcSize >= constants.MaximumAutoMultipartSize {
 		x := NewCopyLargeFile(t)
-		x.SetTotalSize(o.Size)
+		x.SetTotalSize(srcSize)
 		t.GetScheduler().Sync(x)
 	} else {
 		x := NewCopySmallFile(t)
-		x.SetSize(o.Size)
+		x.SetSize(srcSize)
 		t.GetScheduler().Sync(x)
 	}
 }
@@ -174,7 +172,7 @@ func (t *CopyStreamTask) run() {
 	}
 
 	t.GetScheduler().Wait()
-	t.GetScheduler().Sync(NewSegmentCompleteTask(t))
+	t.GetScheduler().Sync(NewSegmentCompleteTask(initTask))
 }
 
 func (t *CopyPartialStreamTask) new() {

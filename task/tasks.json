@@ -1,4 +1,17 @@
 {
+  "BetweenStorageCheck": {
+    "description": "Do check for between storage task",
+    "input": [
+      "DestinationPath",
+      "DestinationStorage",
+      "SourcePath",
+      "SourceStorage"
+    ],
+    "output": [
+      "DestinationObject",
+      "SourceObject"
+    ]
+  },
   "CopyDir": {
     "description": "copy a directory recursively between two storager",
     "input": [
@@ -147,8 +160,7 @@
   "IsDestinationObjectExist": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage"
+      "DestinationObject"
     ],
     "output": [
       "Result"
@@ -157,10 +169,8 @@
   "IsSizeEqual": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
+      "DestinationObject",
+      "SourceObject"
     ],
     "output": [
       "Result"
@@ -169,10 +179,8 @@
   "IsUpdateAtGreater": {
     "description": "",
     "input": [
-      "DestinationPath",
-      "DestinationStorage",
-      "SourcePath",
-      "SourceStorage"
+      "DestinationObject",
+      "SourceObject"
     ],
     "output": [
       "Result"
