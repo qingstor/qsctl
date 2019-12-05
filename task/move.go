@@ -17,6 +17,12 @@ func (t *MoveDirTask) run() {
 		sf.SetDestinationPath(o.Name)
 		t.GetScheduler().Async(sf)
 	})
+	x.SetDirFunc(func(o *typ.Object) {
+		sf := NewMoveDir(t)
+		sf.SetSourcePath(o.Name)
+		sf.SetDestinationPath(o.Name)
+		t.GetScheduler().Sync(sf)
+	})
 	t.GetScheduler().Sync(x)
 }
 

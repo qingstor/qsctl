@@ -30,6 +30,7 @@ func TestCopyDirTask_run(t *testing.T) {
 		dstStore := mock.NewMockStorager(ctrl)
 
 		task := CopyDirTask{}
+		task.SetFault(fault.New())
 		task.SetPool(navvy.NewPool(10))
 		task.SetSourcePath("source")
 		task.SetSourceStorage(srcStore)
@@ -42,6 +43,7 @@ func TestCopyDirTask_run(t *testing.T) {
 			assert.True(t, ok)
 		})
 		task.run()
+		assert.Empty(t, task.GetFault().Error())
 	})
 }
 
@@ -76,6 +78,7 @@ func TestCopyFileTask_run(t *testing.T) {
 				dstPath := uuid.New().String()
 
 				task := &CopyFileTask{}
+				task.SetFault(fault.New())
 				task.SetPool(navvy.NewPool(10))
 				task.SetScheduler(sche)
 				task.SetCheckTasks(nil)
@@ -97,6 +100,7 @@ func TestCopyFileTask_run(t *testing.T) {
 				}).AnyTimes()
 
 				task.run()
+				assert.Empty(t, task.GetFault().Error())
 			})
 		}
 	})
@@ -113,6 +117,7 @@ func TestCopySmallFileTask_run(t *testing.T) {
 	dstPath := uuid.New().String()
 
 	task := &CopySmallFileTask{}
+	task.SetFault(fault.New())
 	task.SetPool(navvy.NewPool(10))
 	task.SetSourcePath(srcPath)
 	task.SetSourceStorage(srcStore)
@@ -135,6 +140,7 @@ func TestCopySmallFileTask_run(t *testing.T) {
 	}).AnyTimes()
 
 	task.run()
+	assert.Empty(t, task.GetFault().Error())
 }
 
 func TestCopyLargeFileTask_run(t *testing.T) {
