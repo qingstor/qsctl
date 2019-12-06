@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yunify/qsctl/v2/pkg/i18n"
 
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/utils"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 var teeInput struct {

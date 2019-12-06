@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-CMD_PKG := github.com/yunify/qsctl/v2/cmd/qsctl
+CMD_PKG := github.com/qingstor/qsctl/v2/cmd/qsctl
 VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 

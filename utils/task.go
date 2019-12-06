@@ -15,8 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 // ParseFlow will parse the data flow

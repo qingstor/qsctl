@@ -5,7 +5,7 @@ import (
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 func (t *DeleteFileTask) new() {}

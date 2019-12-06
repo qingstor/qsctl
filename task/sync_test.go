@@ -8,8 +8,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/mock"
+
+	"github.com/qingstor/qsctl/v2/pkg/fault"
+	"github.com/qingstor/qsctl/v2/pkg/mock"
 )
 
 func TestSyncTask_run(t *testing.T) {

@@ -4,7 +4,8 @@ import (
 	"io/ioutil"
 
 	"github.com/Xuanwo/storage/types/pairs"
-	"github.com/yunify/qsctl/v2/pkg/types"
+
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 func (t *SegmentInitTask) new() {}

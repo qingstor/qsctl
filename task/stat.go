@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 func (t *StatFileTask) new() {}

@@ -10,7 +10,7 @@ import (
 type TaskFunc func(navvy.Task) navvy.Task
 
 // Scheduler will schedule tasks.
-//go:generate mockgen -package mock -destination ../mock/scheduler.go github.com/yunify/qsctl/v2/pkg/schedule Scheduler
+//go:generate mockgen -package mock -destination ../mock/scheduler.go github.com/qingstor/qsctl/v2/pkg/schedule Scheduler
 type Scheduler interface {
 	Sync(task navvy.Task)
 	Async(task navvy.Task)

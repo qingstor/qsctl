@@ -3,7 +3,7 @@ package task
 import (
 	typ "github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/utils"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 func (t *MoveDirTask) new() {}

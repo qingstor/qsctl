@@ -126,8 +126,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/pkg/schedule"
+	"github.com/qingstor/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/schedule"
 )
 
 var _ navvy.Pool
@@ -211,7 +211,7 @@ func (t *{{ .Name }}Task) String() string {
 	{{- $called = true -}}
 {{- end -}}
 {{- end -}}
-}", 
+}",
 {{- $called := false -}}
 {{- range $k, $v := .Input -}}
 {{- if not (endwith $v "Func") -}}
@@ -239,8 +239,8 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/qingstor/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/fault"
 )
 
 var _ navvy.Pool

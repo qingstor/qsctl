@@ -9,7 +9,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/yaml.v2"
 
-	"github.com/yunify/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/constants"
 )
 
 // InputConfig is the struct for setup config input

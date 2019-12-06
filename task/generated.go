@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/yunify/qsctl/v2/pkg/schedule"
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/schedule"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 var _ navvy.Pool

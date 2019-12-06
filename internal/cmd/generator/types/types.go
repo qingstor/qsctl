@@ -62,8 +62,8 @@ import (
 	"github.com/Xuanwo/storage/pkg/segment"
 	"github.com/Xuanwo/storage/types"
 
-	"github.com/yunify/qsctl/v2/pkg/schedule"
-	"github.com/yunify/qsctl/v2/pkg/fault"
+	"github.com/qingstor/qsctl/v2/pkg/schedule"
+	"github.com/qingstor/qsctl/v2/pkg/fault"
 )
 
 {{- range $k, $v := .Data }}

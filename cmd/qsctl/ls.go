@@ -10,12 +10,12 @@ import (
 	"github.com/c2h5oh/datasize"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/yunify/qsctl/v2/pkg/i18n"
 
-	"github.com/yunify/qsctl/v2/cmd/qsctl/taskutils"
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/task"
-	"github.com/yunify/qsctl/v2/utils"
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/task"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 var lsInput struct {

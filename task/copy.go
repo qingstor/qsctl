@@ -8,9 +8,9 @@ import (
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/Xuanwo/storage/types/pairs"
 
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/types"
-	"github.com/yunify/qsctl/v2/utils"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 func (t *CopyDirTask) new() {}

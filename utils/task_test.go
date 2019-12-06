@@ -6,8 +6,8 @@ import (
 	"github.com/Xuanwo/storage/services/posixfs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/stretchr/testify/assert"
-	"github.com/yunify/qsctl/v2/constants"
 )
 
 func TestParseFlow(t *testing.T) {

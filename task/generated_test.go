@@ -8,8 +8,8 @@ import (
 	"github.com/Xuanwo/navvy"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yunify/qsctl/v2/pkg/fault"
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/pkg/fault"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 var _ navvy.Pool

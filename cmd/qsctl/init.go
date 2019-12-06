@@ -6,9 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yunify/qsctl/v2/cmd/utils"
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/i18n"
+
+	"github.com/qingstor/qsctl/v2/cmd/utils"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/i18n"
 )
 
 //go:generate go run ../../internal/cmd/generator/i18nextract

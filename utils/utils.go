@@ -3,8 +3,8 @@ package utils
 import (
 	"fmt"
 
-	"github.com/yunify/qsctl/v2/constants"
-	"github.com/yunify/qsctl/v2/pkg/types"
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 // CalculatePartSize will calculate the object's part size.

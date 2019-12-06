@@ -3,7 +3,8 @@ package task
 import (
 	"github.com/Xuanwo/navvy"
 	typ "github.com/Xuanwo/storage/types"
-	"github.com/yunify/qsctl/v2/utils"
+
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 func (t *SyncTask) new() {}
