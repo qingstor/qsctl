@@ -122,19 +122,13 @@ func listFileOutput(o *typ.Object) {
 		objACL = constants.ACLDirectory
 	}
 
-	size, ok := o.Metadata.GetSize()
-	if !ok {
-		// if size not exists (like dir), set size to 0
-		size = 0
-	}
-
 	// default print size by bytes
-	readableSize := strconv.FormatInt(size, 10)
+	readableSize := strconv.FormatInt(o.Size, 10)
 	if lsInput.HumanReadable {
 		// if human readable flag true, print size as human readable format
-		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
+		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
 		if err != nil {
-			log.Debugf("parse size <%o> failed [%o], key: <%s>", size, err, o.Name)
+			log.Debugf("parse size <%o> failed [%o], key: <%s>", o.Size, err, o.Name)
 		}
 	}
 

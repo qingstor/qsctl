@@ -75,9 +75,7 @@ func statFormat(input string, om *typ.Object) string {
 	if v, ok := om.GetChecksum(); ok {
 		input = strings.ReplaceAll(input, "%h", v)
 	}
-	if v, ok := om.GetSize(); ok {
-		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
-	}
+	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.Size, 10))
 	input = strings.ReplaceAll(input, "%y", om.UpdatedAt.String())
 	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.UpdatedAt.Unix(), 10))
 
@@ -95,9 +93,7 @@ func statOutput(t *task.StatFileTask, format string) {
 	var content []string
 
 	content = append(content, "Key: "+om.Name)
-	if v, ok := om.GetSize(); ok {
-		content = append(content, "Size: "+datasize.ByteSize(v).String())
-	}
+	content = append(content, "Size: "+datasize.ByteSize(om.Size).String())
 	if v, ok := om.GetType(); ok {
 		content = append(content, "Type: "+v)
 	}
