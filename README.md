@@ -1,10 +1,10 @@
 # qsctl
 
-[![Build Status](https://travis-ci.org/yunify/qsctl.svg?branch=master)](https://travis-ci.org/yunify/qsctl)
-[![GoDoc](https://godoc.org/github.com/yunify/qsctl?status.svg)](https://godoc.org/github.com/yunify/qsctl)
-[![Go Report Card](https://goreportcard.com/badge/github.com/yunify/qsctl)](https://goreportcard.com/report/github.com/yunify/qsctl)
-[![codecov](https://codecov.io/gh/yunify/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/yunify/qsctl)
-[![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/yunify/qsctl/blob/master/LICENSE)
+[![Build Status](https://travis-ci.com/qingstor/qsctl.svg?branch=master)](https://travis-ci.com/qingstor/qsctl)
+[![GoDoc](https://godoc.org/github.com/qingstor/qsctl?status.svg)](https://godoc.org/github.com/qingstor/qsctl)
+[![Go Report Card](https://goreportcard.com/badge/github.com/qingstor/qsctl)](https://goreportcard.com/report/github.com/qingstor/qsctl)
+[![codecov](https://codecov.io/gh/qingstor/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/qingstor/qsctl)
+[![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/qingstor/qsctl/blob/master/LICENSE)
 
 [中文文档](./docs/README-zh_CN.md)
 
@@ -16,7 +16,7 @@ on local machine.
 
 ### Binary
 
-Visit <https://github.com/yunify/qsctl/releases> to get latest releases.
+Visit <https://github.com/qingstor/qsctl/releases> to get latest releases.
 
 ## Getting Started
 
