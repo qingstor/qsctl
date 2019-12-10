@@ -23,7 +23,7 @@ var cpInput struct {
 
 // CpCommand will handle copy command.
 var CpCommand = &cobra.Command{
-	Use:   i18n.Sprintf("cp <source-path> <dest-path>"),
+	Use:   "cp <source-path> <dest-path>",
 	Short: i18n.Sprintf("copy from/to qingstor"),
 	Long:  i18n.Sprintf("qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout"),
 	Example: utils.AlignPrintWithColon(

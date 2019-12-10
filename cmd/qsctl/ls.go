@@ -27,7 +27,7 @@ var lsInput struct {
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
-	Use:   i18n.Sprintf("ls [qs://<bucket-name/prefix>]"),
+	Use:   "ls [qs://<bucket-name/prefix>]",
 	Short: i18n.Sprintf("list objects or buckets"),
 	Long:  i18n.Sprintf(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
 	Example: utils.AlignPrintWithColon(
