@@ -162,13 +162,16 @@ func (t *CopyStreamTask) run() {
 	t.GetScheduler().Sync(initTask)
 	t.SetSegmentID(initTask.GetSegmentID())
 
+	offset := int64(0)
 	for {
 		x := NewCopyPartialStream(t)
+		x.SetOffset(offset)
 		t.GetScheduler().Async(x)
 
 		if x.GetDone() {
 			break
 		}
+		offset += x.GetSize()
 	}
 
 	t.GetScheduler().Wait()
@@ -201,8 +204,17 @@ func (t *CopyPartialStreamTask) new() {
 	}
 }
 func (t *CopyPartialStreamTask) run() {
-	t.GetScheduler().Sync(NewMD5SumStreamTask(t))
-	t.GetScheduler().Sync(NewSegmentStreamCopyTask(t))
+	md5sumTask := NewMD5SumStream(t)
+	t.GetScheduler().Sync(md5sumTask)
+
+	copyTask := NewSegmentStreamCopy(t)
+	err := utils.ChooseDestinationSegmenter(copyTask, t)
+	if err != nil {
+		t.TriggerFault(err)
+		return
+	}
+	copyTask.SetMD5Sum(md5sumTask.GetMD5Sum())
+	t.GetScheduler().Sync(copyTask)
 }
 
 func (t *CopySingleFileTask) new() {}

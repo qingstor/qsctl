@@ -62,7 +62,7 @@ func mvRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
-		mvOutput(args[0])
+		i18n.Printf("Dir <%s> moved to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 		return nil
 	}
 
@@ -71,10 +71,6 @@ func mvRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	mvOutput(args[0])
+	i18n.Printf("File <%s> moved to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 	return
-}
-
-func mvOutput(path string) {
-	i18n.Printf("Key <%s> moved.\n", path)
 }

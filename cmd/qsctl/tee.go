@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/qingstor/qsctl/v2/task"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/constants"
@@ -29,7 +31,18 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 	PreRunE: validateTeeFlag,
 }
 
-func teeRun(_ *cobra.Command, _ []string) (err error) {
+func teeRun(_ *cobra.Command, args []string) (err error) {
+	rootTask := taskutils.NewBetweenStorageTask(10)
+	err = utils.ParseBetweenStorageInput(rootTask, "-", args[0])
+	if err != nil {
+		return
+	}
+	t := task.NewCopyStream(rootTask)
+	t.SetPartSize(constants.DefaultPartSize)
+	t.Run()
+	if t.GetFault().HasError() {
+		return t.GetFault()
+	}
 	return nil
 }
 

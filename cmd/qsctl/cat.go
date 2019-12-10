@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/task"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
 // CatCommand will handle cat command.
 var CatCommand = &cobra.Command{
-	Use:   i18n.Sprintf("cat qs://<bucket_name>/<object_key>"),
+	Use:   "cat qs://<bucket_name>/<object_key>",
 	Short: i18n.Sprintf("cat a remote object to stdout"),
 	Long:  i18n.Sprintf("qsctl cat can cat a remote object to stdout"),
 	Example: utils.AlignPrintWithColon(
@@ -20,6 +22,16 @@ var CatCommand = &cobra.Command{
 }
 
 func catRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
+	rootTask := taskutils.NewBetweenStorageTask(10)
+	err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
+	if err != nil {
+		return
+	}
+	t := task.NewCopyFile(rootTask)
+	t.SetCheckTasks(nil)
+	t.Run()
+	if t.GetFault().HasError() {
+		return t.GetFault()
+	}
 	return nil
 }

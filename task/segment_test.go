@@ -115,7 +115,7 @@ func TestSegmentStreamCopyTask_run(t *testing.T) {
 
 	task := SegmentStreamCopyTask{}
 	task.SetFault(fault.New())
-	task.SetSegmenter(segmenter)
+	task.SetDestinationSegmenter(segmenter)
 	task.SetSize(srcSize)
 	task.SetOffset(0)
 	task.SetSegmentID(dstSegmentID)
