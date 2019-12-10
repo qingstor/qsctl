@@ -410,15 +410,35 @@ func TestCopyPartialStreamTask_run(t *testing.T) {
 	defer ctrl.Finish()
 
 	sche := mock.NewMockScheduler(ctrl)
+	dstPath := uuid.New().String()
+	dstStore := mock.NewMockStorager(ctrl)
+	dstSegmenter := mock.NewMockSegmenter(ctrl)
+	segmentID := uuid.New().String()
 
 	task := CopyPartialStreamTask{}
 	task.SetPool(navvy.NewPool(10))
 	task.SetScheduler(sche)
 	task.SetFault(fault.New())
+	task.SetDestinationPath(dstPath)
+	task.SetDestinationStorage(struct {
+		storage.Storager
+		storage.Segmenter
+	}{
+		dstStore,
+		dstSegmenter,
+	})
+	task.SetContent(bytes.NewBuffer(nil))
+	task.SetOffset(0)
+	task.SetSegmentID(segmentID)
+	task.SetSize(0)
 
 	sche.EXPECT().Sync(gomock.Any()).Do(func(task navvy.Task) {
 		switch v := task.(type) {
-		case *MD5SumStreamTask, *SegmentStreamCopyTask:
+		case *MD5SumStreamTask:
+			v.validateInput()
+			v.SetMD5Sum(nil)
+		case *SegmentStreamCopyTask:
+			v.validateInput()
 		default:
 			panic(fmt.Errorf("unexpected task %v", v))
 		}
