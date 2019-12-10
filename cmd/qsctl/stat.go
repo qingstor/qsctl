@@ -92,18 +92,18 @@ func statOutput(t *task.StatFileTask, format string) {
 	om := t.GetObject()
 	var content []string
 
-	content = append(content, "Key: "+om.Name)
-	content = append(content, "Size: "+datasize.ByteSize(om.Size).String())
+	content = append(content, i18n.Sprintf("Key: %s", om.Name))
+	content = append(content, i18n.Sprintf("Size: %s", datasize.ByteSize(om.Size).String()))
 	if v, ok := om.GetType(); ok {
-		content = append(content, "Type: "+v)
+		content = append(content, i18n.Sprintf("Type: %s", v))
 	}
 	if v, ok := om.GetClass(); ok {
-		content = append(content, "StorageClass: "+v)
+		content = append(content, i18n.Sprintf("StorageClass: %s", v))
 	}
 	if v, ok := om.GetChecksum(); ok {
-		content = append(content, "MD5: "+v)
+		content = append(content, i18n.Sprintf("MD5: %s", v))
 	}
-	content = append(content, "UpdatedAt: "+om.UpdatedAt.String())
+	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 }

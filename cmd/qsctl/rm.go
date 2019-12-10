@@ -45,7 +45,7 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		rmDirOutput(t)
+		i18n.Printf("Dir <%s> removed.\n", t.GetPath())
 		return nil
 	}
 
@@ -55,14 +55,6 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	rmOutput(t)
+	i18n.Printf("File <%s> removed.\n", t.GetPath())
 	return nil
-}
-
-func rmOutput(t *task.DeleteFileTask) {
-	i18n.Printf("Object <%s> removed.\n", t.GetPath())
-}
-
-func rmDirOutput(t *task.DeleteDirTask) {
-	i18n.Printf("Dir <%s> removed.\n", t.GetPath())
 }
