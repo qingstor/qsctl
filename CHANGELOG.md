@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-beta.2] - 2019-12-10
+
+### Added
+
+- cmd/mv: Implement feature mv (#171)
+- cmd/sync: Implement ignore existing while sync file (#172)
+- i18n: Add whole i18n support (#184)
+
+### Changed
+
+- *: Only print debug log while user required (#180)
+- *: Move project to QingStor
+- cmd: Improve qsctl interactive experience (#191)
+
+### Fixed
+
+- cmd: Fix object size not used correctly (#189)
+
 ## [2.0.0-beta.1] - 2019-11-07
 
 ### Added
@@ -377,6 +395,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-beta.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.1...v2.0.0-beta.2
 [2.0.0-beta.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.8...v2.0.0-beta.1
 [2.0.0-alpha.8]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.7...v2.0.0-alpha.8
 [2.0.0-alpha.7]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.6...v2.0.0-alpha.7
