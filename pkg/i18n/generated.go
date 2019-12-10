@@ -149,6 +149,12 @@ The valid format sequences for files:
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
 	`)
+	_ = message.SetString(tag, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+
+{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+
+{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
+	_ = message.SetString(tag, `{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}`, `{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}`)
 }
 
 // initZhCN will init zh_CN support.
