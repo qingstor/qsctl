@@ -39,7 +39,7 @@ func (t *SegmentFileCopyTask) run() {
 func (t *SegmentStreamCopyTask) new() {}
 func (t *SegmentStreamCopyTask) run() {
 	// TODO: Add checksum support
-	err := t.GetSegmenter().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
+	err := t.GetDestinationSegmenter().WriteSegment(t.GetSegmentID(), t.GetOffset(), t.GetSize(), ioutil.NopCloser(t.GetContent()))
 	if err != nil {
 		t.TriggerFault(types.NewErrUnhandled(err))
 		return

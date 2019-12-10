@@ -473,6 +473,7 @@ type CopyPartialStreamTask struct {
 	// Output value
 	types.Content
 	types.Done
+	types.Offset
 	types.Size
 }
 
@@ -2245,10 +2246,10 @@ type SegmentStreamCopyTask struct {
 	// Input value
 	types.Content
 	types.DestinationPath
+	types.DestinationSegmenter
 	types.MD5Sum
 	types.Offset
 	types.SegmentID
-	types.Segmenter
 	types.Size
 
 	// Output value
@@ -2274,6 +2275,9 @@ func (t *SegmentStreamCopyTask) validateInput() {
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationPath is invalid"))
 	}
+	if !t.ValidateDestinationSegmenter() {
+		panic(fmt.Errorf("Task SegmentStreamCopy value DestinationSegmenter is invalid"))
+	}
 	if !t.ValidateMD5Sum() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value MD5Sum is invalid"))
 	}
@@ -2282,9 +2286,6 @@ func (t *SegmentStreamCopyTask) validateInput() {
 	}
 	if !t.ValidateSegmentID() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value SegmentID is invalid"))
-	}
-	if !t.ValidateSegmenter() {
-		panic(fmt.Errorf("Task SegmentStreamCopy value Segmenter is invalid"))
 	}
 	if !t.ValidateSize() {
 		panic(fmt.Errorf("Task SegmentStreamCopy value Size is invalid"))
@@ -2297,10 +2298,10 @@ func (t *SegmentStreamCopyTask) loadInput(task navvy.Task) {
 	types.LoadPool(task, t)
 	types.LoadContent(task, t)
 	types.LoadDestinationPath(task, t)
+	types.LoadDestinationSegmenter(task, t)
 	types.LoadMD5Sum(task, t)
 	types.LoadOffset(task, t)
 	types.LoadSegmentID(task, t)
-	types.LoadSegmenter(task, t)
 	types.LoadSize(task, t)
 }
 
@@ -2321,7 +2322,7 @@ func (t *SegmentStreamCopyTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *SegmentStreamCopyTask) String() string {
-	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Segmenter: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSegmenter(), t.GetSize())
+	return fmt.Sprintf("SegmentStreamCopyTask {Content: %v, DestinationPath: %v, DestinationSegmenter: %v, MD5Sum: %v, Offset: %v, SegmentID: %v, Size: %v}", t.GetContent(), t.GetDestinationPath(), t.GetDestinationSegmenter(), t.GetMD5Sum(), t.GetOffset(), t.GetSegmentID(), t.GetSize())
 }
 
 // NewSegmentStreamCopyTask will create a SegmentStreamCopyTask which meets navvy.Task.

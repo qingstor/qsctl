@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/task"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
@@ -20,6 +22,16 @@ var CatCommand = &cobra.Command{
 }
 
 func catRun(_ *cobra.Command, args []string) (err error) {
-	// Package handler
+	rootTask := taskutils.NewBetweenStorageTask(10)
+	err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
+	if err != nil {
+		return
+	}
+	t := task.NewCopyFile(rootTask)
+	t.SetCheckTasks(nil)
+	t.Run()
+	if t.GetFault().HasError() {
+		return t.GetFault()
+	}
 	return nil
 }
