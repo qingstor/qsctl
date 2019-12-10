@@ -107,6 +107,7 @@ type CopyDirTask struct {
 	types.Scheduler
 
 	// Input value
+	types.CheckTasks
 	types.DestinationPath
 	types.DestinationStorage
 	types.SourcePath
@@ -129,6 +130,9 @@ func NewCopyDir(task navvy.Task) *CopyDirTask {
 
 // validateInput will validate all input before run task.
 func (t *CopyDirTask) validateInput() {
+	if !t.ValidateCheckTasks() {
+		panic(fmt.Errorf("Task CopyDir value CheckTasks is invalid"))
+	}
 	if !t.ValidateDestinationPath() {
 		panic(fmt.Errorf("Task CopyDir value DestinationPath is invalid"))
 	}
@@ -147,6 +151,7 @@ func (t *CopyDirTask) validateInput() {
 func (t *CopyDirTask) loadInput(task navvy.Task) {
 	types.LoadFault(task, t)
 	types.LoadPool(task, t)
+	types.LoadCheckTasks(task, t)
 	types.LoadDestinationPath(task, t)
 	types.LoadDestinationStorage(task, t)
 	types.LoadSourcePath(task, t)
@@ -170,7 +175,7 @@ func (t *CopyDirTask) TriggerFault(err error) {
 
 // String will implement Stringer interface.
 func (t *CopyDirTask) String() string {
-	return fmt.Sprintf("CopyDirTask {DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
+	return fmt.Sprintf("CopyDirTask {CheckTasks: %v, DestinationPath: %v, DestinationStorage: %v, SourcePath: %v, SourceStorage: %v}", t.GetCheckTasks(), t.GetDestinationPath(), t.GetDestinationStorage(), t.GetSourcePath(), t.GetSourceStorage())
 }
 
 // NewCopyDirTask will create a CopyDirTask which meets navvy.Task.

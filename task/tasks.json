@@ -15,6 +15,7 @@
   "CopyDir": {
     "description": "copy a directory recursively between two storager",
     "input": [
+      "CheckTasks",
       "DestinationPath",
       "DestinationStorage",
       "SourcePath",

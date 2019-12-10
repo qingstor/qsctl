@@ -75,12 +75,13 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
+		t.SetCheckTasks(nil)
 		t.Run()
 
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
-		cpOutput(args[0])
+		i18n.Printf("Dir <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 		return nil
 	}
 
@@ -90,12 +91,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	cpOutput(args[0])
+	i18n.Printf("File <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 	return
-}
-
-func cpOutput(path string) {
-	i18n.Printf("Key <%s> copied.\n", path)
 }
 
 // HandleBetweenStorageWdAndPath set work dir and path for cp cmd.
