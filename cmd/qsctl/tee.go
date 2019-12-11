@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/qingstor/noah/task"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
-	"github.com/qingstor/qsctl/v2/task"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/constants"

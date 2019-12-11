@@ -3,8 +3,8 @@ package taskutils
 import (
 	"github.com/Xuanwo/navvy"
 
-	"github.com/qingstor/qsctl/v2/pkg/fault"
-	"github.com/qingstor/qsctl/v2/pkg/types"
+	"github.com/qingstor/noah/pkg/fault"
+	"github.com/qingstor/noah/pkg/types"
 )
 
 // AtServiceTask is the root task for service only task.

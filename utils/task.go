@@ -15,8 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
+	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/qsctl/v2/constants"
-	"github.com/qingstor/qsctl/v2/pkg/types"
 )
 
 // ParseFlow will parse the data flow
@@ -258,64 +258,4 @@ func NewQingStorService() (*qingstor.Service, error) {
 		)),
 	)
 	return srv, err
-}
-
-// ChooseDestinationStorage will choose the destination storage to fill.
-func ChooseDestinationStorage(x interface {
-	types.PathSetter
-	types.StorageSetter
-}, y interface {
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-}) {
-	x.SetPath(y.GetDestinationPath())
-	x.SetStorage(y.GetDestinationStorage())
-}
-
-// ChooseSourceStorage will choose the source storage to fill.
-func ChooseSourceStorage(x interface {
-	types.PathSetter
-	types.StorageSetter
-}, y interface {
-	types.SourcePathGetter
-	types.SourceStorageGetter
-}) {
-	x.SetPath(y.GetSourcePath())
-	x.SetStorage(y.GetSourceStorage())
-}
-
-// ChooseDestinationStorageAsSegmenter will choose the destination storage as a segmenter.
-func ChooseDestinationStorageAsSegmenter(x interface {
-	types.PathSetter
-	types.SegmenterSetter
-}, y interface {
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-}) (err error) {
-	x.SetPath(y.GetDestinationPath())
-
-	segmenter, ok := y.GetDestinationStorage().(storage.Segmenter)
-	if !ok {
-		return types.NewErrStorageInsufficientAbility(nil)
-	}
-	x.SetSegmenter(segmenter)
-	return
-}
-
-// ChooseDestinationSegmenter will choose the destination storage as a segmenter.
-func ChooseDestinationSegmenter(x interface {
-	types.DestinationPathSetter
-	types.DestinationSegmenterSetter
-}, y interface {
-	types.DestinationPathGetter
-	types.DestinationStorageGetter
-}) (err error) {
-	x.SetDestinationPath(y.GetDestinationPath())
-
-	segmenter, ok := y.GetDestinationStorage().(storage.Segmenter)
-	if !ok {
-		return types.NewErrStorageInsufficientAbility(nil)
-	}
-	x.SetDestinationSegmenter(segmenter)
-	return
 }
