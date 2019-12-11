@@ -7,7 +7,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 
-	"github.com/qingstor/qsctl/v2/pkg/types"
+	"github.com/qingstor/noah/pkg/types"
 )
 
 // ErrReadableSizeFormat will return when size format not the same with expected.
