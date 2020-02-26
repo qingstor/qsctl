@@ -35,6 +35,7 @@ lint:
 generate:
 	@echo "generate code..."
 	@go generate ./...
+	@go fmt ./...
 	@echo "Done"
 
 build: tidy generate check

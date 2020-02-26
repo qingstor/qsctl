@@ -1,6 +1,6 @@
 {
   "\"%s  %s  %s  %s\\n\"": "\"%s  %s  %s  %s\\n\"",
-  "\"-r is required to delete a directory\"": "\"-r is required to delete a directory\"",
+  "\"-r is required to copy a directory\"": "\"-r is required to copy a directory\"",
   "\"AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.\"": "\"AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.\"",
   "\"Bucket \u003c%s\u003e created.\\n\"": "\"Bucket \u003c%s\u003e created.\\n\"",
   "\"Bucket \u003c%s\u003e removed.\\n\"": "\"Bucket \u003c%s\u003e removed.\\n\"",

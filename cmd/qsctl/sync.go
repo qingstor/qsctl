@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
-	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -48,9 +46,9 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("both source and destination should be directories")
 	}
 
-	if err = HandleSyncStorageBaseAndPath(rootTask); err != nil {
-		return err
-	}
+	// if err = HandleSyncStorageBaseAndPath(rootTask); err != nil {
+	// 	return err
+	// }
 
 	t := task.NewSync(rootTask)
 	t.SetIgnoreExisting(syncInput.IgnoreExisting)
@@ -73,6 +71,7 @@ func syncOutput(t *task.SyncTask) {
 	i18n.Printf("Dir <%s> and <%s> synced.\n", t.GetSourcePath(), t.GetDestinationPath())
 }
 
+/*
 // HandleSyncStorageBaseAndPath set work dir and path for sync cmd.
 func HandleSyncStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
 	srcPath, err := filepath.Abs(t.GetSourcePath())
@@ -94,3 +93,4 @@ func HandleSyncStorageBaseAndPath(t *taskutils.BetweenStorageTask) error {
 	t.SetDestinationPath("")
 	return nil
 }
+*/

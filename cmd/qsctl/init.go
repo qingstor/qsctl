@@ -29,6 +29,8 @@ var rootCmd = &cobra.Command{
 	Use:     constants.Name,
 	Long:    constants.Description,
 	Version: constants.Version,
+	// SilenceErrors: true,
+	SilenceUsage: true,
 }
 
 func init() {

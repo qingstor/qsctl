@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
+	"time"
 
 	"github.com/Xuanwo/storage/types"
-	"github.com/Xuanwo/storage/types/pairs"
+	"github.com/qingstor/noah/pkg/progress"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -66,12 +66,33 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpInput.Recursive {
-		return fmt.Errorf(i18n.Sprintf("-r is required to delete a directory"))
+		return fmt.Errorf(i18n.Sprintf("-r is required to copy a directory"))
 	}
 
-	if err = HandleBetweenStorageWdAndPath(rootTask, cpInput.Recursive); err != nil {
-		return err
-	}
+	sigChan := make(chan struct{})
+	defer close(sigChan)
+	go func() {
+		data := progress.Start(time.Second)
+		i := 0
+		for {
+			i++
+			select {
+			case state := <-data:
+				state.Range(func(k, v interface{}) bool {
+					fmt.Println(k, v)
+					return true
+				})
+				fmt.Println(i)
+			case <-sigChan:
+				progress.End()
+				return
+			}
+		}
+	}()
+
+	// if err = HandleBetweenStorageWdAndPath(rootTask, cpInput.Recursive); err != nil {
+	// 	return err
+	// }
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
@@ -95,6 +116,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	return
 }
 
+/*
 // HandleBetweenStorageWdAndPath set work dir and path for cp cmd.
 func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bool) error {
 	// In operation cp, we set source storage to dir of the source path.
@@ -140,3 +162,4 @@ func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bo
 	t.SetDestinationPath(filepath.Base(dstPath))
 	return nil
 }
+*/

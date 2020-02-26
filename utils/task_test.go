@@ -3,7 +3,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/Xuanwo/storage/services/posixfs"
+	"github.com/Xuanwo/storage/services/fs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/qingstor/qsctl/v2/constants"
@@ -61,7 +61,7 @@ func TestParseStorageInput(t *testing.T) {
 	cases := []struct {
 		name        string
 		input       string
-		storageType typ.StoragerType
+		storageType StoragerType
 		hasPanic    bool
 		err         error
 	}{
@@ -75,7 +75,7 @@ func TestParseStorageInput(t *testing.T) {
 		{
 			"valid local path",
 			"/etc",
-			posixfs.StoragerType,
+			fs.Type,
 			false,
 			nil,
 		},
@@ -104,7 +104,7 @@ func TestParseStorageInput(t *testing.T) {
 func TestParseServiceInput(t *testing.T) {
 	cases := []struct {
 		name         string
-		servicerType typ.ServicerType
+		servicerType StoragerType
 		hasPanic     bool
 		err          error
 	}{
@@ -116,7 +116,7 @@ func TestParseServiceInput(t *testing.T) {
 		},
 		{
 			"valid",
-			qingstor.ServicerType,
+			qingstor.Type,
 			false,
 			nil,
 		},

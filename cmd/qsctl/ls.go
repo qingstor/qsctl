@@ -6,7 +6,6 @@ import (
 
 	"github.com/Xuanwo/storage"
 	typ "github.com/Xuanwo/storage/types"
-	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/c2h5oh/datasize"
 	"github.com/qingstor/noah/task"
 	log "github.com/sirupsen/logrus"
@@ -102,11 +101,7 @@ func listBucketOutput(s storage.Storager) {
 	if err != nil {
 		log.Debugf("listBucketOutput: %v", err)
 	}
-	name, ok := m.GetName()
-	if !ok {
-		log.Warnf("bucket failed to get name")
-	}
-	fmt.Println(name)
+	fmt.Println(m.Name)
 }
 
 func listFileOutput(o *typ.Object) {
@@ -141,9 +136,9 @@ func listFileOutput(o *typ.Object) {
 
 // HandleLsStorageWdAndPath set work dir and path for ls cmd.
 func HandleLsStorageWdAndPath(t *taskutils.AtStorageTask) error {
-	if err := t.GetStorage().Init(pairs.WithWorkDir(t.GetPath())); err != nil {
-		return err
-	}
-	t.SetPath("")
+	// if err := t.GetStorage().Init(pairs.WithWorkDir(t.GetPath())); err != nil {
+	// 	return err
+	// }
+	// t.SetPath("")
 	return nil
 }

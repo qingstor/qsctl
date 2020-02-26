@@ -51,9 +51,9 @@ func mvRun(_ *cobra.Command, args []string) (err error) {
 
 	// mv cmd set storage wd and path reuse cp cmd
 	cpInput.Recursive = mvInput.Recursive
-	if err = HandleBetweenStorageWdAndPath(rootTask, mvInput.Recursive); err != nil {
-		return err
-	}
+	// if err = HandleBetweenStorageWdAndPath(rootTask, mvInput.Recursive); err != nil {
+	// 	return err
+	// }
 
 	if mvInput.Recursive {
 		t := task.NewMoveDir(rootTask)

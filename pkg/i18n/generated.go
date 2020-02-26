@@ -8,7 +8,7 @@ import (
 // initEnUS will init en_US support.
 func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
-	_ = message.SetString(tag, "-r is required to delete a directory", "-r is required to delete a directory")
+	_ = message.SetString(tag, "-r is required to copy a directory", "-r is required to copy a directory")
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> created.\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")

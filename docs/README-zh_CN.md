@@ -55,4 +55,4 @@ qsctl 支持如下命令
 - `sync`: 在本地和 QingStor 对象存储 bucket 之间进行同步
 - `tee`: 从标准输入读取内容并上传为指定对象
 
-详细的使用方法和样例可以通过 `qsctl help` 或者 `qsctl <command> help` 来获取。
+详细的使用方法和样例可以通过 `qsctl help` 或者 `qsctl <command> --help` 来获取。
