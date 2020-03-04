@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/Xuanwo/storage/types"
-	"github.com/qingstor/noah/pkg/progress"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -69,30 +68,10 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("-r is required to copy a directory"))
 	}
 
-	sigChan := make(chan struct{})
-	defer close(sigChan)
 	go func() {
-		data := progress.Start(time.Second)
-		i := 0
-		for {
-			i++
-			select {
-			case state := <-data:
-				state.Range(func(k, v interface{}) bool {
-					fmt.Println(k, v)
-					return true
-				})
-				fmt.Println(i)
-			case <-sigChan:
-				progress.End()
-				return
-			}
-		}
+		taskutils.StartProgress(time.Second)
 	}()
-
-	// if err = HandleBetweenStorageWdAndPath(rootTask, cpInput.Recursive); err != nil {
-	// 	return err
-	// }
+	defer taskutils.FinishProgress()
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
@@ -112,54 +91,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+	taskutils.WaitProgress()
 	i18n.Printf("File <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 	return
 }
-
-/*
-// HandleBetweenStorageWdAndPath set work dir and path for cp cmd.
-func HandleBetweenStorageWdAndPath(t *taskutils.BetweenStorageTask, recursive bool) error {
-	// In operation cp, we set source storage to dir of the source path.
-	srcPath, err := filepath.Abs(t.GetSourcePath())
-	if err != nil {
-		return err
-	}
-	if err = t.GetSourceStorage().Init(pairs.WithWorkDir(filepath.Dir(srcPath))); err != nil {
-		return err
-	}
-	t.SetSourcePath(filepath.Base(srcPath))
-
-	// if source path == source work dir，which means cp from '/', transfer to cp /*
-	if filepath.Base(srcPath) == filepath.Dir(srcPath) {
-		t.SetSourcePath("")
-	}
-
-	// Destination path depends on different condition.
-	dstPath, err := filepath.Abs(t.GetDestinationPath())
-	if err != nil {
-		return err
-	}
-	// if copy dir
-	if recursive {
-		if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(dstPath)); err != nil {
-			return err
-		}
-		t.SetDestinationPath("")
-		return nil
-	}
-	// NOT copy dir. Copy file to a dir, we need to get destination key from the source.
-	if t.GetDestinationType() == types.ObjectTypeDir {
-		if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(dstPath)); err != nil {
-			return err
-		}
-		t.SetDestinationPath(t.GetSourcePath())
-		return nil
-	}
-	// Copy to a file, get destination directly.
-	if err := t.GetDestinationStorage().Init(pairs.WithWorkDir(filepath.Dir(dstPath))); err != nil {
-		return err
-	}
-	t.SetDestinationPath(filepath.Base(dstPath))
-	return nil
-}
-*/
