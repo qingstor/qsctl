@@ -16,17 +16,15 @@ var sigChan chan struct{}
 
 func init() {
 	sigChan = make(chan struct{})
+	pbPool = mpb.New(mpb.WithWaitGroup(&wg))
 }
 
 // StartProgress start to get state from state center
 func StartProgress(d time.Duration) error {
-	pbPool = mpb.New(mpb.WithWaitGroup(&wg))
 	data := progress.Start(d)
-	i := 0
 	startTime := time.Now()
 readChannel:
 	for {
-		i++
 		select {
 		case stateCenter := <-data:
 			stateCenter.Range(func(taskID, v interface{}) bool {
@@ -43,14 +41,12 @@ readChannel:
 					wg.Add(1)
 					pbar = pbPool.AddBar(state.Total,
 						mpb.PrependDecorators(
-							decor.Name(state.TaskName),
-							decor.Percentage(decor.WCSyncSpace),
+							decor.Name(state.TaskName, decor.WCSyncSpaceR),
+							decor.NewElapsed(decor.ET_STYLE_HHMMSS, startTime),
 						),
 						mpb.AppendDecorators(
-							// replace ETA decorator with "done" message, OnComplete event
 							decor.OnComplete(
-								// ETA decorator with ewma age of 60
-								decor.EwmaETA(decor.ET_STYLE_GO, 60), "done",
+								decor.Percentage(decor.WCSyncSpace), "done",
 							),
 						),
 					)
@@ -65,7 +61,6 @@ readChannel:
 				}
 				return true
 			})
-			// fmt.Println(i)
 		case <-sigChan:
 			progress.End()
 			break readChannel
