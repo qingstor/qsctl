@@ -69,7 +69,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	go func() {
-		taskutils.StartProgress(time.Second)
+		taskutils.StartProgress(time.Second, 3)
 	}()
 	defer taskutils.FinishProgress()
 

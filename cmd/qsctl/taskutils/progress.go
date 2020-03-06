@@ -22,6 +22,17 @@ type pBar struct {
 	bar      *mpb.Bar
 }
 
+// pBarGroup is the progress bar group struct
+// it contains available props for bar display.
+// bars is the local pBar group,
+// It takes taskID as the key, pointer to the pBar as value.
+// So that every state will modify its relevant pBar.
+type pBarGroup struct {
+	sync.Mutex
+	activeBarCount int // activeBarCount is the amount of not finished bar
+	bars           map[string]*pBar
+}
+
 // wg is the global wait group used for multi-progress bar
 // use pointer to keep it not copied
 var wg *sync.WaitGroup
@@ -32,7 +43,7 @@ var pbPool *mpb.Progress
 // pbGroup is the local pBar group
 // It takes taskID as the key, pointer to the pBar as value.
 // So that every state will modify its relevant pBar.
-var pbGroup map[string]*pBar
+var pbGroup *pBarGroup
 
 // sigChan is the channel to notify data progress channel to close.
 var sigChan chan struct{}
@@ -40,15 +51,19 @@ var sigChan chan struct{}
 func init() {
 	wg = new(sync.WaitGroup)
 	pbPool = mpb.New(mpb.WithWaitGroup(wg))
-	pbGroup = make(map[string]*pBar)
+	pbGroup = &pBarGroup{
+		bars: make(map[string]*pBar),
+	}
 	sigChan = make(chan struct{})
 }
 
 // StartProgress start to get state from state center.
+// d is the duration time between two data,
+// maxBarCount is the max count of bar displayed.
 // Use progress.Start to start a dataChan to get stateCenter from noah.
 // The stateCenter is a map with taskID as key and its state as value.
 // So we range the stateCenter and update relevant bar's progress.
-func StartProgress(d time.Duration) error {
+func StartProgress(d time.Duration, maxBarCount int) error {
 	dataChan := progress.Start(d)
 	startTime := time.Now()
 readChannel:
@@ -56,9 +71,10 @@ readChannel:
 		select {
 		case stateCenter := <-dataChan:
 			for taskID, state := range stateCenter {
-				pbar, ok := pbGroup[taskID]
-				// bar already exists
-				if ok {
+				pbar, ok := pbGroup.GetPBarByID(taskID)
+				// bar already exists and pbar not nil
+				// set pbar to nil means this state is received, but not add into pbPool
+				if ok && pbar != nil {
 					bar := pbar.GetBar()
 					// if bar already finished, jump over
 					if pbar.Finished() {
@@ -67,13 +83,24 @@ readChannel:
 					// change the bar attr
 					bar.SetTotal(state.Total, false)
 					bar.SetCurrent(state.Done, time.Since(startTime))
-					// if this state is finish state, mark bar as finished
+					// if this state is finish state, mark bar as finished, dec the active bar amount
 					if state.Finished() {
 						pbar.MarkFinished()
+						pbGroup.DecActive()
 						wg.Done()
 					}
-				} else { // bar not exists, create a new one.
-					wg.Add(1)
+				} else {
+					// if bar not exist, means the task state is the first time get
+					// create a new pbar with nil in pbGroup to take the seat,
+					// but do not add it into pbPool to display
+					if !ok {
+						wg.Add(1)
+						pbGroup.SetPBarByID(taskID, nil)
+					}
+					// if active bar already beyond the max count, continue to next
+					if pbGroup.GetActiveCount() >= maxBarCount {
+						continue
+					}
 					bar := pbPool.AddBar(state.Total,
 						mpb.PrependDecorators(
 							decor.Name(state.TaskName, decor.WCSyncSpaceR),
@@ -84,9 +111,11 @@ readChannel:
 								decor.Percentage(decor.WCSyncSpace), "done",
 							),
 						),
+						mpb.BarClearOnComplete(),
 					)
 					bar.SetCurrent(state.Done, time.Since(startTime))
-					pbGroup[taskID] = &pBar{bar: bar}
+					pbGroup.SetPBarByID(taskID, &pBar{bar: bar})
+					pbGroup.IncActive()
 				}
 			}
 		case <-sigChan:
@@ -105,6 +134,42 @@ func WaitProgress() {
 // FinishProgress finish the progress bar and close the progress center
 func FinishProgress() {
 	close(sigChan)
+}
+
+// GetPBarByID returns the pbar's pointer with given taskID
+func (pg *pBarGroup) GetPBarByID(id string) (pbar *pBar, ok bool) {
+	pg.Lock()
+	defer pg.Unlock()
+	pbar, ok = pg.bars[id]
+	return
+}
+
+// SetPBarByID set the pBar with given taskID into pBarGroup
+func (pg *pBarGroup) SetPBarByID(id string, pbar *pBar) {
+	pg.Lock()
+	defer pg.Unlock()
+	pg.bars[id] = pbar
+}
+
+// GetActiveCount returns how many active bars in the group
+func (pg *pBarGroup) GetActiveCount() int {
+	pg.Lock()
+	defer pg.Unlock()
+	return pg.activeBarCount
+}
+
+// IncActive add the active bar count by one
+func (pg *pBarGroup) IncActive() {
+	pg.Lock()
+	defer pg.Unlock()
+	pg.activeBarCount++
+}
+
+// DecActive minus the active bar count by one
+func (pg *pBarGroup) DecActive() {
+	pg.Lock()
+	defer pg.Unlock()
+	pg.activeBarCount--
 }
 
 // Finished is the flag of whether a pBar is finished

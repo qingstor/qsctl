@@ -64,13 +64,13 @@ func lsRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if err = HandleLsStorageWdAndPath(rootTask); err != nil {
-		return err
-	}
 	t := task.NewListDir(rootTask)
-	t.SetFileFunc(listFileOutput)
-	t.SetDirFunc(func(object *typ.Object) {})
-
+	if lsInput.Recursive {
+		t.SetObjectFunc(listFileOutput)
+	} else {
+		t.SetFileFunc(listFileOutput)
+		t.SetDirFunc(listFileOutput)
+	}
 	t.Run()
 
 	// but we have to get fault after output, otherwise fault will not be triggered
@@ -132,13 +132,4 @@ func listFileOutput(o *typ.Object) {
 	// output order: acl  size  lastModified  key
 	// join with two space
 	i18n.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
-}
-
-// HandleLsStorageWdAndPath set work dir and path for ls cmd.
-func HandleLsStorageWdAndPath(t *taskutils.AtStorageTask) error {
-	// if err := t.GetStorage().Init(pairs.WithWorkDir(t.GetPath())); err != nil {
-	// 	return err
-	// }
-	// t.SetPath("")
-	return nil
 }

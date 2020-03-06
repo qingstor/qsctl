@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/qingstor/noah/task"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/spf13/cobra"
@@ -37,12 +39,20 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return
 	}
+
+	go func() {
+		taskutils.StartProgress(time.Second, 5)
+	}()
+	defer taskutils.FinishProgress()
+
 	t := task.NewCopyStream(rootTask)
 	t.SetPartSize(constants.DefaultPartSize)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+
+	taskutils.WaitProgress()
 	return nil
 }
 

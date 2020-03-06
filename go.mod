@@ -6,12 +6,12 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.0.4
 	github.com/Xuanwo/go-locale v0.0.0-20191213075353-2b399f1605a6
 	github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27
-	github.com/Xuanwo/storage v0.7.1
+	github.com/Xuanwo/storage v0.7.3-0.20200305104652-cad39cbf296b
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/jedib0t/go-pretty v4.2.1+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/qingstor/noah v0.0.0-20200304101351-b56accab3f94
+	github.com/qingstor/noah v0.0.0-20200306132135-c6ef19283312
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
