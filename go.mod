@@ -11,7 +11,7 @@ require (
 	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/jedib0t/go-pretty v4.2.1+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/qingstor/noah v0.0.0-20200306132135-c6ef19283312
+	github.com/qingstor/noah v0.0.0-20200306153229-aaae45332ec7
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
