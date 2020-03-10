@@ -68,6 +68,11 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("-r is required to copy a directory"))
 	}
 
+	if rootTask.GetSourceType() == types.ObjectTypeDir &&
+		rootTask.GetDestinationType() != types.ObjectTypeDir {
+		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
+	}
+
 	go func() {
 		taskutils.StartProgress(time.Second, 3)
 	}()
@@ -81,6 +86,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
+		taskutils.WaitProgress()
 		i18n.Printf("Dir <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
 		return nil
 	}

@@ -50,7 +50,7 @@ var sigChan chan struct{}
 
 func init() {
 	wg = new(sync.WaitGroup)
-	pbPool = mpb.New(mpb.WithWaitGroup(wg))
+	pbPool = mpb.New(mpb.WithWaitGroup(wg), mpb.WithWidth(40))
 	pbGroup = &pBarGroup{
 		bars: make(map[string]*pBar),
 	}
@@ -60,17 +60,17 @@ func init() {
 // StartProgress start to get state from state center.
 // d is the duration time between two data,
 // maxBarCount is the max count of bar displayed.
-// Use progress.Start to start a dataChan to get stateCenter from noah.
-// The stateCenter is a map with taskID as key and its state as value.
-// So we range the stateCenter and update relevant bar's progress.
+// Start a ticker to get data from noah periodically.
+// The data from noah is a map with taskID as key and its state as value.
+// So we range the data and update relevant bar's progress.
 func StartProgress(d time.Duration, maxBarCount int) error {
-	dataChan := progress.Start(d)
+	tc := time.NewTicker(d)
 	startTime := time.Now()
-readChannel:
+
 	for {
 		select {
-		case stateCenter := <-dataChan:
-			for taskID, state := range stateCenter {
+		case <-tc.C:
+			for taskID, state := range progress.GetData() {
 				pbar, ok := pbGroup.GetPBarByID(taskID)
 				// bar already exists and pbar not nil
 				// set pbar to nil means this state is received, but not add into pbPool
@@ -103,8 +103,9 @@ readChannel:
 					}
 					bar := pbPool.AddBar(state.Total,
 						mpb.PrependDecorators(
-							decor.Name(state.TaskName, decor.WCSyncSpaceR),
-							decor.NewElapsed(decor.ET_STYLE_HHMMSS, startTime),
+							decor.Name(state.Status, decor.WCSyncSpaceR),
+							decor.Name(truncateBefore(state.TaskName, 10), decor.WCSyncSpaceR),
+							decor.NewElapsed(decor.ET_STYLE_HHMMSS, startTime, decor.WCSyncSpaceR),
 						),
 						mpb.AppendDecorators(
 							decor.OnComplete(
@@ -119,11 +120,9 @@ readChannel:
 				}
 			}
 		case <-sigChan:
-			progress.End()
-			break readChannel
+			return nil
 		}
 	}
-	return nil
 }
 
 // WaitProgress wait the progress bar to complete
@@ -185,4 +184,12 @@ func (b *pBar) MarkFinished() {
 // GetBar get the surrounded pointer to mpb.Bar
 func (b pBar) GetBar() *mpb.Bar {
 	return b.bar
+}
+
+// truncateBefore keeps the last l chars of s, use ... before
+func truncateBefore(s string, l int) string {
+	if len(s) <= l {
+		return s
+	}
+	return "..." + s[len(s)-l:]
 }

@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/qingstor/noah/task"
-	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
@@ -41,7 +41,7 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	go func() {
-		taskutils.StartProgress(time.Second, 5)
+		taskutils.StartProgress(time.Second, 3)
 	}()
 	defer taskutils.FinishProgress()
 
