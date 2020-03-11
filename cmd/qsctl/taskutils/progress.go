@@ -97,24 +97,40 @@ func StartProgress(d time.Duration, maxBarCount int) error {
 						wg.Add(1)
 						pbGroup.SetPBarByID(taskID, nil)
 					}
-					// if active bar already beyond the max count, continue to next
-					if pbGroup.GetActiveCount() >= maxBarCount {
-						continue
-					}
-					bar := pbPool.AddBar(state.Total,
-						mpb.PrependDecorators(
-							decor.Name(state.Status, decor.WCSyncSpaceR),
-							decor.Name(truncateBefore(state.TaskName, 10), decor.WCSyncSpaceR),
-							decor.NewElapsed(decor.ET_STYLE_HHMMSS, startTime, decor.WCSyncSpaceR),
-						),
-						mpb.AppendDecorators(
-							decor.OnComplete(
-								decor.Percentage(decor.WCSyncSpace), "done",
+					var bar *mpb.Bar
+					if state.IsListing() {
+						bar = pbPool.Add(state.Total, mpb.NewSpinnerFiller([]string{".", "..", "..."}, mpb.SpinnerOnLeft),
+							mpb.PrependDecorators(
+								decor.Name(state.Status, decor.WCSyncSpaceR),
+								decor.Name(truncateBefore(state.TaskName, 10), decor.WCSyncSpaceR),
 							),
-						),
-						mpb.BarClearOnComplete(),
-					)
-					bar.SetCurrent(state.Done, time.Since(startTime))
+							mpb.AppendDecorators(
+								decor.OnComplete(decor.Name(""), "done"),
+							),
+							mpb.BarRemoveOnComplete(),
+							mpb.BarWidth(10),
+						)
+					} else {
+						// if active bar already beyond the max count, continue to next
+						if pbGroup.GetActiveCount() >= maxBarCount {
+							continue
+						}
+						bar = pbPool.AddBar(state.Total, mpb.BarStyle("[=>-|"),
+							mpb.PrependDecorators(
+								decor.Name(state.Status, decor.WCSyncSpaceR),
+								decor.Name(truncateBefore(state.TaskName, 10), decor.WCSyncSpaceR),
+							),
+							mpb.AppendDecorators(
+								decor.EwmaETA(decor.ET_STYLE_GO, 60, decor.WCSyncSpace),
+								decor.Name(" ] "),
+								decor.OnComplete(
+									decor.Percentage(decor.WCSyncSpace), "done",
+								),
+							),
+							mpb.BarRemoveOnComplete(),
+						)
+					}
+					bar.SetCurrent(state.Done, d)
 					pbGroup.SetPBarByID(taskID, &pBar{bar: bar})
 					pbGroup.IncActive()
 				}
