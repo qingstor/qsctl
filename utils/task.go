@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -8,16 +9,25 @@ import (
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/pkg/credential"
 	"github.com/Xuanwo/storage/pkg/endpoint"
-	"github.com/Xuanwo/storage/services/posixfs"
+	"github.com/Xuanwo/storage/services/fs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/Xuanwo/storage/types/pairs"
+	"github.com/qingstor/noah/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/qsctl/v2/constants"
 )
+
+// ErrStoragerTypeInvalid returned when storager type invalid
+var ErrStoragerTypeInvalid = errors.New("storager type no valid")
+
+// ErrInvalidFlow returned when parsed flow not valid
+var ErrInvalidFlow = errors.New("invalid flow")
+
+// StoragerType is the alias for the type in storager
+type StoragerType = string
 
 // ParseFlow will parse the data flow
 func ParseFlow(src, dst string) (flow constants.FlowType) {
@@ -83,58 +93,70 @@ func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string
 }
 
 // ParseStorageInput will parse storage input and return a initiated storager.
-func ParseStorageInput(input string, storageType typ.StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
+func ParseStorageInput(input string, storageType StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
+	var wd string
 	switch storageType {
-	case posixfs.StoragerType:
+	case fs.Type:
 		objectType, err = ParseLocalPath(input)
 		if err != nil {
 			return
 		}
-		path = input
-		store = posixfs.NewClient()
-		return
-	case qingstor.StoragerType:
+		wd, path, err = ParseWd(input, string(os.PathSeparator))
+		if err != nil {
+			return
+		}
+		log.Debugf("%s work dir: %s", fs.Type, wd)
+		_, store, err = fs.New(pairs.WithWorkDir(wd))
+		if err != nil {
+			return
+		}
+	case qingstor.Type:
 		var bucketName, objectKey string
-		var srv *qingstor.Service
+		var srv storage.Servicer
 
 		objectType, bucketName, objectKey, err = ParseQsPath(input)
 		if err != nil {
 			return
 		}
+		// always treat qs path as abs path, so add "/" before
+		wd, path, err = ParseWd("/"+objectKey, "/")
+		if err != nil {
+			return
+		}
+		log.Debugf("%s work dir: %s", qingstor.Type, wd)
 		srv, err = NewQingStorService()
 		if err != nil {
 			return
 		}
-		store, err = srv.Get(bucketName)
+		store, err = srv.Get(bucketName, pairs.WithWorkDir(wd))
 		if err != nil {
 			return
 		}
-		path = objectKey
-		return
 	default:
-		panic(fmt.Errorf("no supported storager type %s", storageType))
+		err = fmt.Errorf("%w %s", ErrStoragerTypeInvalid, storageType)
 	}
+	return
 }
 
 // ParseServiceInput will parse service input.
-func ParseServiceInput(serviceType typ.ServicerType) (service storage.Servicer, err error) {
+func ParseServiceInput(serviceType StoragerType) (service storage.Servicer, err error) {
 	switch serviceType {
-	case qingstor.ServicerType:
+	case qingstor.Type:
 		service, err = NewQingStorService()
 		if err != nil {
 			return
 		}
-		return
 	default:
-		panic(fmt.Errorf("no supported servicer type %s", serviceType))
+		err = fmt.Errorf("%w %s", ErrStoragerTypeInvalid, serviceType)
 	}
+	return
 }
 
 // ParseAtServiceInput will parse single args and setup service.
 func ParseAtServiceInput(t interface {
 	types.ServiceSetter
 }) (err error) {
-	service, err := ParseServiceInput(qingstor.ServicerType)
+	service, err := ParseServiceInput(qingstor.Type)
 	if err != nil {
 		return
 	}
@@ -150,10 +172,11 @@ func ParseAtStorageInput(t interface {
 }, input string) (err error) {
 	flow := ParseFlow(input, "")
 	if flow != constants.FlowAtRemote {
-		panic("invalid flow")
+		err = ErrInvalidFlow
+		return
 	}
 
-	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.StoragerType)
+	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.Type)
 	if err != nil {
 		return
 	}
@@ -179,29 +202,34 @@ func ParseBetweenStorageInput(t interface {
 
 	switch flow {
 	case constants.FlowToRemote:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, posixfs.StoragerType)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, fs.Type)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.StoragerType)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.Type)
 		if err != nil {
 			return
 		}
-		dstPath = "/" + dstPath // Add / on qingstor path for base.
 	case constants.FlowToLocal:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.StoragerType)
+		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.Type)
 		if err != nil {
 			return
 		}
-		srcPath = "/" + srcPath // Add / on qingstor path for base.
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, posixfs.StoragerType)
+		dstPath, dstType, dstStore, err = ParseStorageInput(dst, fs.Type)
 		if err != nil {
 			return
 		}
 	default:
-		panic("invalid flow")
+		err = ErrInvalidFlow
+		return
 	}
 
+	// if dstPath is blank while srcPath not,
+	// it means copy file/dir to dst with the same name,
+	// so set dst path to the src path
+	if dstPath == "" && srcPath != "" {
+		dstPath = srcPath
+	}
 	setupSourceStorage(t, srcPath, srcType, srcStore)
 	setupDestinationStorage(t, dstPath, dstType, dstStore)
 	return
@@ -244,15 +272,21 @@ func setupService(t interface {
 }
 
 // NewQingStorService will create a new qingstor service.
-func NewQingStorService() (*qingstor.Service, error) {
-	srv := qingstor.New()
-	err := srv.Init(
-		pairs.WithEndpoint(endpoint.NewStaticFromParsedURL(
-			viper.GetString(constants.ConfigProtocol),
+func NewQingStorService() (storage.Servicer, error) {
+	var ep endpoint.Static
+	switch protocol := viper.GetString(constants.ConfigProtocol); protocol {
+	case endpoint.ProtocolHTTPS:
+		ep = endpoint.NewHTTPS(
 			viper.GetString(constants.ConfigHost),
-			viper.GetInt(constants.ConfigPort),
-		)),
-		pairs.WithCredential(credential.NewStatic(
+			viper.GetInt(constants.ConfigPort))
+	default: // endpoint.ProtocolHTTP:
+		ep = endpoint.NewHTTP(
+			viper.GetString(constants.ConfigHost),
+			viper.GetInt(constants.ConfigPort))
+	}
+	srv, _, err := qingstor.New(
+		pairs.WithEndpoint(ep),
+		pairs.WithCredential(credential.MustNewHmac(
 			viper.GetString(constants.ConfigAccessKeyID),
 			viper.GetString(constants.ConfigSecretAccessKey),
 		)),

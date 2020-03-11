@@ -8,7 +8,7 @@ import (
 // initEnUS will init en_US support.
 func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
-	_ = message.SetString(tag, "-r is required to delete a directory", "-r is required to delete a directory")
+	_ = message.SetString(tag, "-r is required to copy a directory", "-r is required to copy a directory")
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> created.\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")
@@ -49,6 +49,8 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file")
 	_ = message.SetString(tag, "Your config has been set to <%v>. You can still modify it manually.", "Your config has been set to <%v>. You can still modify it manually.")
 	_ = message.SetString(tag, "assign config path manually", "assign config path manually")
+	_ = message.SetString(tag, "cannot copy a directory to a non-directory dest", "cannot copy a directory to a non-directory dest")
+	_ = message.SetString(tag, "cannot move a directory to a non-directory dest", "cannot move a directory to a non-directory dest")
 	_ = message.SetString(tag, "cat a remote object to stdout", "cat a remote object to stdout")
 	_ = message.SetString(tag, "copy directory recursively", "copy directory recursively")
 	_ = message.SetString(tag, "copy from/to qingstor", "copy from/to qingstor")

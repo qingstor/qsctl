@@ -1,6 +1,6 @@
 {
   "\"%s  %s  %s  %s\\n\"": "\"%s  %s  %s  %s\\n\"",
-  "\"-r is required to delete a directory\"": "\"-r is required to delete a directory\"",
+  "\"-r is required to copy a directory\"": "\"-r is required to copy a directory\"",
   "\"AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.\"": "\"AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.\"",
   "\"Bucket \u003c%s\u003e created.\\n\"": "\"Bucket \u003c%s\u003e created.\\n\"",
   "\"Bucket \u003c%s\u003e removed.\\n\"": "\"Bucket \u003c%s\u003e removed.\\n\"",
@@ -41,6 +41,8 @@
   "\"Write to stdout: qsctl cp qs://prefix/b - \u003e /path/to/file\"": "\"Write to stdout: qsctl cp qs://prefix/b - \u003e /path/to/file\"",
   "\"Your config has been set to \u003c%v\u003e. You can still modify it manually.\"": "\"Your config has been set to \u003c%v\u003e. You can still modify it manually.\"",
   "\"assign config path manually\"": "\"assign config path manually\"",
+  "\"cannot copy a directory to a non-directory dest\"": "\"cannot copy a directory to a non-directory dest\"",
+  "\"cannot move a directory to a non-directory dest\"": "\"cannot move a directory to a non-directory dest\"",
   "\"cat a remote object to stdout\"": "\"cat a remote object to stdout\"",
   "\"copy directory recursively\"": "\"copy directory recursively\"",
   "\"copy from/to qingstor\"": "\"copy from/to qingstor\"",

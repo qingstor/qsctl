@@ -1,13 +1,17 @@
 package utils
 
 import (
+	"errors"
 	"testing"
 
-	"github.com/Xuanwo/storage/services/posixfs"
+	"bou.ke/monkey"
+	"github.com/Xuanwo/storage/services/fs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
-	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/qingstor/qsctl/v2/constants"
 )
 
 func TestParseFlow(t *testing.T) {
@@ -61,41 +65,33 @@ func TestParseStorageInput(t *testing.T) {
 	cases := []struct {
 		name        string
 		input       string
-		storageType typ.StoragerType
-		hasPanic    bool
+		storageType StoragerType
 		err         error
 	}{
 		{
 			"invalid storager type",
 			"qs://testaaa",
 			"test",
-			true,
-			nil,
+			ErrStoragerTypeInvalid,
 		},
 		{
 			"valid local path",
 			"/etc",
-			posixfs.StoragerType,
-			false,
+			fs.Type,
 			nil,
 		},
 	}
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			if v.hasPanic {
-				assert.Panics(t, func() {
-					_, _, _, _ = ParseStorageInput(v.input, v.storageType)
-				})
-				return
-			}
-
 			gotPath, gotObjectType, gotStore, gotErr := ParseStorageInput(v.input, v.storageType)
 			assert.Equal(t, v.err == nil, gotErr == nil)
 			if v.err == nil {
 				assert.NotZero(t, gotPath)
 				assert.NotZero(t, gotObjectType)
 				assert.NotNil(t, gotStore)
+			} else {
+				assert.True(t, errors.Is(gotErr, v.err))
 			}
 		})
 	}
@@ -104,38 +100,59 @@ func TestParseStorageInput(t *testing.T) {
 func TestParseServiceInput(t *testing.T) {
 	cases := []struct {
 		name         string
-		servicerType typ.ServicerType
-		hasPanic     bool
+		servicerType StoragerType
 		err          error
 	}{
 		{
 			"invalid",
 			"invalid",
-			true,
-			nil,
+			ErrStoragerTypeInvalid,
 		},
 		{
 			"valid",
-			qingstor.ServicerType,
-			false,
+			qingstor.Type,
 			nil,
 		},
 	}
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			if v.hasPanic {
-				assert.Panics(t, func() {
-					_, _ = ParseServiceInput(v.servicerType)
-				})
-				return
-			}
-
 			gotStore, gotErr := ParseServiceInput(v.servicerType)
 			assert.Equal(t, v.err == nil, gotErr == nil)
 			if v.err == nil {
 				assert.NotNil(t, gotStore)
+			} else {
+				assert.True(t, errors.Is(gotErr, v.err))
 			}
 		})
+	}
+}
+
+func TestNewQingStorService(t *testing.T) {
+	cases := []struct {
+		name     string
+		protocol string
+		wantErr  bool
+	}{
+		{
+			"https",
+			"https",
+			false,
+		},
+		{
+			"http",
+			"http",
+			false,
+		},
+	}
+
+	for _, tt := range cases {
+		monkey.Patch(viper.GetString, func(key string) string {
+			return tt.protocol
+		})
+		srv, err := NewQingStorService()
+		assert.Nil(t, err, tt.name)
+		_, ok := srv.(*qingstor.Service)
+		assert.True(t, ok, tt.name)
 	}
 }
