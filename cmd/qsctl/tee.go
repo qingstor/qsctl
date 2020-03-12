@@ -1,6 +1,8 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -33,12 +35,10 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 
 func teeRun(_ *cobra.Command, args []string) (err error) {
 	rootTask := taskutils.NewBetweenStorageTask(10)
-	err = utils.ParseBetweenStorageInput(rootTask, "-", args[0])
+	_, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, "-", args[0])
 	if err != nil {
 		return
 	}
-
-	dstPath := utils.GetAbsDestinationPath(rootTask)
 
 	t := task.NewCopyStream(rootTask)
 	t.SetPartSize(constants.DefaultPartSize)
@@ -46,7 +46,7 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Printf("Stdin copied to <%s>.\n", dstPath)
+	i18n.Printf("Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 }
 

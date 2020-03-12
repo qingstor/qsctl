@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -36,7 +37,7 @@ func initRmFlag() {
 
 func rmRun(_ *cobra.Command, args []string) (err error) {
 	rootTask := taskutils.NewAtStorageTask(10)
-	err = utils.ParseAtStorageInput(rootTask, args[0])
+	workDir, err := utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
 	}
@@ -49,8 +50,6 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
 	}
 
-	path := utils.GetAbsPath(rootTask)
-
 	if rmInput.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.Run()
@@ -58,7 +57,7 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> removed.\n", path)
+		i18n.Printf("Dir <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
 		return nil
 	}
 
@@ -68,6 +67,6 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> removed.\n", path)
+	i18n.Printf("File <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
 	return nil
 }

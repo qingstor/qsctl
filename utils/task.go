@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/Xuanwo/storage"
@@ -167,42 +166,43 @@ func ParseAtServiceInput(t interface {
 
 // ParseAtStorageInput will parse single args and setup path, type, storager.
 func ParseAtStorageInput(t interface {
-	types.WorkDirSetter
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
-}, input string) (err error) {
+}, input string) (dstWorkDir string, err error) {
 	flow := ParseFlow(input, "")
 	if flow != constants.FlowAtRemote {
 		err = ErrInvalidFlow
 		return
 	}
 
-	dstWorkDir, dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.Type)
+	var (
+		dstPath  string
+		dstType  typ.ObjectType
+		dstStore storage.Storager
+	)
+	dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(input, qingstor.Type)
 	if err != nil {
 		return
 	}
-	setupStorage(t, dstWorkDir, dstPath, dstType, dstStore)
+	setupStorage(t, dstPath, dstType, dstStore)
 	return
 }
 
 // ParseBetweenStorageInput will parse two args into flow, path and key.
 func ParseBetweenStorageInput(t interface {
-	types.SourceWorkDirSetter
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
-	types.DestinationWorkDirSetter
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, src, dst string) (err error) {
+}, src, dst string) (srcWorkDir, dstWorkDir string, err error) {
 	flow := ParseFlow(src, dst)
 	var (
-		srcWorkDir, dstWorkDir string
-		srcPath, dstPath       string
-		srcType, dstType       typ.ObjectType
-		srcStore, dstStore     storage.Storager
+		srcPath, dstPath   string
+		srcType, dstType   typ.ObjectType
+		srcStore, dstStore storage.Storager
 	)
 
 	switch flow {
@@ -235,42 +235,36 @@ func ParseBetweenStorageInput(t interface {
 	if dstPath == "" && srcPath != "" {
 		dstPath = srcPath
 	}
-	setupSourceStorage(t, srcWorkDir, srcPath, srcType, srcStore)
-	setupDestinationStorage(t, dstWorkDir, dstPath, dstType, dstStore)
+	setupSourceStorage(t, srcPath, srcType, srcStore)
+	setupDestinationStorage(t, dstPath, dstType, dstStore)
 	return
 }
 
 func setupSourceStorage(t interface {
-	types.SourceWorkDirSetter
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
-}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
-	t.SetSourceWorkDir(workDir)
+}, path string, objectType typ.ObjectType, store storage.Storager) {
 	t.SetSourcePath(path)
 	t.SetSourceType(objectType)
 	t.SetSourceStorage(store)
 }
 
 func setupDestinationStorage(t interface {
-	types.DestinationWorkDirSetter
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
-	t.SetDestinationWorkDir(workDir)
+}, path string, objectType typ.ObjectType, store storage.Storager) {
 	t.SetDestinationPath(path)
 	t.SetDestinationType(objectType)
 	t.SetDestinationStorage(store)
 }
 
 func setupStorage(t interface {
-	types.WorkDirSetter
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
-}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
-	t.SetWorkDir(workDir)
+}, path string, objectType typ.ObjectType, store storage.Storager) {
 	t.SetPath(path)
 	t.SetType(objectType)
 	t.SetStorage(store)
@@ -303,38 +297,4 @@ func NewQingStorService() (storage.Servicer, error) {
 		)),
 	)
 	return srv, err
-}
-
-// GetAbsPath combines the work dir and path together
-func GetAbsPath(t interface {
-	types.WorkDirGetter
-	types.PathGetter
-}) string {
-	return filepath.Join(t.GetWorkDir(), t.GetPath())
-}
-
-// GetAbsSourcePath combines the source work dir and source path together
-func GetAbsSourcePath(t interface {
-	types.SourceWorkDirGetter
-	types.SourcePathGetter
-}) string {
-	return filepath.Join(t.GetSourceWorkDir(), t.GetSourcePath())
-}
-
-// GetAbsDestinationPath combines the destination work dir and destination path together
-func GetAbsDestinationPath(t interface {
-	types.DestinationWorkDirGetter
-	types.DestinationPathGetter
-}) string {
-	return filepath.Join(t.GetDestinationWorkDir(), t.GetDestinationPath())
-}
-
-// GetAbsBetweenPath combine abs source path and abs destination path separately
-func GetAbsBetweenPath(t interface {
-	types.DestinationWorkDirGetter
-	types.DestinationPathGetter
-	types.SourceWorkDirGetter
-	types.SourcePathGetter
-}) (string, string) {
-	return GetAbsSourcePath(t), GetAbsDestinationPath(t)
 }

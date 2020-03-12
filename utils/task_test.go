@@ -8,7 +8,6 @@ import (
 	"github.com/Xuanwo/storage/services/fs"
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
-	"github.com/qingstor/noah/pkg/types"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
@@ -162,85 +161,5 @@ func TestNewQingStorService(t *testing.T) {
 		assert.Nil(t, err, tt.name)
 		_, ok := srv.(*qingstor.Service)
 		assert.True(t, ok, tt.name)
-	}
-}
-
-func TestGetAbsPath(t *testing.T) {
-	tests := []struct {
-		name    string
-		workDir string
-		path    string
-		want    string
-	}{
-		{
-			"dir",
-			"/path/to/dir/",
-			"",
-			"/path/to/dir",
-		},
-		{
-			"file",
-			"/path/to/",
-			"file",
-			"/path/to/file",
-		},
-	}
-	for _, tt := range tests {
-		obj := &struct {
-			types.WorkDir
-			types.Path
-		}{}
-		obj.SetWorkDir(tt.workDir)
-		obj.SetPath(tt.path)
-
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetAbsPath(obj); got != tt.want {
-				t.Errorf("GetAbsPath() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetAbsBetweenPath(t *testing.T) {
-	tests := []struct {
-		name    string
-		workDir string
-		path    string
-		want    string
-	}{
-		{
-			"dir",
-			"/path/to/dir/",
-			"",
-			"/path/to/dir",
-		},
-		{
-			"file",
-			"/path/to/",
-			"file",
-			"/path/to/file",
-		},
-	}
-	for _, tt := range tests {
-		obj := &struct {
-			types.DestinationWorkDir
-			types.DestinationPath
-			types.SourceWorkDir
-			types.SourcePath
-		}{}
-		obj.SetDestinationWorkDir(tt.workDir)
-		obj.SetDestinationPath(tt.path)
-		obj.SetSourceWorkDir(tt.workDir)
-		obj.SetSourcePath(tt.path)
-
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := GetAbsBetweenPath(obj)
-			if got1 != tt.want {
-				t.Errorf("GetAbsBetweenPath() 1st = %v, want %v", got1, tt.want)
-			}
-			if got2 != tt.want {
-				t.Errorf("GetAbsBetweenPath() 2nd = %v, want %v", got2, tt.want)
-			}
-		})
 	}
 }
