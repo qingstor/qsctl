@@ -1,6 +1,6 @@
 {
   "\"%s  %s  %s  %s\\n\"": "\"%s  %s  %s  %s\\n\"",
-  "\"-r is required to delete a directory\"": "\"删除目录必须要有 -r 参数\"",
+  "\"-r is required to copy a directory\"": "\"复制目录必须要有 -r 参数\"",
   "\"AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.\"": "\"AccessKey 和 SecretKey 未找到。现在请设置您的配置，或者退出以手动设置。\"",
   "\"Bucket <%s> created.\\n\"": "\"Bucket <%s> 已创建。\\n\"",
   "\"Bucket <%s> removed.\\n\"": "\"Bucket <%s> 已删除。\\n\"",
@@ -41,6 +41,8 @@
   "\"Write to stdout: qsctl cp qs://prefix/b - > /path/to/file\"": "\"写入到标准输出: qsctl cp qs://prefix/b - > /path/to/file\"",
   "\"Your config has been set to <%v>. You can still modify it manually.\"": "\"您的配置已设置为 <%v>。您仍然可以手动修改它。\"",
   "\"assign config path manually\"": "\"手动分配配置路径\"",
+  "\"cannot copy a directory to a non-directory dest\"": "\"无法将一个目录复制到非目录路径\"",
+  "\"cannot move a directory to a non-directory dest\"": "\"无法将一个目录移动到非目录路径\"",
   "\"cat a remote object to stdout\"": "\"输出远程对象内容到标准输出\"",
   "\"copy directory recursively\"": "\"递归复制目录\"",
   "\"copy from/to qingstor\"": "\"复制从/到 QingStor 对象存储\"",

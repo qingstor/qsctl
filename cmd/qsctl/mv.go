@@ -49,10 +49,13 @@ func mvRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("-r is required to move a directory")
 	}
 
-	// mv cmd set storage wd and path reuse cp cmd
-	cpInput.Recursive = mvInput.Recursive
-	if err = HandleBetweenStorageWdAndPath(rootTask, mvInput.Recursive); err != nil {
-		return err
+	if cpInput.Recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
+		return fmt.Errorf(i18n.Sprintf("src should be a directory while -r is set"))
+	}
+
+	if rootTask.GetSourceType() == types.ObjectTypeDir &&
+		rootTask.GetDestinationType() != types.ObjectTypeDir {
+		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
 	}
 
 	if mvInput.Recursive {
