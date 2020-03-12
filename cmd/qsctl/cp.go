@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -76,6 +77,14 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
+	srcPath, destPath := rootTask.GetSourcePath(), rootTask.GetDestinationPath()
+	if m, err := rootTask.GetSourceStorage().Metadata(); err == nil {
+		srcPath = filepath.Join(m.WorkDir, rootTask.GetSourcePath())
+	}
+	if m, err := rootTask.GetDestinationStorage().Metadata(); err == nil {
+		destPath = filepath.Join(m.WorkDir, rootTask.GetDestinationPath())
+	}
+
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckTasks(nil)
@@ -84,7 +93,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
-		i18n.Printf("Dir <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+		i18n.Printf("Dir <%s> copied to <%s>.\n", srcPath, destPath)
 		return nil
 	}
 
@@ -94,6 +103,6 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Printf("File <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+	i18n.Printf("File <%s> copied to <%s>.\n", srcPath, destPath)
 	return
 }
