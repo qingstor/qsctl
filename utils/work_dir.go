@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-// ParseWd get a path as input, split the work dir and file by following rules
+// ParseWorkDir get a path as input, split the work dir and file by following rules
 // 1. if the path is like /path/to/target, parse the wd as /path/to/ and file as target;
 // 2. if the path is like /path/to/, parse the wd as /path/to/ and file as "";
 // 3. if the path is like . , parse the wd as {pwd}/ and file as "".
-func ParseWd(path, separator string) (wd, file string, err error) {
+func ParseWorkDir(path, separator string) (wd, file string, err error) {
 	// parse blank wd as dot, aka pwd
 	if path == "" {
 		path = "."

@@ -6,18 +6,18 @@ import (
 	"testing"
 )
 
-func ExampleParseWd() {
+func ExampleParseWorkDir() {
 	var wd, file string
-	wd, file, _ = ParseWd("/path/to/file", "/")
+	wd, file, _ = ParseWorkDir("/path/to/file", "/")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
-	wd, file, _ = ParseWd("/path/to/", "/")
+	wd, file, _ = ParseWorkDir("/path/to/", "/")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
-	wd, file, _ = ParseWd("/", "/")
+	wd, file, _ = ParseWorkDir("/", "/")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
-	// wd, file, _ = ParseWd(".")
+	// wd, file, _ = ParseWorkDir(".")
 	// fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 	// Will get --> wd: <{pwd}>, file: <>
 
@@ -97,16 +97,16 @@ func TestParseWd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotWd, gotFile, err := ParseWd(tt.args.path, tt.args.separator)
+			gotWd, gotFile, err := ParseWorkDir(tt.args.path, tt.args.separator)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ParseWd() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ParseWorkDir() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if gotWd != tt.wantWd {
-				t.Errorf("ParseWd() gotWd = %v, want %v", gotWd, tt.wantWd)
+				t.Errorf("ParseWorkDir() gotWd = %v, want %v", gotWd, tt.wantWd)
 			}
 			if gotFile != tt.wantFile {
-				t.Errorf("ParseWd() gotFile = %v, want %v", gotFile, tt.wantFile)
+				t.Errorf("ParseWorkDir() gotFile = %v, want %v", gotFile, tt.wantFile)
 			}
 		})
 	}

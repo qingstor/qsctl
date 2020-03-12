@@ -68,6 +68,7 @@
   "\"recursively delete keys under a specific prefix\"": "\"recursively delete keys under a specific prefix\"",
   "\"recursively list subdirectories encountered\"": "\"recursively list subdirectories encountered\"",
   "\"remove a remote object\"": "\"remove a remote object\"",
+  "\"src should be a directory while -r is set\"": "\"src should be a directory while -r is set\"",
   "\"stat a remote object\"": "\"stat a remote object\"",
   "\"sync between local directory and QS-Directory\"": "\"sync between local directory and QS-Directory\"",
   "\"tee a remote object from stdin\"": "\"tee a remote object from stdin\"",

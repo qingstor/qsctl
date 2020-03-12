@@ -76,6 +76,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "recursively delete keys under a specific prefix", "recursively delete keys under a specific prefix")
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "recursively list subdirectories encountered")
 	_ = message.SetString(tag, "remove a remote object", "remove a remote object")
+	_ = message.SetString(tag, "src should be a directory while -r is set", "src should be a directory while -r is set")
 	_ = message.SetString(tag, "stat a remote object", "stat a remote object")
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "sync between local directory and QS-Directory")
 	_ = message.SetString(tag, "tee a remote object from stdin", "tee a remote object from stdin")
@@ -166,7 +167,7 @@ The valid format sequences for files:
 // initZhCN will init zh_CN support.
 func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
-	_ = message.SetString(tag, "-r is required to delete a directory", "删除目录必须要有 -r 参数")
+	_ = message.SetString(tag, "-r is required to copy a directory", "复制目录必须要有 -r 参数")
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey 和 SecretKey 未找到。现在请设置您的配置，或者退出以手动设置。")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> 已创建。\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> 已删除。\n")
@@ -207,6 +208,8 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "写入到标准输出: qsctl cp qs://prefix/b - > /path/to/file")
 	_ = message.SetString(tag, "Your config has been set to <%v>. You can still modify it manually.", "您的配置已设置为 <%v>。您仍然可以手动修改它。")
 	_ = message.SetString(tag, "assign config path manually", "手动分配配置路径")
+	_ = message.SetString(tag, "cannot copy a directory to a non-directory dest", "无法将一个目录复制到非目录路径")
+	_ = message.SetString(tag, "cannot move a directory to a non-directory dest", "无法将一个目录移动到非目录路径")
 	_ = message.SetString(tag, "cat a remote object to stdout", "输出远程对象内容到标准输出")
 	_ = message.SetString(tag, "copy directory recursively", "递归复制目录")
 	_ = message.SetString(tag, "copy from/to qingstor", "复制从/到 QingStor 对象存储")

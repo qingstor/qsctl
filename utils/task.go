@@ -101,7 +101,7 @@ func ParseStorageInput(input string, storageType StoragerType) (path string, obj
 		if err != nil {
 			return
 		}
-		wd, path, err = ParseWd(input, string(os.PathSeparator))
+		wd, path, err = ParseWorkDir(input, string(os.PathSeparator))
 		if err != nil {
 			return
 		}
@@ -119,7 +119,7 @@ func ParseStorageInput(input string, storageType StoragerType) (path string, obj
 			return
 		}
 		// always treat qs path as abs path, so add "/" before
-		wd, path, err = ParseWd("/"+objectKey, "/")
+		wd, path, err = ParseWorkDir("/"+objectKey, "/")
 		if err != nil {
 			return
 		}
