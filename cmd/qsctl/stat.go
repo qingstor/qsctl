@@ -34,7 +34,7 @@ var StatCommand = &cobra.Command{
 
 func statRun(_ *cobra.Command, args []string) (err error) {
 	rootTask := taskutils.NewAtStorageTask(10)
-	err = utils.ParseAtStorageInput(rootTask, args[0])
+	_, err = utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
 	}

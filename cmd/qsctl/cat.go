@@ -23,7 +23,7 @@ var CatCommand = &cobra.Command{
 
 func catRun(_ *cobra.Command, args []string) (err error) {
 	rootTask := taskutils.NewBetweenStorageTask(10)
-	err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
+	_, _, err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
 	if err != nil {
 		return
 	}

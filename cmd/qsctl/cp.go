@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -58,7 +59,7 @@ accept: 100MB, 1.8G
 
 func cpRun(_ *cobra.Command, args []string) (err error) {
 	rootTask := taskutils.NewBetweenStorageTask(10)
-	err = utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
+	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
 	}
@@ -84,7 +85,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
-		i18n.Printf("Dir <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+		i18n.Printf("Dir <%s> copied to <%s>.\n",
+			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
 	}
 
@@ -94,6 +96,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Printf("File <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+	i18n.Printf("File <%s> copied to <%s>.\n",
+		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
 }

@@ -19,7 +19,11 @@ func ExampleParseWorkDir() {
 
 	// wd, file, _ = ParseWorkDir(".")
 	// fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
-	// Will get --> wd: <{pwd}>, file: <>
+	// Will get --> wd: <{pwd}/>, file: <>
+
+	// wd, file, _ = ParseWorkDir("-")
+	// fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
+	// Will get --> wd: <{pwd}/>, file: <->
 
 	// Output:
 	// wd: </path/to/>, file: <file>
@@ -92,6 +96,16 @@ func TestParseWd(t *testing.T) {
 			},
 			wantWd:   fmt.Sprintf("%s/", pwd),
 			wantFile: "",
+			wantErr:  false,
+		},
+		{
+			name: "stdin",
+			args: args{
+				path:      "-",
+				separator: "/",
+			},
+			wantWd:   fmt.Sprintf("%s/", pwd),
+			wantFile: "-",
 			wantErr:  false,
 		},
 	}

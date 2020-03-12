@@ -9,6 +9,7 @@ import (
 func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
 	_ = message.SetString(tag, "-r is required to copy a directory", "-r is required to copy a directory")
+	_ = message.SetString(tag, "-r is required to remove a directory", "-r is required to remove a directory")
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> created.\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")
@@ -39,6 +40,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Remove a single object: qsctl rm qs://bucket-name/object-key", "Remove a single object: qsctl rm qs://bucket-name/object-key")
 	_ = message.SetString(tag, "Size: %s", "Size: %s")
 	_ = message.SetString(tag, "Stat object: qsctl stat qs://prefix/a", "Stat object: qsctl stat qs://prefix/a")
+	_ = message.SetString(tag, "Stdin copied to <%s>.\n", "Stdin copied to <%s>.\n")
 	_ = message.SetString(tag, "StorageClass: %s", "StorageClass: %s")
 	_ = message.SetString(tag, "Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/", "Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/")
 	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name", "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name")
@@ -66,6 +68,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "make a new bucket", "make a new bucket")
 	_ = message.SetString(tag, "move directory recursively", "move directory recursively")
 	_ = message.SetString(tag, "move from/to qingstor", "move from/to qingstor")
+	_ = message.SetString(tag, "path should be a directory while -r is set", "path should be a directory while -r is set")
 	_ = message.SetString(tag, "print logs for debug", "print logs for debug")
 	_ = message.SetString(tag, "qsctl cat can cat a remote object to stdout", "qsctl cat can cat a remote object to stdout")
 	_ = message.SetString(tag, "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout", "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout")

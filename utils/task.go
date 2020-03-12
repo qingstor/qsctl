@@ -93,20 +93,20 @@ func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string
 }
 
 // ParseStorageInput will parse storage input and return a initiated storager.
-func ParseStorageInput(input string, storageType StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
-	var wd string
+func ParseStorageInput(input string, storageType StoragerType) (
+	workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
 	switch storageType {
 	case fs.Type:
 		objectType, err = ParseLocalPath(input)
 		if err != nil {
 			return
 		}
-		wd, path, err = ParseWorkDir(input, string(os.PathSeparator))
+		workDir, path, err = ParseWorkDir(input, string(os.PathSeparator))
 		if err != nil {
 			return
 		}
-		log.Debugf("%s work dir: %s", fs.Type, wd)
-		_, store, err = fs.New(pairs.WithWorkDir(wd))
+		log.Debugf("%s work dir: %s", fs.Type, workDir)
+		_, store, err = fs.New(pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
@@ -119,16 +119,16 @@ func ParseStorageInput(input string, storageType StoragerType) (path string, obj
 			return
 		}
 		// always treat qs path as abs path, so add "/" before
-		wd, path, err = ParseWorkDir("/"+objectKey, "/")
+		workDir, path, err = ParseWorkDir("/"+objectKey, "/")
 		if err != nil {
 			return
 		}
-		log.Debugf("%s work dir: %s", qingstor.Type, wd)
+		log.Debugf("%s work dir: %s", qingstor.Type, workDir)
 		srv, err = NewQingStorService()
 		if err != nil {
 			return
 		}
-		store, err = srv.Get(bucketName, pairs.WithWorkDir(wd))
+		store, err = srv.Get(bucketName, pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
@@ -169,14 +169,19 @@ func ParseAtStorageInput(t interface {
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
-}, input string) (err error) {
+}, input string) (dstWorkDir string, err error) {
 	flow := ParseFlow(input, "")
 	if flow != constants.FlowAtRemote {
 		err = ErrInvalidFlow
 		return
 	}
 
-	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.Type)
+	var (
+		dstPath  string
+		dstType  typ.ObjectType
+		dstStore storage.Storager
+	)
+	dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(input, qingstor.Type)
 	if err != nil {
 		return
 	}
@@ -192,7 +197,7 @@ func ParseBetweenStorageInput(t interface {
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, src, dst string) (err error) {
+}, src, dst string) (srcWorkDir, dstWorkDir string, err error) {
 	flow := ParseFlow(src, dst)
 	var (
 		srcPath, dstPath   string
@@ -202,20 +207,20 @@ func ParseBetweenStorageInput(t interface {
 
 	switch flow {
 	case constants.FlowToRemote:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, fs.Type)
+		srcWorkDir, srcPath, srcType, srcStore, err = ParseStorageInput(src, fs.Type)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.Type)
+		dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.Type)
 		if err != nil {
 			return
 		}
 	case constants.FlowToLocal:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.Type)
+		srcWorkDir, srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.Type)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, fs.Type)
+		dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(dst, fs.Type)
 		if err != nil {
 			return
 		}

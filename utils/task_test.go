@@ -65,18 +65,24 @@ func TestParseStorageInput(t *testing.T) {
 	cases := []struct {
 		name        string
 		input       string
+		workDir     string
+		path        string
 		storageType StoragerType
 		err         error
 	}{
 		{
 			"invalid storager type",
 			"qs://testaaa",
+			"",
+			"",
 			"test",
 			ErrStoragerTypeInvalid,
 		},
 		{
 			"valid local path",
 			"/etc",
+			"/",
+			"etc",
 			fs.Type,
 			nil,
 		},
@@ -84,10 +90,11 @@ func TestParseStorageInput(t *testing.T) {
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			gotPath, gotObjectType, gotStore, gotErr := ParseStorageInput(v.input, v.storageType)
+			gotWorkDir, gotPath, gotObjectType, gotStore, gotErr := ParseStorageInput(v.input, v.storageType)
 			assert.Equal(t, v.err == nil, gotErr == nil)
 			if v.err == nil {
-				assert.NotZero(t, gotPath)
+				assert.Equal(t, v.workDir, gotWorkDir, v.name)
+				assert.Equal(t, v.path, gotPath, v.name)
 				assert.NotZero(t, gotObjectType)
 				assert.NotNil(t, gotStore)
 			} else {
