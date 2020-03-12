@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Xuanwo/storage/services/qingstor"
+	"github.com/Xuanwo/storage"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -42,7 +42,7 @@ func presignRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewReachFile(rootTask)
-	t.SetReacher(rootTask.GetStorage().(*qingstor.Storage))
+	t.SetReacher(rootTask.GetStorage().(storage.Reacher))
 	t.SetExpire(presignInput.expire)
 
 	t.Run()
