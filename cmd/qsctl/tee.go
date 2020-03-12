@@ -37,12 +37,16 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return
 	}
+
+	dstPath := utils.GetAbsDestinationPath(rootTask)
+
 	t := task.NewCopyStream(rootTask)
 	t.SetPartSize(constants.DefaultPartSize)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+	i18n.Printf("Stdin copied to <%s>.\n", dstPath)
 	return nil
 }
 

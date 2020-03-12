@@ -46,6 +46,8 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("both source and destination should be directories")
 	}
 
+	srcPath, dstPath := utils.GetAbsBetweenPath(rootTask)
+
 	t := task.NewSync(rootTask)
 	t.SetIgnoreExisting(syncInput.IgnoreExisting)
 	t.Run()
@@ -53,7 +55,7 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	syncOutput(t)
+	i18n.Printf("Dir <%s> and <%s> synced.\n", srcPath, dstPath)
 	return nil
 
 }
@@ -61,8 +63,4 @@ func syncRun(_ *cobra.Command, args []string) (err error) {
 func initSyncFlag() {
 	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "ignore-existing", false,
 		i18n.Sprintf(`skip creating new files in dest dirs, only copy newer by time`))
-}
-
-func syncOutput(t *task.SyncTask) {
-	i18n.Printf("Dir <%s> and <%s> synced.\n", t.GetSourcePath(), t.GetDestinationPath())
 }

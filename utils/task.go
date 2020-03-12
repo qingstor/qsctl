@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/Xuanwo/storage"
@@ -93,20 +94,20 @@ func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string
 }
 
 // ParseStorageInput will parse storage input and return a initiated storager.
-func ParseStorageInput(input string, storageType StoragerType) (path string, objectType typ.ObjectType, store storage.Storager, err error) {
-	var wd string
+func ParseStorageInput(input string, storageType StoragerType) (
+	workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
 	switch storageType {
 	case fs.Type:
 		objectType, err = ParseLocalPath(input)
 		if err != nil {
 			return
 		}
-		wd, path, err = ParseWorkDir(input, string(os.PathSeparator))
+		workDir, path, err = ParseWorkDir(input, string(os.PathSeparator))
 		if err != nil {
 			return
 		}
-		log.Debugf("%s work dir: %s", fs.Type, wd)
-		_, store, err = fs.New(pairs.WithWorkDir(wd))
+		log.Debugf("%s work dir: %s", fs.Type, workDir)
+		_, store, err = fs.New(pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
@@ -119,16 +120,16 @@ func ParseStorageInput(input string, storageType StoragerType) (path string, obj
 			return
 		}
 		// always treat qs path as abs path, so add "/" before
-		wd, path, err = ParseWorkDir("/"+objectKey, "/")
+		workDir, path, err = ParseWorkDir("/"+objectKey, "/")
 		if err != nil {
 			return
 		}
-		log.Debugf("%s work dir: %s", qingstor.Type, wd)
+		log.Debugf("%s work dir: %s", qingstor.Type, workDir)
 		srv, err = NewQingStorService()
 		if err != nil {
 			return
 		}
-		store, err = srv.Get(bucketName, pairs.WithWorkDir(wd))
+		store, err = srv.Get(bucketName, pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
@@ -166,6 +167,7 @@ func ParseAtServiceInput(t interface {
 
 // ParseAtStorageInput will parse single args and setup path, type, storager.
 func ParseAtStorageInput(t interface {
+	types.WorkDirSetter
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
@@ -176,46 +178,49 @@ func ParseAtStorageInput(t interface {
 		return
 	}
 
-	dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.Type)
+	dstWorkDir, dstPath, dstType, dstStore, err := ParseStorageInput(input, qingstor.Type)
 	if err != nil {
 		return
 	}
-	setupStorage(t, dstPath, dstType, dstStore)
+	setupStorage(t, dstWorkDir, dstPath, dstType, dstStore)
 	return
 }
 
 // ParseBetweenStorageInput will parse two args into flow, path and key.
 func ParseBetweenStorageInput(t interface {
+	types.SourceWorkDirSetter
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
+	types.DestinationWorkDirSetter
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
 }, src, dst string) (err error) {
 	flow := ParseFlow(src, dst)
 	var (
-		srcPath, dstPath   string
-		srcType, dstType   typ.ObjectType
-		srcStore, dstStore storage.Storager
+		srcWorkDir, dstWorkDir string
+		srcPath, dstPath       string
+		srcType, dstType       typ.ObjectType
+		srcStore, dstStore     storage.Storager
 	)
 
 	switch flow {
 	case constants.FlowToRemote:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, fs.Type)
+		srcWorkDir, srcPath, srcType, srcStore, err = ParseStorageInput(src, fs.Type)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.Type)
+		dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(dst, qingstor.Type)
 		if err != nil {
 			return
 		}
 	case constants.FlowToLocal:
-		srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.Type)
+		srcWorkDir, srcPath, srcType, srcStore, err = ParseStorageInput(src, qingstor.Type)
 		if err != nil {
 			return
 		}
-		dstPath, dstType, dstStore, err = ParseStorageInput(dst, fs.Type)
+		dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(dst, fs.Type)
 		if err != nil {
 			return
 		}
@@ -230,36 +235,42 @@ func ParseBetweenStorageInput(t interface {
 	if dstPath == "" && srcPath != "" {
 		dstPath = srcPath
 	}
-	setupSourceStorage(t, srcPath, srcType, srcStore)
-	setupDestinationStorage(t, dstPath, dstType, dstStore)
+	setupSourceStorage(t, srcWorkDir, srcPath, srcType, srcStore)
+	setupDestinationStorage(t, dstWorkDir, dstPath, dstType, dstStore)
 	return
 }
 
 func setupSourceStorage(t interface {
+	types.SourceWorkDirSetter
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetSourceWorkDir(workDir)
 	t.SetSourcePath(path)
 	t.SetSourceType(objectType)
 	t.SetSourceStorage(store)
 }
 
 func setupDestinationStorage(t interface {
+	types.DestinationWorkDirSetter
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetDestinationWorkDir(workDir)
 	t.SetDestinationPath(path)
 	t.SetDestinationType(objectType)
 	t.SetDestinationStorage(store)
 }
 
 func setupStorage(t interface {
+	types.WorkDirSetter
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, workDir, path string, objectType typ.ObjectType, store storage.Storager) {
+	t.SetWorkDir(workDir)
 	t.SetPath(path)
 	t.SetType(objectType)
 	t.SetStorage(store)
@@ -292,4 +303,38 @@ func NewQingStorService() (storage.Servicer, error) {
 		)),
 	)
 	return srv, err
+}
+
+// GetAbsPath combines the work dir and path together
+func GetAbsPath(t interface {
+	types.WorkDirGetter
+	types.PathGetter
+}) string {
+	return filepath.Join(t.GetWorkDir(), t.GetPath())
+}
+
+// GetAbsSourcePath combines the source work dir and source path together
+func GetAbsSourcePath(t interface {
+	types.SourceWorkDirGetter
+	types.SourcePathGetter
+}) string {
+	return filepath.Join(t.GetSourceWorkDir(), t.GetSourcePath())
+}
+
+// GetAbsDestinationPath combines the destination work dir and destination path together
+func GetAbsDestinationPath(t interface {
+	types.DestinationWorkDirGetter
+	types.DestinationPathGetter
+}) string {
+	return filepath.Join(t.GetDestinationWorkDir(), t.GetDestinationPath())
+}
+
+// GetAbsBetweenPath combine abs source path and abs destination path separately
+func GetAbsBetweenPath(t interface {
+	types.DestinationWorkDirGetter
+	types.DestinationPathGetter
+	types.SourceWorkDirGetter
+	types.SourcePathGetter
+}) (string, string) {
+	return GetAbsSourcePath(t), GetAbsDestinationPath(t)
 }

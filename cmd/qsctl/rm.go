@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -38,6 +41,16 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	if rootTask.GetType() == types.ObjectTypeDir && !rmInput.recursive {
+		return fmt.Errorf(i18n.Sprintf("-r is required to remove a directory"))
+	}
+
+	if rmInput.recursive && rootTask.GetType() != types.ObjectTypeDir {
+		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
+	}
+
+	path := utils.GetAbsPath(rootTask)
+
 	if rmInput.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.Run()
@@ -45,7 +58,7 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> removed.\n", t.GetPath())
+		i18n.Printf("Dir <%s> removed.\n", path)
 		return nil
 	}
 
@@ -55,6 +68,6 @@ func rmRun(_ *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> removed.\n", t.GetPath())
+	i18n.Printf("File <%s> removed.\n", path)
 	return nil
 }

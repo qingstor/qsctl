@@ -76,6 +76,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
+	srcPath, dstPath := utils.GetAbsBetweenPath(rootTask)
+
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckTasks(nil)
@@ -84,7 +86,7 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
-		i18n.Printf("Dir <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+		i18n.Printf("Dir <%s> copied to <%s>.\n", srcPath, dstPath)
 		return nil
 	}
 
@@ -94,6 +96,6 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Printf("File <%s> copied to <%s>.\n", t.GetSourcePath(), t.GetDestinationPath())
+	i18n.Printf("File <%s> copied to <%s>.\n", srcPath, dstPath)
 	return
 }
