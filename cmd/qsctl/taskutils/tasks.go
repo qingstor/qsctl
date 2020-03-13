@@ -30,7 +30,6 @@ type AtStorageTask struct {
 	types.Pool
 	types.Fault
 
-	types.WorkDir
 	types.Path
 	types.Storage
 	types.Type
@@ -50,11 +49,9 @@ type BetweenStorageTask struct {
 	types.Pool
 	types.Fault
 
-	types.SourceWorkDir
 	types.SourcePath
 	types.SourceStorage
 	types.SourceType
-	types.DestinationWorkDir
 	types.DestinationPath
 	types.DestinationStorage
 	types.DestinationType
