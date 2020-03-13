@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -77,6 +78,11 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
+	go func() {
+		taskutils.StartProgress(time.Second, 3)
+	}()
+	defer taskutils.FinishProgress()
+
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckTasks(nil)
@@ -85,6 +91,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
+
+		taskutils.WaitProgress()
 		i18n.Printf("Dir <%s> copied to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
@@ -96,6 +104,8 @@ func cpRun(_ *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+
+	taskutils.WaitProgress()
 	i18n.Printf("File <%s> copied to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
