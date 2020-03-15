@@ -220,7 +220,7 @@ func addBarByState(state progress.State) (bar *mpb.Bar) {
 			decor.Name(truncateBefore(state.Name, nameWidth), decor.WCSyncSpaceR),
 		),
 		mpb.AppendDecorators(
-			decor.EwmaETA(decor.ET_STYLE_GO, 60, decor.WCSyncSpace),
+			decor.EwmaETA(decor.ET_STYLE_GO, 0, decor.WCSyncSpace),
 			decor.Name(" ] "),
 			decor.OnComplete(
 				decor.Percentage(decor.WCSyncSpace), "done",
