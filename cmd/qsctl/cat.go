@@ -21,7 +21,8 @@ var CatCommand = &cobra.Command{
 	RunE: catRun,
 }
 
-func catRun(_ *cobra.Command, args []string) (err error) {
+func catRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewBetweenStorageTask(10)
 	_, _, err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
 	if err != nil {

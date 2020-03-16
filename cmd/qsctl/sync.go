@@ -37,7 +37,8 @@ key(file) will be overwritten only if the source one newer than destination one.
 	RunE: syncRun,
 }
 
-func syncRun(_ *cobra.Command, args []string) (err error) {
+func syncRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewBetweenStorageTask(10)
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {

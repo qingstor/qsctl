@@ -36,7 +36,8 @@ bucket name should follow DNS name rule with:
 	PreRunE: validateMbFlag,
 }
 
-func mbRun(_ *cobra.Command, args []string) (err error) {
+func mbRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewAtServiceTask(10)
 	err = utils.ParseAtServiceInput(rootTask)
 	if err != nil {

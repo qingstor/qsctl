@@ -141,3 +141,7 @@ func initGlobalFlag() {
 	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprintf("help for this command"))
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprintf("print logs for debug"))
 }
+
+func silenceUsage(c *cobra.Command) {
+	c.SilenceUsage = true
+}

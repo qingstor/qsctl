@@ -40,7 +40,8 @@ func initMvFlag() {
 		i18n.Sprintf("move directory recursively"))
 }
 
-func mvRun(_ *cobra.Command, args []string) (err error) {
+func mvRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewBetweenStorageTask(10)
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {

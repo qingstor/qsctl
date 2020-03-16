@@ -34,7 +34,8 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 	PreRunE: validateTeeFlag,
 }
 
-func teeRun(_ *cobra.Command, args []string) (err error) {
+func teeRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewBetweenStorageTask(10)
 	_, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, "-", args[0])
 	if err != nil {
