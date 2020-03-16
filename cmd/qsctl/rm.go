@@ -35,7 +35,8 @@ func initRmFlag() {
 		false, i18n.Sprintf("recursively delete keys under a specific prefix"))
 }
 
-func rmRun(_ *cobra.Command, args []string) (err error) {
+func rmRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewAtStorageTask(10)
 	workDir, err := utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {

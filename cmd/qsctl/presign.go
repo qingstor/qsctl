@@ -34,7 +34,8 @@ this URL can always retrieve the object with an HTTP GET request.`),
 	PreRun: validatePresignFlag,
 }
 
-func presignRun(_ *cobra.Command, args []string) (err error) {
+func presignRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewAtStorageTask(10)
 	_, err = utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {

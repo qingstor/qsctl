@@ -39,7 +39,8 @@ var LsCommand = &cobra.Command{
 	RunE: lsRun,
 }
 
-func lsRun(_ *cobra.Command, args []string) (err error) {
+func lsRun(c *cobra.Command, args []string) (err error) {
+	silenceUsage(c) // silence usage when handled error returns
 	if len(args) == 0 {
 		rootTask := taskutils.NewAtServiceTask(10)
 		err = utils.ParseAtServiceInput(rootTask)
