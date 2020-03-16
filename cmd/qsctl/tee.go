@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -40,12 +41,18 @@ func teeRun(_ *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	go func() {
+		taskutils.StartProgress(time.Second, 3)
+	}()
+	defer taskutils.FinishProgress()
+
 	t := task.NewCopyStream(rootTask)
 	t.SetPartSize(constants.DefaultPartSize)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+	taskutils.WaitProgress()
 	i18n.Printf("Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 }
