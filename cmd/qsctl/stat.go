@@ -68,7 +68,7 @@ The valid format sequences for files:
 }
 
 func statFormat(input string, om *typ.Object) string {
-	input = strings.ReplaceAll(input, "%n", om.Name)
+	input = strings.ReplaceAll(input, "%n", om.ID)
 
 	if v, ok := om.GetContentType(); ok {
 		input = strings.ReplaceAll(input, "%F", v)
@@ -93,7 +93,7 @@ func statOutput(t *task.StatFileTask, format string) {
 	om := t.GetObject()
 	var content []string
 
-	content = append(content, i18n.Sprintf("Key: %s", om.Name))
+	content = append(content, i18n.Sprintf("Key: %s", om.ID))
 	content = append(content, i18n.Sprintf("Size: %s", datasize.ByteSize(om.Size).String()))
 	if v, ok := om.GetContentType(); ok {
 		content = append(content, i18n.Sprintf("Type: %s", v))
