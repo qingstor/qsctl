@@ -101,7 +101,7 @@ func ParseStorageInput(input string, storageType StoragerType) (
 		if err != nil {
 			return
 		}
-		workDir, path, err = ParseWorkDir(input, string(os.PathSeparator))
+		workDir, path, err = ParseFsWorkDir(input)
 		if err != nil {
 			return
 		}
@@ -118,11 +118,7 @@ func ParseStorageInput(input string, storageType StoragerType) (
 		if err != nil {
 			return
 		}
-		// always treat qs path as abs path, so add "/" before
-		workDir, path, err = ParseWorkDir("/"+objectKey, "/")
-		if err != nil {
-			return
-		}
+		workDir, path = ParseQsWorkDir(objectKey)
 		log.Debugf("%s work dir: %s", qingstor.Type, workDir)
 		srv, err = NewQingStorService()
 		if err != nil {

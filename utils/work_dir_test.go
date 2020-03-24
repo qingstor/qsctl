@@ -6,15 +6,15 @@ import (
 	"testing"
 )
 
-func ExampleParseWorkDir() {
+func ExampleParseFsWorkDir() {
 	var wd, file string
-	wd, file, _ = ParseWorkDir("/path/to/file", "/")
+	wd, file, _ = ParseFsWorkDir("/path/to/file")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
-	wd, file, _ = ParseWorkDir("/path/to/", "/")
+	wd, file, _ = ParseFsWorkDir("/path/to/")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
-	wd, file, _ = ParseWorkDir("/", "/")
+	wd, file, _ = ParseFsWorkDir("/")
 	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
 
 	// wd, file, _ = ParseWorkDir(".")
@@ -38,8 +38,7 @@ func TestParseWd(t *testing.T) {
 	}
 
 	type args struct {
-		path      string
-		separator string
+		path string
 	}
 	tests := []struct {
 		name     string
@@ -51,8 +50,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "normal abs path",
 			args: args{
-				path:      "/path/to/file",
-				separator: "/",
+				path: "/path/to/file",
 			},
 			wantWd:   "/path/to/",
 			wantFile: "file",
@@ -61,8 +59,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "normal rel path",
 			args: args{
-				path:      "path/to/file",
-				separator: "/",
+				path: "path/to/file",
 			},
 			wantWd:   fmt.Sprintf("%s/path/to/", pwd),
 			wantFile: "file",
@@ -71,8 +68,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "root path",
 			args: args{
-				path:      "/",
-				separator: "/",
+				path: "/",
 			},
 			wantWd:   "/",
 			wantFile: "",
@@ -81,8 +77,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "blank path",
 			args: args{
-				path:      "",
-				separator: "/",
+				path: "",
 			},
 			wantWd:   fmt.Sprintf("%s/", pwd),
 			wantFile: "",
@@ -91,8 +86,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "dot path",
 			args: args{
-				path:      ".",
-				separator: "/",
+				path: ".",
 			},
 			wantWd:   fmt.Sprintf("%s/", pwd),
 			wantFile: "",
@@ -101,8 +95,7 @@ func TestParseWd(t *testing.T) {
 		{
 			name: "stdin",
 			args: args{
-				path:      "-",
-				separator: "/",
+				path: "-",
 			},
 			wantWd:   fmt.Sprintf("%s/", pwd),
 			wantFile: "-",
@@ -111,7 +104,7 @@ func TestParseWd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotWd, gotFile, err := ParseWorkDir(tt.args.path, tt.args.separator)
+			gotWd, gotFile, err := ParseFsWorkDir(tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseWorkDir() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -121,6 +114,98 @@ func TestParseWd(t *testing.T) {
 			}
 			if gotFile != tt.wantFile {
 				t.Errorf("ParseWorkDir() gotFile = %v, want %v", gotFile, tt.wantFile)
+			}
+		})
+	}
+}
+
+func ExampleParseQsWorkDir() {
+	var wd, file string
+	wd, file = ParseQsWorkDir("/path/to/file")
+	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
+
+	wd, file = ParseQsWorkDir("/path/to/")
+	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
+
+	wd, file = ParseQsWorkDir("/")
+	fmt.Println(fmt.Sprintf("wd: <%s>, file: <%s>", wd, file))
+
+	// Output:
+	// wd: </path/to/>, file: <file>
+	// wd: </path/to/>, file: <>
+	// wd: </>, file: <>
+}
+
+func TestParseQsWorkDir(t *testing.T) {
+	tests := []struct {
+		name     string
+		path     string
+		wantWd   string
+		wantFile string
+	}{
+		{
+			name:     "file without prefix",
+			path:     "path/to/file",
+			wantWd:   "/path/to/",
+			wantFile: "file",
+		},
+		{
+			name:     "file with prefix",
+			path:     "/path/to/file",
+			wantWd:   "/path/to/",
+			wantFile: "file",
+		},
+		{
+			name:     "dir without prefix",
+			path:     "path/to/dir/",
+			wantWd:   "/path/to/dir/",
+			wantFile: "",
+		},
+		{
+			name:     "dir with prefix",
+			path:     "/path/to/dir/",
+			wantWd:   "/path/to/dir/",
+			wantFile: "",
+		},
+		{
+			name:     "dir with more than one prefix",
+			path:     "path/to/dir/",
+			wantWd:   "/path/to/dir/",
+			wantFile: "",
+		},
+		{
+			name:     "dir with redundant separator",
+			path:     "path///to///dir/",
+			wantWd:   "/path/to/dir/",
+			wantFile: "",
+		},
+		{
+			name:     "root dir",
+			path:     "/",
+			wantWd:   "/",
+			wantFile: "",
+		},
+		{
+			name:     "blank dir",
+			path:     "",
+			wantWd:   "/",
+			wantFile: "",
+		},
+		{
+			name:     "redundant dir",
+			path:     "////",
+			wantWd:   "/",
+			wantFile: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotWd, gotFile := ParseQsWorkDir(tt.path)
+			if gotWd != tt.wantWd {
+				t.Errorf("ParseQsWorkDir() gotWd = %v, want %v", gotWd, tt.wantWd)
+			}
+			if gotFile != tt.wantFile {
+				t.Errorf("ParseQsWorkDir() gotFile = %v, want %v", gotFile, tt.wantFile)
 			}
 		})
 	}
