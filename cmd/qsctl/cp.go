@@ -28,7 +28,8 @@ var CpCommand = &cobra.Command{
 	Long:  i18n.Sprintf("qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout"),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("Copy file: qsctl cp /path/to/file qs://prefix/a"),
-		i18n.Sprintf("Copy folder: qsctl cp qs://prefix/a /path/to/folder -r"),
+		i18n.Sprintf("Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r"),
+		i18n.Sprintf("Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r"),
 		i18n.Sprintf("Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin"),
 		i18n.Sprintf("Write to stdout: qsctl cp qs://prefix/b - > /path/to/file"),
 	),
