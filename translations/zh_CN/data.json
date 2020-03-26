@@ -32,7 +32,7 @@
   "\"Remove a single object: qsctl rm qs://bucket-name/object-key\"": "\"删除单个对象: qsctl rm qs://bucket-name/object-key\"",
   "\"Size: %s\"": "\"大小: %s\"",
   "\"Stat object: qsctl stat qs://prefix/a\"": "\"查看文件信息: qsctl stat qs://prefix/a\"",
-  "\"Stdin copied to <%s>.\\n\"": "\"标准输入已复制到 <%s>.\\n\"",
+  "\"Stdin copied to <%s>.\\n\"": "\"复制标准输入到 <%s>.\\n\"",
   "\"StorageClass: %s\"": "\"存储类型: %s\"",
   "\"Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/\"": "\"同步 QS-Directory 到本地目录: qsctl sync qs://bucket-name/test/ test_local/\"",
   "\"Sync local directory to QS-Directory: qsctl sync . qs://bucket-name\"": "\"同步本地目录到 QS-Directory: qsctl sync . qs://bucket-name\"",
