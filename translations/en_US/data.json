@@ -14,6 +14,7 @@
   "\"Dir \u003c%s\u003e copied to \u003c%s\u003e.\\n\"": "\"Dir \u003c%s\u003e copied to \u003c%s\u003e.\\n\"",
   "\"Dir \u003c%s\u003e moved to \u003c%s\u003e.\\n\"": "\"Dir \u003c%s\u003e moved to \u003c%s\u003e.\\n\"",
   "\"Dir \u003c%s\u003e removed.\\n\"": "\"Dir \u003c%s\u003e removed.\\n\"",
+  "\"ETag: %s\"": "\"ETag: %s\"",
   "\"File \u003c%s\u003e copied to \u003c%s\u003e.\\n\"": "\"File \u003c%s\u003e copied to \u003c%s\u003e.\\n\"",
   "\"File \u003c%s\u003e moved to \u003c%s\u003e.\\n\"": "\"File \u003c%s\u003e moved to \u003c%s\u003e.\\n\"",
   "\"File \u003c%s\u003e removed.\\n\"": "\"File \u003c%s\u003e removed.\\n\"",
@@ -23,7 +24,6 @@
   "\"List objects by long format: qsctl ls qs://bucket-name -l\"": "\"List objects by long format: qsctl ls qs://bucket-name -l\"",
   "\"List objects with prefix: qsctl ls qs://bucket-name/prefix\"": "\"List objects with prefix: qsctl ls qs://bucket-name/prefix\"",
   "\"Load config failed [%v]\"": "\"Load config failed [%v]\"",
-  "\"MD5: %s\"": "\"MD5: %s\"",
   "\"Make bucket: qsctl mb bucket-name\"": "\"Make bucket: qsctl mb bucket-name\"",
   "\"Move file: qsctl mv /path/to/file qs://prefix/a\"": "\"Move file: qsctl mv /path/to/file qs://prefix/a\"",
   "\"Move folder: qsctl mv qs://prefix/a /path/to/folder -r\"": "\"Move folder: qsctl mv qs://prefix/a /path/to/folder -r\"",
@@ -84,7 +84,7 @@
   "`qsctl sync between local directory and QS-Directory. The first path argument\nis the source directory and second the destination directory.\n\nWhen a key(file) already exists in the destination directory, program will compare\nthe modified time of source file(key) and destination key(file). The destination\nkey(file) will be overwritten only if the source one newer than destination one.`": "`qsctl sync between local directory and QS-Directory. The first path argument\nis the source directory and second the destination directory.\n\nWhen a key(file) already exists in the destination directory, program will compare\nthe modified time of source file(key) and destination key(file). The destination\nkey(file) will be overwritten only if the source one newer than destination one.`",
   "`qsctl tee can tee a remote object from stdin.\n\nNOTICE: qsctl will not tee the content to stdout like linux tee command does.\n`": "`qsctl tee can tee a remote object from stdin.\n\nNOTICE: qsctl will not tee the content to stdout like linux tee command does.\n`",
   "`skip creating new files in dest dirs, only copy newer by time`": "`skip creating new files in dest dirs, only copy newer by time`",
-  "`use the specified FORMAT instead of the default;\noutput a newline after each use of FORMAT\n\nThe valid format sequences for files:\n\n  %F   file type\n  %h   content md5 of the file\n  %n   file name\n  %s   total size, in bytes\n  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC\n  %Y   time of last data modification, seconds since Epoch\n\t`": "`use the specified FORMAT instead of the default;\noutput a newline after each use of FORMAT\n\nThe valid format sequences for files:\n\n  %F   file type\n  %h   content md5 of the file\n  %n   file name\n  %s   total size, in bytes\n  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC\n  %Y   time of last data modification, seconds since Epoch\n\t`",
+  "`use the specified FORMAT instead of the default;\noutput a newline after each use of FORMAT\n\nThe valid format sequences for files:\n\n  %F   file type\n  %h   content etag of the file\n  %n   file name\n  %s   total size, in bytes\n  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC\n  %Y   time of last data modification, seconds since Epoch\n\t`": "`use the specified FORMAT instead of the default;\noutput a newline after each use of FORMAT\n\nThe valid format sequences for files:\n\n  %F   file type\n  %h   content etag of the file\n  %n   file name\n  %s   total size, in bytes\n  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC\n  %Y   time of last data modification, seconds since Epoch\n\t`",
   "`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}\n\n{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`": "`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}\n\n{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`",
   "`{{with .Name}}{{printf \"%s \" .}}{{end}}{{printf \"version %s\" .Version}}`": "`{{with .Name}}{{printf \"%s \" .}}{{end}}{{printf \"version %s\" .Version}}`"
 }

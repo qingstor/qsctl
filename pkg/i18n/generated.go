@@ -22,6 +22,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Dir <%s> copied to <%s>.\n", "Dir <%s> copied to <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> moved to <%s>.\n", "Dir <%s> moved to <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> removed.\n", "Dir <%s> removed.\n")
+	_ = message.SetString(tag, "ETag: %s", "ETag: %s")
 	_ = message.SetString(tag, "File <%s> copied to <%s>.\n", "File <%s> copied to <%s>.\n")
 	_ = message.SetString(tag, "File <%s> moved to <%s>.\n", "File <%s> moved to <%s>.\n")
 	_ = message.SetString(tag, "File <%s> removed.\n", "File <%s> removed.\n")
@@ -31,7 +32,6 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "List objects by long format: qsctl ls qs://bucket-name -l", "List objects by long format: qsctl ls qs://bucket-name -l")
 	_ = message.SetString(tag, "List objects with prefix: qsctl ls qs://bucket-name/prefix", "List objects with prefix: qsctl ls qs://bucket-name/prefix")
 	_ = message.SetString(tag, "Load config failed [%v]", "Load config failed [%v]")
-	_ = message.SetString(tag, "MD5: %s", "MD5: %s")
 	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name", "Make bucket: qsctl mb bucket-name")
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "Move file: qsctl mv /path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Move folder: qsctl mv qs://prefix/a /path/to/folder -r", "Move folder: qsctl mv qs://prefix/a /path/to/folder -r")
@@ -142,7 +142,7 @@ output a newline after each use of FORMAT
 The valid format sequences for files:
 
   %F   file type
-  %h   content md5 of the file
+  %h   content etag of the file
   %n   file name
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
@@ -153,7 +153,7 @@ output a newline after each use of FORMAT
 The valid format sequences for files:
 
   %F   file type
-  %h   content md5 of the file
+  %h   content etag of the file
   %n   file name
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
