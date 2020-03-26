@@ -66,10 +66,12 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewListDir(rootTask)
+	t.SetFileFunc(listFileOutput)
 	if lsInput.Recursive {
-		t.SetObjectFunc(listFileOutput)
+		t.SetDirFunc(func(o *typ.Object) {
+			listDirFunc(t, o)
+		})
 	} else {
-		t.SetFileFunc(listFileOutput)
 		t.SetDirFunc(listFileOutput)
 	}
 	t.Run()
@@ -79,6 +81,17 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 	return
+}
+
+func listDirFunc(t *task.ListDirTask, o *typ.Object) {
+	listFileOutput(o)
+	sf := task.NewListDir(t)
+	sf.SetPath(o.Name)
+	sf.SetFileFunc(listFileOutput)
+	sf.SetDirFunc(func(oo *typ.Object) {
+		listDirFunc(sf, oo)
+	})
+	t.GetScheduler().Sync(sf)
 }
 
 func initLsFlag() {
