@@ -58,7 +58,7 @@ output a newline after each use of FORMAT
 The valid format sequences for files:
 
   %F   file type
-  %h   content md5 of the file
+  %h   content etag of the file
   %n   file name
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
@@ -73,7 +73,7 @@ func statFormat(input string, om *typ.Object) string {
 	if v, ok := om.GetContentType(); ok {
 		input = strings.ReplaceAll(input, "%F", v)
 	}
-	if v, ok := om.GetContentMD5(); ok {
+	if v, ok := om.GetETag(); ok {
 		input = strings.ReplaceAll(input, "%h", v)
 	}
 	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.Size, 10))
@@ -101,8 +101,8 @@ func statOutput(t *task.StatFileTask, format string) {
 	if v, ok := om.GetStorageClass(); ok {
 		content = append(content, i18n.Sprintf("StorageClass: %s", v))
 	}
-	if v, ok := om.GetContentMD5(); ok {
-		content = append(content, i18n.Sprintf("MD5: %s", v))
+	if v, ok := om.GetETag(); ok {
+		content = append(content, i18n.Sprintf("ETag: %s", v))
 	}
 	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
 
