@@ -135,7 +135,11 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 
 NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 `)
-	_ = message.SetString(tag, `skip creating new files in dest dirs, only copy newer by time`, `skip creating new files in dest dirs, only copy newer by time`)
+	_ = message.SetString(tag, `recurse into sub directories`, `recurse into sub directories`)
+	_ = message.SetString(tag, `show what would have been transferred`, `show what would have been transferred`)
+	_ = message.SetString(tag, `skip creating new files in dest dirs`, `skip creating new files in dest dirs`)
+	_ = message.SetString(tag, `skip files that are newer in dest dirs`, `skip files that are newer in dest dirs`)
+	_ = message.SetString(tag, `skip updating files in dest dirs, only copy those not exist`, `skip updating files in dest dirs, only copy those not exist`)
 	_ = message.SetString(tag, `use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 
