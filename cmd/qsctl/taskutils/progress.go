@@ -1,6 +1,7 @@
 package taskutils
 
 import (
+	"context"
 	"os"
 	"sync"
 	"time"
@@ -48,6 +49,9 @@ type pBarGroup struct {
 // use pointer to keep it not copied
 var wg = new(sync.WaitGroup)
 
+// ctx is used to cancel pbPool
+var ctx, cancel = context.WithCancel(context.Background())
+
 // pbPool is the multi-progress bar pool
 var pbPool *mpb.Progress
 
@@ -77,7 +81,7 @@ func init() {
 		terminalWidth = widTerminalDefault
 	}
 	nameWidth, barWidth = calBarSize(terminalWidth)
-	pbPool = mpb.New(mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
+	pbPool = mpb.NewWithContext(ctx, mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
 }
 
 // StartProgress start to get state from state center.
@@ -153,6 +157,7 @@ func WaitProgress() {
 // FinishProgress finish the progress bar and close the progress center
 func FinishProgress() {
 	close(sigChan)
+	cancel()
 }
 
 // GetPBarByID returns the pbar's pointer with given taskID
