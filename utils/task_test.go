@@ -20,7 +20,7 @@ import (
 	"github.com/qingstor/qsctl/v2/constants"
 )
 
-var tmpErr = errors.New("temp error")
+var errTmp = errors.New("temp error")
 
 func TestParseFlow(t *testing.T) {
 	cases := []struct {
@@ -71,7 +71,7 @@ func TestParseLocalPath(t *testing.T) {
 			name:         "path err",
 			path:         uuid.New().String(),
 			wantPathType: typ.ObjectTypeInvalid,
-			wantErr:      tmpErr,
+			wantErr:      errTmp,
 		},
 		{
 			name:         "normal file",
@@ -169,7 +169,7 @@ func TestParseStorageInputQingstor(t *testing.T) {
 			input:   "qs://testaaa",
 			workDir: "",
 			path:    "",
-			pathErr: tmpErr,
+			pathErr: errTmp,
 			srvErr:  nil,
 			getErr:  nil,
 		},
@@ -179,7 +179,7 @@ func TestParseStorageInputQingstor(t *testing.T) {
 			workDir: "",
 			path:    "",
 			pathErr: nil,
-			srvErr:  tmpErr,
+			srvErr:  errTmp,
 			getErr:  nil,
 		},
 		{
@@ -189,7 +189,7 @@ func TestParseStorageInputQingstor(t *testing.T) {
 			path:    "",
 			pathErr: nil,
 			srvErr:  nil,
-			getErr:  tmpErr,
+			getErr:  errTmp,
 		},
 	}
 
@@ -224,7 +224,7 @@ func TestParseStorageInputQingstor(t *testing.T) {
 				assert.NotZero(t, gotObjectType)
 				assert.NotNil(t, gotStore)
 			} else {
-				assert.True(t, errors.Is(gotErr, tmpErr))
+				assert.True(t, errors.Is(gotErr, errTmp))
 			}
 		})
 	}
@@ -254,7 +254,7 @@ func TestParseStorageInputFs(t *testing.T) {
 			input:    "/etc",
 			workDir:  "",
 			path:     "",
-			pathErr:  tmpErr,
+			pathErr:  errTmp,
 			wdErr:    nil,
 			fsNewErr: nil,
 		},
@@ -264,7 +264,7 @@ func TestParseStorageInputFs(t *testing.T) {
 			workDir:  "",
 			path:     "",
 			pathErr:  nil,
-			wdErr:    tmpErr,
+			wdErr:    errTmp,
 			fsNewErr: nil,
 		},
 		{
@@ -274,7 +274,7 @@ func TestParseStorageInputFs(t *testing.T) {
 			path:     "etc",
 			pathErr:  nil,
 			wdErr:    nil,
-			fsNewErr: tmpErr,
+			fsNewErr: errTmp,
 		},
 	}
 
@@ -308,7 +308,7 @@ func TestParseStorageInputFs(t *testing.T) {
 				assert.NotNil(t, gotStore, v.name)
 			} else {
 				assert.Nil(t, gotStore, v.name)
-				assert.True(t, errors.Is(gotErr, tmpErr), v.name)
+				assert.True(t, errors.Is(gotErr, errTmp), v.name)
 			}
 			assert.Equal(t, v.workDir, gotWorkDir, v.name)
 			assert.Equal(t, v.path, gotPath, v.name)
@@ -335,16 +335,16 @@ func TestParseServiceInput(t *testing.T) {
 		{
 			name:         "new service failed",
 			servicerType: qingstor.Type,
-			err:          tmpErr,
+			err:          errTmp,
 		},
 	}
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
-			if v.err == tmpErr {
+			if v.err == errTmp {
 				monkey.Patch(NewQingStorService, func() (_ storage.Servicer, err error) {
-					err = tmpErr
+					err = errTmp
 					return
 				})
 			}
@@ -379,7 +379,7 @@ func TestParseAtServiceInput(t *testing.T) {
 			monkey.Patch(ParseServiceInput, func(serviceType StoragerType) (service storage.Servicer, err error) {
 				assert.Equal(t, qingstor.Type, serviceType, tt.name)
 				if tt.wantErr {
-					err = tmpErr
+					err = errTmp
 				}
 				return
 			})
@@ -414,7 +414,7 @@ func TestParseAtStorageInput(t *testing.T) {
 			name:        "error with parse storage",
 			input:       "qs://bucket/path/to/file",
 			wantWorkDir: "/path/to/",
-			err:         tmpErr,
+			err:         errTmp,
 		},
 	}
 	for _, tt := range tests {
@@ -427,7 +427,7 @@ func TestParseAtStorageInput(t *testing.T) {
 				_, _, key, _ := ParseQsPath(input)
 				workDir, path = ParseQsWorkDir(key)
 				if tt.err != nil {
-					err = tmpErr
+					err = errTmp
 				}
 				return
 			})
@@ -490,7 +490,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 			wantSrcWorkDir: "/etc/",
 			wantDstWorkDir: "",
 			failType:       fs.Type,
-			err:            tmpErr,
+			err:            errTmp,
 		},
 		{
 			name:           "parse local to remote dst failed",
@@ -499,7 +499,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 			wantSrcWorkDir: "/etc/",
 			wantDstWorkDir: "/path/to/dir/",
 			failType:       qingstor.Type,
-			err:            tmpErr,
+			err:            errTmp,
 		},
 		{
 			name:           "parse remote to local src failed",
@@ -508,7 +508,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 			wantSrcWorkDir: "/path/to/dir/",
 			wantDstWorkDir: "",
 			failType:       qingstor.Type,
-			err:            tmpErr,
+			err:            errTmp,
 		},
 		{
 			name:           "parse remote to local dst failed",
@@ -517,7 +517,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 			wantSrcWorkDir: "/path/to/dir/",
 			wantDstWorkDir: "/etc/",
 			failType:       fs.Type,
-			err:            tmpErr,
+			err:            errTmp,
 		},
 	}
 
@@ -534,7 +534,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 					workDir, path = ParseQsWorkDir(key)
 				}
 				if tt.failType == storageType && tt.err != nil {
-					err = tmpErr
+					err = errTmp
 				}
 				return
 			})
