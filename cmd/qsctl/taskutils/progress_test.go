@@ -372,7 +372,7 @@ func TestStartProgress(t *testing.T) {
 			bars: make(map[string]*pBar),
 		}
 		wg := new(sync.WaitGroup)
-		pbPool = mpb.New(mpb.WithWaitGroup(wg))
+		pbPool = mpb.New(mpb.WithWaitGroup(wg), mpb.WithOutput(nil))
 		monkey.Patch(progress.GetStates, func() map[string]progress.State {
 			return map[string]progress.State{
 				id + "1": {Name: "list spinner", Status: "", Type: 0, Done: 0, Total: 1},
