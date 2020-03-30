@@ -2,10 +2,13 @@ package taskutils
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
+	"bou.ke/monkey"
 	"github.com/google/uuid"
+	"github.com/qingstor/noah/pkg/progress"
 	"github.com/stretchr/testify/assert"
 	"github.com/vbauerster/mpb/v4"
 )
@@ -282,5 +285,109 @@ func Test_pBarGroup_GetPBarByID(t *testing.T) {
 				t.Errorf("GetPBarByID() = %v, want %v", got.status, tt.status)
 			}
 		})
+	}
+}
+
+func Test_addSpinnerByState(t *testing.T) {
+	type args struct {
+		state progress.State
+	}
+	tests := []struct {
+		name  string
+		args  args
+		count int
+	}{
+		{
+			name: "normal",
+			args: args{state: progress.State{
+				Total: int64(randIntP()),
+			}},
+			count: randIntP()%10 + 1,
+		},
+	}
+	for _, tt := range tests {
+		wg := new(sync.WaitGroup)
+		pbPool = mpb.New(mpb.WithWaitGroup(wg))
+		t.Run(tt.name, func(t *testing.T) {
+			for i := 0; i < tt.count; i++ {
+				addSpinnerByState(tt.args.state)
+			}
+			assert.Equal(t, tt.count, pbPool.BarCount(), tt.name)
+		})
+	}
+}
+
+func Test_addBarByState(t *testing.T) {
+	type args struct {
+		state progress.State
+	}
+	tests := []struct {
+		name  string
+		args  args
+		count int
+	}{
+		{
+			name: "normal",
+			args: args{state: progress.State{
+				Total: int64(randIntP()),
+			}},
+			count: randIntP()%10 + 1,
+		},
+	}
+	for _, tt := range tests {
+		wg := new(sync.WaitGroup)
+		pbPool = mpb.New(mpb.WithWaitGroup(wg))
+		t.Run(tt.name, func(t *testing.T) {
+			for i := 0; i < tt.count; i++ {
+				addBarByState(tt.args.state)
+			}
+			assert.Equal(t, tt.count, pbPool.BarCount(), tt.name)
+		})
+	}
+}
+
+func TestStartProgress(t *testing.T) {
+	id := uuid.New().String()
+	type args struct {
+		d           time.Duration
+		maxBarCount int
+	}
+	tests := []struct {
+		name           string
+		args           args
+		seconds        int
+		activeBarCount int
+		barCount       int
+	}{
+		{
+			name:           "3s",
+			args:           args{d: time.Second, maxBarCount: 2},
+			seconds:        3,
+			activeBarCount: 2,
+			barCount:       4,
+		},
+	}
+	for _, tt := range tests {
+		pbGroup = &pBarGroup{
+			bars: make(map[string]*pBar),
+		}
+		wg := new(sync.WaitGroup)
+		pbPool = mpb.New(mpb.WithWaitGroup(wg))
+		monkey.Patch(progress.GetStates, func() map[string]progress.State {
+			return map[string]progress.State{
+				id + "1": {"list spinner", "", 0, 0, 1},
+				id + "2": {"first bar", "", 1, 0, 1},
+				id + "3": {"finished bar", "", 1, 1, 1},
+				id + "4": {"oversize not display bar", "", 1, 0, 1},
+			}
+		})
+
+		time.AfterFunc(time.Duration(tt.seconds)*tt.args.d, func() {
+			FinishProgress()
+		})
+		StartProgress(tt.args.d, tt.args.maxBarCount)
+		monkey.UnpatchAll()
+		assert.Equal(t, tt.activeBarCount, pbGroup.GetActiveCount(), tt.name)
+		assert.Equal(t, tt.barCount, len(pbGroup.bars), tt.name)
 	}
 }
