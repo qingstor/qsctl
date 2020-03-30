@@ -375,10 +375,10 @@ func TestStartProgress(t *testing.T) {
 		pbPool = mpb.New(mpb.WithWaitGroup(wg))
 		monkey.Patch(progress.GetStates, func() map[string]progress.State {
 			return map[string]progress.State{
-				id + "1": {"list spinner", "", 0, 0, 1},
-				id + "2": {"first bar", "", 1, 0, 1},
-				id + "3": {"finished bar", "", 1, 1, 1},
-				id + "4": {"oversize not display bar", "", 1, 0, 1},
+				id + "1": {Name: "list spinner", Status: "", Type: 0, Done: 0, Total: 1},
+				id + "2": {Name: "first bar", Status: "", Type: 1, Done: 0, Total: 1},
+				id + "3": {Name: "finished bar", Status: "", Type: 1, Done: 1, Total: 1},
+				id + "4": {Name: "oversize not display bar", Status: "", Type: 1, Done: 0, Total: 1},
 			}
 		})
 
