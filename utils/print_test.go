@@ -10,22 +10,41 @@ import (
 
 func TestAlignPrintWithColon(t *testing.T) {
 	cases := []struct {
-		input    []string
-		expected string
+		name      string
+		input     []string
+		expected  string
+		wantPanic bool
 	}{
-		{[]string{
-			"e1: test1",
-			"e12: example2",
-			"long1: s3",
-		},
-			"   e1: test1\n" +
+		{
+			name: "normal",
+			input: []string{
+				"e1: test1",
+				"e12: example2",
+				"long1: s3",
+			},
+			expected: "   e1: test1\n" +
 				"  e12: example2\n" +
 				"long1: s3",
+			wantPanic: false,
+		},
+		{
+			name: "panic",
+			input: []string{
+				"string without colon",
+			},
+			expected:  "",
+			wantPanic: true,
 		},
 	}
 	for _, v := range cases {
-		x := AlignPrintWithColon(v.input...)
-		assert.Equal(t, v.expected, x)
+		if v.wantPanic {
+			assert.Panics(t, func() {
+				AlignPrintWithColon(v.input...)
+			}, v.name)
+		} else {
+			x := AlignPrintWithColon(v.input...)
+			assert.Equal(t, v.expected, x, v.name)
+		}
 	}
 }
 
@@ -49,5 +68,9 @@ func TestAlignLinux(t *testing.T) {
 			"  a10          a11          a12 a13/n" +
 			"  a20 a21-longtext     a22-long a23-long"
 
-	assert.Equal(t, strings.Join(res, "/n"), expected)
+	assert.Equal(t, strings.Join(res, "/n"), expected, "normal")
+
+	var input [][]string
+	input = AlignLinux(input...)
+	assert.Equal(t, 0, len(input), "nil condition")
 }

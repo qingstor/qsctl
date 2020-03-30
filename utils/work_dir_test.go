@@ -3,7 +3,10 @@ package utils
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
+
+	"bou.ke/monkey"
 )
 
 func ExampleParseFsWorkDir() {
@@ -101,9 +104,23 @@ func TestParseWd(t *testing.T) {
 			wantFile: "-",
 			wantErr:  false,
 		},
+		{
+			name: "monkey err",
+			args: args{
+				path: "whatever",
+			},
+			wantWd:   "",
+			wantFile: "",
+			wantErr:  true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr {
+				monkey.Patch(filepath.Abs, func(string) (string, error) {
+					return "", filepath.ErrBadPattern
+				})
+			}
 			gotWd, gotFile, err := ParseFsWorkDir(tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseWorkDir() error = %v, wantErr %v", err, tt.wantErr)
@@ -115,6 +132,7 @@ func TestParseWd(t *testing.T) {
 			if gotFile != tt.wantFile {
 				t.Errorf("ParseWorkDir() gotFile = %v, want %v", gotFile, tt.wantFile)
 			}
+			monkey.Unpatch(filepath.Abs)
 		})
 	}
 }
