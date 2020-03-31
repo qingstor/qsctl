@@ -69,4 +69,4 @@ Commands supported by qsctl are listed below:
 - `sync`: Sync between local directory and QS-Directory.
 - `tee`: Tee from stdin to a remote object. (NOTICE: qsctl will not tee the content to stdout like linux tee command does.)
 
-See the detailed usage and examples with `qsctl help` or `qsctl <command> --help`.
+See the detailed usage and examples with `qsctl --help` or `qsctl <command> --help`.
