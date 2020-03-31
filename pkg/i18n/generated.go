@@ -15,8 +15,9 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")
 	_ = message.SetString(tag, "Cat object: qsctl cat qs://prefix/a", "Cat object: qsctl cat qs://prefix/a")
 	_ = message.SetString(tag, "Config not loaded, use default and environment value instead.", "Config not loaded, use default and environment value instead.")
+	_ = message.SetString(tag, "Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r", "Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Copy file: qsctl cp /path/to/file qs://prefix/a", "Copy file: qsctl cp /path/to/file qs://prefix/a")
-	_ = message.SetString(tag, "Copy folder: qsctl cp qs://prefix/a /path/to/folder -r", "Copy folder: qsctl cp qs://prefix/a /path/to/folder -r")
+	_ = message.SetString(tag, "Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r", "Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.", "Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.")
 	_ = message.SetString(tag, "Dir <%s> and <%s> synced.\n", "Dir <%s> and <%s> synced.\n")
 	_ = message.SetString(tag, "Dir <%s> copied to <%s>.\n", "Dir <%s> copied to <%s>.\n")
@@ -30,21 +31,28 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "List bucket's all objects: qsctl ls qs://bucket-name -R", "List bucket's all objects: qsctl ls qs://bucket-name -R")
 	_ = message.SetString(tag, "List buckets: qsctl ls", "List buckets: qsctl ls")
 	_ = message.SetString(tag, "List objects by long format: qsctl ls qs://bucket-name -l", "List objects by long format: qsctl ls qs://bucket-name -l")
+	_ = message.SetString(tag, "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R", "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R")
 	_ = message.SetString(tag, "List objects with prefix: qsctl ls qs://bucket-name/prefix", "List objects with prefix: qsctl ls qs://bucket-name/prefix")
 	_ = message.SetString(tag, "Load config failed [%v]", "Load config failed [%v]")
 	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name", "Make bucket: qsctl mb bucket-name")
+	_ = message.SetString(tag, "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r", "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "Move file: qsctl mv /path/to/file qs://prefix/a")
-	_ = message.SetString(tag, "Move folder: qsctl mv qs://prefix/a /path/to/folder -r", "Move folder: qsctl mv qs://prefix/a /path/to/folder -r")
+	_ = message.SetString(tag, "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r", "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r")
+	_ = message.SetString(tag, "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing", "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing")
+	_ = message.SetString(tag, "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update", "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update")
 	_ = message.SetString(tag, "Presign object: qsctl qs://bucket-name/object-name", "Presign object: qsctl qs://bucket-name/object-name")
 	_ = message.SetString(tag, "Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin", "Read from stdin: cat /path/to/file | qsctl cp - qs://prefix/stdin")
 	_ = message.SetString(tag, "Remove a single object: qsctl rm qs://bucket-name/object-key", "Remove a single object: qsctl rm qs://bucket-name/object-key")
+	_ = message.SetString(tag, "Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r", "Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r")
+	_ = message.SetString(tag, "Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run", "Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run")
 	_ = message.SetString(tag, "Size: %s", "Size: %s")
 	_ = message.SetString(tag, "Stat object: qsctl stat qs://prefix/a", "Stat object: qsctl stat qs://prefix/a")
 	_ = message.SetString(tag, "Stdin copied to <%s>.\n", "Stdin copied to <%s>.\n")
 	_ = message.SetString(tag, "StorageClass: %s", "StorageClass: %s")
 	_ = message.SetString(tag, "Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/", "Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/")
-	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name", "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name")
-	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing", "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing")
+	_ = message.SetString(tag, "Sync directory recursively: qsctl sync qs://bucket-name/test/ test_local/ -r", "Sync directory recursively: qsctl sync qs://bucket-name/test/ test_local/ -r")
+	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/", "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/")
+	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing", "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing")
 	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "Tee object: qsctl tee qs://prefix/a")
 	_ = message.SetString(tag, "Type: %s", "Type: %s")
 	_ = message.SetString(tag, "UpdatedAt: %s", "UpdatedAt: %s")
@@ -118,16 +126,8 @@ the object with an HTTP GET request. If an object belongs to a public bucket,
 generate a URL spliced by bucket name, zone and its name, anyone who receives
 this URL can always retrieve the object with an HTTP GET request.`)
 	_ = message.SetString(tag, `qsctl sync between local directory and QS-Directory. The first path argument
-is the source directory and second the destination directory.
-
-When a key(file) already exists in the destination directory, program will compare
-the modified time of source file(key) and destination key(file). The destination
-key(file) will be overwritten only if the source one newer than destination one.`, `qsctl sync between local directory and QS-Directory. The first path argument
-is the source directory and second the destination directory.
-
-When a key(file) already exists in the destination directory, program will compare
-the modified time of source file(key) and destination key(file). The destination
-key(file) will be overwritten only if the source one newer than destination one.`)
+is the source directory and second the destination directory.`, `qsctl sync between local directory and QS-Directory. The first path argument
+is the source directory and second the destination directory.`)
 	_ = message.SetString(tag, `qsctl tee can tee a remote object from stdin.
 
 NOTICE: qsctl will not tee the content to stdout like linux tee command does.

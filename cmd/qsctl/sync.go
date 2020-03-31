@@ -27,15 +27,15 @@ var SyncCommand = &cobra.Command{
 	Use:   "sync <source-path> <dest-path>",
 	Short: i18n.Sprintf("sync between local directory and QS-Directory"),
 	Long: i18n.Sprintf(`qsctl sync between local directory and QS-Directory. The first path argument
-is the source directory and second the destination directory.
-
-When a key(file) already exists in the destination directory, program will compare
-the modified time of source file(key) and destination key(file). The destination
-key(file) will be overwritten only if the source one newer than destination one.`),
+is the source directory and second the destination directory.`),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprintf("Sync local directory to QS-Directory: qsctl sync . qs://bucket-name"),
+		i18n.Sprintf("Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/"),
 		i18n.Sprintf("Sync QS-Directory to local directory: qsctl sync qs://bucket-name/test/ test_local/"),
-		i18n.Sprintf("Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name --ignore-existing"),
+		i18n.Sprintf("Sync directory recursively: qsctl sync qs://bucket-name/test/ test_local/ -r"),
+		i18n.Sprintf("Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing"),
+		i18n.Sprintf("Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update"),
+		i18n.Sprintf("Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing"),
+		i18n.Sprintf("Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run"),
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: syncRun,
