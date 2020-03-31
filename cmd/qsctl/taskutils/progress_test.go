@@ -2,10 +2,13 @@ package taskutils
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
+	"bou.ke/monkey"
 	"github.com/google/uuid"
+	"github.com/qingstor/noah/pkg/progress"
 	"github.com/stretchr/testify/assert"
 	"github.com/vbauerster/mpb/v4"
 )
@@ -31,6 +34,7 @@ func Test_pBar_GetBar(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			defer bar.Abort(true)
 			b := pBar{
 				status: tt.fields.status,
 				bar:    tt.fields.bar,
@@ -282,5 +286,56 @@ func Test_pBarGroup_GetPBarByID(t *testing.T) {
 				t.Errorf("GetPBarByID() = %v, want %v", got.status, tt.status)
 			}
 		})
+	}
+}
+
+func TestStartProgress(t *testing.T) {
+	id := uuid.New().String()
+	type args struct {
+		d           time.Duration
+		maxBarCount int
+	}
+	tests := []struct {
+		name           string
+		args           args
+		seconds        int
+		activeBarCount int
+		barCount       int
+	}{
+		{
+			name:           "3s",
+			args:           args{d: time.Second, maxBarCount: 3},
+			seconds:        3,
+			activeBarCount: 2,
+			barCount:       4,
+		},
+	}
+	for _, tt := range tests {
+		pbGroup = &pBarGroup{
+			bars: make(map[string]*pBar),
+		}
+		wg = new(sync.WaitGroup)
+		pbPool = mpb.New(mpb.WithWaitGroup(wg), mpb.WithOutput(nil))
+		monkey.Patch(progress.GetStates, func() map[string]progress.State {
+			return map[string]progress.State{
+				id + "1": {Name: "list spinner", Status: "", Type: 0, Done: 0, Total: 1},
+				id + "2": {Name: "first bar", Status: "", Type: 1, Done: 5, Total: 10},
+				id + "3": {Name: "finished bar", Status: "", Type: 1, Done: 1, Total: 1},
+				id + "4": {Name: "oversize not display bar", Status: "", Type: 1, Done: 3, Total: 10},
+			}
+		})
+
+		time.AfterFunc(time.Duration(tt.seconds)*tt.args.d, func() {
+			FinishProgress()
+		})
+		StartProgress(tt.args.d, tt.args.maxBarCount)
+		monkey.UnpatchAll()
+		assert.Equal(t, tt.activeBarCount, pbGroup.GetActiveCount(), tt.name)
+		assert.Equal(t, tt.barCount, len(pbGroup.bars), tt.name)
+		for _, b := range pbGroup.bars {
+			if b.bar != nil {
+				b.bar.Abort(true)
+			}
+		}
 	}
 }

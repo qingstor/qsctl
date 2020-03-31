@@ -1,6 +1,7 @@
 package taskutils
 
 import (
+	"context"
 	"os"
 	"sync"
 	"time"
@@ -46,7 +47,10 @@ type pBarGroup struct {
 
 // wg is the global wait group used for multi-progress bar
 // use pointer to keep it not copied
-var wg *sync.WaitGroup
+var wg = new(sync.WaitGroup)
+
+// ctx is used to cancel pbPool
+var ctx, cancel = context.WithCancel(context.Background())
 
 // pbPool is the multi-progress bar pool
 var pbPool *mpb.Progress
@@ -54,10 +58,12 @@ var pbPool *mpb.Progress
 // pbGroup is the local pBar group
 // It takes taskID as the key, pointer to the pBar as value.
 // So that every state will modify its relevant pBar.
-var pbGroup *pBarGroup
+var pbGroup = &pBarGroup{
+	bars: make(map[string]*pBar),
+}
 
 // sigChan is the channel to notify data progress channel to close.
-var sigChan chan struct{}
+var sigChan = make(chan struct{})
 
 // nameWidth and barWidth is the style width for progress bar
 var nameWidth, barWidth int
@@ -74,13 +80,8 @@ func init() {
 	if err != nil {
 		terminalWidth = widTerminalDefault
 	}
-	barWidth, nameWidth = calBarSize(terminalWidth)
-	wg = new(sync.WaitGroup)
-	pbPool = mpb.New(mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
-	pbGroup = &pBarGroup{
-		bars: make(map[string]*pBar),
-	}
-	sigChan = make(chan struct{})
+	nameWidth, barWidth = calBarSize(terminalWidth)
+	pbPool = mpb.NewWithContext(ctx, mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
 }
 
 // StartProgress start to get state from state center.
@@ -156,6 +157,7 @@ func WaitProgress() {
 // FinishProgress finish the progress bar and close the progress center
 func FinishProgress() {
 	close(sigChan)
+	cancel()
 }
 
 // GetPBarByID returns the pbar's pointer with given taskID
