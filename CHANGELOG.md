@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-rc.1] - 2020-04-01
+
+### Added
+
+- cmd: Add progress bar support (#205)
+- cmd/sync: Add more flags support for sync. (#221)
+
+### Changed
+
+- *: Split task to qingstor/noah (#195)
+- cmd: Silence usage when handled error returns. (#206)
+- cmd/stat: Modify stat file name, use full name instead. (#209)
+
+### Fixed
+
+- utils: Fix bug that qs work dir not work in Windows. (#212)
+- cmd/stat: Fix md5 not return in stat. (#216)
+- cmd/ls: Fix ls behave differently with recursive flag (#219)
+
 ## [2.0.0-beta.2] - 2019-12-10
 
 ### Added
@@ -395,6 +414,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-rc.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.2...v2.0.0-rc.1
 [2.0.0-beta.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.1...v2.0.0-beta.2
 [2.0.0-beta.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.8...v2.0.0-beta.1
 [2.0.0-alpha.8]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.7...v2.0.0-alpha.8
