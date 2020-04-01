@@ -25,6 +25,7 @@ var RmCommand = &cobra.Command{
 	Long:  i18n.Sprintf("qsctl rm remove the object with given object key"),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("Remove a single object: qsctl rm qs://bucket-name/object-key"),
+		i18n.Sprintf("Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: rmRun,

@@ -33,6 +33,7 @@ var LsCommand = &cobra.Command{
 		i18n.Sprintf("List buckets: qsctl ls"),
 		i18n.Sprintf("List bucket's all objects: qsctl ls qs://bucket-name -R"),
 		i18n.Sprintf("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
+		i18n.Sprintf("List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R"),
 		i18n.Sprintf("List objects by long format: qsctl ls qs://bucket-name -l"),
 	),
 	Args: cobra.MaximumNArgs(1),

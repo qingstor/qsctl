@@ -42,10 +42,16 @@ host: 'qingstor.com'
 port: 443
 protocol: 'https'
 connection_retries: 3
-# Valid levels are 'debug', 'info', 'warn', 'error', and 'fatal'.
-log_level: 'debug'
 zone: 'zone_name'
 ```
+
+You can also run qsctl command without config file, it will try to
+find config file in specific directories, and if none of them contain
+a config file, there will be an interactive setup to help you create
+the config file, which will be created at `{$HOME}/.qingstor/config.yaml`.
+(PS: The specific config file path depends on your os, usually
+`~/.qingstor/config.yaml` in unix-like os, and
+`C:\User\{username}\.qingstor\config.yaml` in Windows.)
 
 ## Available Commands
 
@@ -55,11 +61,12 @@ Commands supported by qsctl are listed below:
 - `cp`: Copy local file(s) to QingStor or QingStor key(s) to local.
 - `ls`: List buckets, or objects with given prefix.
 - `mb`: Make a new bucket.
+- `mv`: Move local file(s) to QingStor or QingStor key(s) to local
 - `presign`: Get the pre-signed URL by given object key.
 - `rb`: Delete a bucket.
 - `rm`: Remove remote object(s).
 - `stat`: Stat a remote object.
 - `sync`: Sync between local directory and QS-Directory.
-- `tee`: Tee from stdin to a remote object.
+- `tee`: Tee from stdin to a remote object. (NOTICE: qsctl will not tee the content to stdout like linux tee command does.)
 
-See the detailed usage and examples with `qsctl help` or `qsctl <command> help`.
+See the detailed usage and examples with `qsctl --help` or `qsctl <command> --help`.

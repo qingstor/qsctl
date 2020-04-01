@@ -26,7 +26,8 @@ var MvCommand = &cobra.Command{
 	Long:  i18n.Sprintf("qsctl mv can move file/folder to qingstor or move qingstor objects to local"),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("Move file: qsctl mv /path/to/file qs://prefix/a"),
-		i18n.Sprintf("Move folder: qsctl mv qs://prefix/a /path/to/folder -r"),
+		i18n.Sprintf("Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r"),
+		i18n.Sprintf("Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r"),
 	),
 	Args: cobra.ExactArgs(2),
 	RunE: mvRun,
