@@ -11,7 +11,7 @@ require (
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/google/uuid v1.1.1
-	github.com/jedib0t/go-pretty v4.2.1+incompatible
+	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/qingstor/noah v0.0.0-20200326145640-fc29cf7a976c
 	github.com/sirupsen/logrus v1.5.0
