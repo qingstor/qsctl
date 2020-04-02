@@ -16,7 +16,7 @@ require (
 	github.com/qingstor/noah v0.0.0-20200326145640-fc29cf7a976c
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.7
-	github.com/spf13/viper v1.4.0
+	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.5.1
 	github.com/vbauerster/mpb/v4 v4.12.2
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
