@@ -7,6 +7,7 @@ import (
 	"github.com/Xuanwo/storage"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
+	"github.com/jedib0t/go-pretty/text"
 	"github.com/qingstor/noah/task"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -140,6 +141,8 @@ func listFileOutput(o *typ.Object) {
 		if err != nil {
 			log.Debugf("parse size <%o> failed [%o], key: <%s>", o.Size, err, o.Name)
 		}
+		// 7 is the widest size of readable-size, like 1023.9K
+		readableSize = text.AlignRight.Apply(readableSize, 7)
 	}
 
 	// if modified not exists (like dir), init str with blank
