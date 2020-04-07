@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -57,11 +56,6 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("both --existing and --ignore-existing are set, no files would be synced")
 	}
 
-	go func() {
-		taskutils.StartProgress(time.Second, 3)
-	}()
-	defer taskutils.FinishProgress()
-
 	t := task.NewSync(rootTask)
 	t.SetDryRun(syncInput.DryRun)
 	t.SetExisting(syncInput.Existing)
@@ -81,7 +75,6 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	taskutils.WaitProgress()
 	i18n.Printf("Dir <%s> and <%s> synced.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
