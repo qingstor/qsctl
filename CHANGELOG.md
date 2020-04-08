@@ -4,11 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.0.0-rc.1] - 2020-04-01
+## [2.0.0-rc.1] - 2020-04-08
 
 ### Added
 
-- cmd: Add progress bar support (#205)
 - cmd/sync: Add more flags support for sync. (#221)
 
 ### Changed
@@ -16,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - *: Split task to qingstor/noah (#195)
 - cmd: Silence usage when handled error returns. (#206)
 - cmd/stat: Modify stat file name, use full name instead. (#209)
+- cmd/ls: Align ls output while -h flag was set. (#248)
 
 ### Fixed
 
