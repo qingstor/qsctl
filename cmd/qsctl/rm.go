@@ -52,6 +52,16 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
 	}
 
+	key := filepath.Join(workDir, rootTask.GetPath())
+	confirm, err := utils.CheckConfirm(i18n.Sprintf(`This operation will delete <%s>, which cannot be recovered.
+Confirm?:`, key))
+	if err != nil {
+		return
+	}
+	if !confirm {
+		return fmt.Errorf(i18n.Sprintf("Not confirmed. Object <%s> not removed.", key))
+	}
+
 	if rmInput.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.Run()
@@ -59,7 +69,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
+		i18n.Printf("Dir <%s> removed.\n", key)
 		return nil
 	}
 
@@ -69,6 +79,6 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
+	i18n.Printf("File <%s> removed.\n", key)
 	return nil
 }

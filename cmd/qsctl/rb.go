@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -44,6 +46,19 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 	_, bucketName, _, err := utils.ParseQsPath(args[0])
 	if err != nil {
 		return
+	}
+
+	if rbInput.force {
+		var match bool
+		match, err = utils.DoubleCheckString(bucketName,
+			i18n.Sprintf(`This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
+Please input the bucket name to confirm:`, bucketName))
+		if err != nil {
+			return
+		}
+		if !match {
+			return fmt.Errorf(i18n.Sprintf("The bucket name you just input is not match. Bucket <%s> not removed.", bucketName))
+		}
 	}
 
 	t := task.NewDeleteStorage(rootTask)
