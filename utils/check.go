@@ -13,43 +13,54 @@ type StrDoubleChecker interface {
 	DoubleCheckString() (bool, error)
 }
 
-// Survey implements StrDoubleChecker
-type Survey struct {
-	msg    string
-	expect string
+// ConfirmChecker try to confirm return confirmed or not
+type ConfirmChecker interface {
+	CheckConfirm() (bool, error)
 }
 
 // DoubleCheckString is the public func for string double check
 func DoubleCheckString(expect, msg string) (bool, error) {
-	sv := newSurvey(withMsg(msg), withExpect(expect))
-	return sv.DoubleCheckString()
+	sc := newInputCheck(withInputMsg(msg), withInputExpect(expect))
+	return sc.DoubleCheckString()
 }
 
-type surveyOptFn func(*Survey)
+// CheckConfirm is the public func for confirm check
+func CheckConfirm(msg string) (bool, error) {
+	cc := newConfirmCheck(withConfirmMsg(msg))
+	return cc.CheckConfirm()
+}
 
-// newSurvey return a Survey struct
-func newSurvey(opts ...surveyOptFn) Survey {
-	sv := Survey{}
+// InputCheck implements StrDoubleChecker
+type InputCheck struct {
+	msg    string
+	expect string
+}
+
+type inputCheckOptFn func(*InputCheck)
+
+// newInputCheck return a InputCheck struct
+func newInputCheck(opts ...inputCheckOptFn) InputCheck {
+	sc := InputCheck{}
 	for _, fn := range opts {
-		fn(&sv)
+		fn(&sc)
 	}
-	return sv
+	return sc
 }
 
-func withMsg(msg string) surveyOptFn {
-	return func(s *Survey) {
+func withInputMsg(msg string) inputCheckOptFn {
+	return func(s *InputCheck) {
 		s.msg = msg
 	}
 }
 
-func withExpect(expect string) surveyOptFn {
-	return func(s *Survey) {
+func withInputExpect(expect string) inputCheckOptFn {
+	return func(s *InputCheck) {
 		s.expect = expect
 	}
 }
 
 // DoubleCheckString implements StrDoubleChecker.DoubleCheckString()
-func (s Survey) DoubleCheckString() (bool, error) {
+func (s InputCheck) DoubleCheckString() (bool, error) {
 	name := ""
 	prompt := &survey.Input{
 		Message: s.msg,
@@ -64,4 +75,44 @@ func (s Survey) DoubleCheckString() (bool, error) {
 	}
 
 	return name == s.expect, nil
+}
+
+// ConfirmCheck implements ConfirmChecker
+type ConfirmCheck struct {
+	msg string
+}
+
+type confirmCheckOptFn func(*ConfirmCheck)
+
+// newConfirmCheck return a ConfirmCheck struct
+func newConfirmCheck(opts ...confirmCheckOptFn) ConfirmCheck {
+	cc := ConfirmCheck{}
+	for _, fn := range opts {
+		fn(&cc)
+	}
+	return cc
+}
+
+func withConfirmMsg(msg string) confirmCheckOptFn {
+	return func(s *ConfirmCheck) {
+		s.msg = msg
+	}
+}
+
+// CheckConfirm implements ConfirmChecker.CheckConfirm
+func (c ConfirmCheck) CheckConfirm() (bool, error) {
+	var ok bool
+	prompt := &survey.Confirm{
+		Message: c.msg,
+	}
+	err := survey.AskOne(prompt, &ok)
+	if err != nil {
+		if err == terminal.InterruptErr {
+			log.Debug("interrupted")
+			os.Exit(0)
+		}
+		return false, err
+	}
+
+	return ok, nil
 }
