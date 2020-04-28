@@ -54,6 +54,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/", "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/")
 	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing", "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing")
 	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "Tee object: qsctl tee qs://prefix/a")
+	_ = message.SetString(tag, "The bucket name you just input is not match. Bucket <%s> not removed.", "The bucket name you just input is not match. Bucket <%s> not removed.")
 	_ = message.SetString(tag, "Type: %s", "Type: %s")
 	_ = message.SetString(tag, "UpdatedAt: %s", "UpdatedAt: %s")
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file")
@@ -92,6 +93,9 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "sync between local directory and QS-Directory")
 	_ = message.SetString(tag, "tee a remote object from stdin", "tee a remote object from stdin")
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "the number of seconds until the pre-signed URL expires. Default is 300 seconds")
+	_ = message.SetString(tag, `This operation will delete all data in your bucket <%s>, including segments, all data cannot be recovered,
+please input the bucket name to confirm:`, `This operation will delete all data in your bucket <%s>, including segments, all data cannot be recovered,
+please input the bucket name to confirm:`)
 	_ = message.SetString(tag, `expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`, `expected size of the input file
