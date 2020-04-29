@@ -106,13 +106,12 @@ func ParseStorageInput(input string, storageType StoragerType) (
 			return
 		}
 		log.Debugf("%s work dir: %s", fs.Type, workDir)
-		_, store, err = fs.New(pairs.WithWorkDir(workDir))
+		store, err = fs.NewStorager(pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
 	case qingstor.Type:
 		var bucketName, objectKey string
-		var srv storage.Servicer
 
 		objectType, bucketName, objectKey, err = ParseQsPath(input)
 		if err != nil {
@@ -120,11 +119,7 @@ func ParseStorageInput(input string, storageType StoragerType) (
 		}
 		workDir, path = ParseQsWorkDir(objectKey)
 		log.Debugf("%s work dir: %s", qingstor.Type, workDir)
-		srv, err = NewQingStorService()
-		if err != nil {
-			return
-		}
-		store, err = srv.Get(bucketName, pairs.WithWorkDir(workDir))
+		store, err = NewQingStorStorage(pairs.WithName(bucketName), pairs.WithWorkDir(workDir))
 		if err != nil {
 			return
 		}
@@ -274,23 +269,40 @@ func setupService(t interface {
 
 // NewQingStorService will create a new qingstor service.
 func NewQingStorService() (storage.Servicer, error) {
-	var ep endpoint.Static
+	return qingstor.NewServicer(getQsServicePairs()...)
+}
+
+// NewQingStorStorage will create a new qingstor storage.
+func NewQingStorStorage(pairs ...*typ.Pair) (storage.Storager, error) {
+	srvPairs := getQsServicePairs()
+	srvPairs = append(srvPairs, pairs...)
+	return qingstor.NewStorager(srvPairs...)
+}
+
+func getQsServicePairs() []*typ.Pair {
+	// init pairs with cap for less memory allocate
+	ps := make([]*typ.Pair, 0, 4)
+	ps = append(ps, pairs.WithCredential(credential.MustNewHmac(
+		viper.GetString(constants.ConfigAccessKeyID),
+		viper.GetString(constants.ConfigSecretAccessKey),
+	)))
+
+	// add endpoint by different protocol https/http
 	switch protocol := viper.GetString(constants.ConfigProtocol); protocol {
 	case endpoint.ProtocolHTTPS:
-		ep = endpoint.NewHTTPS(
-			viper.GetString(constants.ConfigHost),
-			viper.GetInt(constants.ConfigPort))
+		ps = append(ps, pairs.WithEndpoint(
+			endpoint.NewHTTPS(
+				viper.GetString(constants.ConfigHost),
+				viper.GetInt(constants.ConfigPort),
+			),
+		))
 	default: // endpoint.ProtocolHTTP:
-		ep = endpoint.NewHTTP(
-			viper.GetString(constants.ConfigHost),
-			viper.GetInt(constants.ConfigPort))
+		ps = append(ps, pairs.WithEndpoint(
+			endpoint.NewHTTP(
+				viper.GetString(constants.ConfigHost),
+				viper.GetInt(constants.ConfigPort),
+			),
+		))
 	}
-	srv, _, err := qingstor.New(
-		pairs.WithEndpoint(ep),
-		pairs.WithCredential(credential.MustNewHmac(
-			viper.GetString(constants.ConfigAccessKeyID),
-			viper.GetString(constants.ConfigSecretAccessKey),
-		)),
-	)
-	return srv, err
+	return ps
 }
