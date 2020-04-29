@@ -51,8 +51,10 @@ github.com/Xuanwo/go-locale v0.0.0-20191213075353-2b399f1605a6 h1:/u0mUEmkbizUMK
 github.com/Xuanwo/go-locale v0.0.0-20191213075353-2b399f1605a6/go.mod h1:vUBKuDJqYGwnCvPqrkin4mqvUXhA7wO+OO5XWMDOYF4=
 github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27 h1:zSUdlUFOVurqOOXYregowl3LDoHimf8pjWeimSkzokM=
 github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27/go.mod h1:FfMsXg0w9OrzdLvhDHGzdBx35cw1qTpKLcGNC8RtgQA=
-github.com/Xuanwo/storage v0.8.0 h1:xv4JAKAiboXvKJZCFwaOyC6gk/wujCzt7GAeFx3dXJQ=
-github.com/Xuanwo/storage v0.8.0/go.mod h1:8uSkt9NXlT2YQ3cghhCo47oNfUW/DQogeiaqfJzJQbU=
+github.com/Xuanwo/storage v1.0.1-0.20200427043315-089c5951ae88 h1:VkyjiJQgIgKTjOATo79kkNaVhE6K5rStXuv23sfcQIc=
+github.com/Xuanwo/storage v1.0.1-0.20200427043315-089c5951ae88/go.mod h1:p+dRany6wYreLJ7KNJ0sEVIq3gMi45Ugy6IpUY7ky1w=
+github.com/Xuanwo/storage v1.0.1-0.20200429094328-7cc37ca86b23 h1:tSSDLJADQwcK8wOK4Z5TXjxe1MWhV2OGIrVxFK2Qd1E=
+github.com/Xuanwo/storage v1.0.1-0.20200429094328-7cc37ca86b23/go.mod h1:t29CCpgJtuMsJsjrZX4dwLQItS+1zr+9v0Cd3jM/c/A=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

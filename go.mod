@@ -7,7 +7,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.0.4
 	github.com/Xuanwo/go-locale v0.0.0-20191213075353-2b399f1605a6
 	github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27
-	github.com/Xuanwo/storage v0.8.0
+	github.com/Xuanwo/storage v1.0.1-0.20200429094328-7cc37ca86b23
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/google/uuid v1.1.1
