@@ -14,7 +14,7 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/qingstor/noah v0.0.0-20200326145640-fc29cf7a976c
-	github.com/sirupsen/logrus v1.5.0
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.6.3
 	github.com/stretchr/testify v1.5.1
