@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-rc.2] - 2020-05-08
+
+### Added
+
+- cmd: Add double check when rb -f and confirm check when rm (#253)
+- cmd: Improve the performance of progress bar (#256)
+
 ## [2.0.0-rc.1] - 2020-04-08
 
 ### Added
@@ -414,6 +421,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0-rc.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.2...v2.0.0-rc.1
 [2.0.0-beta.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.1...v2.0.0-beta.2
 [2.0.0-beta.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-alpha.8...v2.0.0-beta.1
