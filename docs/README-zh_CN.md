@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/qingstor/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/qingstor/qsctl)
 [![localized](https://badges.crowdin.net/qsctl/localized.svg)](https://crowdin.com/project/qsctl)
 [![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/qingstor/qsctl/blob/master/LICENSE)
+[![Join the Chat](https://img.shields.io/badge/chat-online-blue?style=flat&logo=mattermost)](https://chat.qingstor.dev/signup_user_complete/?id=1gjyqjsfo7dq7yfgomsjjg7h7o)
 
 qsctl 是 QingStor 对象存储的高级命令行工具，它提供了强大的类 Unix 命令让你管理 QingStor 资源就像是在操作本地资源一般容易。
 

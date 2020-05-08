@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/Xuanwo/storage/types"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -44,22 +44,35 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rootTask.GetType() == types.ObjectTypeDir && !rmInput.recursive {
+	if rootTask.GetType() == typ.ObjectTypeDir && !rmInput.recursive {
 		return fmt.Errorf(i18n.Sprintf("-r is required to remove a directory"))
 	}
 
-	if rmInput.recursive && rootTask.GetType() != types.ObjectTypeDir {
+	if rmInput.recursive && rootTask.GetType() != typ.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
+	}
+
+	key := filepath.Join(workDir, rootTask.GetPath())
+	confirm, err := utils.CheckConfirm(i18n.Sprintf(`This operation will delete <%s>, which cannot be recovered.
+Confirm?:`, key))
+	if err != nil {
+		return
+	}
+	if !confirm {
+		return fmt.Errorf(i18n.Sprintf("Not confirmed. Object <%s> not removed.", key))
 	}
 
 	if rmInput.recursive {
 		t := task.NewDeleteDir(rootTask)
+		t.SetHandleObjCallback(func(o *typ.Object) {
+			fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+		})
 		t.Run()
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
+		i18n.Printf("Dir <%s> removed.\n", key)
 		return nil
 	}
 
@@ -69,6 +82,6 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> removed.\n", filepath.Join(workDir, t.GetPath()))
+	i18n.Printf("File <%s> removed.\n", key)
 	return nil
 }

@@ -2,6 +2,8 @@ package taskutils
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -66,7 +68,7 @@ var pbGroup = &pBarGroup{
 var sigChan = make(chan struct{})
 
 // nameWidth and barWidth is the style width for progress bar
-var nameWidth, barWidth int
+var nameWidth, barWidth, terminalWidth int
 
 const (
 	widStatus          = 20
@@ -76,7 +78,8 @@ const (
 )
 
 func init() {
-	terminalWidth, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	var err error
+	terminalWidth, _, err = terminal.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		terminalWidth = widTerminalDefault
 	}
@@ -86,11 +89,10 @@ func init() {
 
 // StartProgress start to get state from state center.
 // d is the duration time between two data,
-// maxBarCount is the max count of bar displayed.
 // Start a ticker to get data from noah periodically.
 // The data from noah is a map with taskID as key and its state as value.
 // So we range the data and update relevant bar's progress.
-func StartProgress(d time.Duration, maxBarCount int) {
+func StartProgress(d time.Duration) {
 	tc := time.NewTicker(d)
 	for {
 		select {
@@ -99,6 +101,10 @@ func StartProgress(d time.Duration, maxBarCount int) {
 				pbar := pbGroup.GetPBarByID(taskID)
 				// if pbar already finished, skip directly
 				if pbar.Finished() {
+					continue
+				}
+				// if bar state is list type, skip directly
+				if state.IsListType() {
 					continue
 				}
 				// if pbar is shown, update progress
@@ -118,28 +124,9 @@ func StartProgress(d time.Duration, maxBarCount int) {
 					continue
 				}
 
-				// if bar not exist, means the task state is the first time get
-				// create a new pbar with status "not show" in pbGroup to take the seat,
-				// but do not add it into pbPool to display
-				if pbar.NotExist() {
-					wg.Add(1)
-					pbGroup.SetPBarByID(taskID, &pBar{status: pbNotShow})
-				}
-				// if bar state is list type, always show spinner and not add into count
-				if state.IsListType() {
-					bar := addSpinnerByState(state)
-					bar.SetCurrent(state.Done, d)
-					pbGroup.SetPBarByID(taskID, &pBar{status: pbShown, bar: bar})
-					continue
-				}
-
-				// if active bar already beyond the max count, continue to next
-				if pbGroup.GetActiveCount() >= maxBarCount {
-					continue
-				}
-
 				bar := addBarByState(state)
 				bar.SetCurrent(state.Done, d)
+				wg.Add(1)
 				pbGroup.SetPBarByID(taskID, &pBar{status: pbShown, bar: bar})
 				pbGroup.IncActive()
 			}
@@ -162,8 +149,6 @@ func FinishProgress() {
 
 // GetPBarByID returns the pbar's pointer with given taskID
 func (pg *pBarGroup) GetPBarByID(id string) *pBar {
-	pg.Lock()
-	defer pg.Unlock()
 	pbar, ok := pg.bars[id]
 	if !ok {
 		pbar = &pBar{status: pbNotExist}
@@ -173,29 +158,21 @@ func (pg *pBarGroup) GetPBarByID(id string) *pBar {
 
 // SetPBarByID set the pBar with given taskID into pBarGroup
 func (pg *pBarGroup) SetPBarByID(id string, pbar *pBar) {
-	pg.Lock()
-	defer pg.Unlock()
 	pg.bars[id] = pbar
 }
 
 // GetActiveCount returns how many active bars in the group
 func (pg *pBarGroup) GetActiveCount() int {
-	pg.Lock()
-	defer pg.Unlock()
 	return pg.activeBarCount
 }
 
 // IncActive add the active bar count by one
 func (pg *pBarGroup) IncActive() {
-	pg.Lock()
-	defer pg.Unlock()
 	pg.activeBarCount++
 }
 
 // DecActive minus the active bar count by one
 func (pg *pBarGroup) DecActive() {
-	pg.Lock()
-	defer pg.Unlock()
 	pg.activeBarCount--
 }
 
@@ -284,4 +261,13 @@ func calBarSize(fullWid int) (nameWid, barWid int) {
 	barWid = aviWid / 2
 	nameWid = barWid
 	return
+}
+
+// AddPopLog add msg by pop log for progress bars
+func AddPopLog(msg string) {
+	limit := "%%.%ds"
+	filler := mpb.FillerFunc(func(w io.Writer, width int, st *decor.Statistics) {
+		fmt.Fprintf(w, fmt.Sprintf(limit, terminalWidth), msg)
+	})
+	pbPool.Add(0, filler).SetTotal(0, true)
 }

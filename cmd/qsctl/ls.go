@@ -7,6 +7,8 @@ import (
 	"github.com/Xuanwo/storage"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
+	"github.com/jedib0t/go-pretty/text"
+	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -67,6 +69,12 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewListDir(rootTask)
+	lister, ok := rootTask.GetStorage().(storage.DirLister)
+	if !ok {
+		return types.NewErrStorageInsufficientAbility(nil)
+	}
+	t.SetDirLister(lister)
+
 	t.SetFileFunc(listFileOutput)
 	if lsInput.Recursive {
 		t.SetDirFunc(func(o *typ.Object) {
@@ -97,11 +105,11 @@ func listDirFunc(t *task.ListDirTask, o *typ.Object) {
 
 func initLsFlag() {
 	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
-		i18n.Sprintf("print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,"+
-			" in order to reduce the number of digits to three or less using base 2 for sizes"))
+		i18n.Sprintf(`print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,
+in order to reduce the number of digits to three or less using base 2 for sizes`))
 	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
-		i18n.Sprintf("list in long format and a total sum for all the file sizes is"+
-			" output on a line before the long listing"))
+		i18n.Sprintf(`list in long format and a total sum for all the file sizes is
+output on a line before the long listing`))
 	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
 		i18n.Sprintf("recursively list subdirectories encountered"))
 	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
@@ -140,6 +148,8 @@ func listFileOutput(o *typ.Object) {
 		if err != nil {
 			log.Debugf("parse size <%o> failed [%o], key: <%s>", o.Size, err, o.Name)
 		}
+		// 7 is the widest size of readable-size, like 1023.9K
+		readableSize = text.AlignRight.Apply(readableSize, 7)
 	}
 
 	// if modified not exists (like dir), init str with blank

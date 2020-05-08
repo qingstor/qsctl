@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"os"
-	"reflect"
 	"testing"
 
 	"bou.ke/monkey"
@@ -174,22 +173,13 @@ func TestParseStorageInputQingstor(t *testing.T) {
 			getErr:  nil,
 		},
 		{
-			name:    "new qingstor service error",
+			name:    "new qingstor storage error",
 			input:   "qs://testaaa",
 			workDir: "",
 			path:    "",
 			pathErr: nil,
 			srvErr:  errTmp,
 			getErr:  nil,
-		},
-		{
-			name:    "service.Get error",
-			input:   "qs://testaaa",
-			workDir: "",
-			path:    "",
-			pathErr: nil,
-			srvErr:  nil,
-			getErr:  errTmp,
 		},
 	}
 
@@ -202,17 +192,13 @@ func TestParseStorageInputQingstor(t *testing.T) {
 					return
 				})
 			}
-			if v.srvErr != nil {
-				monkey.Patch(NewQingStorService, func() (_ storage.Servicer, err error) {
+
+			monkey.Patch(NewQingStorStorage, func(...*typ.Pair) (stor storage.Storager, err error) {
+				if v.srvErr != nil {
 					err = v.srvErr
-					return
-				})
-			}
-			var s *qingstor.Service
-			monkey.PatchInstanceMethod(reflect.TypeOf(s), "Get", func(_ *qingstor.Service, _ string, _ ...*typ.Pair) (
-				stor storage.Storager, err error) {
-				stor = &qingstor.Storage{}
-				err = v.getErr
+				} else {
+					stor = &qingstor.Storage{}
+				}
 				return
 			})
 
@@ -296,7 +282,7 @@ func TestParseStorageInputFs(t *testing.T) {
 				})
 			}
 			if v.fsNewErr != nil {
-				monkey.Patch(fs.New, func(pairs ...*typ.Pair) (_ storage.Servicer, _ storage.Storager, err error) {
+				monkey.Patch(fs.NewStorager, func(pairs ...*typ.Pair) (_ storage.Storager, err error) {
 					err = v.fsNewErr
 					return
 				})
@@ -686,10 +672,47 @@ func TestNewQingStorService(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		viper.Set(constants.ConfigProtocol, tt.protocol)
-		srv, err := NewQingStorService()
-		assert.Nil(t, err, tt.name)
-		_, ok := srv.(*qingstor.Service)
-		assert.True(t, ok, tt.name)
+		t.Run(tt.name, func(t *testing.T) {
+			viper.Set(constants.ConfigProtocol, tt.protocol)
+			srv, err := NewQingStorService()
+			assert.Nil(t, err, tt.name)
+			_, ok := srv.(*qingstor.Service)
+			assert.True(t, ok, tt.name)
+		})
+	}
+}
+
+func TestNewQingStorStorage(t *testing.T) {
+	cases := []struct {
+		name     string
+		protocol string
+		wantErr  bool
+	}{
+		{
+			"https",
+			endpoint.ProtocolHTTPS,
+			false,
+		},
+		{
+			"http",
+			endpoint.ProtocolHTTP,
+			false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			defer monkey.UnpatchAll()
+			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
+				assert.Equal(t, 2, len(pairs), tt.name)
+				return &qingstor.Storage{}, nil
+			})
+
+			viper.Set(constants.ConfigProtocol, tt.protocol)
+			stor, err := NewQingStorStorage()
+			assert.Nil(t, err, tt.name)
+			_, ok := stor.(*qingstor.Storage)
+			assert.True(t, ok, tt.name)
+		})
 	}
 }
