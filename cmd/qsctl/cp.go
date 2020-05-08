@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -79,8 +80,16 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
+	go func() {
+		taskutils.StartProgress(time.Second)
+	}()
+	defer taskutils.FinishProgress()
+
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
+		t.SetHandleObjCallback(func(o *types.Object) {
+			fmt.Println(i18n.Sprintf("<%s> copied", o.Name))
+		})
 		t.SetCheckTasks(nil)
 		t.Run()
 
@@ -88,6 +97,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
+		taskutils.WaitProgress()
 		i18n.Printf("Dir <%s> copied to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
@@ -100,6 +110,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
+	taskutils.WaitProgress()
 	i18n.Printf("File <%s> copied to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return

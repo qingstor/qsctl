@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/Xuanwo/storage/pkg/segment"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -64,6 +66,12 @@ Please input the bucket name to confirm:`, bucketName))
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
 	t.SetForce(rbInput.force)
+	t.SetHandleObjCallback(func(o *typ.Object) {
+		fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+	})
+	t.SetHandleSegmentCallback(func(seg segment.Segment) {
+		fmt.Println(i18n.Sprintf("segment id <%s>, path <%s> removed", seg.ID(), seg.Path()))
+	})
 
 	t.Run()
 	if t.GetFault().HasError() {

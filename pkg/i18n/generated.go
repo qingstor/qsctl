@@ -10,6 +10,10 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
 	_ = message.SetString(tag, "-r is required to copy a directory", "-r is required to copy a directory")
 	_ = message.SetString(tag, "-r is required to remove a directory", "-r is required to remove a directory")
+	_ = message.SetString(tag, "<%s> copied", "<%s> copied")
+	_ = message.SetString(tag, "<%s> moved", "<%s> moved")
+	_ = message.SetString(tag, "<%s> removed", "<%s> removed")
+	_ = message.SetString(tag, "<%s> synced", "<%s> synced")
 	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> created.\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")
@@ -89,6 +93,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "recursively delete keys under a specific prefix", "recursively delete keys under a specific prefix")
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "recursively list subdirectories encountered")
 	_ = message.SetString(tag, "remove a remote object", "remove a remote object")
+	_ = message.SetString(tag, "segment id <%s>, path <%s> removed", "segment id <%s>, path <%s> removed")
 	_ = message.SetString(tag, "src should be a directory while -r is set", "src should be a directory while -r is set")
 	_ = message.SetString(tag, "stat a remote object", "stat a remote object")
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "sync between local directory and QS-Directory")
@@ -105,9 +110,15 @@ accept: 100MB, 1.8G
 (only used and required for input from stdin)`, `expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`)
+	_ = message.SetString(tag, `list in long format and a total sum for all the file sizes is
+output on a line before the long listing`, `list in long format and a total sum for all the file sizes is
+output on a line before the long listing`)
 	_ = message.SetString(tag, `maximum content loaded in memory
 (only used for input from stdin)`, `maximum content loaded in memory
 (only used for input from stdin)`)
+	_ = message.SetString(tag, `print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,
+in order to reduce the number of digits to three or less using base 2 for sizes`, `print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,
+in order to reduce the number of digits to three or less using base 2 for sizes`)
 	_ = message.SetString(tag, `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`, `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`)
 	_ = message.SetString(tag, `qsctl mb can make a new bucket with the specific name,
 
@@ -176,7 +187,7 @@ The valid format sequences for files:
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
 
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
-	_ = message.SetString(tag, `{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}`, `{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}`)
+	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`)
 }
 
 // initZhCN will init zh_CN support.
