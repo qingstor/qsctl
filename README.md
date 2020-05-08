@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/qingstor/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/qingstor/qsctl)
 [![localized](https://badges.crowdin.net/qsctl/localized.svg)](https://crowdin.com/project/qsctl)
 [![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/qingstor/qsctl/blob/master/LICENSE)
+[![Join the Chat](https://img.shields.io/badge/chat-online-blue?style=flat&logo=mattermost)](https://chat.qingstor.dev/signup_user_complete/?id=1gjyqjsfo7dq7yfgomsjjg7h7o)
 
 [中文文档](./docs/README-zh_CN.md)
 

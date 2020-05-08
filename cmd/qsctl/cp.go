@@ -81,12 +81,15 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	go func() {
-		taskutils.StartProgress(time.Second, 3)
+		taskutils.StartProgress(time.Second)
 	}()
 	defer taskutils.FinishProgress()
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
+		t.SetHandleObjCallback(func(o *types.Object) {
+			fmt.Println(i18n.Sprintf("<%s> copied", o.Name))
+		})
 		t.SetCheckTasks(nil)
 		t.Run()
 

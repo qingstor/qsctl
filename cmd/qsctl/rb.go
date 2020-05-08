@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/Xuanwo/storage/pkg/segment"
+	typ "github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -46,9 +50,28 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	if rbInput.force {
+		var match bool
+		match, err = utils.DoubleCheckString(bucketName,
+			i18n.Sprintf(`This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
+Please input the bucket name to confirm:`, bucketName))
+		if err != nil {
+			return
+		}
+		if !match {
+			return fmt.Errorf(i18n.Sprintf("The bucket name you just input is not match. Bucket <%s> not removed.", bucketName))
+		}
+	}
+
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
 	t.SetForce(rbInput.force)
+	t.SetHandleObjCallback(func(o *typ.Object) {
+		fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+	})
+	t.SetHandleSegmentCallback(func(seg segment.Segment) {
+		fmt.Println(i18n.Sprintf("segment id <%s>, path <%s> removed", seg.ID(), seg.Path()))
+	})
 
 	t.Run()
 	if t.GetFault().HasError() {

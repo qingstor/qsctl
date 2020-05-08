@@ -58,7 +58,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	go func() {
-		taskutils.StartProgress(time.Second, 3)
+		taskutils.StartProgress(time.Second)
 	}()
 	defer taskutils.FinishProgress()
 
@@ -74,6 +74,9 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		})
 	} else {
 		t.SetDryRunFunc(nil)
+		t.SetHandleObjCallback(func(o *types.Object) {
+			fmt.Println(i18n.Sprintf("<%s> synced", o.Name))
+		})
 	}
 
 	t.Run()
@@ -81,6 +84,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+
 	taskutils.WaitProgress()
 	i18n.Printf("Dir <%s> and <%s> synced.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
