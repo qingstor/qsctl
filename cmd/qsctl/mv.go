@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
@@ -61,13 +62,23 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
 	}
 
+	go func() {
+		taskutils.StartProgress(time.Second)
+	}()
+	defer taskutils.FinishProgress()
+
 	if mvInput.Recursive {
 		t := task.NewMoveDir(rootTask)
+		t.SetHandleObjCallback(func(o *types.Object) {
+			fmt.Println(i18n.Sprintf("<%s> moved", o.Name))
+		})
 		t.Run()
 
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
+
+		taskutils.WaitProgress()
 		i18n.Printf("Dir <%s> moved to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
@@ -78,6 +89,8 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
+
+	taskutils.WaitProgress()
 	i18n.Printf("File <%s> moved to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return

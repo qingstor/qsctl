@@ -307,7 +307,7 @@ func TestStartProgress(t *testing.T) {
 			args:           args{d: time.Second, maxBarCount: 3},
 			seconds:        3,
 			activeBarCount: 2,
-			barCount:       4,
+			barCount:       3,
 		},
 	}
 	for _, tt := range tests {
@@ -328,7 +328,7 @@ func TestStartProgress(t *testing.T) {
 		time.AfterFunc(time.Duration(tt.seconds)*tt.args.d, func() {
 			FinishProgress()
 		})
-		StartProgress(tt.args.d, tt.args.maxBarCount)
+		StartProgress(tt.args.d)
 		monkey.UnpatchAll()
 		assert.Equal(t, tt.activeBarCount, pbGroup.GetActiveCount(), tt.name)
 		assert.Equal(t, tt.barCount, len(pbGroup.bars), tt.name)
