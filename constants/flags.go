@@ -22,6 +22,8 @@ const (
 	LongFormatFlag = "long-format"
 	// MaximumMemoryContentFlag represents the flag maximum-memory-content
 	MaximumMemoryContentFlag = "maximum-memory-content"
+	// NoProgressFlag represents the flag no-progress
+	NoProgressFlag = "no-progress"
 	// RecursiveFlag represents the flag recursive
 	RecursiveFlag = "recursive"
 	// ReverseFlag represents the flag reverse

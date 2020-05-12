@@ -80,10 +80,13 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
-	go func() {
-		taskutils.StartProgress(time.Second)
-	}()
-	defer taskutils.FinishProgress()
+	// only show progress bar without no-progress flag set
+	if !noProgress {
+		go func() {
+			taskutils.StartProgress(time.Second)
+		}()
+		defer taskutils.FinishProgress()
+	}
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)

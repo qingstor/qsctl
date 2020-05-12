@@ -22,6 +22,8 @@ var (
 	// configPath will be set if config flag was set
 	configPath string
 	debug      bool
+	// noProgress will be set if no-progress flag was set
+	noProgress bool
 )
 
 // rootCmd is the main command of qsctl
@@ -137,6 +139,8 @@ func initGlobalFlag() {
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
 		false, i18n.Sprintf("enable benchmark or not"))
+	rootCmd.PersistentFlags().BoolVar(&noProgress, constants.NoProgressFlag,
+		false, i18n.Sprintf("disable progress bar display or not"))
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprintf("help for this command"))
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprintf("print logs for debug"))
