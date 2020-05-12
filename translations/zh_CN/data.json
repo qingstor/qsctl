@@ -64,7 +64,7 @@
   "\"copy from/to qingstor\"": "\"复制从/到 QingStor 对象存储\"",
   "\"delete a bucket\"": "\"删除一个 Bucket\"",
   "\"delete an empty bucket: qsctl rb qs://bucket-name\"": "\"删除空 Bucket: qsctl rb qs://bucket-name\"",
-  "\"disable progress bar display or not\"": "\"disable progress bar display or not\"",
+  "\"disable progress bar display or not\"": "\"是否禁用进度条显示\"",
   "\"enable benchmark or not\"": "\"启用性能测试与否\"",
   "\"forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f\"": "\"强制删除一个非空桶: qsctl rb qs://bucket-name -f\"",
   "\"get the pre-signed URL by the object key\"": "\"通过对象键获取预签名的 URL\"",
