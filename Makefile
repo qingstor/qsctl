@@ -3,7 +3,7 @@ CMD_PKG := github.com/qingstor/qsctl/v2/cmd/qsctl
 VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 
-.PHONY: all check format vet lint build install uninstall release clean test generate
+.PHONY: all check format vet lint build install uninstall release clean test generate packager-check build-linux deb rpm package
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -14,6 +14,7 @@ help:
 	@echo "  release    to release qsctl"
 	@echo "  clean      to clean build and test files"
 	@echo "  test       to run test"
+	@echo "  package    to make deb and rpm package for linux distribution"
 
 check: format vet lint
 
@@ -41,6 +42,12 @@ build: tidy generate check
 	@echo "build qsctl"
 	@mkdir -p ./bin
 	@go build ${GO_BUILD_OPTION} -race -o ./bin/qsctl ${CMD_PKG}
+	@echo "ok"
+
+build-linux: tidy generate check
+	@echo "build qsctl for linux amd64"
+	@mkdir -p ./bin/linux
+	@GOOS=linux GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/linux/qsctl ${CMD_PKG}
 	@echo "ok"
 
 install: build
@@ -88,3 +95,25 @@ tidy:
 	@go mod tidy
 	@go mod verify
 	@echo "Done"
+
+packager-check:
+	@echo "Checking for package requirement installation..."
+	@if [[ ! -f "$$(which nfpm)" ]]; then \
+        echo "Please have \"nfpm\" installed first." \
+        "See https://github.com/goreleaser/nfpm for more information"; exit 1; \
+     fi
+	@echo "Done"
+
+.PHONE: deb
+deb: packager-check build-linux
+	@echo "Packaging deb for qsctl..."
+	@nfpm pkg --target bin/qsctl_v${VERSION}_linux_amd64.deb
+
+.PHONE: rpm
+rpm: packager-check build-linux
+	@echo "Packaging fpm for qsctl..."
+	@nfpm pkg --target bin/qsctl_v${VERSION}_linux_amd64.rpm
+
+.PHONE: package
+package: deb rpm
+	@echo "done"
