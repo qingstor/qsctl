@@ -57,10 +57,13 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("both --existing and --ignore-existing are set, no files would be synced")
 	}
 
-	go func() {
-		taskutils.StartProgress(time.Second)
-	}()
-	defer taskutils.FinishProgress()
+	// only show progress bar without no-progress flag set
+	if !noProgress {
+		go func() {
+			taskutils.StartProgress(time.Second)
+		}()
+		defer taskutils.FinishProgress()
+	}
 
 	t := task.NewSync(rootTask)
 	t.SetDryRun(syncInput.DryRun)

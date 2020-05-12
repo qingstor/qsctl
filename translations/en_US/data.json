@@ -64,6 +64,7 @@
   "\"copy from/to qingstor\"": "\"copy from/to qingstor\"",
   "\"delete a bucket\"": "\"delete a bucket\"",
   "\"delete an empty bucket: qsctl rb qs://bucket-name\"": "\"delete an empty bucket: qsctl rb qs://bucket-name\"",
+  "\"disable progress bar display or not\"": "\"disable progress bar display or not\"",
   "\"enable benchmark or not\"": "\"enable benchmark or not\"",
   "\"forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f\"": "\"forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f\"",
   "\"get the pre-signed URL by the object key\"": "\"get the pre-signed URL by the object key\"",

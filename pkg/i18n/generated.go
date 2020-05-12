@@ -72,6 +72,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "copy from/to qingstor", "copy from/to qingstor")
 	_ = message.SetString(tag, "delete a bucket", "delete a bucket")
 	_ = message.SetString(tag, "delete an empty bucket: qsctl rb qs://bucket-name", "delete an empty bucket: qsctl rb qs://bucket-name")
+	_ = message.SetString(tag, "disable progress bar display or not", "disable progress bar display or not")
 	_ = message.SetString(tag, "enable benchmark or not", "enable benchmark or not")
 	_ = message.SetString(tag, "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f", "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f")
 	_ = message.SetString(tag, "get the pre-signed URL by the object key", "get the pre-signed URL by the object key")

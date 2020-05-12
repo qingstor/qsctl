@@ -62,10 +62,13 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
 	}
 
-	go func() {
-		taskutils.StartProgress(time.Second)
-	}()
-	defer taskutils.FinishProgress()
+	// only show progress bar without no-progress flag set
+	if !noProgress {
+		go func() {
+			taskutils.StartProgress(time.Second)
+		}()
+		defer taskutils.FinishProgress()
+	}
 
 	if mvInput.Recursive {
 		t := task.NewMoveDir(rootTask)
