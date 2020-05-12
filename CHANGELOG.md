@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - 2020-05-12
+
+### Added
+
+- cmd: Add support for no-progress flag (#262)
+- *: Add support to make package for linux distribution (#263)
+
 ## [2.0.0-rc.2] - 2020-05-08
 
 ### Added
@@ -421,6 +428,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.0]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.2...v2.0.0
 [2.0.0-rc.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.2...v2.0.0-rc.1
 [2.0.0-beta.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.1...v2.0.0-beta.2
