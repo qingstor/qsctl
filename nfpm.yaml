@@ -10,6 +10,6 @@ description: "Advanced command line tool for QingStor."
 vendor:      "Yunify, Inc."
 homepage:    "https://docs.qingcloud.com/qingstor/developer_tools/qsctl.html"
 license:     "Apache-2.0"
-bindir:      "/usr/local/bin"
+bindir:      "/usr/bin"
 files:
-  ./bin/linux/qsctl: "/qingstor/bin/qsctl"
+  ./bin/linux/qsctl: "/usr/bin/qsctl"
