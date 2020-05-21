@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/qingstor/noah/task"
@@ -98,11 +99,11 @@ func statOutput(t *task.StatFileTask, format string) {
 	if v, ok := om.GetContentType(); ok {
 		content = append(content, i18n.Sprintf("Type: %s", v))
 	}
-	if v, ok := om.GetStorageClass(); ok {
-		content = append(content, i18n.Sprintf("StorageClass: %s", v))
-	}
 	if v, ok := om.GetETag(); ok {
 		content = append(content, i18n.Sprintf("ETag: %s", v))
+	}
+	if v, ok := om.ObjectMeta.Get(qingstor.InfoObjectMetaStorageClass); ok {
+		content = append(content, i18n.Sprintf("StorageClass: %s", v))
 	}
 	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
 
