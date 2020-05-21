@@ -258,6 +258,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "copy from/to qingstor", "复制从/到 QingStor 对象存储")
 	_ = message.SetString(tag, "delete a bucket", "删除一个 Bucket")
 	_ = message.SetString(tag, "delete an empty bucket: qsctl rb qs://bucket-name", "删除空 Bucket: qsctl rb qs://bucket-name")
+	_ = message.SetString(tag, "disable progress bar display or not", "是否禁用进度条显示")
 	_ = message.SetString(tag, "enable benchmark or not", "启用性能测试与否")
 	_ = message.SetString(tag, "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f", "强制删除一个非空桶: qsctl rb qs://bucket-name -f")
 	_ = message.SetString(tag, "get the pre-signed URL by the object key", "通过对象键获取预签名的 URL")

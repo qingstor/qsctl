@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.1] - 2020-05-21
+
+### Changed
+
+- misc: Modify install path to /usr/bin in rpm/deb. (#275)
+
+### Fixed
+
+- mod: Upgrade noah to fix cp large file from qingstor. (#276)
+
 ## [2.0.0] - 2020-05-12
 
 ### Added
@@ -428,6 +438,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.0.1]: https://github.com/qingstor/qsctl/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.2...v2.0.0
 [2.0.0-rc.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/qingstor/qsctl/compare/v2.0.0-beta.2...v2.0.0-rc.1

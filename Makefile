@@ -68,7 +68,7 @@ uninstall:
 
 release:
 	@echo "release qsctl"
-	@-rm ./release/*
+	@-rm -rf ./release/*
 	@mkdir -p ./release
 
 	@echo "build for linux"
@@ -83,6 +83,13 @@ release:
 	@GOOS=windows GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/windows/qsctl_v${VERSION}_windows_amd64.exe ${CMD_PKG}
 	@tar -C ./bin/windows/ -czf ./release/qsctl_v${VERSION}_windows_amd64.tar.gz qsctl_v${VERSION}_windows_amd64.exe
 
+	@echo "build deb and rpm"
+	@mkdir -p ./release/${VERSION}
+	@cp ./bin/linux/qsctl_v${VERSION}_linux_amd64 ./bin/linux/qsctl
+	@echo "Packaging deb for qsctl..."
+	@nfpm pkg --target ./release/${VERSION}/qsctl_v${VERSION}_linux_amd64.deb
+	@echo "Packaging rpm for qsctl..."
+	@nfpm pkg --target ./release/${VERSION}/qsctl_v${VERSION}_linux_amd64.rpm
 	@echo "ok"
 
 clean:
