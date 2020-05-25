@@ -32,6 +32,7 @@ var LsCommand = &cobra.Command{
 	Long:  i18n.Sprintf(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("List buckets: qsctl ls"),
+		i18n.Sprintf("List buckets by long format: qsctl ls -l"),
 		i18n.Sprintf("List bucket's all objects: qsctl ls qs://bucket-name -R"),
 		i18n.Sprintf("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
 		i18n.Sprintf("List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R"),
@@ -52,7 +53,13 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 
 		t := task.NewListStorage(rootTask)
 		t.SetZone(zone)
-		t.SetStoragerFunc(listBucketOutput)
+		if lsInput.LongFormat {
+			t.SetStoragerFunc(func(s storage.Storager) {
+				listBucketLongOutput(s, t)
+			})
+		} else {
+			t.SetStoragerFunc(listBucketOutput)
+		}
 
 		t.Run()
 		if t.GetFault().HasError() {
@@ -124,6 +131,32 @@ func listBucketOutput(s storage.Storager) {
 		log.Debugf("listBucketOutput: %v", err)
 	}
 	fmt.Println(m.Name)
+}
+
+// listBucketLongOutput list buckets with long format
+func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
+	rt := taskutils.NewAtStorageTask(10)
+	rt.SetStorage(s)
+	sst := task.NewStatStorage(rt)
+	t.GetScheduler().Sync(sst)
+	m, err := s.Metadata()
+	if err != nil {
+		log.Debugf("listBucketLongOutput: %v", err)
+	}
+
+	// handle size separately from stat output for -h
+	var size string
+	if v, ok := sst.GetStorageInfo().GetSize(); ok {
+		if lsInput.HumanReadable {
+			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
+			if err != nil {
+				log.Debugf("parse size <%o> failed [%o]", v, err)
+			}
+		} else {
+			size = datasize.ByteSize(v).String()
+		}
+	}
+	statStorageOutput(m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
 }
 
 func listFileOutput(o *typ.Object) {
