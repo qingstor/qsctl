@@ -7,7 +7,9 @@ import (
 
 	"github.com/Xuanwo/storage/services/qingstor"
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/Xuanwo/storage/types/info"
 	"github.com/c2h5oh/datasize"
+	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -36,9 +38,25 @@ var StatCommand = &cobra.Command{
 func statRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
 	rootTask := taskutils.NewAtStorageTask(10)
-	_, err = utils.ParseAtStorageInput(rootTask, args[0])
+	workDir, err := utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
+	}
+
+	// work dir is root path and path blank, handle it as stat bucket
+	if workDir == "/" && rootTask.GetPath() == "" {
+		t := task.NewStatStorage(rootTask)
+		t.Run()
+		if t.GetFault().HasError() {
+			return t.GetFault()
+		}
+		sm, err := t.GetStorage().Metadata()
+		if err != nil {
+			return types.NewErrUnhandled(err)
+		}
+
+		statStorageOutput(sm, t.GetStorageInfo(), statInput.format)
+		return nil
 	}
 
 	t := task.NewStatFile(rootTask)
@@ -47,7 +65,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	statOutput(t, statInput.format)
+	statFileOutput(t.GetObject(), statInput.format)
 	return
 }
 
@@ -64,11 +82,18 @@ The valid format sequences for files:
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
+
+The valid format sequences for buckets:
+
+  %n   bucket name
+  %l   bucket location
+  %s   total size, in bytes
+  %c   count of files in this bucket
 	`),
 	)
 }
 
-func statFormat(input string, om *typ.Object) string {
+func statFileFormat(input string, om *typ.Object) string {
 	input = strings.ReplaceAll(input, "%n", om.ID)
 
 	if v, ok := om.GetContentType(); ok {
@@ -84,14 +109,28 @@ func statFormat(input string, om *typ.Object) string {
 	return input
 }
 
-func statOutput(t *task.StatFileTask, format string) {
+func statStorageFormat(input string, sm info.StorageMeta, ss info.StorageStatistic) string {
+	input = strings.ReplaceAll(input, "%n", sm.Name)
+
+	if v, ok := sm.GetLocation(); ok {
+		input = strings.ReplaceAll(input, "%l", v)
+	}
+	if v, ok := ss.GetSize(); ok {
+		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
+	}
+	if v, ok := ss.GetCount(); ok {
+		input = strings.ReplaceAll(input, "%c", strconv.FormatInt(v, 10))
+	}
+	return input
+}
+
+func statFileOutput(om *typ.Object, format string) {
 	// if format string was set, print result as format string
 	if format != "" {
-		fmt.Println(statFormat(format, t.GetObject()))
+		fmt.Println(statFileFormat(format, om))
 		return
 	}
 
-	om := t.GetObject()
 	var content []string
 
 	content = append(content, i18n.Sprintf("Key: %s", om.ID))
@@ -106,6 +145,27 @@ func statOutput(t *task.StatFileTask, format string) {
 		content = append(content, i18n.Sprintf("StorageClass: %s", v))
 	}
 	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
+
+	fmt.Println(utils.AlignPrintWithColon(content...))
+}
+
+func statStorageOutput(sm info.StorageMeta, ss info.StorageStatistic, format string) {
+	if format != "" {
+		fmt.Println(statStorageFormat(format, sm, ss))
+		return
+	}
+
+	var content []string
+	content = append(content, i18n.Sprintf("Name: %s", sm.Name))
+	if v, ok := sm.GetLocation(); ok {
+		content = append(content, i18n.Sprintf("Location: %s", v))
+	}
+	if v, ok := ss.GetSize(); ok {
+		content = append(content, i18n.Sprintf("Size: %s", datasize.ByteSize(v).String()))
+	}
+	if v, ok := ss.GetCount(); ok {
+		content = append(content, i18n.Sprintf("Count: %s", strconv.FormatInt(v, 10)))
+	}
 
 	fmt.Println(utils.AlignPrintWithColon(content...))
 }
