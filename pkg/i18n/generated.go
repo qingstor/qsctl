@@ -22,6 +22,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r", "Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Copy file: qsctl cp /path/to/file qs://prefix/a", "Copy file: qsctl cp /path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r", "Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r")
+	_ = message.SetString(tag, "Count: %s", "Count: %s")
 	_ = message.SetString(tag, "Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.", "Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.")
 	_ = message.SetString(tag, "Dir <%s> and <%s> synced.\n", "Dir <%s> and <%s> synced.\n")
 	_ = message.SetString(tag, "Dir <%s> copied to <%s>.\n", "Dir <%s> copied to <%s>.\n")
@@ -38,10 +39,12 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R", "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R")
 	_ = message.SetString(tag, "List objects with prefix: qsctl ls qs://bucket-name/prefix", "List objects with prefix: qsctl ls qs://bucket-name/prefix")
 	_ = message.SetString(tag, "Load config failed [%v]", "Load config failed [%v]")
+	_ = message.SetString(tag, "Location: %s", "Location: %s")
 	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name", "Make bucket: qsctl mb bucket-name")
 	_ = message.SetString(tag, "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r", "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "Move file: qsctl mv /path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r", "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r")
+	_ = message.SetString(tag, "Name: %s", "Name: %s")
 	_ = message.SetString(tag, "Not confirmed. Object <%s> not removed.", "Not confirmed. Object <%s> not removed.")
 	_ = message.SetString(tag, "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing", "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing")
 	_ = message.SetString(tag, "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update", "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update")
@@ -171,6 +174,13 @@ The valid format sequences for files:
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
+
+The valid format sequences for buckets:
+
+  %n   bucket name
+  %l   bucket location
+  %s   total size, in bytes
+  %c   count of files in this bucket
 	`, `use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 
@@ -182,6 +192,13 @@ The valid format sequences for files:
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
+
+The valid format sequences for buckets:
+
+  %n   bucket name
+  %l   bucket location
+  %s   total size, in bytes
+  %c   count of files in this bucket
 	`)
 	_ = message.SetString(tag, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
 

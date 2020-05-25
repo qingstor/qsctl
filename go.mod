@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/qingstor/noah v0.0.0-20200521132742-92c3819e2117
+	github.com/qingstor/noah v0.0.0-20200525104314-739082142bba
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.6.3
