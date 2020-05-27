@@ -32,6 +32,7 @@ var LsCommand = &cobra.Command{
 	Long:  i18n.Sprintf(`qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("List buckets: qsctl ls"),
+		i18n.Sprintf("List buckets by long format: qsctl ls -l"),
 		i18n.Sprintf("List bucket's all objects: qsctl ls qs://bucket-name -R"),
 		i18n.Sprintf("List objects with prefix: qsctl ls qs://bucket-name/prefix"),
 		i18n.Sprintf("List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R"),
@@ -52,7 +53,13 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 
 		t := task.NewListStorage(rootTask)
 		t.SetZone(zone)
-		t.SetStoragerFunc(listBucketOutput)
+		if lsInput.LongFormat {
+			t.SetStoragerFunc(func(s storage.Storager) {
+				listBucketLongOutput(s, t)
+			})
+		} else {
+			t.SetStoragerFunc(listBucketOutput)
+		}
 
 		t.Run()
 		if t.GetFault().HasError() {
@@ -121,9 +128,41 @@ output on a line before the long listing`))
 func listBucketOutput(s storage.Storager) {
 	m, err := s.Metadata()
 	if err != nil {
-		log.Debugf("listBucketOutput: %v", err)
+		log.Debugf("listBucketOutput failed when get metadata: %v", err)
+		fmt.Printf("get metadata failed: %v", err)
+		return
 	}
 	fmt.Println(m.Name)
+}
+
+// listBucketLongOutput list buckets with long format
+func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
+	rt := taskutils.NewAtStorageTask(10)
+	rt.SetStorage(s)
+	sst := task.NewStatStorage(rt)
+	t.GetScheduler().Sync(sst)
+	m, err := s.Metadata()
+	if err != nil {
+		log.Debugf("listBucketLongOutput failed when get metadata: %v", err)
+		fmt.Printf("get metadata failed: %v", err)
+		return
+	}
+
+	// handle size separately from stat output for -h
+	var size string
+	if v, ok := sst.GetStorageInfo().GetSize(); ok {
+		if lsInput.HumanReadable {
+			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
+			if err != nil {
+				log.Debugf("parse size <%v> failed [%v]", v, err)
+				fmt.Printf("parse size <%v> failed [%v]", v, err)
+				return
+			}
+		} else {
+			size = datasize.ByteSize(v).String()
+		}
+	}
+	statStorageOutput(m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
 }
 
 func listFileOutput(o *typ.Object) {
@@ -145,7 +184,9 @@ func listFileOutput(o *typ.Object) {
 		// if human readable flag true, print size as human readable format
 		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
 		if err != nil {
-			log.Debugf("parse size <%o> failed [%o], key: <%s>", o.Size, err, o.Name)
+			log.Debugf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			fmt.Printf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			return
 		}
 		// 7 is the widest size of readable-size, like 1023.9K
 		readableSize = text.AlignRight.Apply(readableSize, 7)

@@ -30,6 +30,7 @@ var StatCommand = &cobra.Command{
 	Long:  i18n.Sprintf("qsctl stat show the detailed info of this object"),
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("Stat object: qsctl stat qs://prefix/a"),
+		i18n.Sprintf("Stat bucket: qsctl stat qs://bucket-name"),
 	),
 	Args: cobra.ExactArgs(1),
 	RunE: statRun,
