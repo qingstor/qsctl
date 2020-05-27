@@ -128,7 +128,9 @@ output on a line before the long listing`))
 func listBucketOutput(s storage.Storager) {
 	m, err := s.Metadata()
 	if err != nil {
-		log.Debugf("listBucketOutput: %v", err)
+		log.Debugf("listBucketOutput failed when get metadata: %v", err)
+		fmt.Printf("get metadata failed: %v", err)
+		return
 	}
 	fmt.Println(m.Name)
 }
@@ -141,7 +143,9 @@ func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
 	t.GetScheduler().Sync(sst)
 	m, err := s.Metadata()
 	if err != nil {
-		log.Debugf("listBucketLongOutput: %v", err)
+		log.Debugf("listBucketLongOutput failed when get metadata: %v", err)
+		fmt.Printf("get metadata failed: %v", err)
+		return
 	}
 
 	// handle size separately from stat output for -h
@@ -150,7 +154,9 @@ func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
 		if lsInput.HumanReadable {
 			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
 			if err != nil {
-				log.Debugf("parse size <%o> failed [%o]", v, err)
+				log.Debugf("parse size <%v> failed [%v]", v, err)
+				fmt.Printf("parse size <%v> failed [%v]", v, err)
+				return
 			}
 		} else {
 			size = datasize.ByteSize(v).String()
@@ -178,7 +184,9 @@ func listFileOutput(o *typ.Object) {
 		// if human readable flag true, print size as human readable format
 		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
 		if err != nil {
-			log.Debugf("parse size <%o> failed [%o], key: <%s>", o.Size, err, o.Name)
+			log.Debugf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			fmt.Printf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			return
 		}
 		// 7 is the widest size of readable-size, like 1023.9K
 		readableSize = text.AlignRight.Apply(readableSize, 7)
