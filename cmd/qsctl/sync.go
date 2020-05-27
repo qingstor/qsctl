@@ -15,6 +15,7 @@ import (
 )
 
 var syncInput struct {
+	CheckMD5       bool
 	DryRun         bool
 	Existing       bool
 	IgnoreExisting bool
@@ -69,6 +70,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	t.SetDryRun(syncInput.DryRun)
 	t.SetExisting(syncInput.Existing)
 	t.SetIgnoreExisting(syncInput.IgnoreExisting)
+	t.SetCheckMD5(syncInput.CheckMD5)
 	t.SetRecursive(syncInput.Recursive)
 	t.SetUpdate(syncInput.Update)
 	if syncInput.DryRun {

@@ -29,6 +29,7 @@ func catRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 	t := task.NewCopyFile(rootTask)
+	t.SetCheckMD5(false)
 	t.SetCheckTasks(nil)
 	t.Run()
 	if t.GetFault().HasError() {

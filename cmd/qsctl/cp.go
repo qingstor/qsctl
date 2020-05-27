@@ -16,6 +16,7 @@ import (
 )
 
 var cpInput struct {
+	CheckMD5             bool
 	ExpectSize           string
 	MaximumMemoryContent string
 	Recursive            bool
@@ -90,6 +91,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 
 	if cpInput.Recursive {
 		t := task.NewCopyDir(rootTask)
+		t.SetCheckMD5(cpInput.CheckMD5)
 		t.SetHandleObjCallback(func(o *types.Object) {
 			fmt.Println(i18n.Sprintf("<%s> copied", o.Name))
 		})
@@ -107,6 +109,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewCopyFile(rootTask)
+	t.SetCheckMD5(cpInput.CheckMD5)
 	t.SetCheckTasks(nil)
 	t.Run()
 	if t.GetFault().HasError() {

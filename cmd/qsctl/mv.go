@@ -16,6 +16,7 @@ import (
 )
 
 var mvInput struct {
+	CheckMD5  bool
 	Recursive bool
 }
 
@@ -75,6 +76,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		t.SetHandleObjCallback(func(o *types.Object) {
 			fmt.Println(i18n.Sprintf("<%s> moved", o.Name))
 		})
+		t.SetCheckMD5(mvInput.CheckMD5)
 		t.Run()
 
 		if t.GetFault().HasError() {
@@ -88,6 +90,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewMoveFile(rootTask)
+	t.SetCheckMD5(mvInput.CheckMD5)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
