@@ -93,6 +93,7 @@ func init() {
 // The data from noah is a map with taskID as key and its state as value.
 // So we range the data and update relevant bar's progress.
 func StartProgress(d time.Duration) {
+	wg.Add(1)
 	tc := time.NewTicker(d)
 	for {
 		select {
@@ -138,13 +139,14 @@ func StartProgress(d time.Duration) {
 
 // WaitProgress wait the progress bar to complete
 func WaitProgress() {
+	wg.Done()
 	pbPool.Wait()
 }
 
 // FinishProgress finish the progress bar and close the progress center
 func FinishProgress() {
-	close(sigChan)
 	cancel()
+	close(sigChan)
 }
 
 // GetPBarByID returns the pbar's pointer with given taskID
