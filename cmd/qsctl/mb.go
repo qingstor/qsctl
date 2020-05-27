@@ -7,14 +7,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
-	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var mbInput struct {
-	Zone string
-}
+var mbInput struct{}
 
 // MbCommand will handle make bucket command.
 var MbCommand = &cobra.Command{
@@ -29,7 +26,7 @@ bucket name should follow DNS name rule with:
 * must not be an available IP address
 	`),
 	Example: utils.AlignPrintWithColon(
-		i18n.Sprintf("Make bucket: qsctl mb bucket-name"),
+		i18n.Sprintf("Make bucket: qsctl mb bucket-name --zone=zone-name"),
 	),
 	Args:    cobra.ExactArgs(1),
 	RunE:    mbRun,
@@ -51,7 +48,7 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCreateStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetZone(mbInput.Zone)
+	t.SetZone(zone)
 
 	t.Run()
 	if t.GetFault().HasError() {
@@ -66,15 +63,11 @@ func mbOutput(t *task.CreateStorageTask) {
 	i18n.Printf("Bucket <%s> created.\n", t.GetStorageName())
 }
 
-func initMbFlag() {
-	MbCommand.Flags().StringVarP(&mbInput.Zone, constants.ZoneFlag, "z",
-		"", i18n.Sprintf("in which zone to make the bucket (required)"))
-}
+func initMbFlag() {}
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
-	if mbInput.Zone == "" {
-		// TODO: we need to return an error here.
+	if zone == "" {
 		return fmt.Errorf("flag zone is required, but not found")
 	}
 	return nil

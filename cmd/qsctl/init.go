@@ -24,6 +24,8 @@ var (
 	debug      bool
 	// noProgress will be set if no-progress flag was set
 	noProgress bool
+	// zone will be set if zone flag was set
+	zone string
 )
 
 // rootCmd is the main command of qsctl
@@ -103,6 +105,11 @@ func initConfig() (err error) {
 		viper.SetConfigName("config")
 	}
 
+	// if zone flag was set, overwrite the config
+	if zone != "" {
+		viper.Set(constants.ConfigZone, zone)
+	}
+
 	// try to read config from path set above
 	err = viper.ReadInConfig()
 	if err == nil {
@@ -136,6 +143,9 @@ func initGlobalFlag() {
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
 		"", i18n.Sprintf("assign config path manually"))
+	// Add zone flag which can be used in all sub commands.
+	rootCmd.PersistentFlags().StringVarP(&zone, constants.ConfigZone, "z",
+		"", i18n.Sprintf("in which zone to do the operation"))
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
 		false, i18n.Sprintf("enable benchmark or not"))
