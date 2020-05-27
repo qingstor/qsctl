@@ -281,11 +281,15 @@ func NewQingStorStorage(pairs ...*typ.Pair) (storage.Storager, error) {
 
 func getQsServicePairs() []*typ.Pair {
 	// init pairs with cap for less memory allocate
-	ps := make([]*typ.Pair, 0, 4)
+	ps := make([]*typ.Pair, 0, 5)
 	ps = append(ps, pairs.WithCredential(credential.MustNewHmac(
 		viper.GetString(constants.ConfigAccessKeyID),
 		viper.GetString(constants.ConfigSecretAccessKey),
 	)))
+
+	if zone := viper.GetString(constants.ConfigZone); zone != "" {
+		ps = append(ps, pairs.WithLocation(zone))
+	}
 
 	// add endpoint by different protocol https/http
 	switch protocol := viper.GetString(constants.ConfigProtocol); protocol {

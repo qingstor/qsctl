@@ -23,7 +23,6 @@ var lsInput struct {
 	HumanReadable bool
 	LongFormat    bool
 	Recursive     bool
-	Zone          string
 }
 
 // LsCommand will handle list command.
@@ -52,7 +51,7 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 		}
 
 		t := task.NewListStorage(rootTask)
-		t.SetZone(lsInput.Zone)
+		t.SetZone(zone)
 		t.SetStoragerFunc(listBucketOutput)
 
 		t.Run()
@@ -114,8 +113,8 @@ output on a line before the long listing`))
 		i18n.Sprintf("recursively list subdirectories encountered"))
 	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 	// 	"reverse the order of the sort to get reverse lexicographical order")
-	LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
-		i18n.Sprintf("in which zone to do the operation"))
+	// LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
+	// 	i18n.Sprintf("in which zone to do the operation"))
 }
 
 // listBucketOutput list buckets with normal slice

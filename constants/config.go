@@ -13,7 +13,7 @@ const (
 	ConfigSecretAccessKey = "secret_access_key"
 
 	// Runtime config.
-	// ConfigZone = "zone"
+	ConfigZone = "zone"
 )
 
 // Default config values.
