@@ -17,7 +17,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  - go get -u github.com/goreleaser/nfpm/cmd/nfpm # install nfpm for packager
+  - go get github.com/goreleaser/nfpm/cmd/nfpm@v1.2.1 # install nfpm for packager
   - make release
 
 deploy:
