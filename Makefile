@@ -87,9 +87,9 @@ release:
 	@mkdir -p ./release/${VERSION}
 	@cp ./bin/linux/qsctl_v${VERSION}_linux_amd64 ./bin/linux/qsctl
 	@echo "Packaging deb for qsctl..."
-	@nfpm pkg --target ./release/${VERSION}/qsctl_v${VERSION}_linux_amd64.deb
+	@nfpm pkg --target ./release/qsctl_v${VERSION}_linux_amd64.deb
 	@echo "Packaging rpm for qsctl..."
-	@nfpm pkg --target ./release/${VERSION}/qsctl_v${VERSION}_linux_amd64.rpm
+	@nfpm pkg --target ./release/qsctl_v${VERSION}_linux_amd64.rpm
 	@echo "ok"
 
 clean:

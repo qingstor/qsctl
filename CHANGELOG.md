@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2020-05-28
+
+### Added
+
+- cmd/stat: Add support to stat a bucket (#279)
+- cmd: Add global zone flag to assign zone manually (#282)
+- cmd/ls: Add support to ls buckets by long format (#280)
+
+### Fixed
+
+- cmd/progress-bar: Fix data race in progress bar (#284)
+
 ## [2.0.1] - 2020-05-21
 
 ### Changed
@@ -438,6 +450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.1.0]: https://github.com/qingstor/qsctl/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/qingstor/qsctl/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.2...v2.0.0
 [2.0.0-rc.2]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.1...v2.0.0-rc.2
