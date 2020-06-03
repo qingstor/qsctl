@@ -206,7 +206,7 @@ The valid format sequences for buckets:
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
 
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
-	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`)
+	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`)
 }
 
 // initZhCN will init zh_CN support.
