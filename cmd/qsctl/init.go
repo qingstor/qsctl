@@ -177,6 +177,6 @@ func silenceUsage(c *cobra.Command) {
 
 // configuredByEnv returns true if either ak or sk set
 func configuredByEnv() bool {
-	return viper.GetString(constants.ConfigAccessKeyID) != "" ||
+	return viper.GetString(constants.ConfigAccessKeyID) != "" &&
 		viper.GetString(constants.ConfigSecretAccessKey) != ""
 }
