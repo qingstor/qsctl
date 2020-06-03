@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.1] - 2020-06-03
+
+### Changed
+
+- i18n: Set language to en-US if detect failed instead of exit 1 (#291)
+
+### Fixed
+
+- cmd/utils: Fix qsctl hang on non-interactive environment (#292)
+- Fix errors not return correctly in task exec
+
 ## [2.1.0] - 2020-05-28
 
 ### Added
@@ -450,6 +461,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.1.1]: https://github.com/qingstor/qsctl/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/qingstor/qsctl/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/qingstor/qsctl/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/qingstor/qsctl/compare/v2.0.0-rc.2...v2.0.0
