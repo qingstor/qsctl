@@ -113,6 +113,7 @@ func initConfig() (err error) {
 	// try to read config from path set above
 	err = viper.ReadInConfig()
 	if err == nil {
+		log.Debugf("Load config success from [%s]: %v", viper.ConfigFileUsed(), viper.AllSettings())
 		return
 	}
 	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
@@ -122,13 +123,20 @@ func initConfig() (err error) {
 
 	// if env not set, start interactive setup
 	if viper.GetString(constants.ConfigAccessKeyID) == "" && viper.GetString(constants.ConfigSecretAccessKey) == "" {
+		// if not run interactively, return error
+		if !utils.IsInteractiveEnable() {
+			log.Errorf("qsctl not run interactively, and cannot load config with err: [%v]", err)
+			return err
+		}
 		i18n.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
+		log.Debug("AccessKey and SecretKey not found. Ready to turn into setup config interactively.")
 		fileName, err := utils.SetupConfigInteractive()
 		if err != nil {
 			return fmt.Errorf("setup config failed [%v], please try again", err)
 		}
 		i18n.Printf("Your config has been set to <%v>. You can still modify it manually.", fileName)
 		viper.SetConfigFile(fileName)
+		log.Debugf("Config was set to [%s]", fileName)
 		if err = viper.ReadInConfig(); err != nil {
 			return err
 		}
