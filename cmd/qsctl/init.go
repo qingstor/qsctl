@@ -137,7 +137,8 @@ func initConfig() (err error) {
 
 	i18n.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
 	log.Debug("AccessKey and SecretKey not found. Ready to turn into setup config interactively.")
-	fileName, err := utils.SetupConfigInteractive()
+	var fileName string
+	fileName, err = utils.SetupConfigInteractive()
 	if err != nil {
 		return fmt.Errorf("setup config failed [%v], please try again", err)
 	}
