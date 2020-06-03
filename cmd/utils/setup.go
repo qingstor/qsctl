@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/AlecAivazis/survey/v2"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 
 	"github.com/qingstor/qsctl/v2/constants"
@@ -138,4 +139,10 @@ func SetupConfigInteractive() (fileName string, err error) {
 		return "", err
 	}
 	return fileName, nil
+}
+
+// IsInteractiveEnable checks whether qsctl run interactively by
+// checking stdin and stdout is terminal or not
+func IsInteractiveEnable() bool {
+	return terminal.IsTerminal(int(os.Stdout.Fd())) && terminal.IsTerminal(int(os.Stdin.Fd()))
 }
