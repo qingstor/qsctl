@@ -2,9 +2,9 @@ package i18n
 
 import (
 	"io"
-	"os"
 
 	"github.com/Xuanwo/go-locale"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -91,7 +91,8 @@ func Sprint(a ...interface{}) string {
 func init() {
 	tag, err := locale.Detect()
 	if err != nil {
-		os.Exit(1)
+		log.Errorf("locale detect failed: [%v], use en_us instead", err)
+		tag = language.AmericanEnglish
 	}
 	Init(tag)
 	p = message.NewPrinter(tag)
