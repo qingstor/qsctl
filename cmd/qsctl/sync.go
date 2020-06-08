@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
+	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
@@ -59,7 +60,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	// only show progress bar without no-progress flag set
-	if !noProgress {
+	if !noProgress && cutils.IsInteractiveEnable() {
 		go func() {
 			taskutils.StartProgress(time.Second)
 		}()
