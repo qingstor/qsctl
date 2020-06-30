@@ -20,6 +20,6 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/vbauerster/mpb/v4 v4.12.2
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
-	golang.org/x/text v0.3.2
+	golang.org/x/text v0.3.3
 	gopkg.in/yaml.v2 v2.3.0
 )
