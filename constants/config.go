@@ -23,3 +23,8 @@ const (
 	DefaultProtocol = "https"
 	DefaultLogLevel = "info"
 )
+
+const (
+	// EnvPrefix indicates the prefix of config env
+	EnvPrefix = "qsctl"
+)

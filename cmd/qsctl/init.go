@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 )
@@ -51,17 +51,19 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		if debug {
-			log.SetLevel(log.DebugLevel)
-		} else {
-			log.SetLevel(log.PanicLevel)
+		setLogLevel()
+		setupViper()
+		// if execute configure cmd, not read config into viper (also not read from env)
+		if c.Name() == ConfigureCommand.Name() {
+			return nil
 		}
-
+		setupEnvForViper()
 		return initConfig()
 	}
 
 	// add sub-command to rootCmd
 	rootCmd.AddCommand(CatCommand)
+	rootCmd.AddCommand(ConfigureCommand)
 	rootCmd.AddCommand(CpCommand)
 	rootCmd.AddCommand(LsCommand)
 	rootCmd.AddCommand(MbCommand)
@@ -82,37 +84,17 @@ func init() {
 }
 
 func initConfig() (err error) {
-	// Allow viper read from env.
-	viper.SetEnvPrefix("qsctl")
-	viper.AutomaticEnv()
-
-	// Set default value for config.
-	viper.SetDefault(constants.ConfigHost, constants.DefaultHost)
-	viper.SetDefault(constants.ConfigPort, constants.DefaultPort)
-	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
-
-	// Load config from config file.
-	if configPath != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(configPath)
-	} else {
-		// Search config in home directory with name ".qingstor" (without extension).
-		viper.AddConfigPath("$HOME/.qingstor")
-		// Search config in XDG style.
-		viper.AddConfigPath("$HOME/.config/qingstor")
-		// Read from "/etc/qingstor" instead if not found.
-		viper.AddConfigPath("/etc/qingstor")
-		viper.SetConfigName("config")
-	}
-
-	// if zone flag was set, overwrite the config
+	// overwrite zone config by flag if set
 	if zone != "" {
 		viper.Set(constants.ConfigZone, zone)
 	}
 
-	// try to read config from path set above
+	// try to read config from path set in setupViper()
 	err = viper.ReadInConfig()
 	if err == nil {
+		if configuredByEnv() {
+			log.Debug("Ak sk loaded from env.")
+		}
 		log.Debugf("Load config success from [%s]: %v", viper.ConfigFileUsed(), viper.AllSettings())
 		return nil
 	}
@@ -127,31 +109,7 @@ func initConfig() (err error) {
 		log.Debug("Config not loaded, use default and environment value instead.")
 		return nil
 	}
-
-	// if env not set, try to start interactive setup
-	// if not run interactively, return error
-	if !utils.IsInteractiveEnable() {
-		log.Errorf("qsctl not run interactively, and cannot load config with err: [%v]", err)
-		return err
-	}
-
-	i18n.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
-	log.Debug("AccessKey and SecretKey not found. Ready to turn into setup config interactively.")
-	var fileName string
-	fileName, err = utils.SetupConfigInteractive()
-	if err != nil {
-		return fmt.Errorf("setup config failed [%v], please try again", err)
-	}
-
-	i18n.Printf("Your config has been set to <%v>. You can still modify it manually.", fileName)
-	viper.SetConfigFile(fileName)
-	log.Debugf("Config was set to [%s]", fileName)
-	// read in config again after interactively setup config file
-	if err = viper.ReadInConfig(); err != nil {
-		log.Errorf("Read config after interactively setup failed: [%v]", err)
-		return err
-	}
-	return nil
+	return err
 }
 
 func initGlobalFlag() {
@@ -177,6 +135,46 @@ func silenceUsage(c *cobra.Command) {
 
 // configuredByEnv returns true if either ak or sk set
 func configuredByEnv() bool {
-	return viper.GetString(constants.ConfigAccessKeyID) != "" &&
-		viper.GetString(constants.ConfigSecretAccessKey) != ""
+	return getEnvWithPrefix(constants.EnvPrefix, constants.ConfigAccessKeyID) != "" &&
+		getEnvWithPrefix(constants.EnvPrefix, constants.ConfigSecretAccessKey) != ""
+}
+
+func setLogLevel() {
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.PanicLevel)
+	}
+}
+
+func setupViper() {
+	// Set default value for config.
+	viper.SetDefault(constants.ConfigHost, constants.DefaultHost)
+	viper.SetDefault(constants.ConfigPort, constants.DefaultPort)
+	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
+
+	// Load config from config file.
+	if configPath != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(configPath)
+	} else {
+		// Search config in home directory with name ".qingstor".
+		viper.AddConfigPath("$HOME/.qingstor")
+		// Search config in XDG style.
+		viper.AddConfigPath("$HOME/.config/qingstor")
+		// Read from "/etc/qingstor" instead if not found.
+		viper.AddConfigPath("/etc/qingstor")
+		// Read config from configPath/config.xxx (without extension)
+		viper.SetConfigName("config")
+	}
+}
+
+func setupEnvForViper() {
+	// Allow viper read from env.
+	viper.SetEnvPrefix("qsctl")
+	viper.AutomaticEnv()
+}
+
+func getEnvWithPrefix(prefix, key string) string {
+	return os.Getenv(strings.ToUpper(prefix + "_" + key))
 }
