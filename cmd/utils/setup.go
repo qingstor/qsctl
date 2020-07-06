@@ -3,11 +3,9 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/Xuanwo/storage"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/viper"
@@ -29,9 +27,9 @@ type CredentialConfig struct {
 	Port     string `yaml:"port"`
 	Protocol string `yaml:"protocol"`
 
-	Inputers    []StringInputer `yaml:"-"`
-	Checker     InputChecker    `yaml:"-"`
-	WriteCloser io.WriteCloser  `yaml:"-"`
+	inputers   []StringInputer `yaml:"-"`
+	checker    InputChecker    `yaml:"-"`
+	writerFunc func() error    `yaml:"-"`
 }
 
 // InputChecker indicates what check input need
@@ -110,35 +108,35 @@ func withProtocol(p string) ConfigOption {
 // withConfirmChecker set config with given confirm checker
 func withConfirmChecker(confirm BoolInputer) ConfigOption {
 	return func(c *CredentialConfig) {
-		c.Checker.Confirm = confirm
+		c.checker.Confirm = confirm
 	}
 }
 
 // withTestChecker set config with given test checker
 func withTestChecker(t BoolInputer) ConfigOption {
 	return func(c *CredentialConfig) {
-		c.Checker.Test = t
+		c.checker.Test = t
 	}
 }
 
 // withTestFunc set config with given test func
 func withTestFunc(f func() error) ConfigOption {
 	return func(c *CredentialConfig) {
-		c.Checker.TestFunc = f
+		c.checker.TestFunc = f
 	}
 }
 
-// withWriteCloser set config with given io.WriteCloser
-func withWriteCloser(w io.WriteCloser) ConfigOption {
+// withWriteFunc set config with given func
+func withWriteFunc(w func() error) ConfigOption {
 	return func(c *CredentialConfig) {
-		c.WriteCloser = w
+		c.writerFunc = w
 	}
 }
 
 // withInputers set config with given StringInputers
 func withInputers(inputers ...StringInputer) ConfigOption {
 	return func(c *CredentialConfig) {
-		c.Inputers = append(c.Inputers, inputers...)
+		c.inputers = append(c.inputers, inputers...)
 	}
 }
 
@@ -158,75 +156,32 @@ func DefaultCredentialConfig() CredentialConfig {
 		Port:            constants.DefaultPort,
 		Protocol:        constants.DefaultProtocol,
 
-		Inputers: make([]StringInputer, 0),
-		Checker:  InputChecker{},
+		inputers: make([]StringInputer, 0),
+		checker:  InputChecker{},
 	}
-}
-
-// StringInputer is interface to set string from input
-type StringInputer interface {
-	SetStringP(*string) error
-	GetStringP() *string
-}
-
-// BoolInputer is interface to get a bool variable
-type BoolInputer interface {
-	GetBool() (bool, error)
-}
-
-// PromptInput used to set up a prompt input
-type PromptInput struct {
-	Key      string
-	Value    *string
-	MsgTitle string
-}
-
-// SetStringP set value to given string pointer
-func (p PromptInput) SetStringP(s *string) error {
-	if s == nil {
-		return fmt.Errorf("invalid value to set, value cannot be nil")
-	}
-	var msg string
-	defaultValue := viper.GetString(p.Key)
-
-	if defaultValue != "" {
-		msg = " [" + defaultValue + "]"
-	}
-	prompt := &survey.Input{
-		Message: p.MsgTitle + msg + ":",
-	}
-
-	var tmp string
-	if err := survey.AskOne(prompt, &tmp); err != nil {
-		return err
-	}
-	if tmp != "" {
-		*s = tmp
-	}
-	return nil
-}
-
-// GetStringP returns a pointer to string to set
-func (p PromptInput) GetStringP() *string {
-	return p.Value
 }
 
 // setupConfig runs the whole process to set up credential config
+// 1. call all inpupters to input config attr
+// 2. if test check was set, try to ask to test. Then if get true, load config and run test func.
+// 3. if confirm check was not set, handle as always confirm. Otherwise, ask to confirm.
+// 4. if not confirmed, back to step 1.
+// 5. if confirmed, format config and call write func
 func (c *CredentialConfig) setupConfig() (err error) {
 	var confirm, test bool
 	for !confirm {
-		for _, inputer := range c.Inputers {
+		for _, inputer := range c.inputers {
 			if err = inputer.SetStringP(inputer.GetStringP()); err != nil {
 				return
 			}
 		}
 
-		if c.Checker.Test != nil {
-			test, err = c.Checker.Test.GetBool()
+		if c.checker.Test != nil {
+			test, err = c.checker.Test.GetBool()
 			if err != nil {
 				return err
 			}
-			if test && c.Checker.TestFunc != nil {
+			if test && c.checker.TestFunc != nil {
 				var out []byte
 				out, err = yaml.Marshal(c)
 				if err != nil {
@@ -238,52 +193,30 @@ func (c *CredentialConfig) setupConfig() (err error) {
 					return fmt.Errorf("read config from struct failed: [%w]", err)
 				}
 
-				if err = c.Checker.TestFunc(); err != nil {
-					i18n.Sprintf("test failed with error: [%s]", err.Error())
+				if err = c.checker.TestFunc(); err != nil {
+					i18n.Printf("Test failed with error: [%s]\n", err.Error())
 					err = nil
 				} else {
-					i18n.Sprintf("test succeed")
+					i18n.Printf("Test connection succeed\n")
 				}
 			}
 		}
 
 		// if no confirm checker set, treat as confirm
-		if c.Checker.Confirm == nil {
+		if c.checker.Confirm == nil {
 			confirm = true
 			break
 		}
-		confirm, err = c.Checker.Confirm.GetBool()
+		confirm, err = c.checker.Confirm.GetBool()
 		if err != nil {
 			return err
 		}
 	}
 
-	b, err := c.Format()
-	if err != nil {
-		return
-	}
-	defer c.WriteCloser.Close()
-	if _, err = c.WriteCloser.Write(b); err != nil {
-		return
+	if err = c.writerFunc(); err != nil {
+		return err
 	}
 	return
-}
-
-// PromptConfirm used for prompt confirm
-type PromptConfirm struct {
-	Msg string
-}
-
-// GetBool returns a bool
-func (p PromptConfirm) GetBool() (bool, error) {
-	var res bool
-	var prompt = &survey.Confirm{
-		Message: p.Msg,
-	}
-	if err := survey.AskOne(prompt, &res); err != nil {
-		return false, err
-	}
-	return res, nil
 }
 
 // SetupConfigInteractive do the config initial, and then call setup config to set it up
@@ -295,23 +228,6 @@ func SetupConfigInteractive() (fileName string, err error) {
 		withHost(viper.GetString(constants.ConfigHost)),
 		withPort(viper.GetString(constants.ConfigPort)),
 	)
-
-	// prepare for the writer
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	// write config into preference file
-	fileName = filepath.Join(homeDir, ".qingstor", "config.yaml")
-	if err = os.MkdirAll(filepath.Dir(fileName), 0755); err != nil {
-		return "", err
-	}
-
-	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return "", err
-	}
 
 	// add more options
 	in.addOption(
@@ -356,7 +272,6 @@ func SetupConfigInteractive() (fileName string, err error) {
 				Msg: "Test access with your config?",
 			},
 		),
-		withWriteCloser(f),
 		withTestFunc(func() error {
 			rootTask := taskutils.NewAtServiceTask(10)
 			err = utils.ParseAtServiceInput(rootTask)
@@ -371,6 +286,34 @@ func SetupConfigInteractive() (fileName string, err error) {
 
 			if t.GetFault().HasError() {
 				return t.GetFault()
+			}
+			return nil
+		}),
+		withWriteFunc(func() error {
+			// prepare for the writer
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+
+			// write config into preference file
+			fileName = filepath.Join(homeDir, ".qingstor", "config.yaml")
+			if err = os.MkdirAll(filepath.Dir(fileName), 0755); err != nil {
+				return err
+			}
+
+			f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			b, err := in.Format()
+			if err != nil {
+				return err
+			}
+			if _, err = f.Write(b); err != nil {
+				return err
 			}
 			return nil
 		}),
