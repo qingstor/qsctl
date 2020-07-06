@@ -50,6 +50,11 @@ func (c CredentialConfig) Format() ([]byte, error) {
 	return yaml.Marshal(c)
 }
 
+// FormatType return type of credential config when format
+func (CredentialConfig) FormatType() string {
+	return "yaml"
+}
+
 // ConfigOption is opts to init config
 type ConfigOption func(config *CredentialConfig)
 
@@ -158,6 +163,9 @@ func DefaultCredentialConfig() CredentialConfig {
 
 		inputers: make([]StringInputer, 0),
 		checker:  InputChecker{},
+		writerFunc: func() error {
+			return nil
+		},
 	}
 }
 
@@ -172,25 +180,25 @@ func (c *CredentialConfig) setupConfig() (err error) {
 	for !confirm {
 		for _, inputer := range c.inputers {
 			if err = inputer.SetStringP(inputer.GetStringP()); err != nil {
-				return
+				return fmt.Errorf("set string for %s failed: [%w]", inputer.GetName(), err)
 			}
 		}
 
 		if c.checker.Test != nil {
 			test, err = c.checker.Test.GetBool()
 			if err != nil {
-				return err
+				return fmt.Errorf("get bool for %s failed: [%w]", c.checker.Test.GetName(), err)
 			}
 			if test && c.checker.TestFunc != nil {
 				var out []byte
-				out, err = yaml.Marshal(c)
+				out, err = c.Format()
 				if err != nil {
-					return fmt.Errorf("marshal config failed: [%w]", err)
+					return fmt.Errorf("marshal config failed when test: [%w]", err)
 				}
 
-				viper.SetConfigType("yaml")
+				viper.SetConfigType(c.FormatType())
 				if err = viper.ReadConfig(bytes.NewBuffer(out)); err != nil {
-					return fmt.Errorf("read config from struct failed: [%w]", err)
+					return fmt.Errorf("read config from struct failed when test: [%w]", err)
 				}
 
 				if err = c.checker.TestFunc(); err != nil {
@@ -209,12 +217,12 @@ func (c *CredentialConfig) setupConfig() (err error) {
 		}
 		confirm, err = c.checker.Confirm.GetBool()
 		if err != nil {
-			return err
+			return fmt.Errorf("get bool for %s failed: [%w]", c.checker.Confirm.GetName(), err)
 		}
 	}
 
 	if err = c.writerFunc(); err != nil {
-		return err
+		return fmt.Errorf("call write func failed: [%w]", err)
 	}
 	return
 }
@@ -264,11 +272,13 @@ func SetupConfigInteractive() (fileName string, err error) {
 		),
 		withConfirmChecker(
 			PromptConfirm{
+				Key: "confirm",
 				Msg: "Confirm your config?",
 			},
 		),
 		withTestChecker(
 			PromptConfirm{
+				Key: "test",
 				Msg: "Test access with your config?",
 			},
 		),
@@ -289,31 +299,31 @@ func SetupConfigInteractive() (fileName string, err error) {
 			}
 			return nil
 		}),
-		withWriteFunc(func() error {
+		withWriteFunc(func() (err error) {
 			// prepare for the writer
 			homeDir, err := os.UserHomeDir()
 			if err != nil {
-				return err
+				return fmt.Errorf("get home dir failed: [%w]", err)
 			}
 
 			// write config into preference file
 			fileName = filepath.Join(homeDir, ".qingstor", "config.yaml")
 			if err = os.MkdirAll(filepath.Dir(fileName), 0755); err != nil {
-				return err
+				return fmt.Errorf("make dir for <%s> failed: [%w]", fileName, err)
 			}
 
 			f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 			if err != nil {
-				return err
+				return fmt.Errorf("open file for <%s> failed: [%w]", fileName, err)
 			}
 			defer f.Close()
 
 			b, err := in.Format()
 			if err != nil {
-				return err
+				return fmt.Errorf("format config failed: [%w]", err)
 			}
 			if _, err = f.Write(b); err != nil {
-				return err
+				return fmt.Errorf("write config failed: [%w]", err)
 			}
 			return nil
 		}),
@@ -321,7 +331,7 @@ func SetupConfigInteractive() (fileName string, err error) {
 	i18n.Printf("Enter new values or accept defaults in brackets with Enter.\n")
 	i18n.Printf("Access key and Secret key are your identifiers for QingStor. Leave them empty if you want to use the env variables.\n")
 	if err = in.setupConfig(); err != nil {
-		return
+		return fileName, fmt.Errorf("setup config failed: [%w]", err)
 	}
 	return
 }

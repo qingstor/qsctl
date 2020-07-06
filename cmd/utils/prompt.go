@@ -11,11 +11,17 @@ import (
 type StringInputer interface {
 	SetStringP(*string) error
 	GetStringP() *string
+	NameGetter
 }
 
 // BoolInputer is interface to get a bool variable
 type BoolInputer interface {
 	GetBool() (bool, error)
+	NameGetter
+}
+
+type NameGetter interface {
+	GetName() string
 }
 
 // PromptInput used to set up a prompt input
@@ -55,8 +61,14 @@ func (p PromptInput) GetStringP() *string {
 	return p.Value
 }
 
+// GetName returns name of prompt input
+func (p PromptInput) GetName() string {
+	return p.Key
+}
+
 // PromptConfirm used for prompt confirm
 type PromptConfirm struct {
+	Key string
 	Msg string
 }
 
@@ -70,4 +82,9 @@ func (p PromptConfirm) GetBool() (bool, error) {
 		return false, err
 	}
 	return res, nil
+}
+
+// GetName returns name of prompt confirm
+func (p PromptConfirm) GetName() string {
+	return p.Key
 }
