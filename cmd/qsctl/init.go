@@ -70,6 +70,7 @@ func init() {
 	rootCmd.AddCommand(PresignCommand)
 	rootCmd.AddCommand(RbCommand)
 	rootCmd.AddCommand(RmCommand)
+	rootCmd.AddCommand(ShellCommand)
 	rootCmd.AddCommand(StatCommand)
 	rootCmd.AddCommand(SyncCommand)
 	rootCmd.AddCommand(TeeCommand)
