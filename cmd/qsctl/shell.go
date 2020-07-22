@@ -1,28 +1,23 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"errors"
-	"fmt"
-	"io"
 	_ "net/http/pprof"
 	"os"
-	"os/signal"
-	"regexp"
 	"strings"
-	"syscall"
 
+	"github.com/AlecAivazis/survey/v2/terminal"
+	"github.com/c-bata/go-prompt"
 	"github.com/cosiner/argv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
-
-var yesRx = regexp.MustCompile("^(?i:y(?:es)?)$")
 
 // ShellCommand will handle qsctl shell command.
 var ShellCommand = &cobra.Command{
@@ -33,76 +28,83 @@ var ShellCommand = &cobra.Command{
 		i18n.Sprintf("Start shell: qsctl shell"),
 	),
 	Args: cobra.NoArgs,
-	RunE: shellRun,
+	Run:  shellRun,
 	PreRun: func(_ *cobra.Command, _ []string) {
 		log.SetOutput(os.Stdout)
 	},
 }
 
-func shellRun(_ *cobra.Command, _ []string) (err error) {
-	// sigFin used to pass signal into sigChan when shellHandler execute without context cancel
-	var sigFin syscall.Signal
-
-	sh := shellHandler{
-		reader:         os.Stdin,
-		sigChan:        make(chan os.Signal),
-		inputChan:      make(chan string),
-		readyInputChan: make(chan struct{}),
+func executor(t string) {
+	args, err := parseArgs(t)
+	if err != nil {
+		i18n.Printf("get args failed: %s\n", err)
+		return
 	}
 
-	signal.Notify(sh.sigChan, os.Interrupt)
-	go sh.initReader()
-
-	for {
-		sh.ReadyToInput()
-		input := sh.loopInput(fmt.Sprintf("%s> ", constants.Name))
-		// exit if user input exit
-		if isExit(input) {
-			os.Exit(0)
-		}
-		// if input blank, continue to wait for next input
-		if input == "" {
-			continue
-		}
-
-		args, err := parseArgs(input)
-		if err != nil {
-			i18n.Printf("get args failed: %s\n", err)
-			continue
-		}
-
-		if err = sh.checkShellCmd(args); err != nil {
-			i18n.Printf("check command failed: %s\n", err)
-			continue
-		}
-
-		// execute command with args if check passed
-		// get new ctx for each execution
-		ctx, cancel := context.WithCancel(context.Background())
-		go func() {
-			sh.waitSignal()
-			cancel()
-		}()
-
-		err = sh.ExecuteWithContext(ctx, args)
-		select {
-		case <-ctx.Done():
-			break
-		default:
-			// if not canceled, we need to trigger signal to avoid goroutine leak, which waits signal to cancel ctx
-			sh.triggerSignal(sigFin)
-			// cancel func is idempotent
-			cancel()
-		}
-		if err != nil {
-			i18n.Printf("execute %v failed: %s\n", args, err)
-			continue
-		}
+	if err = checkShellCmd(args); err != nil {
+		i18n.Printf("check command failed: %s\n", err)
+		return
 	}
+
+	rootCmd.SetArgs(args)
+	if err = rootCmd.ExecuteContext(context.Background()); err != nil {
+		i18n.Printf("execute command failed: %s\n", err)
+		return
+	}
+	return
 }
 
-func isExit(input string) bool {
-	return input == constants.ExitCmd
+func completer(d prompt.Document) (s []prompt.Suggest) {
+	if !strings.Contains(d.CurrentLineBeforeCursor(), " ") {
+		for _, command := range basicCommands() {
+			s = append(s,
+				prompt.Suggest{Text: command.Name(), Description: command.Short},
+			)
+		}
+		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	}
+
+	if d.GetWordBeforeCursor() == "" {
+		return
+	}
+	for _, command := range basicCommands() {
+		if input := d.TextBeforeCursor(); strings.HasPrefix(input, command.Name()) {
+			command.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+				s = append(s,
+					prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
+				)
+				if flag.Shorthand != "" {
+					s = append(s,
+						prompt.Suggest{Text: "-" + flag.Shorthand, Description: flag.Usage},
+					)
+				}
+			})
+			break
+		}
+	}
+
+	rootCmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+		s = append(s,
+			prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
+		)
+		if flag.Shorthand != "" {
+			s = append(s,
+				prompt.Suggest{Text: "-" + flag.Shorthand, Description: flag.Usage},
+			)
+		}
+	})
+
+	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+}
+
+func shellRun(_ *cobra.Command, _ []string) {
+	p := prompt.New(executor, completer,
+		prompt.OptionPrefix(constants.Name+"> "),
+		prompt.OptionTitle(constants.Name),
+	)
+
+	p.Run()
+	return
 }
 
 // parseArgs parse input string into string slice like os.Args
@@ -129,50 +131,7 @@ func isTransferCmd(c string) bool {
 	}
 }
 
-// shellHandler is the struct to handle shellHandler command's execution
-type shellHandler struct {
-	// reader is where to get input
-	reader io.Reader
-	// sigChan get signal for some response
-	sigChan chan os.Signal
-	// inputChan used to transfer input
-	inputChan chan string
-	// readyInputChan used to mark ready to get input
-	readyInputChan chan struct{}
-}
-
-func (s shellHandler) initReader() {
-	reader := bufio.NewReader(s.reader)
-	for {
-		// wait until ready to input
-		<-s.readyInputChan
-		// try to read from stdin
-		cmdString, err := reader.ReadString('\n')
-		if err != nil {
-			i18n.Printf("\nread string failed: %s\n", err)
-			fmt.Printf("%s> ", constants.Name)
-			continue
-		}
-		cmdString = strings.TrimSuffix(cmdString, "\n")
-		// put input cmd out
-		s.inputChan <- cmdString
-	}
-}
-
-func (s shellHandler) ReadyToInput() {
-	s.readyInputChan <- struct{}{}
-}
-
-func (s shellHandler) Execute(args []string) error {
-	return s.ExecuteWithContext(context.Background(), args)
-}
-
-func (s shellHandler) ExecuteWithContext(ctx context.Context, args []string) error {
-	rootCmd.SetArgs(args)
-	return rootCmd.ExecuteContext(ctx)
-}
-
-func (s shellHandler) checkShellCmd(args []string) error {
+func checkShellCmd(args []string) error {
 	cmdName := args[0]
 	switch cmdName {
 	case RbCommand.Name():
@@ -181,22 +140,36 @@ func (s shellHandler) checkShellCmd(args []string) error {
 			return err
 		}
 		if rbInput.force {
-			_, bucketName, _, _ := utils.ParseQsPath(args[1])
-			s.ReadyToInput()
-			input := s.loopInput(fmt.Sprintf("input bucket name <%s> to confirm: ", bucketName))
-			if bucketName != input {
-				return errors.New("not confirmed")
+			_, bucketName, _, _ := utils.ParseQsPath(RbCommand.Flags().Args()[0])
+			for {
+				confirm, err := utils.DoubleCheckString(bucketName, i18n.Sprintf("input bucket name <%s> to confirm:", bucketName))
+				if err != nil {
+					if errors.Is(err, terminal.InterruptErr) {
+						continue
+					}
+					return err
+				}
+				if !confirm {
+					return errors.New("not confirmed")
+				}
 			}
+
 		}
 	case RmCommand.Name():
 		_, _, key, _ := utils.ParseQsPath(args[1])
-		var confirm bool
-		s.ReadyToInput()
-		input := s.loopInput(fmt.Sprintf("confirm to remove <%s>?: (y/N) ", key))
-		confirm = yesRx.MatchString(input)
-		if !confirm {
-			return errors.New("not confirmed")
+		for {
+			confirm, err := utils.CheckConfirm(i18n.Sprintf("confirm to remove <%s>?", key))
+			if err != nil {
+				if errors.Is(err, terminal.InterruptErr) {
+					continue
+				}
+				return err
+			}
+			if !confirm {
+				return errors.New("not confirmed")
+			}
 		}
+
 	case CatCommand.Name(), CpCommand.Name(), LsCommand.Name(),
 		MbCommand.Name(), MvCommand.Name(), PresignCommand.Name(),
 		StatCommand.Name(), SyncCommand.Name(), TeeCommand.Name():
@@ -206,26 +179,4 @@ func (s shellHandler) checkShellCmd(args []string) error {
 	}
 
 	return nil
-}
-
-func (s shellHandler) loopInput(tip string) (res string) {
-	for {
-		fmt.Print(tip)
-		select {
-		case <-s.sigChan:
-			// if interrupt signal caught, print tip and continue
-			i18n.Printf("\ninterrupted by input\n")
-			continue
-		case res = <-s.inputChan:
-			return
-		}
-	}
-}
-
-func (s shellHandler) waitSignal() {
-	<-s.sigChan
-}
-
-func (s shellHandler) triggerSignal(sig os.Signal) {
-	s.sigChan <- sig
 }
