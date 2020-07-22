@@ -9,6 +9,7 @@ import (
 
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/c-bata/go-prompt"
+	"github.com/c-bata/go-prompt/completer"
 	"github.com/cosiner/argv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -35,6 +36,9 @@ var ShellCommand = &cobra.Command{
 }
 
 func executor(t string) {
+	if t == "" {
+		return
+	}
 	args, err := parseArgs(t)
 	if err != nil {
 		i18n.Printf("get args failed: %s\n", err)
@@ -54,53 +58,38 @@ func executor(t string) {
 	return
 }
 
-func completer(d prompt.Document) (s []prompt.Suggest) {
+func completeFunc(d prompt.Document) (s []prompt.Suggest) {
+	// if first word inputting, try to suggest commands
 	if !strings.Contains(d.CurrentLineBeforeCursor(), " ") {
-		for _, command := range basicCommands() {
-			s = append(s,
-				prompt.Suggest{Text: command.Name(), Description: command.Short},
-			)
-		}
+		s := getCmdSuggests()
 		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 	}
 
-	if d.GetWordBeforeCursor() == "" {
+	curWord := d.GetWordBeforeCursor()
+	// if not start to input, do not suggest
+	if curWord == "" {
 		return
 	}
-	for _, command := range basicCommands() {
-		if input := d.TextBeforeCursor(); strings.HasPrefix(input, command.Name()) {
-			command.LocalFlags().VisitAll(func(flag *pflag.Flag) {
-				s = append(s,
-					prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
-				)
-				if flag.Shorthand != "" {
-					s = append(s,
-						prompt.Suggest{Text: "-" + flag.Shorthand, Description: flag.Usage},
-					)
-				}
-			})
-			break
-		}
+
+	// if start to input flags, which starts with "-", try to suggest flags
+	if strings.HasPrefix(curWord, "-") {
+		s = getFlagSuggests(d)
+		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 	}
 
-	rootCmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
-		s = append(s,
-			prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
-		)
-		if flag.Shorthand != "" {
-			s = append(s,
-				prompt.Suggest{Text: "-" + flag.Shorthand, Description: flag.Usage},
-			)
-		}
-	})
-
-	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	// if not a qingstor path, try to suggest local files
+	if !utils.IsQsPath(curWord) {
+		s = getFileSuggests(d)
+		return s
+	}
+	return
 }
 
 func shellRun(_ *cobra.Command, _ []string) {
-	p := prompt.New(executor, completer,
+	p := prompt.New(executor, completeFunc,
 		prompt.OptionPrefix(constants.Name+"> "),
 		prompt.OptionTitle(constants.Name),
+		prompt.OptionCompletionWordSeparator(completer.FilePathCompletionSeparator),
 	)
 
 	p.Run()
@@ -179,4 +168,43 @@ func checkShellCmd(args []string) error {
 	}
 
 	return nil
+}
+
+func getCmdSuggests() (s []prompt.Suggest) {
+	for _, command := range basicCommands() {
+		s = append(s,
+			prompt.Suggest{Text: command.Name(), Description: command.Short},
+		)
+	}
+	return s
+}
+
+func getFlagSuggests(d prompt.Document) (s []prompt.Suggest) {
+	for _, command := range basicCommands() {
+		if input := d.TextBeforeCursor(); strings.HasPrefix(input, command.Name()) {
+			command.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+				s = append(s,
+					prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
+				)
+			})
+			break
+		}
+	}
+	// add global flags to suggest
+	rootCmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+		s = append(s,
+			prompt.Suggest{Text: "--" + flag.Name, Description: flag.Usage},
+		)
+	})
+	return s
+}
+
+func getFileSuggests(d prompt.Document) []prompt.Suggest {
+	var fileCompleter = completer.FilePathCompleter{
+		IgnoreCase: true,
+		Filter: func(fi os.FileInfo) bool {
+			return true
+		},
+	}
+	return fileCompleter.Complete(d)
 }
