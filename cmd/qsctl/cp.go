@@ -3,25 +3,25 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
-	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var cpInput struct {
-	CheckMD5             bool
-	ExpectSize           string
-	MaximumMemoryContent string
-	Recursive            bool
+type cpFlags struct {
+	checkMD5             bool
+	expectSize           string
+	maximumMemoryContent string
+	recursive            bool
 }
+
+var cpFlag = cpFlags{}
 
 // CpCommand will handle copy command.
 var CpCommand = &cobra.Command{
@@ -36,24 +36,31 @@ var CpCommand = &cobra.Command{
 		i18n.Sprintf("Write to stdout: qsctl cp qs://prefix/b - > /path/to/file"),
 	),
 	Args: cobra.ExactArgs(2),
-	RunE: cpRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := cpRun(cmd, args); err != nil {
+			i18n.Printf("Execute %s command error: %s", "cp", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		cpFlag = cpFlags{}
+	},
 }
 
 func initCpFlag() {
-	CpCommand.PersistentFlags().StringVar(&cpInput.ExpectSize,
+	CpCommand.PersistentFlags().StringVar(&cpFlag.expectSize,
 		constants.ExpectSizeFlag,
 		"",
 		i18n.Sprintf(`expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`),
 	)
-	CpCommand.PersistentFlags().StringVar(&cpInput.MaximumMemoryContent,
+	CpCommand.PersistentFlags().StringVar(&cpFlag.maximumMemoryContent,
 		constants.MaximumMemoryContentFlag,
 		"",
 		i18n.Sprintf(`maximum content loaded in memory
 (only used for input from stdin)`),
 	)
-	CpCommand.Flags().BoolVarP(&cpInput.Recursive,
+	CpCommand.Flags().BoolVarP(&cpFlag.recursive,
 		constants.RecursiveFlag,
 		"r",
 		false,
@@ -69,11 +76,11 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpInput.Recursive {
+	if rootTask.GetSourceType() == types.ObjectTypeDir && !cpFlag.recursive {
 		return fmt.Errorf(i18n.Sprintf("-r is required to copy a directory"))
 	}
 
-	if cpInput.Recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
+	if cpFlag.recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("src should be a directory while -r is set"))
 	}
 
@@ -82,17 +89,9 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
 	}
 
-	// only show progress bar without no-progress flag set
-	if !noProgress && cutils.IsInteractiveEnable() {
-		go func() {
-			taskutils.StartProgress(time.Second)
-		}()
-		defer taskutils.FinishProgress()
-	}
-
-	if cpInput.Recursive {
+	if cpFlag.recursive {
 		t := task.NewCopyDir(rootTask)
-		t.SetCheckMD5(cpInput.CheckMD5)
+		t.SetCheckMD5(cpFlag.checkMD5)
 		t.SetHandleObjCallback(func(o *types.Object) {
 			fmt.Println(i18n.Sprintf("<%s> copied", o.Name))
 		})
@@ -103,21 +102,19 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		taskutils.WaitProgress()
 		i18n.Printf("Dir <%s> copied to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
 	}
 
 	t := task.NewCopyFile(rootTask)
-	t.SetCheckMD5(cpInput.CheckMD5)
+	t.SetCheckMD5(cpFlag.checkMD5)
 	t.SetCheckTasks(nil)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
-	taskutils.WaitProgress()
 	i18n.Printf("File <%s> copied to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return

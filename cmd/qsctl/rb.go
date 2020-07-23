@@ -14,9 +14,11 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var rbInput struct {
+type rbFlags struct {
 	force bool
 }
+
+var rbFlag = rbFlags{}
 
 // RbCommand will handle remove object command.
 var RbCommand = &cobra.Command{
@@ -28,11 +30,18 @@ var RbCommand = &cobra.Command{
 		i18n.Sprintf("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
 	),
 	Args: cobra.ExactArgs(1),
-	RunE: rbRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := rbRun(cmd, args); err != nil {
+			i18n.Printf("Execute %s command error: %s", "rb", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		rbFlag = rbFlags{}
+	},
 }
 
 func initRbFlag() {
-	RbCommand.Flags().BoolVarP(&rbInput.force, constants.ForceFlag, "f", false,
+	RbCommand.Flags().BoolVarP(&rbFlag.force, constants.ForceFlag, "f", false,
 		i18n.Sprintf("Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket."),
 	)
 }
@@ -50,22 +59,9 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rbInput.force {
-		var match bool
-		match, err = utils.DoubleCheckString(bucketName,
-			i18n.Sprintf(`This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
-Please input the bucket name to confirm:`, bucketName))
-		if err != nil {
-			return
-		}
-		if !match {
-			return fmt.Errorf(i18n.Sprintf("The bucket name you just input is not match. Bucket <%s> not removed.", bucketName))
-		}
-	}
-
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetForce(rbInput.force)
+	t.SetForce(rbFlag.force)
 	t.SetHandleObjCallback(func(o *typ.Object) {
 		fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
 	})

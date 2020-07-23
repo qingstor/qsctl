@@ -11,8 +11,6 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var mbInput struct{}
-
 // MbCommand will handle make bucket command.
 var MbCommand = &cobra.Command{
 	Use:   "mb [qs://]<bucket-name>",
@@ -29,8 +27,12 @@ bucket name should follow DNS name rule with:
 		i18n.Sprintf("Make bucket: qsctl mb bucket-name --zone=zone-name"),
 	),
 	Args:    cobra.ExactArgs(1),
-	RunE:    mbRun,
 	PreRunE: validateMbFlag,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := mbRun(cmd, args); err != nil {
+			i18n.Printf("Execute %s command error: %s", "mb", err.Error())
+		}
+	},
 }
 
 func mbRun(c *cobra.Command, args []string) (err error) {
@@ -48,7 +50,7 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCreateStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetZone(zone)
+	t.SetZone(globalFlag.zone)
 
 	t.Run()
 	if t.GetFault().HasError() {
@@ -67,7 +69,7 @@ func initMbFlag() {}
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
-	if zone == "" {
+	if globalFlag.zone == "" {
 		return fmt.Errorf("flag zone is required, but not found")
 	}
 	return nil

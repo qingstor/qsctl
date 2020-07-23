@@ -19,9 +19,11 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var statInput struct {
+type statFlags struct {
 	format string
 }
+
+var statFlag = statFlags{}
 
 // StatCommand will handle stat command.
 var StatCommand = &cobra.Command{
@@ -33,7 +35,14 @@ var StatCommand = &cobra.Command{
 		i18n.Sprintf("Stat bucket: qsctl stat qs://bucket-name"),
 	),
 	Args: cobra.ExactArgs(1),
-	RunE: statRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := statRun(cmd, args); err != nil {
+			i18n.Printf("Execute %s command error: %s", "stat", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		statFlag = statFlags{}
+	},
 }
 
 func statRun(c *cobra.Command, args []string) (err error) {
@@ -56,7 +65,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 			return types.NewErrUnhandled(err)
 		}
 
-		statStorageOutput(sm, t.GetStorageInfo(), statInput.format)
+		statStorageOutput(sm, t.GetStorageInfo(), statFlag.format)
 		return nil
 	}
 
@@ -66,12 +75,12 @@ func statRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	statFileOutput(t.GetObject(), statInput.format)
+	statFileOutput(t.GetObject(), statFlag.format)
 	return
 }
 
 func initStatFlag() {
-	StatCommand.Flags().StringVar(&statInput.format, constants.FormatFlag, "",
+	StatCommand.Flags().StringVar(&statFlag.format, constants.FormatFlag, "",
 		i18n.Sprintf(`use the specified FORMAT instead of the default;
 output a newline after each use of FORMAT
 

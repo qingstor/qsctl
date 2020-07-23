@@ -14,9 +14,11 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var rmInput struct {
+type rmFlags struct {
 	recursive bool
 }
+
+var rmFlag = rmFlags{}
 
 // RmCommand will handle remove object command.
 var RmCommand = &cobra.Command{
@@ -28,11 +30,18 @@ var RmCommand = &cobra.Command{
 		i18n.Sprintf("Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r"),
 	),
 	Args: cobra.ExactArgs(1),
-	RunE: rmRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := rmRun(cmd, args); err != nil {
+			i18n.Printf("Execute %s command error: %s", "rm", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		rmFlag = rmFlags{}
+	},
 }
 
 func initRmFlag() {
-	RmCommand.Flags().BoolVarP(&rmInput.recursive, constants.RecursiveFlag, "r",
+	RmCommand.Flags().BoolVarP(&rmFlag.recursive, constants.RecursiveFlag, "r",
 		false, i18n.Sprintf("recursively delete keys under a specific prefix"))
 }
 
@@ -44,25 +53,16 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rootTask.GetType() == typ.ObjectTypeDir && !rmInput.recursive {
+	if rootTask.GetType() == typ.ObjectTypeDir && !rmFlag.recursive {
 		return fmt.Errorf(i18n.Sprintf("-r is required to remove a directory"))
 	}
 
-	if rmInput.recursive && rootTask.GetType() != typ.ObjectTypeDir {
+	if rmFlag.recursive && rootTask.GetType() != typ.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
 	}
 
 	key := filepath.Join(workDir, rootTask.GetPath())
-	confirm, err := utils.CheckConfirm(i18n.Sprintf(`This operation will delete <%s>, which cannot be recovered.
-Confirm?:`, key))
-	if err != nil {
-		return
-	}
-	if !confirm {
-		return fmt.Errorf(i18n.Sprintf("Not confirmed. Object <%s> not removed.", key))
-	}
-
-	if rmInput.recursive {
+	if rmFlag.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.SetHandleObjCallback(func(o *typ.Object) {
 			fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
