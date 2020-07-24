@@ -63,7 +63,17 @@ func init() {
 
 	rootCmd.AddCommand(ShellCommand)
 	// add sub-command to rootCmd
-	rootCmd.AddCommand(basicCommands()...)
+	rootCmd.AddCommand(CatCommand)
+	rootCmd.AddCommand(CpCommand)
+	rootCmd.AddCommand(LsCommand)
+	rootCmd.AddCommand(MbCommand)
+	rootCmd.AddCommand(MvCommand)
+	rootCmd.AddCommand(PresignCommand)
+	rootCmd.AddCommand(RbCommand)
+	rootCmd.AddCommand(RmCommand)
+	rootCmd.AddCommand(StatCommand)
+	rootCmd.AddCommand(SyncCommand)
+	rootCmd.AddCommand(TeeCommand)
 
 	rootCmd.SetVersionTemplate(i18n.Sprintf(
 		`{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`,
@@ -146,21 +156,4 @@ func silenceUsage(c *cobra.Command) {
 func configuredByEnv() bool {
 	return viper.GetString(constants.ConfigAccessKeyID) != "" &&
 		viper.GetString(constants.ConfigSecretAccessKey) != ""
-}
-
-// basicCommands return all directly-execute-able commands
-func basicCommands() []*cobra.Command {
-	return []*cobra.Command{
-		CatCommand,
-		CpCommand,
-		LsCommand,
-		MbCommand,
-		MvCommand,
-		PresignCommand,
-		RbCommand,
-		RmCommand,
-		StatCommand,
-		SyncCommand,
-		TeeCommand,
-	}
 }

@@ -137,8 +137,9 @@ func shellHandlerFactory(cmd string) (shellHandler, error) {
 		return &rbShellHandler{}, nil
 	case RmCommand.Name():
 		return rmShellHandler{}, nil
-	case CatCommand.Name(), CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
-		PresignCommand.Name(), StatCommand.Name(), SyncCommand.Name(), TeeCommand.Name():
+	// remove cat and tee command support
+	case CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
+		PresignCommand.Name(), StatCommand.Name(), SyncCommand.Name():
 		return blankShellHandler{}, nil
 	default:
 		return nil, constants.ErrCmdNotSupport
@@ -161,7 +162,7 @@ func parseArgs(input string) ([]string, error) {
 }
 
 func getCmdSuggests() (s []prompt.Suggest) {
-	for _, command := range basicCommands() {
+	for _, command := range shellSubCommands() {
 		s = append(s,
 			prompt.Suggest{Text: command.Name(), Description: command.Short},
 		)
@@ -170,7 +171,7 @@ func getCmdSuggests() (s []prompt.Suggest) {
 }
 
 func getFlagSuggests(d prompt.Document) (s []prompt.Suggest) {
-	for _, command := range basicCommands() {
+	for _, command := range shellSubCommands() {
 		if input := d.TextBeforeCursor(); strings.HasPrefix(input, command.Name()) {
 			command.LocalFlags().VisitAll(func(flag *pflag.Flag) {
 				s = append(s,
@@ -204,4 +205,19 @@ func getBucketSuggests() (s []prompt.Suggest) {
 		s = append(s, prompt.Suggest{Text: b})
 	}
 	return s
+}
+
+// shellSubCommands return all available sub command in shell
+func shellSubCommands() []*cobra.Command {
+	return []*cobra.Command{
+		CpCommand,
+		LsCommand,
+		MbCommand,
+		MvCommand,
+		PresignCommand,
+		RbCommand,
+		RmCommand,
+		StatCommand,
+		SyncCommand,
+	}
 }
