@@ -148,6 +148,7 @@ func configuredByEnv() bool {
 		viper.GetString(constants.ConfigSecretAccessKey) != ""
 }
 
+// basicCommands return all directly-execute-able commands
 func basicCommands() []*cobra.Command {
 	return []*cobra.Command{
 		CatCommand,

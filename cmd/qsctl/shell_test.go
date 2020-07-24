@@ -8,5 +8,5 @@ func TestShell(t *testing.T) {
 	if err := CpCommand.Flags().Parse(args); err != nil {
 		t.Fatal(err)
 	}
-	t.Log(cpInput)
+	t.Log(cpFlag)
 }

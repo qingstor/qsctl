@@ -1,13 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/c-bata/go-prompt"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
@@ -32,7 +35,7 @@ var RbCommand = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := rbRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "rb", err.Error())
+			i18n.Printf("Execute %s command error: %s\n", "rb", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -80,4 +83,37 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 
 func rbOutput(t *task.DeleteStorageTask) {
 	i18n.Printf("Bucket <%s> removed.\n", t.GetStorageName())
+}
+
+type rbShellHandler struct {
+	bucketName string
+}
+
+func (r *rbShellHandler) preRunE(args []string) error {
+	err := RbCommand.Flags().Parse(args)
+	if err != nil {
+		return err
+	}
+	_, bucketName, _, err := utils.ParseQsPath(RbCommand.Flags().Args()[0])
+	if err != nil {
+		return err
+	}
+	if rbFlag.force {
+		input := prompt.Input(
+			i18n.Sprintf("input bucket name <%s> to confirm: ", bucketName),
+			func(_ prompt.Document) []prompt.Suggest {
+				return nil
+			})
+		if input != bucketName {
+			return errors.New("not confirmed")
+		}
+	}
+	r.bucketName = bucketName
+	return nil
+}
+
+func (r rbShellHandler) postRun(err error) {
+	if err == nil {
+		shellutils.RemoveBucketFromList(r.bucketName)
+	}
 }

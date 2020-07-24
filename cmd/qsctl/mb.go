@@ -6,6 +6,7 @@ import (
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
@@ -73,4 +74,27 @@ func validateMbFlag(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("flag zone is required, but not found")
 	}
 	return nil
+}
+
+type mbShellHandler struct {
+	bucketName string
+}
+
+func (h *mbShellHandler) preRunE(args []string) error {
+	err := MbCommand.Flags().Parse(args)
+	if err != nil {
+		return err
+	}
+	_, bucketName, _, err := utils.ParseQsPath(MbCommand.Flags().Args()[0])
+	if err != nil {
+		return err
+	}
+	h.bucketName = bucketName
+	return nil
+}
+
+func (h mbShellHandler) postRun(err error) {
+	if err == nil {
+		shellutils.AddBucketIntoList(h.bucketName)
+	}
 }

@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
 	"github.com/cosiner/argv"
@@ -15,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
+	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
@@ -30,8 +31,12 @@ var ShellCommand = &cobra.Command{
 	),
 	Args: cobra.NoArgs,
 	Run:  shellRun,
-	PreRun: func(_ *cobra.Command, _ []string) {
+	PreRunE: func(_ *cobra.Command, _ []string) error {
+		if !cutils.IsInteractiveEnable() {
+			return errors.New("not interactive shell, cannot call shell")
+		}
 		log.SetOutput(os.Stdout)
+		return nil
 	},
 }
 
@@ -45,16 +50,23 @@ func executor(t string) {
 		return
 	}
 
-	if err = checkShellCmd(args); err != nil {
-		i18n.Printf("check command failed: %s\n", err)
+	subCmdName := args[0]
+	sh, err := shellHandlerFactory(subCmdName)
+	if err != nil {
+		i18n.Printf("%s\n", err)
+		return
+	}
+	if err = sh.preRunE(args[1:]); err != nil {
+		i18n.Printf("%s\n", err)
 		return
 	}
 
 	rootCmd.SetArgs(args)
 	if err = rootCmd.ExecuteContext(context.Background()); err != nil {
-		i18n.Printf("execute command failed: %s\n", err)
 		return
 	}
+
+	sh.postRun(err)
 	return
 }
 
@@ -74,18 +86,22 @@ func completeFunc(d prompt.Document) (s []prompt.Suggest) {
 	// if start to input flags, which starts with "-", try to suggest flags
 	if strings.HasPrefix(curWord, "-") {
 		s = getFlagSuggests(d)
-		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+		return prompt.FilterHasPrefix(s, curWord, true)
 	}
 
 	// if not a qingstor path, try to suggest local files
-	if !utils.IsQsPath(curWord) {
-		s = getFileSuggests(d)
-		return s
+	if utils.IsQsPath(curWord) {
+		s = getBucketSuggests()
+		return prompt.FilterHasPrefix(s, strings.TrimPrefix(curWord, "qs://"), true)
 	}
-	return
+
+	s = getFileSuggests(d)
+	return s
 }
 
 func shellRun(_ *cobra.Command, _ []string) {
+	shellutils.InitBucketList()
+
 	p := prompt.New(executor, completeFunc,
 		prompt.OptionPrefix(constants.Name+"> "),
 		prompt.OptionTitle(constants.Name),
@@ -94,6 +110,39 @@ func shellRun(_ *cobra.Command, _ []string) {
 
 	p.Run()
 	return
+}
+
+type shellHandler interface {
+	preRunE(args []string) error
+	postRun(err error)
+}
+
+// blankShellHandler implements shellHandler and do nothing
+type blankShellHandler struct{}
+
+func (b blankShellHandler) preRunE(_ []string) error {
+	return nil
+}
+
+func (b blankShellHandler) postRun(_ error) {
+	return
+}
+
+// shellHandlerFactory create shellHandler by factory pattern
+func shellHandlerFactory(cmd string) (shellHandler, error) {
+	switch cmd {
+	case MbCommand.Name():
+		return &mbShellHandler{}, nil
+	case RbCommand.Name():
+		return &rbShellHandler{}, nil
+	case RmCommand.Name():
+		return rmShellHandler{}, nil
+	case CatCommand.Name(), CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
+		PresignCommand.Name(), StatCommand.Name(), SyncCommand.Name(), TeeCommand.Name():
+		return blankShellHandler{}, nil
+	default:
+		return nil, constants.ErrCmdNotSupport
+	}
 }
 
 // parseArgs parse input string into string slice like os.Args
@@ -109,65 +158,6 @@ func parseArgs(input string) ([]string, error) {
 		log.Warnf(i18n.Sprint("pipe not supported in shell, input after %v would be abandoned"), args[0])
 	}
 	return args[0], nil
-}
-
-func isTransferCmd(c string) bool {
-	switch c {
-	case CpCommand.Name(), SyncCommand.Name(), MvCommand.Name():
-		return true
-	default:
-		return false
-	}
-}
-
-func checkShellCmd(args []string) error {
-	cmdName := args[0]
-	switch cmdName {
-	case RbCommand.Name():
-		err := RbCommand.Flags().Parse(args[1:])
-		if err != nil {
-			return err
-		}
-		if rbInput.force {
-			_, bucketName, _, _ := utils.ParseQsPath(RbCommand.Flags().Args()[0])
-			for {
-				confirm, err := utils.DoubleCheckString(bucketName, i18n.Sprintf("input bucket name <%s> to confirm:", bucketName))
-				if err != nil {
-					if errors.Is(err, terminal.InterruptErr) {
-						continue
-					}
-					return err
-				}
-				if !confirm {
-					return errors.New("not confirmed")
-				}
-			}
-
-		}
-	case RmCommand.Name():
-		_, _, key, _ := utils.ParseQsPath(args[1])
-		for {
-			confirm, err := utils.CheckConfirm(i18n.Sprintf("confirm to remove <%s>?", key))
-			if err != nil {
-				if errors.Is(err, terminal.InterruptErr) {
-					continue
-				}
-				return err
-			}
-			if !confirm {
-				return errors.New("not confirmed")
-			}
-		}
-
-	case CatCommand.Name(), CpCommand.Name(), LsCommand.Name(),
-		MbCommand.Name(), MvCommand.Name(), PresignCommand.Name(),
-		StatCommand.Name(), SyncCommand.Name(), TeeCommand.Name():
-		break
-	default:
-		return constants.ErrCmdNotSupport
-	}
-
-	return nil
 }
 
 func getCmdSuggests() (s []prompt.Suggest) {
@@ -207,4 +197,11 @@ func getFileSuggests(d prompt.Document) []prompt.Suggest {
 		},
 	}
 	return fileCompleter.Complete(d)
+}
+
+func getBucketSuggests() (s []prompt.Suggest) {
+	for _, b := range shellutils.GetBucketList() {
+		s = append(s, prompt.Suggest{Text: b})
+	}
+	return s
 }
