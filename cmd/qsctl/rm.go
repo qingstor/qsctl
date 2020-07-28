@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -89,6 +88,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 	return nil
 }
 
+// rmShellHandler handle rm in shell
 type rmShellHandler struct{}
 
 func (r rmShellHandler) preRunE(args []string) error {
@@ -100,13 +100,12 @@ func (r rmShellHandler) preRunE(args []string) error {
 	if err != nil {
 		return err
 	}
+	// try to get confirm input
 	input := prompt.Input(
 		i18n.Sprintf("confirm to remove <%s>? [y/N] ", key),
-		func(_ prompt.Document) []prompt.Suggest {
-			return nil
-		})
+		noSuggests)
 	if !shellutils.CheckYes(input) {
-		return errors.New("not confirmed")
+		return fmt.Errorf(i18n.Sprintf("not confirmed"))
 	}
 	return nil
 }

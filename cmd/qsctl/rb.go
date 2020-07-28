@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/Xuanwo/storage/pkg/segment"
@@ -89,6 +88,7 @@ type rbShellHandler struct {
 	bucketName string
 }
 
+// preRunE do pre-run check before rb in shell
 func (r *rbShellHandler) preRunE(args []string) error {
 	err := RbCommand.Flags().Parse(args)
 	if err != nil {
@@ -101,17 +101,16 @@ func (r *rbShellHandler) preRunE(args []string) error {
 	if rbFlag.force {
 		input := prompt.Input(
 			i18n.Sprintf("input bucket name <%s> to confirm: ", bucketName),
-			func(_ prompt.Document) []prompt.Suggest {
-				return nil
-			})
+			noSuggests)
 		if input != bucketName {
-			return errors.New("not confirmed")
+			return fmt.Errorf(i18n.Sprintf("not confirmed"))
 		}
 	}
 	r.bucketName = bucketName
 	return nil
 }
 
+// postRun remove bucket from cache list if no error while run
 func (r rbShellHandler) postRun(err error) {
 	if err == nil {
 		shellutils.RemoveBucketFromList(r.bucketName)

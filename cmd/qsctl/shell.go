@@ -70,6 +70,7 @@ func executor(t string) {
 	return
 }
 
+// completeFunc handle auto-completion by suggests while input
 func completeFunc(d prompt.Document) (s []prompt.Suggest) {
 	// if first word inputting, try to suggest commands
 	if !strings.Contains(d.CurrentLineBeforeCursor(), " ") {
@@ -112,20 +113,10 @@ func shellRun(_ *cobra.Command, _ []string) {
 	return
 }
 
+// shellHandler contains preRunE and postRun methods
 type shellHandler interface {
 	preRunE(args []string) error
 	postRun(err error)
-}
-
-// blankShellHandler implements shellHandler and do nothing
-type blankShellHandler struct{}
-
-func (b blankShellHandler) preRunE(_ []string) error {
-	return nil
-}
-
-func (b blankShellHandler) postRun(_ error) {
-	return
 }
 
 // shellHandlerFactory create shellHandler by factory pattern
@@ -161,6 +152,7 @@ func parseArgs(input string) ([]string, error) {
 	return args[0], nil
 }
 
+// getCmdSuggests add all sub commands into suggest list
 func getCmdSuggests() (s []prompt.Suggest) {
 	for _, command := range shellSubCommands() {
 		s = append(s,
@@ -170,7 +162,9 @@ func getCmdSuggests() (s []prompt.Suggest) {
 	return s
 }
 
+// getFlagSuggests returns flag suggest list
 func getFlagSuggests(d prompt.Document) (s []prompt.Suggest) {
+	// get the specific sub commands' flags into suggest
 	for _, command := range shellSubCommands() {
 		if input := d.TextBeforeCursor(); strings.HasPrefix(input, command.Name()) {
 			command.LocalFlags().VisitAll(func(flag *pflag.Flag) {
@@ -190,6 +184,7 @@ func getFlagSuggests(d prompt.Document) (s []prompt.Suggest) {
 	return s
 }
 
+// getFileSuggests returns local files suggest list
 func getFileSuggests(d prompt.Document) []prompt.Suggest {
 	var fileCompleter = completer.FilePathCompleter{
 		IgnoreCase: true,
@@ -200,6 +195,7 @@ func getFileSuggests(d prompt.Document) []prompt.Suggest {
 	return fileCompleter.Complete(d)
 }
 
+// getBucketSuggests return suggest list which contains all buckets
 func getBucketSuggests() (s []prompt.Suggest) {
 	for _, b := range shellutils.GetBucketList() {
 		s = append(s, prompt.Suggest{Text: b})
@@ -220,4 +216,20 @@ func shellSubCommands() []*cobra.Command {
 		StatCommand,
 		SyncCommand,
 	}
+}
+
+// blankShellHandler implements shellHandler and do nothing
+type blankShellHandler struct{}
+
+func (b blankShellHandler) preRunE(_ []string) error {
+	return nil
+}
+
+func (b blankShellHandler) postRun(_ error) {
+	return
+}
+
+// noSuggests is the func that return empty prompt.Suggest
+func noSuggests(_ prompt.Document) []prompt.Suggest {
+	return nil
 }

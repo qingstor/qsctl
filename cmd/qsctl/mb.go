@@ -80,6 +80,7 @@ type mbShellHandler struct {
 	bucketName string
 }
 
+// preRunE do bucket name parse before mb run in shell
 func (h *mbShellHandler) preRunE(args []string) error {
 	err := MbCommand.Flags().Parse(args)
 	if err != nil {
@@ -93,6 +94,7 @@ func (h *mbShellHandler) preRunE(args []string) error {
 	return nil
 }
 
+// postRun add bucket name into cache list if no error while run
 func (h mbShellHandler) postRun(err error) {
 	if err == nil {
 		shellutils.AddBucketIntoList(h.bucketName)
