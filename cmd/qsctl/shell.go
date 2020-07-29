@@ -61,6 +61,7 @@ func executor(t string) {
 		return
 	}
 
+	silenceUsage(rootCmd) // do not display usage in shell, unless run help manually
 	rootCmd.SetArgs(args)
 	rootCmd.SetOut(os.Stdout)
 	if err = rootCmd.ExecuteContext(context.Background()); err != nil {
@@ -102,6 +103,14 @@ func completeFunc(d prompt.Document) (s []prompt.Suggest) {
 }
 
 func shellRun(_ *cobra.Command, _ []string) {
+	// show help info
+	rootCmd.Help()
+	i18n.Printf(`
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`, constants.Version)
+
 	shellutils.InitBucketList()
 
 	p := prompt.New(executor, completeFunc,
@@ -130,7 +139,7 @@ func shellHandlerFactory(cmd string) (shellHandler, error) {
 	case RmCommand.Name():
 		return rmShellHandler{}, nil
 	// remove cat and tee command support
-	case CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
+	case "help", CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
 		PresignCommand.Name(), StatCommand.Name(), SyncCommand.Name():
 		return blankShellHandler{}, nil
 	default:

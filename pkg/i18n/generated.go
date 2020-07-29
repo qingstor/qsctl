@@ -117,6 +117,15 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "sync between local directory and QS-Directory")
 	_ = message.SetString(tag, "tee a remote object from stdin", "tee a remote object from stdin")
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "the number of seconds until the pre-signed URL expires. Default is 300 seconds")
+	_ = message.SetString(tag, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`)
 	_ = message.SetString(tag, `expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`, `expected size of the input file
@@ -208,12 +217,6 @@ The valid format sequences for buckets:
   %s   total size, in bytes
   %c   count of files in this bucket
 	`)
-	_ = message.SetString(tag, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
-	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`)
 }
 
 // initZhCN will init zh_CN support.

@@ -75,12 +75,9 @@ func init() {
 	rootCmd.AddCommand(SyncCommand)
 	rootCmd.AddCommand(TeeCommand)
 
-	rootCmd.SetVersionTemplate(i18n.Sprintf(
-		`{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s\n" .Version}}`,
-	))
-	rootCmd.SetHelpTemplate(i18n.Sprintf(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`))
+	rootCmd.SetVersionTemplate(i18n.Sprintf(constants.VersionTemplate))
+	rootCmd.SetUsageTemplate(i18n.Sprintf(constants.UsageTemplate))
+	rootCmd.SetHelpTemplate(i18n.Sprintf(constants.HelpTemplate))
 }
 
 func initConfig() (err error) {
