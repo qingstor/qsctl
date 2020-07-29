@@ -34,7 +34,7 @@ var RmCommand = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := rmRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "rm", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "rm", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -67,14 +67,14 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 	if rmFlag.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.SetHandleObjCallback(func(o *typ.Object) {
-			fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 		})
 		t.Run()
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> removed.\n", key)
+		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> removed.\n", key)
 		return nil
 	}
 
@@ -84,7 +84,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> removed.\n", key)
+	i18n.Fprintf(c.OutOrStdout(), "File <%s> removed.\n", key)
 	return nil
 }
 

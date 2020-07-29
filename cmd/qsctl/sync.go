@@ -42,7 +42,7 @@ is the source directory and second the destination directory.`),
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := syncRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "sync", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "sync", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -59,11 +59,11 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	if rootTask.GetSourceType() != types.ObjectTypeDir || rootTask.GetDestinationType() != types.ObjectTypeDir {
-		return fmt.Errorf("both source and destination should be directories")
+		return fmt.Errorf(i18n.Sprintf("both source and destination should be directories"))
 	}
 
 	if syncFlag.existing && syncFlag.ignoreExisting {
-		return fmt.Errorf("both --existing and --ignore-existing are set, no files would be synced")
+		return fmt.Errorf(i18n.Sprintf("both --existing and --ignore-existing are set, no files would be synced"))
 	}
 
 	t := task.NewSync(rootTask)
@@ -75,12 +75,12 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	t.SetUpdate(syncFlag.update)
 	if syncFlag.dryRun {
 		t.SetDryRunFunc(func(o *types.Object) {
-			fmt.Println(o.Name)
+			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
 		})
 	} else {
 		t.SetDryRunFunc(nil)
 		t.SetHandleObjCallback(func(o *types.Object) {
-			fmt.Println(i18n.Sprintf("<%s> synced", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> synced\n", o.Name)
 		})
 	}
 
@@ -90,7 +90,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("Dir <%s> and <%s> synced.\n",
+	i18n.Fprintf(c.OutOrStdout(), "Dir <%s> and <%s> synced.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	_ "net/http/pprof"
 	"os"
 	"strings"
@@ -33,7 +33,7 @@ var ShellCommand = &cobra.Command{
 	Run:  shellRun,
 	PreRunE: func(_ *cobra.Command, _ []string) error {
 		if !cutils.IsInteractiveEnable() {
-			return errors.New("not interactive shell, cannot call shell")
+			return fmt.Errorf(i18n.Sprintf("not interactive shell, cannot call shell"))
 		}
 		log.SetOutput(os.Stdout)
 		return nil
@@ -62,6 +62,7 @@ func executor(t string) {
 	}
 
 	rootCmd.SetArgs(args)
+	rootCmd.SetOut(os.Stdout)
 	if err = rootCmd.ExecuteContext(context.Background()); err != nil {
 		return
 	}

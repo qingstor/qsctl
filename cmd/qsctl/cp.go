@@ -38,7 +38,7 @@ var CpCommand = &cobra.Command{
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cpRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "cp", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "cp", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -93,7 +93,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckMD5(cpFlag.checkMD5)
 		t.SetHandleObjCallback(func(o *types.Object) {
-			fmt.Println(i18n.Sprintf("<%s> copied", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> copied\n", o.Name)
 		})
 		t.SetCheckTasks(nil)
 		t.Run()
@@ -102,7 +102,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> copied to <%s>.\n",
+		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> copied to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
 	}
@@ -115,7 +115,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> copied to <%s>.\n",
+	i18n.Fprintf(c.OutOrStdout(), "File <%s> copied to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
 }

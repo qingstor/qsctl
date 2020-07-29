@@ -20,7 +20,7 @@ var CatCommand = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := catRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "cat", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "cat", err.Error())
 		}
 	},
 }

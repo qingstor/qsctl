@@ -34,7 +34,7 @@ var MvCommand = &cobra.Command{
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := mvRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "mv", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mv", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -59,7 +59,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	if rootTask.GetSourceType() == types.ObjectTypeDir && !mvFlag.recursive {
-		return fmt.Errorf("-r is required to move a directory")
+		return fmt.Errorf(i18n.Sprintf("-r is required to move a directory"))
 	}
 
 	if mvFlag.recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
@@ -74,7 +74,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if mvFlag.recursive {
 		t := task.NewMoveDir(rootTask)
 		t.SetHandleObjCallback(func(o *types.Object) {
-			fmt.Println(i18n.Sprintf("<%s> moved", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
 		})
 		t.SetCheckMD5(mvFlag.checkMD5)
 		t.Run()
@@ -83,7 +83,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
-		i18n.Printf("Dir <%s> moved to <%s>.\n",
+		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> moved to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
 	}
@@ -95,7 +95,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	i18n.Printf("File <%s> moved to <%s>.\n",
+	i18n.Fprintf(c.OutOrStdout(), "File <%s> moved to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
 }

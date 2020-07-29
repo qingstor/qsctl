@@ -34,7 +34,7 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 	PreRunE: validateTeeFlag,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := teeRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "tee", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "tee", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -57,7 +57,7 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Printf("Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
+	i18n.Fprintf(c.OutOrStdout(), "Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 }
 

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Xuanwo/storage"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -35,7 +33,7 @@ this URL can always retrieve the object with an HTTP GET request.`),
 	PreRun: validatePresignFlag,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := presignRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "presign", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "presign", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -60,12 +58,8 @@ func presignRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	presignOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "%s\n", t.GetURL())
 	return nil
-}
-
-func presignOutput(t *task.ReachFileTask) {
-	fmt.Println(t.GetURL())
 }
 
 func initPresignFlag() {

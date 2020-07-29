@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"strconv"
 	"strings"
 
@@ -37,7 +37,7 @@ var StatCommand = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := statRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "stat", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "stat", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -65,7 +65,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 			return types.NewErrUnhandled(err)
 		}
 
-		statStorageOutput(sm, t.GetStorageInfo(), statFlag.format)
+		statStorageOutput(c.OutOrStdout(), sm, t.GetStorageInfo(), statFlag.format)
 		return nil
 	}
 
@@ -75,7 +75,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	statFileOutput(t.GetObject(), statFlag.format)
+	statFileOutput(c.OutOrStdout(), t.GetObject(), statFlag.format)
 	return
 }
 
@@ -134,10 +134,10 @@ func statStorageFormat(input string, sm info.StorageMeta, ss info.StorageStatist
 	return input
 }
 
-func statFileOutput(om *typ.Object, format string) {
+func statFileOutput(w io.Writer, om *typ.Object, format string) {
 	// if format string was set, print result as format string
 	if format != "" {
-		fmt.Println(statFileFormat(format, om))
+		i18n.Fprintf(w, "%s\n", statFileFormat(format, om))
 		return
 	}
 
@@ -156,12 +156,12 @@ func statFileOutput(om *typ.Object, format string) {
 	}
 	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
 
-	fmt.Println(utils.AlignPrintWithColon(content...))
+	i18n.Fprintf(w, "%s\n", utils.AlignPrintWithColon(content...))
 }
 
-func statStorageOutput(sm info.StorageMeta, ss info.StorageStatistic, format string) {
+func statStorageOutput(w io.Writer, sm info.StorageMeta, ss info.StorageStatistic, format string) {
 	if format != "" {
-		fmt.Println(statStorageFormat(format, sm, ss))
+		i18n.Fprintf(w, "%s\n", statStorageFormat(format, sm, ss))
 		return
 	}
 
@@ -177,5 +177,5 @@ func statStorageOutput(sm info.StorageMeta, ss info.StorageStatistic, format str
 		content = append(content, i18n.Sprintf("Count: %s", strconv.FormatInt(v, 10)))
 	}
 
-	fmt.Println(utils.AlignPrintWithColon(content...))
+	i18n.Fprintf(w, "%s\n", utils.AlignPrintWithColon(content...))
 }

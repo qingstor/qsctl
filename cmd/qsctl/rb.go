@@ -34,7 +34,7 @@ var RbCommand = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := rbRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s\n", "rb", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "rb", err.Error())
 		}
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
@@ -65,10 +65,10 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 	t.SetStorageName(bucketName)
 	t.SetForce(rbFlag.force)
 	t.SetHandleObjCallback(func(o *typ.Object) {
-		fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+		i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 	})
 	t.SetHandleSegmentCallback(func(seg segment.Segment) {
-		fmt.Println(i18n.Sprintf("segment id <%s>, path <%s> removed", seg.ID(), seg.Path()))
+		i18n.Fprintf(c.OutOrStdout(), "segment id <%s>, path <%s> removed\n", seg.ID(), seg.Path())
 	})
 
 	t.Run()
@@ -76,12 +76,8 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	rbOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> removed.\n", t.GetStorageName())
 	return nil
-}
-
-func rbOutput(t *task.DeleteStorageTask) {
-	i18n.Printf("Bucket <%s> removed.\n", t.GetStorageName())
 }
 
 type rbShellHandler struct {

@@ -31,7 +31,7 @@ bucket name should follow DNS name rule with:
 	PreRunE: validateMbFlag,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := mbRun(cmd, args); err != nil {
-			i18n.Printf("Execute %s command error: %s", "mb", err.Error())
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mb", err.Error())
 		}
 	},
 }
@@ -58,12 +58,8 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	mbOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> created.\n", t.GetStorageName())
 	return
-}
-
-func mbOutput(t *task.CreateStorageTask) {
-	i18n.Printf("Bucket <%s> created.\n", t.GetStorageName())
 }
 
 func initMbFlag() {}
@@ -71,7 +67,7 @@ func initMbFlag() {}
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
 	if globalFlag.zone == "" {
-		return fmt.Errorf("flag zone is required, but not found")
+		return fmt.Errorf(i18n.Sprintf("flag zone is required, but not found"))
 	}
 	return nil
 }
