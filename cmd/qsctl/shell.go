@@ -111,7 +111,7 @@ To execute command, directly type command without "qsctl" at the beginning.
 Version %s
 `, constants.Version)
 
-	shellutils.InitBucketList()
+	go shellutils.InitBucketList()
 
 	p := prompt.New(executor, completeFunc,
 		prompt.OptionPrefix(constants.Name+"> "),
