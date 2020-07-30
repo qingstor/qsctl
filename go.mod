@@ -1,10 +1,10 @@
 module github.com/qingstor/qsctl/v2
 
-go 1.12
+go 1.14
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/AlecAivazis/survey/v2 v2.0.7
+	github.com/AlecAivazis/survey/v2 v2.0.8
 	github.com/Xuanwo/go-locale v0.3.0
 	github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27
 	github.com/Xuanwo/storage v1.2.1
@@ -20,10 +20,10 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.6.3
+	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/vbauerster/mpb/v4 v4.12.2
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
-	golang.org/x/text v0.3.2
-	gopkg.in/yaml.v2 v2.2.8
+	golang.org/x/text v0.3.3
+	gopkg.in/yaml.v2 v2.3.0
 )
