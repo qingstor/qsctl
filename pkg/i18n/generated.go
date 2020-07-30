@@ -222,13 +222,14 @@ The valid format sequences for buckets:
 // initZhCN will init zh_CN support.
 func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
+	_ = message.SetString(tag, "%s\n", "%s\n")
 	_ = message.SetString(tag, "-r is required to copy a directory", "复制目录必须要有 -r 参数")
+	_ = message.SetString(tag, "-r is required to move a directory", "-r is required to move a directory")
 	_ = message.SetString(tag, "-r is required to remove a directory", "删除目录必须要有 -r 参数")
-	_ = message.SetString(tag, "<%s> copied", "<%s> 已复制")
-	_ = message.SetString(tag, "<%s> moved", "<%s> 已移动")
-	_ = message.SetString(tag, "<%s> removed", "<%s> 已删除")
-	_ = message.SetString(tag, "<%s> synced", "<%s> 已同步")
-	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey 和 SecretKey 未找到。现在请设置您的配置，或者退出以手动设置。")
+	_ = message.SetString(tag, "<%s> copied\n", "<%s> copied\n")
+	_ = message.SetString(tag, "<%s> moved\n", "<%s> moved\n")
+	_ = message.SetString(tag, "<%s> removed\n", "<%s> removed\n")
+	_ = message.SetString(tag, "<%s> synced\n", "<%s> synced\n")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> 已创建。\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> 已删除。\n")
 	_ = message.SetString(tag, "Cat object: qsctl cat qs://prefix/a", "输出一个文件的内容到标准输出: qsctl cat qs://prefix/a")
@@ -236,27 +237,31 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Copy all files in folder: qsctl cp /path/to/folder/ qs://prefix/a/ -r", "复制一个文件夹中的所有文件: qsctl cp /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Copy file: qsctl cp /path/to/file qs://prefix/a", "复制文件: qsctl cp / path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Copy folder: qsctl cp /path/to/folder qs://prefix/a/ -r", "复制文件夹: qsctl cp /path/to/folder qs://prefix/a/ -r")
+	_ = message.SetString(tag, "Count: %s", "Count: %s")
 	_ = message.SetString(tag, "Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket.", "删除空 Bucket 或强制删除非空 Bucket。")
 	_ = message.SetString(tag, "Dir <%s> and <%s> synced.\n", "文件夹 <%s> and <%s> 已同步。\n")
 	_ = message.SetString(tag, "Dir <%s> copied to <%s>.\n", "文件夹 <%s> 已复制到 <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> moved to <%s>.\n", "文件夹 <%s> 已移动到 <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> removed.\n", "文件夹 <%s> 已删除。\n")
 	_ = message.SetString(tag, "ETag: %s", "ETag: %s")
+	_ = message.SetString(tag, "Execute %s command error: %s\n", "Execute %s command error: %s\n")
 	_ = message.SetString(tag, "File <%s> copied to <%s>.\n", "文件 <%s> 已复制到 <%s>.\n")
 	_ = message.SetString(tag, "File <%s> moved to <%s>.\n", "文件 <%s> 已移动到 <%s>.\n")
 	_ = message.SetString(tag, "File <%s> removed.\n", "文件 <%s> 已删除。\n")
 	_ = message.SetString(tag, "Key: %s", "名称: %s")
 	_ = message.SetString(tag, "List bucket's all objects: qsctl ls qs://bucket-name -R", "列出 Bucket 中的所有对象: qsctl ls qs://bucket-name -R")
+	_ = message.SetString(tag, "List buckets by long format: qsctl ls -l", "List buckets by long format: qsctl ls -l")
 	_ = message.SetString(tag, "List buckets: qsctl ls", "列出 Bucket: qsctl ls")
 	_ = message.SetString(tag, "List objects by long format: qsctl ls qs://bucket-name -l", "使用详细格式列出对象: qsctl ls qs://bucket-name -l")
 	_ = message.SetString(tag, "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R", "递归地列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix -R")
 	_ = message.SetString(tag, "List objects with prefix: qsctl ls qs://bucket-name/prefix", "列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix")
 	_ = message.SetString(tag, "Load config failed [%v]", "加载配置失败 [%v]")
-	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name", "创建一个 Bucket: qsctl mb bucket-name")
+	_ = message.SetString(tag, "Location: %s", "Location: %s")
+	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name --zone=zone-name", "Make bucket: qsctl mb bucket-name --zone=zone-name")
 	_ = message.SetString(tag, "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r", "移动文件夹中的所有文件: qsctl mv /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "移动文件: qsctl mv /path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r", "移动文件夹: qsctl mv /path/to/folder qs://prefix/a/ -r")
-	_ = message.SetString(tag, "Not confirmed. Object <%s> not removed.", "未确认。对象<%s>未删除。")
+	_ = message.SetString(tag, "Name: %s", "Name: %s")
 	_ = message.SetString(tag, "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing", "仅同步那些已存在于目标路径中的文件: qsctl sync . qs://bucket-name/dir/ --existing")
 	_ = message.SetString(tag, "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update", "仅同步那些比目标路径中更加新的文件: qsctl sync . qs://bucket-name/dir/ --update")
 	_ = message.SetString(tag, "Presign object: qsctl qs://bucket-name/object-name", "预签名对象: qsctl qs://bucket-name/object-name")
@@ -265,6 +270,8 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r", "删除所有带指定前缀的对象: qsctl rm qs://bucket-name/prefix -r")
 	_ = message.SetString(tag, "Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run", "显示所有将会被同步的文件 (但并不真正执行同步操作): qsctl sync . qs://bucket-name/dir/ --dry-run")
 	_ = message.SetString(tag, "Size: %s", "大小: %s")
+	_ = message.SetString(tag, "Start shell: qsctl shell", "Start shell: qsctl shell")
+	_ = message.SetString(tag, "Stat bucket: qsctl stat qs://bucket-name", "Stat bucket: qsctl stat qs://bucket-name")
 	_ = message.SetString(tag, "Stat object: qsctl stat qs://prefix/a", "查看文件信息: qsctl stat qs://prefix/a")
 	_ = message.SetString(tag, "Stdin copied to <%s>.\n", "复制标准输入到 <%s>.\n")
 	_ = message.SetString(tag, "StorageClass: %s", "存储类型: %s")
@@ -273,53 +280,66 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/", "同步当前目录到 QS-Directory: qsctl sync . qs://bucket-name/dir/")
 	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing", "同步文件夹，但跳过目标路径中已经存在的文件: qsctl sync . qs://bucket-name/dir/ --ignore-existing")
 	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "输出一个文件的内容到标准输出: qsctl tee qs://prefix/a")
-	_ = message.SetString(tag, "The bucket name you just input is not match. Bucket <%s> not removed.", "您输入的 bucket 名称不匹配。Bucket <%s> 未删除。")
 	_ = message.SetString(tag, "Type: %s", "类型: %s")
 	_ = message.SetString(tag, "UpdatedAt: %s", "更新于: %s")
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "写入到标准输出: qsctl cp qs://prefix/b - > /path/to/file")
-	_ = message.SetString(tag, "Your config has been set to <%v>. You can still modify it manually.", "您的配置已设置为 <%v>。您仍然可以手动修改它。")
 	_ = message.SetString(tag, "assign config path manually", "手动分配配置路径")
+	_ = message.SetString(tag, "both --existing and --ignore-existing are set, no files would be synced", "both --existing and --ignore-existing are set, no files would be synced")
+	_ = message.SetString(tag, "both source and destination should be directories", "both source and destination should be directories")
 	_ = message.SetString(tag, "cannot copy a directory to a non-directory dest", "无法将一个目录复制到非目录路径")
 	_ = message.SetString(tag, "cannot move a directory to a non-directory dest", "无法将一个目录移动到非目录路径")
 	_ = message.SetString(tag, "cat a remote object to stdout", "输出远程对象内容到标准输出")
+	_ = message.SetString(tag, "confirm to remove <%s>? [y/N] ", "confirm to remove <%s>? [y/N] ")
 	_ = message.SetString(tag, "copy directory recursively", "递归复制目录")
 	_ = message.SetString(tag, "copy from/to qingstor", "复制从/到 QingStor 对象存储")
 	_ = message.SetString(tag, "delete a bucket", "删除一个 Bucket")
 	_ = message.SetString(tag, "delete an empty bucket: qsctl rb qs://bucket-name", "删除空 Bucket: qsctl rb qs://bucket-name")
-	_ = message.SetString(tag, "disable progress bar display or not", "是否禁用进度条显示")
 	_ = message.SetString(tag, "enable benchmark or not", "启用性能测试与否")
+	_ = message.SetString(tag, "flag zone is required, but not found", "flag zone is required, but not found")
 	_ = message.SetString(tag, "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f", "强制删除一个非空桶: qsctl rb qs://bucket-name -f")
+	_ = message.SetString(tag, "get args failed: %s\n", "get args failed: %s\n")
+	_ = message.SetString(tag, "get metadata failed: %v\n", "get metadata failed: %v\n")
 	_ = message.SetString(tag, "get the pre-signed URL by the object key", "通过对象键获取预签名的 URL")
 	_ = message.SetString(tag, "help for this command", "帮助信息")
 	_ = message.SetString(tag, "in which zone to do the operation", "在哪个区域执行操作")
-	_ = message.SetString(tag, "in which zone to make the bucket (required)", "在哪个区域创建 Bucket (必须参数)")
+	_ = message.SetString(tag, "input bucket name <%s> to confirm: ", "input bucket name <%s> to confirm: ")
 	_ = message.SetString(tag, "list objects or buckets", "列出对象或 Bucket")
 	_ = message.SetString(tag, "make a new bucket", "创建一个新的 Bucket")
 	_ = message.SetString(tag, "move directory recursively", "递归移动目录")
 	_ = message.SetString(tag, "move from/to qingstor", "移动从/到 QingStor 对象存储")
+	_ = message.SetString(tag, "not confirmed", "not confirmed")
+	_ = message.SetString(tag, "not interactive shell, cannot call shell", "not interactive shell, cannot call shell")
+	_ = message.SetString(tag, "parse size <%v> failed [%v], key: <%s>\n", "parse size <%v> failed [%v], key: <%s>\n")
+	_ = message.SetString(tag, "parse size <%v> failed [%v]\n", "parse size <%v> failed [%v]\n")
 	_ = message.SetString(tag, "path should be a directory while -r is set", "当 -r 参数设置时，路径需要是一个目录")
+	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned", "pipe not supported in shell, input after %v would be abandoned")
 	_ = message.SetString(tag, "print logs for debug", "打印调试日志")
 	_ = message.SetString(tag, "qsctl cat can cat a remote object to stdout", "qsctl cat 可以将远程对象内容输出到标准输出")
 	_ = message.SetString(tag, "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout", "qsctl cp 可以将文件/文件夹/stdin 复制到 QingStor 对象存储或复制对象到本地/stdout")
 	_ = message.SetString(tag, "qsctl mv can move file/folder to qingstor or move qingstor objects to local", "qsctl mv 可以将文件/文件夹移动到 QingStor 对象存储或移动对象到本地")
 	_ = message.SetString(tag, "qsctl rb delete a qingstor bucket", "qscl rb 将删除一个 Bucket")
 	_ = message.SetString(tag, "qsctl rm remove the object with given object key", "qsctl rm 将删除给定 Object Key 的对象")
+	_ = message.SetString(tag, "qsctl shell can execute command interactively, input exit to quit", "qsctl shell can execute command interactively, input exit to quit")
 	_ = message.SetString(tag, "qsctl stat show the detailed info of this object", "qsctl stat 将显示此对象的详细信息")
 	_ = message.SetString(tag, "recursively delete keys under a specific prefix", "递归删除指定前缀下的对象")
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "递归列出遇到的子目录")
 	_ = message.SetString(tag, "remove a remote object", "删除远程对象")
-	_ = message.SetString(tag, "segment id <%s>, path <%s> removed", "ID <%s>, 路径 <%s> 的分段已删除")
+	_ = message.SetString(tag, "segment id <%s>, path <%s> removed\n", "segment id <%s>, path <%s> removed\n")
 	_ = message.SetString(tag, "src should be a directory while -r is set", "当 -r 参数设置时，源路径需要是一个目录")
+	_ = message.SetString(tag, "start an interactive shell of qsctl", "start an interactive shell of qsctl")
 	_ = message.SetString(tag, "stat a remote object", "查看远程对象的信息")
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "同步本地目录和对象存储目录")
 	_ = message.SetString(tag, "tee a remote object from stdin", "从标准输入读取内容并上传")
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "预签名URL到期前的秒数。默认值为300秒")
-	_ = message.SetString(tag, `This operation will delete <%s>, which cannot be recovered.
-Confirm?:`, `此操作将删除 <%s>，无法恢复。
-是否确认？:`)
-	_ = message.SetString(tag, `This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
-Please input the bucket name to confirm:`, `此操作将删除你的 bucket <%s> 中的所有数据(包括未完成的上传分段)，无法恢复。
-请输入 bucket 名称以确认：`)
+	_ = message.SetString(tag, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`)
 	_ = message.SetString(tag, `expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`, `预计输入文件的大小
@@ -380,22 +400,30 @@ The valid format sequences for files:
   %s   total size, in bytes
   %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
   %Y   time of last data modification, seconds since Epoch
-	`, `使用指定的 格式化字符串 代替默认格式；
-以下每一行列举一种 格式化字符串 的用法
 
-可用的文件信息的格式化占位符有：
+The valid format sequences for buckets:
 
-  %F   文件类型
-  %h   文件内容的 etag 信息
-  %n   文件名
-  %s   文件大小，单位为字节
-  %y   最后一次数据修改的时间，显示为可读格式，例如：2006-01-02 15:04:05 +0000 UTC
-  %Y   最后一次数据修改的时间，显示为 Unix 时间戳，也就是从1970年1月1日起所经历的秒数
+  %n   bucket name
+  %l   bucket location
+  %s   total size, in bytes
+  %c   count of files in this bucket
+	`, `use the specified FORMAT instead of the default;
+output a newline after each use of FORMAT
+
+The valid format sequences for files:
+
+  %F   file type
+  %h   content etag of the file
+  %n   file name
+  %s   total size, in bytes
+  %y   time of last data modification, human-readable, e.g: 2006-01-02 15:04:05 +0000 UTC
+  %Y   time of last data modification, seconds since Epoch
+
+The valid format sequences for buckets:
+
+  %n   bucket name
+  %l   bucket location
+  %s   total size, in bytes
+  %c   count of files in this bucket
 	`)
-	_ = message.SetString(tag, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
-	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "版本 %%s" .Version}}`)
 }
