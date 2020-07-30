@@ -63,6 +63,7 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
+	t.SetZone(globalFlag.zone)
 	t.SetForce(rbFlag.force)
 	t.SetHandleObjCallback(func(o *typ.Object) {
 		i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
