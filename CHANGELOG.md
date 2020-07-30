@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2020-07-30
+
+### Added
+
+- cmd/shell: Add support for interactive shell (#310)
+
+### Fixed
+
+-  cmd/rb: Fix zone flag did not work (#314)
+
+### Removed
+
+- Remove interactive action in commands except shell
+
 ## [2.1.2] - 2020-06-30
 
 ### Changed
@@ -471,6 +485,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.2.0]: https://github.com/qingstor/qsctl/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/qingstor/qsctl/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/qingstor/qsctl/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/qingstor/qsctl/compare/v2.0.1...v2.1.0
