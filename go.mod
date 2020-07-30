@@ -16,7 +16,7 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mattn/go-tty v0.0.3 // indirect
 	github.com/pkg/term v0.0.0-20200520122047-c3ffed290a03 // indirect
-	github.com/qingstor/noah v0.0.0-20200602031723-83ba70345eb9
+	github.com/qingstor/noah v0.0.0-20200730024920-441c96f1a9cc
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.3
