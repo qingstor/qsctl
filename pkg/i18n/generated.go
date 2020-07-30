@@ -8,13 +8,14 @@ import (
 // initEnUS will init en_US support.
 func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "%s  %s  %s  %s\n", "%s  %s  %s  %s\n")
+	_ = message.SetString(tag, "%s\n", "%s\n")
 	_ = message.SetString(tag, "-r is required to copy a directory", "-r is required to copy a directory")
+	_ = message.SetString(tag, "-r is required to move a directory", "-r is required to move a directory")
 	_ = message.SetString(tag, "-r is required to remove a directory", "-r is required to remove a directory")
-	_ = message.SetString(tag, "<%s> copied", "<%s> copied")
-	_ = message.SetString(tag, "<%s> moved", "<%s> moved")
-	_ = message.SetString(tag, "<%s> removed", "<%s> removed")
-	_ = message.SetString(tag, "<%s> synced", "<%s> synced")
-	_ = message.SetString(tag, "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.", "AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
+	_ = message.SetString(tag, "<%s> copied\n", "<%s> copied\n")
+	_ = message.SetString(tag, "<%s> moved\n", "<%s> moved\n")
+	_ = message.SetString(tag, "<%s> removed\n", "<%s> removed\n")
+	_ = message.SetString(tag, "<%s> synced\n", "<%s> synced\n")
 	_ = message.SetString(tag, "Bucket <%s> created.\n", "Bucket <%s> created.\n")
 	_ = message.SetString(tag, "Bucket <%s> removed.\n", "Bucket <%s> removed.\n")
 	_ = message.SetString(tag, "Cat object: qsctl cat qs://prefix/a", "Cat object: qsctl cat qs://prefix/a")
@@ -29,6 +30,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Dir <%s> moved to <%s>.\n", "Dir <%s> moved to <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> removed.\n", "Dir <%s> removed.\n")
 	_ = message.SetString(tag, "ETag: %s", "ETag: %s")
+	_ = message.SetString(tag, "Execute %s command error: %s\n", "Execute %s command error: %s\n")
 	_ = message.SetString(tag, "File <%s> copied to <%s>.\n", "File <%s> copied to <%s>.\n")
 	_ = message.SetString(tag, "File <%s> moved to <%s>.\n", "File <%s> moved to <%s>.\n")
 	_ = message.SetString(tag, "File <%s> removed.\n", "File <%s> removed.\n")
@@ -46,7 +48,6 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "Move file: qsctl mv /path/to/file qs://prefix/a")
 	_ = message.SetString(tag, "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r", "Move folder: qsctl mv /path/to/folder qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Name: %s", "Name: %s")
-	_ = message.SetString(tag, "Not confirmed. Object <%s> not removed.", "Not confirmed. Object <%s> not removed.")
 	_ = message.SetString(tag, "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing", "Only sync files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --existing")
 	_ = message.SetString(tag, "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update", "Only sync files that newer than files on receiver: qsctl sync . qs://bucket-name/dir/ --update")
 	_ = message.SetString(tag, "Presign object: qsctl qs://bucket-name/object-name", "Presign object: qsctl qs://bucket-name/object-name")
@@ -55,6 +56,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r", "Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r")
 	_ = message.SetString(tag, "Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run", "Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run")
 	_ = message.SetString(tag, "Size: %s", "Size: %s")
+	_ = message.SetString(tag, "Start shell: qsctl shell", "Start shell: qsctl shell")
 	_ = message.SetString(tag, "Stat bucket: qsctl stat qs://bucket-name", "Stat bucket: qsctl stat qs://bucket-name")
 	_ = message.SetString(tag, "Stat object: qsctl stat qs://prefix/a", "Stat object: qsctl stat qs://prefix/a")
 	_ = message.SetString(tag, "Stdin copied to <%s>.\n", "Stdin copied to <%s>.\n")
@@ -64,52 +66,66 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/", "Sync local directory to QS-Directory: qsctl sync . qs://bucket-name/dir/")
 	_ = message.SetString(tag, "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing", "Sync skip updating files that already exist on receiver: qsctl sync . qs://bucket-name/dir/ --ignore-existing")
 	_ = message.SetString(tag, "Tee object: qsctl tee qs://prefix/a", "Tee object: qsctl tee qs://prefix/a")
-	_ = message.SetString(tag, "The bucket name you just input is not match. Bucket <%s> not removed.", "The bucket name you just input is not match. Bucket <%s> not removed.")
 	_ = message.SetString(tag, "Type: %s", "Type: %s")
 	_ = message.SetString(tag, "UpdatedAt: %s", "UpdatedAt: %s")
 	_ = message.SetString(tag, "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file", "Write to stdout: qsctl cp qs://prefix/b - > /path/to/file")
-	_ = message.SetString(tag, "Your config has been set to <%v>. You can still modify it manually.", "Your config has been set to <%v>. You can still modify it manually.")
 	_ = message.SetString(tag, "assign config path manually", "assign config path manually")
+	_ = message.SetString(tag, "both --existing and --ignore-existing are set, no files would be synced", "both --existing and --ignore-existing are set, no files would be synced")
+	_ = message.SetString(tag, "both source and destination should be directories", "both source and destination should be directories")
 	_ = message.SetString(tag, "cannot copy a directory to a non-directory dest", "cannot copy a directory to a non-directory dest")
 	_ = message.SetString(tag, "cannot move a directory to a non-directory dest", "cannot move a directory to a non-directory dest")
 	_ = message.SetString(tag, "cat a remote object to stdout", "cat a remote object to stdout")
+	_ = message.SetString(tag, "confirm to remove <%s>? [y/N] ", "confirm to remove <%s>? [y/N] ")
 	_ = message.SetString(tag, "copy directory recursively", "copy directory recursively")
 	_ = message.SetString(tag, "copy from/to qingstor", "copy from/to qingstor")
 	_ = message.SetString(tag, "delete a bucket", "delete a bucket")
 	_ = message.SetString(tag, "delete an empty bucket: qsctl rb qs://bucket-name", "delete an empty bucket: qsctl rb qs://bucket-name")
-	_ = message.SetString(tag, "disable progress bar display or not", "disable progress bar display or not")
 	_ = message.SetString(tag, "enable benchmark or not", "enable benchmark or not")
+	_ = message.SetString(tag, "flag zone is required, but not found", "flag zone is required, but not found")
 	_ = message.SetString(tag, "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f", "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f")
+	_ = message.SetString(tag, "get args failed: %s\n", "get args failed: %s\n")
+	_ = message.SetString(tag, "get metadata failed: %v\n", "get metadata failed: %v\n")
 	_ = message.SetString(tag, "get the pre-signed URL by the object key", "get the pre-signed URL by the object key")
 	_ = message.SetString(tag, "help for this command", "help for this command")
 	_ = message.SetString(tag, "in which zone to do the operation", "in which zone to do the operation")
+	_ = message.SetString(tag, "input bucket name <%s> to confirm: ", "input bucket name <%s> to confirm: ")
 	_ = message.SetString(tag, "list objects or buckets", "list objects or buckets")
 	_ = message.SetString(tag, "make a new bucket", "make a new bucket")
 	_ = message.SetString(tag, "move directory recursively", "move directory recursively")
 	_ = message.SetString(tag, "move from/to qingstor", "move from/to qingstor")
+	_ = message.SetString(tag, "not confirmed", "not confirmed")
+	_ = message.SetString(tag, "not interactive shell, cannot call shell", "not interactive shell, cannot call shell")
+	_ = message.SetString(tag, "parse size <%v> failed [%v], key: <%s>\n", "parse size <%v> failed [%v], key: <%s>\n")
+	_ = message.SetString(tag, "parse size <%v> failed [%v]\n", "parse size <%v> failed [%v]\n")
 	_ = message.SetString(tag, "path should be a directory while -r is set", "path should be a directory while -r is set")
+	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned", "pipe not supported in shell, input after %v would be abandoned")
 	_ = message.SetString(tag, "print logs for debug", "print logs for debug")
 	_ = message.SetString(tag, "qsctl cat can cat a remote object to stdout", "qsctl cat can cat a remote object to stdout")
 	_ = message.SetString(tag, "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout", "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout")
 	_ = message.SetString(tag, "qsctl mv can move file/folder to qingstor or move qingstor objects to local", "qsctl mv can move file/folder to qingstor or move qingstor objects to local")
 	_ = message.SetString(tag, "qsctl rb delete a qingstor bucket", "qsctl rb delete a qingstor bucket")
 	_ = message.SetString(tag, "qsctl rm remove the object with given object key", "qsctl rm remove the object with given object key")
+	_ = message.SetString(tag, "qsctl shell can execute command interactively, input exit to quit", "qsctl shell can execute command interactively, input exit to quit")
 	_ = message.SetString(tag, "qsctl stat show the detailed info of this object", "qsctl stat show the detailed info of this object")
 	_ = message.SetString(tag, "recursively delete keys under a specific prefix", "recursively delete keys under a specific prefix")
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "recursively list subdirectories encountered")
 	_ = message.SetString(tag, "remove a remote object", "remove a remote object")
-	_ = message.SetString(tag, "segment id <%s>, path <%s> removed", "segment id <%s>, path <%s> removed")
+	_ = message.SetString(tag, "segment id <%s>, path <%s> removed\n", "segment id <%s>, path <%s> removed\n")
 	_ = message.SetString(tag, "src should be a directory while -r is set", "src should be a directory while -r is set")
+	_ = message.SetString(tag, "start an interactive shell of qsctl", "start an interactive shell of qsctl")
 	_ = message.SetString(tag, "stat a remote object", "stat a remote object")
 	_ = message.SetString(tag, "sync between local directory and QS-Directory", "sync between local directory and QS-Directory")
 	_ = message.SetString(tag, "tee a remote object from stdin", "tee a remote object from stdin")
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "the number of seconds until the pre-signed URL expires. Default is 300 seconds")
-	_ = message.SetString(tag, `This operation will delete <%s>, which cannot be recovered.
-Confirm?:`, `This operation will delete <%s>, which cannot be recovered.
-Confirm?:`)
-	_ = message.SetString(tag, `This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
-Please input the bucket name to confirm:`, `This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
-Please input the bucket name to confirm:`)
+	_ = message.SetString(tag, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`, `
+To execute command, directly type command without "qsctl" at the beginning.
+"Ctrl + D" to exit.
+Version %s
+`)
 	_ = message.SetString(tag, `expected size of the input file
 accept: 100MB, 1.8G
 (only used and required for input from stdin)`, `expected size of the input file
@@ -201,12 +217,6 @@ The valid format sequences for buckets:
   %s   total size, in bytes
   %c   count of files in this bucket
 	`)
-	_ = message.SetString(tag, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`, `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
-	_ = message.SetString(tag, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`, `{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`)
 }
 
 // initZhCN will init zh_CN support.

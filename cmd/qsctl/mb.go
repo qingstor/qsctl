@@ -6,12 +6,11 @@ import (
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
-
-var mbInput struct{}
 
 // MbCommand will handle make bucket command.
 var MbCommand = &cobra.Command{
@@ -29,8 +28,12 @@ bucket name should follow DNS name rule with:
 		i18n.Sprintf("Make bucket: qsctl mb bucket-name --zone=zone-name"),
 	),
 	Args:    cobra.ExactArgs(1),
-	RunE:    mbRun,
 	PreRunE: validateMbFlag,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := mbRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mb", err.Error())
+		}
+	},
 }
 
 func mbRun(c *cobra.Command, args []string) (err error) {
@@ -48,27 +51,48 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCreateStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetZone(zone)
+	t.SetZone(globalFlag.zone)
 
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
-	mbOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> created.\n", t.GetStorageName())
 	return
-}
-
-func mbOutput(t *task.CreateStorageTask) {
-	i18n.Printf("Bucket <%s> created.\n", t.GetStorageName())
 }
 
 func initMbFlag() {}
 
 func validateMbFlag(_ *cobra.Command, _ []string) error {
 	// check zone flag (required)
-	if zone == "" {
-		return fmt.Errorf("flag zone is required, but not found")
+	if globalFlag.zone == "" {
+		return fmt.Errorf(i18n.Sprintf("flag zone is required, but not found"))
 	}
 	return nil
+}
+
+type mbShellHandler struct {
+	bucketName string
+}
+
+// preRunE do bucket name parse before mb run in shell
+func (h *mbShellHandler) preRunE(args []string) error {
+	err := MbCommand.Flags().Parse(args)
+	if err != nil {
+		return err
+	}
+	_, bucketName, _, err := utils.ParseQsPath(MbCommand.Flags().Args()[0])
+	if err != nil {
+		return err
+	}
+	h.bucketName = bucketName
+	return nil
+}
+
+// postRun add bucket name into cache list if no error while run
+func (h mbShellHandler) postRun(err error) {
+	if err == nil {
+		shellutils.AddBucketIntoList(h.bucketName)
+	}
 }

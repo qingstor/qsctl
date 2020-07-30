@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Xuanwo/storage"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -13,9 +11,11 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var presignInput struct {
+type presignFlags struct {
 	expire int
 }
+
+var presignFlag = presignFlags{}
 
 // PresignCommand will handle list command.
 var PresignCommand = &cobra.Command{
@@ -30,8 +30,15 @@ this URL can always retrieve the object with an HTTP GET request.`),
 		i18n.Sprintf("Presign object: qsctl qs://bucket-name/object-name"),
 	),
 	Args:   cobra.ExactArgs(1),
-	RunE:   presignRun,
 	PreRun: validatePresignFlag,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := presignRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "presign", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		presignFlag = presignFlags{}
+	},
 }
 
 func presignRun(c *cobra.Command, args []string) (err error) {
@@ -44,29 +51,25 @@ func presignRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewReachFile(rootTask)
 	t.SetReacher(rootTask.GetStorage().(storage.Reacher))
-	t.SetExpire(presignInput.expire)
+	t.SetExpire(presignFlag.expire)
 
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
-	presignOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "%s\n", t.GetURL())
 	return nil
 }
 
-func presignOutput(t *task.ReachFileTask) {
-	fmt.Println(t.GetURL())
-}
-
 func initPresignFlag() {
-	PresignCommand.Flags().IntVarP(&presignInput.expire, constants.ExpireFlag, "e", 0,
+	PresignCommand.Flags().IntVarP(&presignFlag.expire, constants.ExpireFlag, "e", 0,
 		i18n.Sprintf("the number of seconds until the pre-signed URL expires. Default is 300 seconds"))
 }
 
 func validatePresignFlag(_ *cobra.Command, _ []string) {
 	// set expire default to DefaultPresignExpire
-	if presignInput.expire <= 0 {
-		presignInput.expire = constants.DefaultPresignExpire
+	if presignFlag.expire <= 0 {
+		presignFlag.expire = constants.DefaultPresignExpire
 	}
 }

@@ -52,7 +52,15 @@ func main() {
 			if len(call.Args) == 0 {
 				return true
 			}
-			str, ok := call.Args[0].(*ast.BasicLit)
+
+			var expr ast.Expr
+			// if Fprintf, we'll take second arg as template
+			if fn.Sel.Name == "Fprintf" {
+				expr = call.Args[1]
+			} else { // include Printf, Sprintf
+				expr = call.Args[0]
+			}
+			str, ok := expr.(*ast.BasicLit)
 			if !ok {
 				return true
 			}

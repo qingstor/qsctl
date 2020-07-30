@@ -310,3 +310,8 @@ func getQsServicePairs() []*typ.Pair {
 	}
 	return ps
 }
+
+// IsQsPath check whether a path is qingstor path
+func IsQsPath(s string) bool {
+	return strings.HasPrefix(s, "qs://")
+}

@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 )
@@ -15,24 +12,28 @@ import (
 //go:generate go run ../../internal/cmd/generator/i18nextract
 //go:generate go run ../../internal/cmd/generator/i18ngenerator
 
+var globalFlag = globalFlags{}
+
 // register available flag vars here
-var (
+type globalFlags struct {
 	// bench will be set if bench flag was set
 	bench bool
 	// configPath will be set if config flag was set
 	configPath string
 	debug      bool
-	// noProgress will be set if no-progress flag was set
-	noProgress bool
 	// zone will be set if zone flag was set
 	zone string
-)
+}
 
 // rootCmd is the main command of qsctl
 var rootCmd = &cobra.Command{
 	Use:     constants.Name,
 	Long:    constants.Description,
 	Version: constants.Version,
+	// reset global flags after each sub-command run
+	PersistentPostRun: func(_ *cobra.Command, _ []string) {
+		globalFlag = globalFlags{}
+	},
 }
 
 func init() {
@@ -51,7 +52,7 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		if debug {
+		if globalFlag.debug {
 			log.SetLevel(log.DebugLevel)
 		} else {
 			log.SetLevel(log.PanicLevel)
@@ -60,6 +61,7 @@ func init() {
 		return initConfig()
 	}
 
+	rootCmd.AddCommand(ShellCommand)
 	// add sub-command to rootCmd
 	rootCmd.AddCommand(CatCommand)
 	rootCmd.AddCommand(CpCommand)
@@ -73,12 +75,9 @@ func init() {
 	rootCmd.AddCommand(SyncCommand)
 	rootCmd.AddCommand(TeeCommand)
 
-	rootCmd.SetVersionTemplate(i18n.Sprintf(
-		`{{with .Name}}{{printf "%%s " .}}{{end}}{{printf "version %%s" .Version}}`,
-	))
-	rootCmd.SetHelpTemplate(i18n.Sprintf(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-
-{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`))
+	rootCmd.SetVersionTemplate(i18n.Sprintf(constants.VersionTemplate))
+	rootCmd.SetUsageTemplate(i18n.Sprintf(constants.UsageTemplate))
+	rootCmd.SetHelpTemplate(i18n.Sprintf(constants.HelpTemplate))
 }
 
 func initConfig() (err error) {
@@ -92,9 +91,9 @@ func initConfig() (err error) {
 	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
 
 	// Load config from config file.
-	if configPath != "" {
+	if globalFlag.configPath != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(configPath)
+		viper.SetConfigFile(globalFlag.configPath)
 	} else {
 		// Search config in home directory with name ".qingstor" (without extension).
 		viper.AddConfigPath("$HOME/.qingstor")
@@ -106,56 +105,52 @@ func initConfig() (err error) {
 	}
 
 	// if zone flag was set, overwrite the config
-	if zone != "" {
-		viper.Set(constants.ConfigZone, zone)
+	if globalFlag.zone != "" {
+		viper.Set(constants.ConfigZone, globalFlag.zone)
 	}
 
 	// try to read config from path set above
 	err = viper.ReadInConfig()
 	if err == nil {
-		return
+		log.Debugf("Load config success from [%s]: %v", viper.ConfigFileUsed(), viper.AllSettings())
+		return nil
 	}
 	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 		i18n.Printf("Load config failed [%v]", err)
-		return
+		return err
 	}
 
-	// if env not set, start interactive setup
-	if viper.GetString(constants.ConfigAccessKeyID) == "" && viper.GetString(constants.ConfigSecretAccessKey) == "" {
-		i18n.Printf("AccessKey and SecretKey not found. Please setup your config now, or exit and setup manually.")
-		fileName, err := utils.SetupConfigInteractive()
-		if err != nil {
-			return fmt.Errorf("setup config failed [%v], please try again", err)
-		}
-		i18n.Printf("Your config has been set to <%v>. You can still modify it manually.", fileName)
-		viper.SetConfigFile(fileName)
-		if err = viper.ReadInConfig(); err != nil {
-			return err
-		}
-	} else {
+	// if env set, get config from env
+	if configuredByEnv() {
 		i18n.Printf("Config not loaded, use default and environment value instead.")
+		log.Debug("Config not loaded, use default and environment value instead.")
+		return nil
 	}
 
-	return nil
+	return
 }
 
 func initGlobalFlag() {
 	// Add config flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c",
+	rootCmd.PersistentFlags().StringVarP(&globalFlag.configPath, "config", "c",
 		"", i18n.Sprintf("assign config path manually"))
 	// Add zone flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().StringVarP(&zone, constants.ConfigZone, "z",
+	rootCmd.PersistentFlags().StringVarP(&globalFlag.zone, constants.ConfigZone, "z",
 		"", i18n.Sprintf("in which zone to do the operation"))
 	// Add config flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().BoolVar(&bench, constants.BenchFlag,
+	rootCmd.PersistentFlags().BoolVar(&globalFlag.bench, constants.BenchFlag,
 		false, i18n.Sprintf("enable benchmark or not"))
-	rootCmd.PersistentFlags().BoolVar(&noProgress, constants.NoProgressFlag,
-		false, i18n.Sprintf("disable progress bar display or not"))
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, i18n.Sprintf("help for this command"))
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, i18n.Sprintf("print logs for debug"))
+	rootCmd.PersistentFlags().BoolVar(&globalFlag.debug, "debug", false, i18n.Sprintf("print logs for debug"))
 }
 
 func silenceUsage(c *cobra.Command) {
 	c.SilenceUsage = true
+}
+
+// configuredByEnv returns true if either ak or sk set
+func configuredByEnv() bool {
+	return viper.GetString(constants.ConfigAccessKeyID) != "" &&
+		viper.GetString(constants.ConfigSecretAccessKey) != ""
 }

@@ -5,18 +5,22 @@ import (
 
 	"github.com/Xuanwo/storage/pkg/segment"
 	typ "github.com/Xuanwo/storage/types"
+	"github.com/c-bata/go-prompt"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var rbInput struct {
+type rbFlags struct {
 	force bool
 }
+
+var rbFlag = rbFlags{}
 
 // RbCommand will handle remove object command.
 var RbCommand = &cobra.Command{
@@ -28,11 +32,18 @@ var RbCommand = &cobra.Command{
 		i18n.Sprintf("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
 	),
 	Args: cobra.ExactArgs(1),
-	RunE: rbRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := rbRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "rb", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		rbFlag = rbFlags{}
+	},
 }
 
 func initRbFlag() {
-	RbCommand.Flags().BoolVarP(&rbInput.force, constants.ForceFlag, "f", false,
+	RbCommand.Flags().BoolVarP(&rbFlag.force, constants.ForceFlag, "f", false,
 		i18n.Sprintf("Delete an empty qingstor bucket or forcely delete nonempty qingstor bucket."),
 	)
 }
@@ -50,27 +61,14 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rbInput.force {
-		var match bool
-		match, err = utils.DoubleCheckString(bucketName,
-			i18n.Sprintf(`This operation will delete all data (including segments) in your bucket <%s>, which cannot be recovered.
-Please input the bucket name to confirm:`, bucketName))
-		if err != nil {
-			return
-		}
-		if !match {
-			return fmt.Errorf(i18n.Sprintf("The bucket name you just input is not match. Bucket <%s> not removed.", bucketName))
-		}
-	}
-
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetForce(rbInput.force)
+	t.SetForce(rbFlag.force)
 	t.SetHandleObjCallback(func(o *typ.Object) {
-		fmt.Println(i18n.Sprintf("<%s> removed", o.Name))
+		i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 	})
 	t.SetHandleSegmentCallback(func(seg segment.Segment) {
-		fmt.Println(i18n.Sprintf("segment id <%s>, path <%s> removed", seg.ID(), seg.Path()))
+		i18n.Fprintf(c.OutOrStdout(), "segment id <%s>, path <%s> removed\n", seg.ID(), seg.Path())
 	})
 
 	t.Run()
@@ -78,10 +76,39 @@ Please input the bucket name to confirm:`, bucketName))
 		return t.GetFault()
 	}
 
-	rbOutput(t)
+	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> removed.\n", t.GetStorageName())
 	return nil
 }
 
-func rbOutput(t *task.DeleteStorageTask) {
-	i18n.Printf("Bucket <%s> removed.\n", t.GetStorageName())
+type rbShellHandler struct {
+	bucketName string
+}
+
+// preRunE do pre-run check before rb in shell
+func (r *rbShellHandler) preRunE(args []string) error {
+	err := RbCommand.Flags().Parse(args)
+	if err != nil {
+		return err
+	}
+	_, bucketName, _, err := utils.ParseQsPath(RbCommand.Flags().Args()[0])
+	if err != nil {
+		return err
+	}
+	if rbFlag.force {
+		input := prompt.Input(
+			i18n.Sprintf("input bucket name <%s> to confirm: ", bucketName),
+			noSuggests)
+		if input != bucketName {
+			return fmt.Errorf(i18n.Sprintf("not confirmed"))
+		}
+	}
+	r.bucketName = bucketName
+	return nil
+}
+
+// postRun remove bucket from cache list if no error while run
+func (r rbShellHandler) postRun(err error) {
+	if err == nil {
+		shellutils.RemoveBucketFromList(r.bucketName)
+	}
 }

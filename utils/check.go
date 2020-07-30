@@ -1,11 +1,7 @@
 package utils
 
 import (
-	"os"
-
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/AlecAivazis/survey/v2/terminal"
-	log "github.com/sirupsen/logrus"
 )
 
 // StrDoubleChecker double check a string and return satisfied or not
@@ -67,10 +63,6 @@ func (s InputCheck) DoubleCheckString() (bool, error) {
 	}
 	err := survey.AskOne(prompt, &name)
 	if err != nil {
-		if err == terminal.InterruptErr {
-			log.Debug("interrupted")
-			os.Exit(0)
-		}
 		return false, err
 	}
 
@@ -107,10 +99,6 @@ func (c ConfirmCheck) CheckConfirm() (bool, error) {
 	}
 	err := survey.AskOne(prompt, &ok)
 	if err != nil {
-		if err == terminal.InterruptErr {
-			log.Debug("interrupted")
-			os.Exit(0)
-		}
 		return false, err
 	}
 

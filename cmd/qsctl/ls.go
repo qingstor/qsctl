@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 
 	"github.com/Xuanwo/storage"
@@ -19,11 +20,13 @@ import (
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var lsInput struct {
-	HumanReadable bool
-	LongFormat    bool
-	Recursive     bool
+type lsFlags struct {
+	humanReadable bool
+	longFormat    bool
+	recursive     bool
 }
+
+var lsFlag = lsFlags{}
 
 // LsCommand will handle list command.
 var LsCommand = &cobra.Command{
@@ -39,11 +42,19 @@ var LsCommand = &cobra.Command{
 		i18n.Sprintf("List objects by long format: qsctl ls qs://bucket-name -l"),
 	),
 	Args: cobra.MaximumNArgs(1),
-	RunE: lsRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := lsRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "ls", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		lsFlag = lsFlags{}
+	},
 }
 
 func lsRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
+	// if no args, handle as list buckets
 	if len(args) == 0 {
 		rootTask := taskutils.NewAtServiceTask(10)
 		err = utils.ParseAtServiceInput(rootTask)
@@ -52,13 +63,15 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 		}
 
 		t := task.NewListStorage(rootTask)
-		t.SetZone(zone)
-		if lsInput.LongFormat {
+		t.SetZone(globalFlag.zone)
+		if lsFlag.longFormat {
 			t.SetStoragerFunc(func(s storage.Storager) {
-				listBucketLongOutput(s, t)
+				listBucketLongOutput(c.OutOrStdout(), s, t)
 			})
 		} else {
-			t.SetStoragerFunc(listBucketOutput)
+			t.SetStoragerFunc(func(s storage.Storager) {
+				listBucketOutput(c.OutOrStdout(), s)
+			})
 		}
 
 		t.Run()
@@ -81,13 +94,17 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	}
 	t.SetDirLister(lister)
 
-	t.SetFileFunc(listFileOutput)
-	if lsInput.Recursive {
+	t.SetFileFunc(func(o *typ.Object) {
+		listFileOutput(c.OutOrStdout(), o)
+	})
+	if lsFlag.recursive {
 		t.SetDirFunc(func(o *typ.Object) {
-			listDirFunc(t, o)
+			listDirFunc(c.OutOrStdout(), t, o)
 		})
 	} else {
-		t.SetDirFunc(listFileOutput)
+		t.SetDirFunc(func(o *typ.Object) {
+			listFileOutput(c.OutOrStdout(), o)
+		})
 	}
 	t.Run()
 
@@ -98,45 +115,47 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	return
 }
 
-func listDirFunc(t *task.ListDirTask, o *typ.Object) {
-	listFileOutput(o)
-	sf := task.NewListDir(t)
-	sf.SetPath(o.Name)
-	sf.SetFileFunc(listFileOutput)
-	sf.SetDirFunc(func(oo *typ.Object) {
-		listDirFunc(sf, oo)
+func listDirFunc(w io.Writer, t *task.ListDirTask, o *typ.Object) {
+	listFileOutput(w, o)
+	st := task.NewListDir(t)
+	st.SetPath(o.Name)
+	st.SetFileFunc(func(oo *typ.Object) {
+		listFileOutput(w, oo)
 	})
-	t.GetScheduler().Sync(sf)
+	st.SetDirFunc(func(oo *typ.Object) {
+		listDirFunc(w, st, oo)
+	})
+	t.GetScheduler().Sync(st)
 }
 
 func initLsFlag() {
-	LsCommand.Flags().BoolVarP(&lsInput.HumanReadable, constants.HumanReadableFlag, "h", false,
+	LsCommand.Flags().BoolVarP(&lsFlag.humanReadable, constants.HumanReadableFlag, "h", false,
 		i18n.Sprintf(`print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,
 in order to reduce the number of digits to three or less using base 2 for sizes`))
-	LsCommand.Flags().BoolVarP(&lsInput.LongFormat, constants.LongFormatFlag, "l", false,
+	LsCommand.Flags().BoolVarP(&lsFlag.longFormat, constants.LongFormatFlag, "l", false,
 		i18n.Sprintf(`list in long format and a total sum for all the file sizes is
 output on a line before the long listing`))
-	LsCommand.Flags().BoolVarP(&lsInput.Recursive, constants.RecursiveFlag, "R", false,
+	LsCommand.Flags().BoolVarP(&lsFlag.recursive, constants.RecursiveFlag, "R", false,
 		i18n.Sprintf("recursively list subdirectories encountered"))
 	// LsCommand.Flags().BoolVarP(&reverse, constants.ReverseFlag, "r", false,
 	// 	"reverse the order of the sort to get reverse lexicographical order")
-	// LsCommand.Flags().StringVarP(&lsInput.Zone, constants.ZoneFlag, "z", "",
+	// LsCommand.Flags().StringVarP(&lsFlag.Zone, constants.ZoneFlag, "z", "",
 	// 	i18n.Sprintf("in which zone to do the operation"))
 }
 
 // listBucketOutput list buckets with normal slice
-func listBucketOutput(s storage.Storager) {
+func listBucketOutput(w io.Writer, s storage.Storager) {
 	m, err := s.Metadata()
 	if err != nil {
 		log.Debugf("listBucketOutput failed when get metadata: %v", err)
-		fmt.Printf("get metadata failed: %v", err)
+		i18n.Fprintf(w, "get metadata failed: %v\n", err)
 		return
 	}
-	fmt.Println(m.Name)
+	i18n.Fprintf(w, "%s\n", m.Name)
 }
 
 // listBucketLongOutput list buckets with long format
-func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
+func listBucketLongOutput(w io.Writer, s storage.Storager, t types.SchedulerGetter) {
 	rt := taskutils.NewAtStorageTask(10)
 	rt.SetStorage(s)
 	sst := task.NewStatStorage(rt)
@@ -144,30 +163,30 @@ func listBucketLongOutput(s storage.Storager, t types.SchedulerGetter) {
 	m, err := s.Metadata()
 	if err != nil {
 		log.Debugf("listBucketLongOutput failed when get metadata: %v", err)
-		fmt.Printf("get metadata failed: %v", err)
+		i18n.Fprintf(w, "get metadata failed: %v\n", err)
 		return
 	}
 
 	// handle size separately from stat output for -h
 	var size string
 	if v, ok := sst.GetStorageInfo().GetSize(); ok {
-		if lsInput.HumanReadable {
+		if lsFlag.humanReadable {
 			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
 			if err != nil {
 				log.Debugf("parse size <%v> failed [%v]", v, err)
-				fmt.Printf("parse size <%v> failed [%v]", v, err)
+				i18n.Fprintf(w, "parse size <%v> failed [%v]\n", v, err)
 				return
 			}
 		} else {
 			size = datasize.ByteSize(v).String()
 		}
 	}
-	statStorageOutput(m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
+	statStorageOutput(w, m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
 }
 
-func listFileOutput(o *typ.Object) {
-	if !lsInput.LongFormat {
-		fmt.Println(o.Name)
+func listFileOutput(w io.Writer, o *typ.Object) {
+	if !lsFlag.longFormat {
+		i18n.Fprintf(w, "%s\n", o.Name)
 		return
 	}
 
@@ -180,12 +199,12 @@ func listFileOutput(o *typ.Object) {
 
 	// default print size by bytes
 	readableSize := strconv.FormatInt(o.Size, 10)
-	if lsInput.HumanReadable {
+	if lsFlag.humanReadable {
 		// if human readable flag true, print size as human readable format
 		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
 		if err != nil {
 			log.Debugf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
-			fmt.Printf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			i18n.Fprintf(w, "parse size <%v> failed [%v], key: <%s>\n", o.Size, err, o.Name)
 			return
 		}
 		// 7 is the widest size of readable-size, like 1023.9K
@@ -196,5 +215,5 @@ func listFileOutput(o *typ.Object) {
 	modifiedStr := o.UpdatedAt.Format(constants.LsDefaultFormat)
 	// output order: acl  size  lastModified  key
 	// join with two space
-	i18n.Printf("%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
+	i18n.Fprintf(w, "%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
 }
