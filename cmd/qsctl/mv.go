@@ -3,23 +3,23 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
-	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var mvInput struct {
-	CheckMD5  bool
-	Recursive bool
+type mvFlags struct {
+	checkMD5  bool
+	recursive bool
 }
+
+var mvFlag = mvFlags{}
 
 // MvCommand will handle move command.
 var MvCommand = &cobra.Command{
@@ -32,11 +32,18 @@ var MvCommand = &cobra.Command{
 		i18n.Sprintf("Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r"),
 	),
 	Args: cobra.ExactArgs(2),
-	RunE: mvRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := mvRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mv", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		mvFlag = mvFlags{}
+	},
 }
 
 func initMvFlag() {
-	MvCommand.Flags().BoolVarP(&mvInput.Recursive,
+	MvCommand.Flags().BoolVarP(&mvFlag.recursive,
 		constants.RecursiveFlag,
 		"r",
 		false,
@@ -51,11 +58,11 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	if rootTask.GetSourceType() == types.ObjectTypeDir && !mvInput.Recursive {
-		return fmt.Errorf("-r is required to move a directory")
+	if rootTask.GetSourceType() == types.ObjectTypeDir && !mvFlag.recursive {
+		return fmt.Errorf(i18n.Sprintf("-r is required to move a directory"))
 	}
 
-	if cpInput.Recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
+	if mvFlag.recursive && rootTask.GetSourceType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("src should be a directory while -r is set"))
 	}
 
@@ -64,41 +71,31 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
 	}
 
-	// only show progress bar without no-progress flag set
-	if !noProgress && cutils.IsInteractiveEnable() {
-		go func() {
-			taskutils.StartProgress(time.Second)
-		}()
-		defer taskutils.FinishProgress()
-	}
-
-	if mvInput.Recursive {
+	if mvFlag.recursive {
 		t := task.NewMoveDir(rootTask)
 		t.SetHandleObjCallback(func(o *types.Object) {
-			fmt.Println(i18n.Sprintf("<%s> moved", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
 		})
-		t.SetCheckMD5(mvInput.CheckMD5)
+		t.SetCheckMD5(mvFlag.checkMD5)
 		t.Run()
 
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
 
-		taskutils.WaitProgress()
-		i18n.Printf("Dir <%s> moved to <%s>.\n",
+		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> moved to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
 	}
 
 	t := task.NewMoveFile(rootTask)
-	t.SetCheckMD5(mvInput.CheckMD5)
+	t.SetCheckMD5(mvFlag.checkMD5)
 	t.Run()
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
 
-	taskutils.WaitProgress()
-	i18n.Printf("File <%s> moved to <%s>.\n",
+	i18n.Fprintf(c.OutOrStdout(), "File <%s> moved to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
 }

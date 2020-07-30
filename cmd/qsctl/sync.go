@@ -3,26 +3,26 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/Xuanwo/storage/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
-	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
 
-var syncInput struct {
-	CheckMD5       bool
-	DryRun         bool
-	Existing       bool
-	IgnoreExisting bool
-	Recursive      bool
-	Update         bool
+type syncFlags struct {
+	checkMD5       bool
+	dryRun         bool
+	existing       bool
+	ignoreExisting bool
+	recursive      bool
+	update         bool
 }
+
+var syncFlag = syncFlags{}
 
 // SyncCommand will handle sync command.
 var SyncCommand = &cobra.Command{
@@ -40,7 +40,14 @@ is the source directory and second the destination directory.`),
 		i18n.Sprintf("Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run"),
 	),
 	Args: cobra.ExactArgs(2),
-	RunE: syncRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := syncRun(cmd, args); err != nil {
+			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "sync", err.Error())
+		}
+	},
+	PostRun: func(_ *cobra.Command, _ []string) {
+		syncFlag = syncFlags{}
+	},
 }
 
 func syncRun(c *cobra.Command, args []string) (err error) {
@@ -52,36 +59,28 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	if rootTask.GetSourceType() != types.ObjectTypeDir || rootTask.GetDestinationType() != types.ObjectTypeDir {
-		return fmt.Errorf("both source and destination should be directories")
+		return fmt.Errorf(i18n.Sprintf("both source and destination should be directories"))
 	}
 
-	if syncInput.Existing && syncInput.IgnoreExisting {
-		return fmt.Errorf("both --existing and --ignore-existing are set, no files would be synced")
-	}
-
-	// only show progress bar without no-progress flag set
-	if !noProgress && cutils.IsInteractiveEnable() {
-		go func() {
-			taskutils.StartProgress(time.Second)
-		}()
-		defer taskutils.FinishProgress()
+	if syncFlag.existing && syncFlag.ignoreExisting {
+		return fmt.Errorf(i18n.Sprintf("both --existing and --ignore-existing are set, no files would be synced"))
 	}
 
 	t := task.NewSync(rootTask)
-	t.SetDryRun(syncInput.DryRun)
-	t.SetExisting(syncInput.Existing)
-	t.SetIgnoreExisting(syncInput.IgnoreExisting)
-	t.SetCheckMD5(syncInput.CheckMD5)
-	t.SetRecursive(syncInput.Recursive)
-	t.SetUpdate(syncInput.Update)
-	if syncInput.DryRun {
+	t.SetDryRun(syncFlag.dryRun)
+	t.SetExisting(syncFlag.existing)
+	t.SetIgnoreExisting(syncFlag.ignoreExisting)
+	t.SetCheckMD5(syncFlag.checkMD5)
+	t.SetRecursive(syncFlag.recursive)
+	t.SetUpdate(syncFlag.update)
+	if syncFlag.dryRun {
 		t.SetDryRunFunc(func(o *types.Object) {
-			fmt.Println(o.Name)
+			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
 		})
 	} else {
 		t.SetDryRunFunc(nil)
 		t.SetHandleObjCallback(func(o *types.Object) {
-			fmt.Println(i18n.Sprintf("<%s> synced", o.Name))
+			i18n.Fprintf(c.OutOrStdout(), "<%s> synced\n", o.Name)
 		})
 	}
 
@@ -91,23 +90,22 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
-	taskutils.WaitProgress()
-	i18n.Printf("Dir <%s> and <%s> synced.\n",
+	i18n.Fprintf(c.OutOrStdout(), "Dir <%s> and <%s> synced.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 
 }
 
 func initSyncFlag() {
-	SyncCommand.Flags().BoolVarP(&syncInput.DryRun, "dry-run", "n", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.dryRun, "dry-run", "n", false,
 		i18n.Sprintf(`show what would have been transferred`))
-	SyncCommand.Flags().BoolVar(&syncInput.Existing, "existing", false,
+	SyncCommand.Flags().BoolVar(&syncFlag.existing, "existing", false,
 		i18n.Sprintf(`skip creating new files in dest dirs`))
-	SyncCommand.Flags().BoolVar(&syncInput.IgnoreExisting, "ignore-existing", false,
+	SyncCommand.Flags().BoolVar(&syncFlag.ignoreExisting, "ignore-existing", false,
 		i18n.Sprintf(`skip updating files in dest dirs, only copy those not exist`))
-	SyncCommand.Flags().BoolVarP(&syncInput.Recursive, "recursive", "r", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.recursive, "recursive", "r", false,
 		i18n.Sprintf(`recurse into sub directories`))
-	SyncCommand.Flags().BoolVarP(&syncInput.Update, "update", "u", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.update, "update", "u", false,
 		i18n.Sprintf(`skip files that are newer in dest dirs`))
 
 }
