@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -11,7 +12,7 @@ func main() {
 		FullTimestamp: true,
 	})
 
-	err := rootCmd.Execute()
+	err := rootCmd.ExecuteContext(context.Background())
 	if err != nil {
 		os.Exit(1)
 	}

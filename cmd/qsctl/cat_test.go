@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"testing"
@@ -60,7 +61,7 @@ func TestCatRun(t *testing.T) {
 			return
 		})
 		var tk *task.CopyFileTask
-		monkey.PatchInstanceMethod(reflect.TypeOf(tk), "Run", func(task *task.CopyFileTask) {
+		monkey.PatchInstanceMethod(reflect.TypeOf(tk), "Run", func(task *task.CopyFileTask, ctx context.Context) {
 			if tt.runErr != nil {
 				task.TriggerFault(tmpErr)
 			} else {

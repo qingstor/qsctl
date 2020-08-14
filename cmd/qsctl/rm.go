@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	typ "github.com/Xuanwo/storage/types"
+	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c-bata/go-prompt"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -69,7 +69,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		t.SetHandleObjCallback(func(o *typ.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 		})
-		t.Run()
+		t.Run(c.Context())
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
@@ -79,7 +79,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewDeleteFile(rootTask)
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

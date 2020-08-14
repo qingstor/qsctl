@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/Xuanwo/storage/types"
+	"github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -96,7 +96,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> copied\n", o.Name)
 		})
 		t.SetCheckTasks(nil)
-		t.Run()
+		t.Run(c.Context())
 
 		if t.GetFault().HasError() {
 			return t.GetFault()
@@ -110,7 +110,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewCopyFile(rootTask)
 	t.SetCheckMD5(cpFlag.checkMD5)
 	t.SetCheckTasks(nil)
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

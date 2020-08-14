@@ -5,12 +5,12 @@ import (
 	"fmt"
 	_ "net/http/pprof"
 	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
 	"github.com/cosiner/argv"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -35,15 +35,20 @@ var ShellCommand = &cobra.Command{
 		if !cutils.IsInteractiveEnable() {
 			return fmt.Errorf(i18n.Sprintf("not interactive shell, cannot call shell"))
 		}
-		log.SetOutput(os.Stdout)
 		return nil
 	},
 }
 
+// executor handle sub-command call logic
+// parse args --> package handler --> pre-run check --> run --> post-run
 func executor(t string) {
 	if t == "" {
 		return
 	}
+	if t == "exit" {
+		os.Exit(0)
+	}
+
 	args, err := parseArgs(t)
 	if err != nil {
 		i18n.Printf("get args failed: %s\n", err)
@@ -61,10 +66,19 @@ func executor(t string) {
 		return
 	}
 
+	// set new background context every time we call sub-command
+	// logger will be handled in persistent pre-run, so we do not need to conduct logger here
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	// start a monitor to check interrupt signal
+	go monitorSignal(ctx, cancel, os.Interrupt)
+
 	silenceUsage(rootCmd) // do not display usage in shell, unless run help manually
+	resetGlobalFlags()    // reset global flags before each run, to avoid flag pollution (from last run)
 	rootCmd.SetArgs(args)
 	rootCmd.SetOut(os.Stdout)
-	if err = rootCmd.ExecuteContext(context.Background()); err != nil {
+
+	if err = rootCmd.ExecuteContext(ctx); err != nil {
 		return
 	}
 
@@ -102,16 +116,16 @@ func completeFunc(d prompt.Document) (s []prompt.Suggest) {
 	return s
 }
 
-func shellRun(_ *cobra.Command, _ []string) {
+func shellRun(c *cobra.Command, _ []string) {
 	// show help info
 	rootCmd.Help()
 	i18n.Printf(`
 To execute command, directly type command without "qsctl" at the beginning.
-"Ctrl + D" to exit.
+"Ctrl + D" or input "exit" to exit.
 Version %s
 `, constants.Version)
 
-	go shellutils.InitBucketList()
+	go shellutils.InitBucketList(c.Context())
 
 	p := prompt.New(executor, completeFunc,
 		prompt.OptionPrefix(constants.Name+"> "),
@@ -157,7 +171,7 @@ func parseArgs(input string) ([]string, error) {
 		return nil, err
 	}
 	if len(args) > 1 {
-		log.Warnf(i18n.Sprint("pipe not supported in shell, input after %v would be abandoned"), args[0])
+		i18n.Printf("pipe not supported in shell, input after %v would be abandoned\n", args[0])
 	}
 	return args[0], nil
 }
@@ -242,4 +256,17 @@ func (b blankShellHandler) postRun(_ error) {
 // noSuggests is the func that return empty prompt.Suggest
 func noSuggests(_ prompt.Document) []prompt.Suggest {
 	return nil
+}
+
+// monitorSignal check specific to call cancelFunc of passing context
+func monitorSignal(ctx context.Context, cancelFunc context.CancelFunc, sigs ...os.Signal) {
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, sigs...)
+	select {
+	case <-sigChan:
+		cancelFunc()
+		return
+	case <-ctx.Done():
+		return
+	}
 }

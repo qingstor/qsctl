@@ -98,7 +98,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "parse size <%v> failed [%v], key: <%s>\n", "parse size <%v> failed [%v], key: <%s>\n")
 	_ = message.SetString(tag, "parse size <%v> failed [%v]\n", "parse size <%v> failed [%v]\n")
 	_ = message.SetString(tag, "path should be a directory while -r is set", "path should be a directory while -r is set")
-	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned", "pipe not supported in shell, input after %v would be abandoned")
+	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned\n", "pipe not supported in shell, input after %v would be abandoned\n")
 	_ = message.SetString(tag, "print logs for debug", "print logs for debug")
 	_ = message.SetString(tag, "qsctl cat can cat a remote object to stdout", "qsctl cat can cat a remote object to stdout")
 	_ = message.SetString(tag, "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout", "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout")
@@ -119,11 +119,11 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "the number of seconds until the pre-signed URL expires. Default is 300 seconds")
 	_ = message.SetString(tag, `
 To execute command, directly type command without "qsctl" at the beginning.
-"Ctrl + D" to exit.
+"Ctrl + D" or input "exit" to exit.
 Version %s
 `, `
 To execute command, directly type command without "qsctl" at the beginning.
-"Ctrl + D" to exit.
+"Ctrl + D" or input "exit" to exit.
 Version %s
 `)
 	_ = message.SetString(tag, `expected size of the input file

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/Xuanwo/storage/pkg/segment"
-	typ "github.com/Xuanwo/storage/types"
+	"github.com/aos-dev/go-storage/v2/pkg/segment"
+	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c-bata/go-prompt"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -72,7 +72,7 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 		i18n.Fprintf(c.OutOrStdout(), "segment id <%s>, path <%s> removed\n", seg.ID(), seg.Path())
 	})
 
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
