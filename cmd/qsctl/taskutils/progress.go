@@ -2,16 +2,28 @@ package taskutils
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/qingstor/noah/pkg/progress"
-	"github.com/vbauerster/mpb/v4"
-	"github.com/vbauerster/mpb/v4/decor"
+	"github.com/vbauerster/mpb/v5"
+	"github.com/vbauerster/mpb/v5/decor"
 	"golang.org/x/crypto/ssh/terminal"
+)
+
+const (
+	widStatus          = 20
+	widStat            = 20
+	widBarDefault      = 40
+	widTerminalDefault = 120
+)
+
+const (
+	pbNotExist pBarStatus = iota
+	pbNotShow
+	pbShown
+	pbFinished
 )
 
 // pBar is the struct contains the mark of bar finished, and the bar.
@@ -29,13 +41,6 @@ type pBar struct {
 
 type pBarStatus int
 
-const (
-	pbNotExist pBarStatus = iota
-	pbNotShow
-	pbShown
-	pbFinished
-)
-
 // pBarGroup is the progress bar group struct
 // it contains available props for bar display.
 // bars is the local pBar group,
@@ -47,44 +52,57 @@ type pBarGroup struct {
 	bars           map[string]*pBar
 }
 
-// wg is the global wait group used for multi-progress bar
-// use pointer to keep it not copied
-var wg = new(sync.WaitGroup)
+// ClearFunc is the alias of func to clear PbHandler
+type ClearFunc func()
 
-// ctx is used to cancel pbPool
-var ctx, cancel = context.WithCancel(context.Background())
-
-// pbPool is the multi-progress bar pool
-var pbPool *mpb.Progress
-
-// pbGroup is the local pBar group
-// It takes taskID as the key, pointer to the pBar as value.
-// So that every state will modify its relevant pBar.
-var pbGroup = &pBarGroup{
-	bars: make(map[string]*pBar),
+// PbHandler is used to handle progress bar
+type PbHandler struct {
+	// wg is the wait group used for multi-progress bar
+	// use pointer to keep it not copied
+	wg *sync.WaitGroup
+	// pbPool is the multi-progress bar pool
+	pbPool *mpb.Progress
+	// pbGroup is the local pBar group
+	// It takes taskID as the key, pointer to the pBar as value.
+	// So that every state will modify its relevant pBar.
+	pbGroup *pBarGroup
+	// closeSig is the channel to notify data progress channel close.
+	closeSig chan struct{}
+	// nameFilter if filter func to handle bar tip info
+	// for now, it used to truncate file name if it is too long to display
+	nameFilter func(string) string
 }
 
-// sigChan is the channel to notify data progress channel to close.
-var sigChan = make(chan struct{})
-
-// nameWidth and barWidth is the style width for progress bar
-var nameWidth, barWidth, terminalWidth int
-
-const (
-	widStatus          = 20
-	widStat            = 20
-	widBarDefault      = 40
-	widTerminalDefault = 120
-)
-
-func init() {
-	var err error
-	terminalWidth, _, err = terminal.GetSize(int(os.Stdout.Fd()))
+// NewHandler new a PbHandler to handle progress bar, and a cancelFunc to cancel the handler
+func NewHandler(c context.Context) (*PbHandler, ClearFunc) {
+	terminalWidth, _, err := terminal.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		terminalWidth = widTerminalDefault
 	}
-	nameWidth, barWidth = calBarSize(terminalWidth)
-	pbPool = mpb.NewWithContext(ctx, mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
+	// nameWidth and barWidth is the style width for progress bar
+	nameWidth, barWidth := calBarSize(terminalWidth)
+	wg := new(sync.WaitGroup)
+	// ctx, cancel := context.WithCancel(c)
+	closeChan := make(chan struct{})
+	pbGroup := &pBarGroup{
+		bars: make(map[string]*pBar),
+	}
+	pbPool := mpb.NewWithContext(c, mpb.WithWaitGroup(wg), mpb.WithWidth(barWidth))
+	return &PbHandler{
+			wg:       wg,
+			pbPool:   pbPool,
+			pbGroup:  pbGroup,
+			closeSig: closeChan,
+			nameFilter: func(s string) string {
+				return truncateBefore(s, nameWidth)
+			},
+		}, func() {
+			close(closeChan)
+			for _, pbar := range pbGroup.bars {
+				pbar.GetBar().Abort(true)
+			}
+			progress.ClearStates()
+		}
 }
 
 // StartProgress start to get state from state center.
@@ -92,13 +110,13 @@ func init() {
 // Start a ticker to get data from noah periodically.
 // The data from noah is a map with taskID as key and its state as value.
 // So we range the data and update relevant bar's progress.
-func StartProgress(d time.Duration) {
+func (h *PbHandler) StartProgress(d time.Duration) {
 	tc := time.NewTicker(d)
 	for {
 		select {
 		case <-tc.C:
 			for taskID, state := range progress.GetStates() {
-				pbar := pbGroup.GetPBarByID(taskID)
+				pbar := h.pbGroup.GetPBarByID(taskID)
 				// if pbar already finished, skip directly
 				if pbar.Finished() {
 					continue
@@ -110,41 +128,38 @@ func StartProgress(d time.Duration) {
 				// if pbar is shown, update progress
 				if pbar.Shown() {
 					bar := pbar.GetBar()
-					bar.SetTotal(state.Total, false)
-					bar.SetCurrent(state.Done, d)
+					// bar.SetTotal(state.Total, false)
+					bar.SetCurrent(state.Done)
+					bar.DecoratorEwmaUpdate(d)
 					// if this state is finish state, mark bar as finished, dec the active bar amount
 					if state.Finished() {
 						pbar.MarkFinished()
 						// spinner (list type state) is not counted
 						if !state.IsListType() {
-							pbGroup.DecActive()
+							h.pbGroup.DecActive()
 						}
-						wg.Done()
+						h.wg.Done()
 					}
 					continue
 				}
 
-				bar := addBarByState(state)
-				bar.SetCurrent(state.Done, d)
-				wg.Add(1)
-				pbGroup.SetPBarByID(taskID, &pBar{status: pbShown, bar: bar})
-				pbGroup.IncActive()
+				bar := h.addBarByState(state)
+				bar.SetCurrent(state.Done)
+				bar.DecoratorEwmaUpdate(d)
+				h.wg.Add(1)
+				h.pbGroup.SetPBarByID(taskID, &pBar{status: pbShown, bar: bar})
+				h.pbGroup.IncActive()
 			}
-		case <-sigChan:
+		case <-h.closeSig:
+			tc.Stop()
 			return
 		}
 	}
 }
 
 // WaitProgress wait the progress bar to complete
-func WaitProgress() {
-	pbPool.Wait()
-}
-
-// FinishProgress finish the progress bar and close the progress center
-func FinishProgress() {
-	close(sigChan)
-	cancel()
+func (h *PbHandler) WaitProgress() {
+	h.pbPool.Wait()
 }
 
 // GetPBarByID returns the pbar's pointer with given taskID
@@ -177,11 +192,11 @@ func (pg *pBarGroup) DecActive() {
 }
 
 // addSpinnerByState add a spinner to pool, and return it for advanced operation
-func addSpinnerByState(state progress.State) (bar *mpb.Bar) {
-	bar = pbPool.Add(state.Total, mpb.NewSpinnerFiller([]string{".", "..", "..."}, mpb.SpinnerOnLeft),
+func (h *PbHandler) addSpinnerByState(state progress.State) (bar *mpb.Bar) {
+	bar = h.pbPool.Add(state.Total, mpb.NewSpinnerFiller([]string{".", "..", "..."}, mpb.SpinnerOnLeft),
 		mpb.PrependDecorators(
 			decor.Name(state.Status, decor.WCSyncSpaceR),
-			decor.Name(truncateBefore(state.Name, nameWidth), decor.WCSyncSpaceR),
+			decor.Name(h.nameFilter(state.Name), decor.WCSyncSpaceR),
 		),
 		mpb.AppendDecorators(
 			decor.OnComplete(decor.Name(""), "done"),
@@ -192,17 +207,19 @@ func addSpinnerByState(state progress.State) (bar *mpb.Bar) {
 }
 
 // addBarByState add a bar to pool, and return it for advanced operation
-func addBarByState(state progress.State) (bar *mpb.Bar) {
-	bar = pbPool.AddBar(state.Total, mpb.BarStyle("[=>-|"),
+func (h *PbHandler) addBarByState(state progress.State) (bar *mpb.Bar) {
+	bar = h.pbPool.AddBar(state.Total, mpb.BarStyle("[=>-|"),
 		mpb.PrependDecorators(
 			decor.Name(state.Status, decor.WCSyncSpaceR),
-			decor.Name(truncateBefore(state.Name, nameWidth), decor.WCSyncSpaceR),
+			decor.Name(h.nameFilter(state.Name), decor.WCSyncSpaceR),
 		),
 		mpb.AppendDecorators(
-			decor.EwmaETA(decor.ET_STYLE_GO, 0, decor.WCSyncSpace),
+			decor.EwmaSpeed(decor.UnitKiB, "% .2f", 0, decor.WCSyncSpace),
+			// decor.EwmaETA(decor.ET_STYLE_GO, 0, decor.WCSyncSpace),
 			decor.Name(" ] "),
 			decor.OnComplete(
-				decor.Percentage(decor.WCSyncSpace), "done",
+				decor.CountersKibiByte("% .2f / % .2f", decor.WCSyncSpace), "done",
+				// decor.Percentage(decor.WCSyncSpace),
 			),
 		),
 		mpb.BarRemoveOnComplete(),
@@ -228,10 +245,11 @@ func (b pBar) NotExist() bool {
 // MarkFinished mark a pBar as Finished
 func (b *pBar) MarkFinished() {
 	b.status = pbFinished
+	b.GetBar().Abort(true)
 }
 
 // GetBar get the surrounded pointer to mpb.Bar
-func (b pBar) GetBar() *mpb.Bar {
+func (b *pBar) GetBar() *mpb.Bar {
 	return b.bar
 }
 
@@ -261,13 +279,4 @@ func calBarSize(fullWid int) (nameWid, barWid int) {
 	barWid = aviWid / 2
 	nameWid = barWid
 	return
-}
-
-// AddPopLog add msg by pop log for progress bars
-func AddPopLog(msg string) {
-	limit := "%%.%ds"
-	filler := mpb.FillerFunc(func(w io.Writer, width int, st *decor.Statistics) {
-		fmt.Fprintf(w, fmt.Sprintf(limit, terminalWidth), msg)
-	})
-	pbPool.Add(0, filler).SetTotal(0, true)
 }

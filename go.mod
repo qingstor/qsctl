@@ -25,10 +25,12 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
-	github.com/vbauerster/mpb/v4 v4.12.2
+	github.com/vbauerster/mpb/v5 v5.3.0
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
 	golang.org/x/text v0.3.3
 	gopkg.in/yaml.v2 v2.3.0
 )
 
 replace github.com/spf13/cobra v1.0.0 => github.com/Prnyself/cobra v1.0.1-0.20200814081545-b584b1cb84aa
+
+replace github.com/qingstor/noah v0.0.0-20200814084608-71fc0e83d2a5 => ../noah

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
@@ -15,6 +16,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/shellutils"
+	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	cutils "github.com/qingstor/qsctl/v2/cmd/utils"
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
@@ -77,6 +79,11 @@ func executor(t string) {
 	resetGlobalFlags()    // reset global flags before each run, to avoid flag pollution (from last run)
 	rootCmd.SetArgs(args)
 	rootCmd.SetOut(os.Stdout)
+
+	handler, clearFunc := taskutils.NewHandler(ctx)
+	defer clearFunc()
+	go handler.StartProgress(time.Second)
+	ctx = taskutils.ContextWithHandler(ctx, handler)
 
 	if err = rootCmd.ExecuteContext(ctx); err != nil {
 		return

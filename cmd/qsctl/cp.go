@@ -98,6 +98,9 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		t.SetCheckTasks(nil)
 		t.Run(c.Context())
 
+		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+			h.WaitProgress()
+		}
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
@@ -111,6 +114,10 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	t.SetCheckMD5(cpFlag.checkMD5)
 	t.SetCheckTasks(nil)
 	t.Run(c.Context())
+
+	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+		h.WaitProgress()
+	}
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
