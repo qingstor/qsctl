@@ -98,11 +98,12 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		t.SetCheckTasks(nil)
 		t.Run(c.Context())
 
-		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
-			h.WaitProgress()
-		}
 		if t.GetFault().HasError() {
 			return t.GetFault()
+		}
+
+		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+			h.WaitProgress()
 		}
 
 		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> copied to <%s>.\n",
@@ -115,11 +116,12 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	t.SetCheckTasks(nil)
 	t.Run(c.Context())
 
-	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
-		h.WaitProgress()
-	}
 	if t.GetFault().HasError() {
 		return t.GetFault()
+	}
+
+	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+		h.WaitProgress()
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> copied to <%s>.\n",
