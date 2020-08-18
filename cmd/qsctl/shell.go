@@ -45,7 +45,7 @@ func executor(t string) {
 	if t == "" {
 		return
 	}
-	if t == "exit" {
+	if isExit(t) {
 		os.Exit(0)
 	}
 
@@ -269,4 +269,9 @@ func monitorSignal(ctx context.Context, cancelFunc context.CancelFunc, sigs ...o
 	case <-ctx.Done():
 		return
 	}
+}
+
+// isExit check whether a command is exit
+func isExit(s string) bool {
+	return strings.ToLower(strings.TrimSpace(s)) == "exit"
 }
