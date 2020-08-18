@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Xuanwo/storage"
+	"github.com/aos-dev/go-storage/v2"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -53,7 +53,7 @@ func presignRun(c *cobra.Command, args []string) (err error) {
 	t.SetReacher(rootTask.GetStorage().(storage.Reacher))
 	t.SetExpire(presignFlag.expire)
 
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

@@ -1,11 +1,15 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
+	"context"
+	"encoding/json"
+
+	"github.com/qingstor/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/qingstor/qsctl/v2/internal/pkg/ilog"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 )
 
@@ -30,10 +34,6 @@ var rootCmd = &cobra.Command{
 	Use:     constants.Name,
 	Long:    constants.Description,
 	Version: constants.Version,
-	// reset global flags after each sub-command run
-	PersistentPostRun: func(_ *cobra.Command, _ []string) {
-		globalFlag = globalFlags{}
-	},
 }
 
 func init() {
@@ -52,13 +52,10 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		if globalFlag.debug {
-			log.SetLevel(log.DebugLevel)
-		} else {
-			log.SetLevel(log.PanicLevel)
-		}
-
-		return initConfig()
+		logger := ilog.InitLoggerWithDebug(globalFlag.debug)
+		ctx := log.ContextWithLogger(c.Context(), logger)
+		c.SetContext(ctx)
+		return initConfig(ctx)
 	}
 
 	rootCmd.AddCommand(ShellCommand)
@@ -80,7 +77,9 @@ func init() {
 	rootCmd.SetHelpTemplate(i18n.Sprintf(constants.HelpTemplate))
 }
 
-func initConfig() (err error) {
+func initConfig(ctx context.Context) (err error) {
+	logger := log.FromContext(ctx)
+
 	// Allow viper read from env.
 	viper.SetEnvPrefix("qsctl")
 	viper.AutomaticEnv()
@@ -112,7 +111,12 @@ func initConfig() (err error) {
 	// try to read config from path set above
 	err = viper.ReadInConfig()
 	if err == nil {
-		log.Debugf("Load config success from [%s]: %v", viper.ConfigFileUsed(), viper.AllSettings())
+		content, _ := json.Marshal(viper.AllSettings())
+		logger.Debug(
+			log.String("action", "load config success"),
+			log.String("config_path", viper.ConfigFileUsed()),
+			log.Bytes("content", content),
+		)
 		return nil
 	}
 	if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
@@ -123,7 +127,9 @@ func initConfig() (err error) {
 	// if env set, get config from env
 	if configuredByEnv() {
 		i18n.Printf("Config not loaded, use default and environment value instead.")
-		log.Debug("Config not loaded, use default and environment value instead.")
+		logger.Debug(
+			log.String("action", "load config from env"),
+		)
 		return nil
 	}
 
@@ -153,4 +159,10 @@ func silenceUsage(c *cobra.Command) {
 func configuredByEnv() bool {
 	return viper.GetString(constants.ConfigAccessKeyID) != "" &&
 		viper.GetString(constants.ConfigSecretAccessKey) != ""
+}
+
+// resetGlobalFlags used to reset global flags before each sub-command run in shell,
+// to avoid flags from last call is still working
+func resetGlobalFlags() {
+	globalFlag = globalFlags{}
 }

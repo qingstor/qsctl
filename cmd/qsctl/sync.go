@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/Xuanwo/storage/types"
+	"github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -84,7 +84,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		})
 	}
 
-	t.Run()
+	t.Run(c.Context())
 
 	if t.GetFault().HasError() {
 		return t.GetFault()

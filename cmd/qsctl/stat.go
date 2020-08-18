@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Xuanwo/storage/services/qingstor"
-	typ "github.com/Xuanwo/storage/types"
-	"github.com/Xuanwo/storage/types/info"
+	"github.com/aos-dev/go-service-qingstor"
+	typ "github.com/aos-dev/go-storage/v2/types"
+	"github.com/aos-dev/go-storage/v2/types/info"
 	"github.com/c2h5oh/datasize"
 	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
@@ -56,7 +56,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 	// work dir is root path and path blank, handle it as stat bucket
 	if workDir == "/" && rootTask.GetPath() == "" {
 		t := task.NewStatStorage(rootTask)
-		t.Run()
+		t.Run(c.Context())
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
@@ -70,7 +70,7 @@ func statRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewStatFile(rootTask)
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

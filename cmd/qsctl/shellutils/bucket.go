@@ -1,11 +1,12 @@
 package shellutils
 
 import (
+	"context"
 	"sync"
 
-	"github.com/Xuanwo/storage"
+	"github.com/aos-dev/go-storage/v2"
+	"github.com/qingstor/log"
 	"github.com/qingstor/noah/task"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
 	"github.com/qingstor/qsctl/v2/utils"
@@ -16,11 +17,16 @@ var mu = new(sync.Mutex)
 var bucketList = make([]string, 0, 10)
 
 // InitBucketList init bucket list as cache
-func InitBucketList() {
+func InitBucketList(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
 	rootTask := taskutils.NewAtServiceTask(10)
 	err := utils.ParseAtServiceInput(rootTask)
 	if err != nil {
-		log.Errorf("get service failed: [%v]", err)
+		logger.Error(
+			log.String("action", "get service"),
+			log.String("err", err.Error()),
+		)
 		return
 	}
 
@@ -28,11 +34,9 @@ func InitBucketList() {
 	t.SetZone("")
 	t.SetStoragerFunc(func(stor storage.Storager) {
 		sm, _ := stor.Metadata()
-		mu.Lock()
-		bucketList = append(bucketList, sm.Name)
-		mu.Unlock()
+		AddBucketIntoList(sm.Name)
 	})
-	t.Run()
+	t.Run(ctx)
 	return
 }
 

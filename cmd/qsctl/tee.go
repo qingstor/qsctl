@@ -53,7 +53,8 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewCopyStream(rootTask)
 	t.SetCheckMD5(false)
 	t.SetPartSize(constants.DefaultPartSize)
-	t.Run()
+	t.Run(c.Context())
+
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

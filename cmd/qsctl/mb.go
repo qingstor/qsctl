@@ -53,7 +53,7 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 	t.SetStorageName(bucketName)
 	t.SetZone(globalFlag.zone)
 
-	t.Run()
+	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}

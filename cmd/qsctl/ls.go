@@ -1,17 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
 
-	"github.com/Xuanwo/storage"
-	typ "github.com/Xuanwo/storage/types"
+	"github.com/aos-dev/go-storage/v2"
+	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/jedib0t/go-pretty/text"
+	"github.com/qingstor/log"
 	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
@@ -66,15 +67,15 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 		t.SetZone(globalFlag.zone)
 		if lsFlag.longFormat {
 			t.SetStoragerFunc(func(s storage.Storager) {
-				listBucketLongOutput(c.OutOrStdout(), s, t)
+				listBucketLongOutput(c.Context(), c.OutOrStdout(), s, t)
 			})
 		} else {
 			t.SetStoragerFunc(func(s storage.Storager) {
-				listBucketOutput(c.OutOrStdout(), s)
+				listBucketOutput(c.Context(), c.OutOrStdout(), s)
 			})
 		}
 
-		t.Run()
+		t.Run(c.Context())
 		if t.GetFault().HasError() {
 			return t.GetFault()
 		}
@@ -95,18 +96,18 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	t.SetDirLister(lister)
 
 	t.SetFileFunc(func(o *typ.Object) {
-		listFileOutput(c.OutOrStdout(), o)
+		listFileOutput(c.Context(), c.OutOrStdout(), o)
 	})
 	if lsFlag.recursive {
 		t.SetDirFunc(func(o *typ.Object) {
-			listDirFunc(c.OutOrStdout(), t, o)
+			listDirFunc(c.Context(), c.OutOrStdout(), t, o)
 		})
 	} else {
 		t.SetDirFunc(func(o *typ.Object) {
-			listFileOutput(c.OutOrStdout(), o)
+			listFileOutput(c.Context(), c.OutOrStdout(), o)
 		})
 	}
-	t.Run()
+	t.Run(c.Context())
 
 	// but we have to get fault after output, otherwise fault will not be triggered
 	if t.GetFault().HasError() {
@@ -115,17 +116,17 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	return
 }
 
-func listDirFunc(w io.Writer, t *task.ListDirTask, o *typ.Object) {
-	listFileOutput(w, o)
+func listDirFunc(ctx context.Context, w io.Writer, t *task.ListDirTask, o *typ.Object) {
+	listFileOutput(ctx, w, o)
 	st := task.NewListDir(t)
 	st.SetPath(o.Name)
 	st.SetFileFunc(func(oo *typ.Object) {
-		listFileOutput(w, oo)
+		listFileOutput(ctx, w, oo)
 	})
 	st.SetDirFunc(func(oo *typ.Object) {
-		listDirFunc(w, st, oo)
+		listDirFunc(ctx, w, st, oo)
 	})
-	t.GetScheduler().Sync(st)
+	t.GetScheduler().Sync(ctx, st)
 }
 
 func initLsFlag() {
@@ -144,10 +145,14 @@ output on a line before the long listing`))
 }
 
 // listBucketOutput list buckets with normal slice
-func listBucketOutput(w io.Writer, s storage.Storager) {
+func listBucketOutput(ctx context.Context, w io.Writer, s storage.Storager) {
+	logger := log.FromContext(ctx)
 	m, err := s.Metadata()
 	if err != nil {
-		log.Debugf("listBucketOutput failed when get metadata: %v", err)
+		logger.Debug(
+			log.String("action", "get metadata in listBucketOutput"),
+			log.String("err", err.Error()),
+		)
 		i18n.Fprintf(w, "get metadata failed: %v\n", err)
 		return
 	}
@@ -155,14 +160,18 @@ func listBucketOutput(w io.Writer, s storage.Storager) {
 }
 
 // listBucketLongOutput list buckets with long format
-func listBucketLongOutput(w io.Writer, s storage.Storager, t types.SchedulerGetter) {
+func listBucketLongOutput(ctx context.Context, w io.Writer, s storage.Storager, t types.SchedulerGetter) {
+	logger := log.FromContext(ctx)
 	rt := taskutils.NewAtStorageTask(10)
 	rt.SetStorage(s)
 	sst := task.NewStatStorage(rt)
-	t.GetScheduler().Sync(sst)
+	t.GetScheduler().Sync(ctx, sst)
 	m, err := s.Metadata()
 	if err != nil {
-		log.Debugf("listBucketLongOutput failed when get metadata: %v", err)
+		logger.Debug(
+			log.String("action", "get metadata in listBucketLongOutput"),
+			log.String("err", err.Error()),
+		)
 		i18n.Fprintf(w, "get metadata failed: %v\n", err)
 		return
 	}
@@ -173,7 +182,11 @@ func listBucketLongOutput(w io.Writer, s storage.Storager, t types.SchedulerGett
 		if lsFlag.humanReadable {
 			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
 			if err != nil {
-				log.Debugf("parse size <%v> failed [%v]", v, err)
+				logger.Debug(
+					log.String("action", "parse size in listBucketLongOutput"),
+					log.Int("size", v),
+					log.String("err", err.Error()),
+				)
 				i18n.Fprintf(w, "parse size <%v> failed [%v]\n", v, err)
 				return
 			}
@@ -184,7 +197,8 @@ func listBucketLongOutput(w io.Writer, s storage.Storager, t types.SchedulerGett
 	statStorageOutput(w, m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
 }
 
-func listFileOutput(w io.Writer, o *typ.Object) {
+func listFileOutput(ctx context.Context, w io.Writer, o *typ.Object) {
+	logger := log.FromContext(ctx)
 	if !lsFlag.longFormat {
 		i18n.Fprintf(w, "%s\n", o.Name)
 		return
@@ -203,7 +217,12 @@ func listFileOutput(w io.Writer, o *typ.Object) {
 		// if human readable flag true, print size as human readable format
 		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
 		if err != nil {
-			log.Debugf("parse size <%v> failed [%v], key: <%s>", o.Size, err, o.Name)
+			logger.Debug(
+				log.String("action", "parse size in listFileOutput"),
+				log.Int("size", o.Size),
+				log.String("key", o.Name),
+				log.String("err", err.Error()),
+			)
 			i18n.Fprintf(w, "parse size <%v> failed [%v], key: <%s>\n", o.Size, err, o.Name)
 			return
 		}
