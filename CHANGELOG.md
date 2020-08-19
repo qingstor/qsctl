@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] - 2020-08-19
+
+### Added
+
+- cmd/shell: Add support for progress bar in transfer commands (#331)
+- cmd: Support context in commands, support interrupt command in shell (#330)
+- cmd/shell: Add exit command to exit shell
+
+### Fixed
+
+- cmd/shell: Modify initialing bucket list asynchronously to fix shell stuck when init (#322)
+- cmd/stat: Fixed qsctl panic when execute stat command
+
 ## [2.2.0] - 2020-07-30
 
 ### Added
@@ -485,6 +498,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.3.0]: https://github.com/qingstor/qsctl/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/qingstor/qsctl/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/qingstor/qsctl/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/qingstor/qsctl/compare/v2.1.0...v2.1.1
