@@ -34,7 +34,7 @@
   "\"List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R\"": "\"递归地列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix -R\"",
   "\"List objects with prefix: qsctl ls qs://bucket-name/prefix\"": "\"列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix\"",
   "\"Load config failed [%v]\"": "\"加载配置失败 [%v]\"",
-  "\"Location: %s\"": "\"位置：%s\"",
+  "\"Location: %s\"": "\"位置: %s\"",
   "\"Make bucket: qsctl mb bucket-name --zone=zone-name\"": "\"创建桶: qsctl mb bucket-name --zone=zone-name\"",
   "\"Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r\"": "\"移动文件夹中的所有文件: qsctl mv /path/to/folder/ qs://prefix/a/ -r\"",
   "\"Move file: qsctl mv /path/to/file qs://prefix/a\"": "\"移动文件: qsctl mv /path/to/file qs://prefix/a\"",
