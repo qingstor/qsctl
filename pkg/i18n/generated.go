@@ -244,7 +244,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "Dir <%s> moved to <%s>.\n", "文件夹 <%s> 已移动到 <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> removed.\n", "文件夹 <%s> 已删除。\n")
 	_ = message.SetString(tag, "ETag: %s", "ETag: %s")
-	_ = message.SetString(tag, "Execute %s command error: %s\n", "执行 %s 命令错误： %s\n")
+	_ = message.SetString(tag, "Execute %s command error: %s\n", "执行 %s 命令错误: %s\n")
 	_ = message.SetString(tag, "File <%s> copied to <%s>.\n", "文件 <%s> 已复制到 <%s>.\n")
 	_ = message.SetString(tag, "File <%s> moved to <%s>.\n", "文件 <%s> 已移动到 <%s>.\n")
 	_ = message.SetString(tag, "File <%s> removed.\n", "文件 <%s> 已删除。\n")
@@ -256,7 +256,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "List objects with prefix recursively: qsctl ls qs://bucket-name/prefix -R", "递归地列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix -R")
 	_ = message.SetString(tag, "List objects with prefix: qsctl ls qs://bucket-name/prefix", "列出带指定前缀的对象: qsctl ls qs://bucket-name/prefix")
 	_ = message.SetString(tag, "Load config failed [%v]", "加载配置失败 [%v]")
-	_ = message.SetString(tag, "Location: %s", "位置：%s")
+	_ = message.SetString(tag, "Location: %s", "位置: %s")
 	_ = message.SetString(tag, "Make bucket: qsctl mb bucket-name --zone=zone-name", "创建桶: qsctl mb bucket-name --zone=zone-name")
 	_ = message.SetString(tag, "Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r", "移动文件夹中的所有文件: qsctl mv /path/to/folder/ qs://prefix/a/ -r")
 	_ = message.SetString(tag, "Move file: qsctl mv /path/to/file qs://prefix/a", "移动文件: qsctl mv /path/to/file qs://prefix/a")
@@ -298,7 +298,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "flag zone is required, but not found", "参数 zone 是必需的，但没有找到")
 	_ = message.SetString(tag, "forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f", "强制删除一个非空桶: qsctl rb qs://bucket-name -f")
 	_ = message.SetString(tag, "get args failed: %s\n", "获取参数失败: %s\n")
-	_ = message.SetString(tag, "get metadata failed: %v\n", "获取元数据失败： %v\n")
+	_ = message.SetString(tag, "get metadata failed: %v\n", "获取元数据失败: %v\n")
 	_ = message.SetString(tag, "get the pre-signed URL by the object key", "通过对象键获取预签名的 URL")
 	_ = message.SetString(tag, "help for this command", "帮助信息")
 	_ = message.SetString(tag, "in which zone to do the operation", "在哪个区域执行操作")
@@ -312,7 +312,7 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "parse size <%v> failed [%v], key: <%s>\n", "解析大小 <%v> 失败 [%v], 密钥: <%s>\n")
 	_ = message.SetString(tag, "parse size <%v> failed [%v]\n", "解析大小 <%v> 失败 [%v]\n")
 	_ = message.SetString(tag, "path should be a directory while -r is set", "当 -r 参数设置时，路径需要是一个目录")
-	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned", "shell 不支持管道， %v 之后的输入将被抛弃")
+	_ = message.SetString(tag, "pipe not supported in shell, input after %v would be abandoned\n", "shell 不支持管道操作， %v 之后的输入将被抛弃\n")
 	_ = message.SetString(tag, "print logs for debug", "打印调试日志")
 	_ = message.SetString(tag, "qsctl cat can cat a remote object to stdout", "qsctl cat 可以将远程对象内容输出到标准输出")
 	_ = message.SetString(tag, "qsctl cp can copy file/folder/stdin to qingstor or copy qingstor objects to local/stdout", "qsctl cp 可以将文件/文件夹/stdin 复制到 QingStor 对象存储或复制对象到本地/stdout")
@@ -333,11 +333,11 @@ func initZhCN(tag language.Tag) {
 	_ = message.SetString(tag, "the number of seconds until the pre-signed URL expires. Default is 300 seconds", "预签名URL到期前的秒数。默认值为300秒")
 	_ = message.SetString(tag, `
 To execute command, directly type command without "qsctl" at the beginning.
-"Ctrl + D" to exit.
+"Ctrl + D" or input "exit" to exit.
 Version %s
 `, `
-要执行命令，直接键入命令。
-输入组合键 "Ctrl + D" 退出。
+要执行命令，直接键入命令即可，不需要以 "qsctl" 开头。
+输入组合键 "Ctrl + D" 或者 "exit" 命令以退出。
 版本 %s
 `)
 	_ = message.SetString(tag, `expected size of the input file
@@ -351,7 +351,7 @@ output on a line before the long listing`, `输出长格式列表，并且长列
 (only used for input from stdin)`, `在内存中加载的最大内容
 (仅用于标准输入)`)
 	_ = message.SetString(tag, `print size by using unit suffixes: Byte, Kilobyte, Megabyte, Gigabyte, Terabyte and Petabyte,
-in order to reduce the number of digits to three or less using base 2 for sizes`, `打印 object 大小信息，使用如下单位后缀(二进制)：Byte, Kilobyte, Megabyte, Gigabyte, Terabyte 和 Petabyte，
+in order to reduce the number of digits to three or less using base 2 for sizes`, `打印 object 大小信息，使用如下单位后缀(二进制): Byte, Kilobyte, Megabyte, Gigabyte, Terabyte 和 Petabyte，
 并将数字数减少到三个或三个以下的大小显示`)
 	_ = message.SetString(tag, `qsctl ls can list all qingstor buckets or qingstor keys under a prefix.`, `qsctl ls 可以列出所有 Bucket 或者按前缀列出 QingStor 对象。`)
 	_ = message.SetString(tag, `qsctl mb can make a new bucket with the specific name,
@@ -410,16 +410,16 @@ The valid format sequences for buckets:
 	`, `使用指定的 格式化字符串 代替默认格式；
 以下每一行列举一种 格式化字符串 的用法
 
-可用的文件信息的格式化占位符有：
+可用的文件信息的格式化占位符有:
 
 %F   文件类型
 %h   文件内容的 etag 信息
 %n   文件名
 %s   文件大小，单位为字节
-%y   最后一次数据修改的时间，显示为可读格式，例如：2006-01-02 15:04:05 +0000 UTC
+%y   最后一次数据修改的时间，显示为可读格式，例如: 2006-01-02 15:04:05 +0000 UTC
 %Y   最后一次数据修改的时间，显示为 Unix 时间戳，也就是从1970年1月1日起所经历的秒数
 
-可用的桶格式占位符有：
+可用的桶格式占位符有:
 %n 桶名称
 %l 桶位置
 %s 总大小
