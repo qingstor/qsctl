@@ -90,6 +90,10 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return t.GetFault()
 	}
 
+	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+		h.WaitProgress()
+	}
+
 	i18n.Fprintf(c.OutOrStdout(), "Dir <%s> and <%s> synced.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil

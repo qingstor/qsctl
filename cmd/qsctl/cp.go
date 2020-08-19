@@ -102,6 +102,10 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 			return t.GetFault()
 		}
 
+		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+			h.WaitProgress()
+		}
+
 		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> copied to <%s>.\n",
 			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 		return nil
@@ -111,8 +115,13 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	t.SetCheckMD5(cpFlag.checkMD5)
 	t.SetCheckTasks(nil)
 	t.Run(c.Context())
+
 	if t.GetFault().HasError() {
 		return t.GetFault()
+	}
+
+	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
+		h.WaitProgress()
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> copied to <%s>.\n",
