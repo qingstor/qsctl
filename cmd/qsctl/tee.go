@@ -15,6 +15,7 @@ import (
 type teeFlags struct {
 	expectSize string
 	maxMemory  string
+	multipartFlags
 }
 
 var teeFlag = teeFlags{}
@@ -30,8 +31,16 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 	Example: utils.AlignPrintWithColon(
 		i18n.Sprintf("Tee object: qsctl tee qs://prefix/a"),
 	),
-	Args:    cobra.ExactArgs(1),
-	PreRunE: validateTeeFlag,
+	Args: cobra.ExactArgs(1),
+	PreRunE: func(c *cobra.Command, args []string) error {
+		if err := validateTeeFlag(c, args); err != nil {
+			return err
+		}
+		if err := parseTeeFlag(); err != nil {
+			return err
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := teeRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "tee", err.Error())
@@ -52,7 +61,7 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCopyStream(rootTask)
 	t.SetCheckMD5(false)
-	t.SetPartSize(constants.DefaultPartSize)
+	t.SetPartSize(teeFlag.multipartChunkSize)
 	t.Run(c.Context())
 
 	if t.GetFault().HasError() {
@@ -76,6 +85,11 @@ func initTeeFlag() {
 		i18n.Sprintf("maximum content loaded in memory\n"+
 			"(only used for input from stdin)"),
 	)
+	TeeCommand.Flags().StringVar(&teeFlag.multipartChunkSizeStr,
+		constants.MultipartChunksizeFlag,
+		"",
+		i18n.Sprintf("set chunk size of multipart upload"),
+	)
 }
 
 func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
@@ -94,6 +108,19 @@ func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func parseTeeFlag() (err error) {
+	// parse multipart chunk size
+	if teeFlag.multipartChunkSizeStr != "" {
+		teeFlag.multipartChunkSize, err = utils.ParseByteSize(teeFlag.multipartChunkSizeStr)
+		if err != nil {
+			return err
+		}
+	} else {
+		teeFlag.multipartChunkSize = constants.DefaultPartSize
 	}
 	return nil
 }

@@ -111,6 +111,8 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "recursively list subdirectories encountered")
 	_ = message.SetString(tag, "remove a remote object", "remove a remote object")
 	_ = message.SetString(tag, "segment id <%s>, path <%s> removed\n", "segment id <%s>, path <%s> removed\n")
+	_ = message.SetString(tag, "set chunk size of multipart upload", "set chunk size of multipart upload")
+	_ = message.SetString(tag, "set threshold to enable multipart upload", "set threshold to enable multipart upload")
 	_ = message.SetString(tag, "src should be a directory while -r is set", "src should be a directory while -r is set")
 	_ = message.SetString(tag, "start an interactive shell of qsctl", "start an interactive shell of qsctl")
 	_ = message.SetString(tag, "stat a remote object", "stat a remote object")

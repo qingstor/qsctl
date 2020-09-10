@@ -32,3 +32,5 @@ require (
 )
 
 replace github.com/spf13/cobra v1.0.0 => github.com/Prnyself/cobra v1.0.1-0.20200814081545-b584b1cb84aa
+
+replace github.com/qingstor/noah => ../noah

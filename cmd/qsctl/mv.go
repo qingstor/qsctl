@@ -17,6 +17,7 @@ import (
 type mvFlags struct {
 	checkMD5  bool
 	recursive bool
+	multipartFlags
 }
 
 var mvFlag = mvFlags{}
@@ -32,6 +33,12 @@ var MvCommand = &cobra.Command{
 		i18n.Sprintf("Move all files in folder: qsctl mv /path/to/folder/ qs://prefix/a/ -r"),
 	),
 	Args: cobra.ExactArgs(2),
+	PreRunE: func(c *cobra.Command, args []string) error {
+		if err := parseMvFlag(); err != nil {
+			return err
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := mvRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mv", err.Error())
@@ -48,6 +55,16 @@ func initMvFlag() {
 		"r",
 		false,
 		i18n.Sprintf("move directory recursively"))
+	MvCommand.Flags().StringVar(&mvFlag.multipartThresholdStr,
+		constants.MultipartThresholdFlag,
+		"",
+		i18n.Sprintf("set threshold to enable multipart upload"),
+	)
+	MvCommand.Flags().StringVar(&mvFlag.multipartChunkSizeStr,
+		constants.MultipartChunksizeFlag,
+		"",
+		i18n.Sprintf("set chunk size of multipart upload"),
+	)
 }
 
 func mvRun(c *cobra.Command, args []string) (err error) {
@@ -77,6 +94,10 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
 		})
 		t.SetCheckMD5(mvFlag.checkMD5)
+		t.SetPartThreshold(mvFlag.multipartThreshold)
+		if mvFlag.multipartChunkSize != 0 {
+			t.SetPartSize(mvFlag.multipartChunkSize)
+		}
 		t.Run(c.Context())
 
 		if t.GetFault().HasError() {
@@ -94,6 +115,10 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewMoveFile(rootTask)
 	t.SetCheckMD5(mvFlag.checkMD5)
+	t.SetPartThreshold(mvFlag.multipartThreshold)
+	if mvFlag.multipartChunkSize != 0 {
+		t.SetPartSize(mvFlag.multipartChunkSize)
+	}
 	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
@@ -106,4 +131,26 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> moved to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
+}
+
+func parseMvFlag() (err error) {
+	// parse multipart chunk size
+	if mvFlag.multipartChunkSizeStr != "" {
+		// do not set chunk size default value, we need to check it when task init
+		mvFlag.multipartChunkSize, err = utils.ParseByteSize(mvFlag.multipartChunkSizeStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse multipart threshold
+	if mvFlag.multipartThresholdStr == "" {
+		mvFlag.multipartThreshold = constants.MaximumAutoMultipartSize
+	} else {
+		mvFlag.multipartThreshold, err = utils.ParseByteSize(mvFlag.multipartThresholdStr)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
