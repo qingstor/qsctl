@@ -61,7 +61,7 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCopyStream(rootTask)
 	t.SetCheckMD5(false)
-	t.SetPartSize(teeFlag.multipartChunkSize)
+	t.SetPartSize(teeFlag.partSize)
 	t.Run(c.Context())
 
 	if t.GetFault().HasError() {
@@ -85,8 +85,8 @@ func initTeeFlag() {
 		i18n.Sprintf("maximum content loaded in memory\n"+
 			"(only used for input from stdin)"),
 	)
-	TeeCommand.Flags().StringVar(&teeFlag.multipartChunkSizeStr,
-		constants.MultipartChunksizeFlag,
+	TeeCommand.Flags().StringVar(&teeFlag.partSizeStr,
+		constants.PartsizeFlag,
 		"",
 		i18n.Sprintf("set chunk size of multipart upload"),
 	)
@@ -114,13 +114,13 @@ func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
 
 func parseTeeFlag() (err error) {
 	// parse multipart chunk size
-	if teeFlag.multipartChunkSizeStr != "" {
-		teeFlag.multipartChunkSize, err = utils.ParseByteSize(teeFlag.multipartChunkSizeStr)
+	if teeFlag.partSizeStr != "" {
+		teeFlag.partSize, err = utils.ParseByteSize(teeFlag.partSizeStr)
 		if err != nil {
 			return err
 		}
 	} else {
-		teeFlag.multipartChunkSize = constants.DefaultPartSize
+		teeFlag.partSize = constants.DefaultPartSize
 	}
 	return nil
 }

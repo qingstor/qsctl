@@ -60,8 +60,8 @@ func initMvFlag() {
 		"",
 		i18n.Sprintf("set threshold to enable multipart upload"),
 	)
-	MvCommand.Flags().StringVar(&mvFlag.multipartChunkSizeStr,
-		constants.MultipartChunksizeFlag,
+	MvCommand.Flags().StringVar(&mvFlag.partSizeStr,
+		constants.PartsizeFlag,
 		"",
 		i18n.Sprintf("set chunk size of multipart upload"),
 	)
@@ -95,8 +95,8 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		})
 		t.SetCheckMD5(mvFlag.checkMD5)
 		t.SetPartThreshold(mvFlag.multipartThreshold)
-		if mvFlag.multipartChunkSize != 0 {
-			t.SetPartSize(mvFlag.multipartChunkSize)
+		if mvFlag.partSize != 0 {
+			t.SetPartSize(mvFlag.partSize)
 		}
 		t.Run(c.Context())
 
@@ -116,8 +116,8 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewMoveFile(rootTask)
 	t.SetCheckMD5(mvFlag.checkMD5)
 	t.SetPartThreshold(mvFlag.multipartThreshold)
-	if mvFlag.multipartChunkSize != 0 {
-		t.SetPartSize(mvFlag.multipartChunkSize)
+	if mvFlag.partSize != 0 {
+		t.SetPartSize(mvFlag.partSize)
 	}
 	t.Run(c.Context())
 	if t.GetFault().HasError() {
@@ -135,9 +135,9 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 
 func parseMvFlag() (err error) {
 	// parse multipart chunk size
-	if mvFlag.multipartChunkSizeStr != "" {
+	if mvFlag.partSizeStr != "" {
 		// do not set chunk size default value, we need to check it when task init
-		mvFlag.multipartChunkSize, err = utils.ParseByteSize(mvFlag.multipartChunkSizeStr)
+		mvFlag.partSize, err = utils.ParseByteSize(mvFlag.partSizeStr)
 		if err != nil {
 			return err
 		}

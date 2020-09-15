@@ -33,8 +33,8 @@ type globalFlags struct {
 type multipartFlags struct {
 	multipartThresholdStr string
 	multipartThreshold    int64
-	multipartChunkSizeStr string
-	multipartChunkSize    int64
+	partSizeStr           string
+	partSize              int64
 }
 
 // rootCmd is the main command of qsctl

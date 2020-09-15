@@ -78,8 +78,8 @@ accept: 100MB, 1.8G
 		"",
 		i18n.Sprintf("set threshold to enable multipart upload"),
 	)
-	CpCommand.Flags().StringVar(&cpFlag.multipartChunkSizeStr,
-		constants.MultipartChunksizeFlag,
+	CpCommand.Flags().StringVar(&cpFlag.partSizeStr,
+		constants.PartsizeFlag,
 		"",
 		i18n.Sprintf("set chunk size of multipart upload"),
 	)
@@ -110,8 +110,8 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckMD5(cpFlag.checkMD5)
 		t.SetPartThreshold(cpFlag.multipartThreshold)
-		if cpFlag.multipartChunkSize != 0 {
-			t.SetPartSize(cpFlag.multipartChunkSize)
+		if cpFlag.partSize != 0 {
+			t.SetPartSize(cpFlag.partSize)
 		}
 		t.SetHandleObjCallback(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> copied\n", o.Name)
@@ -135,8 +135,8 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewCopyFile(rootTask)
 	t.SetCheckMD5(cpFlag.checkMD5)
 	t.SetPartThreshold(cpFlag.multipartThreshold)
-	if cpFlag.multipartChunkSize != 0 {
-		t.SetPartSize(cpFlag.multipartChunkSize)
+	if cpFlag.partSize != 0 {
+		t.SetPartSize(cpFlag.partSize)
 	}
 	t.SetCheckTasks(nil)
 	t.Run(c.Context())
@@ -156,9 +156,9 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 
 func parseCpFlag() (err error) {
 	// parse multipart chunk size
-	if cpFlag.multipartChunkSizeStr != "" {
+	if cpFlag.partSizeStr != "" {
 		// do not set chunk size default value, we need to check it when task init
-		cpFlag.multipartChunkSize, err = utils.ParseByteSize(cpFlag.multipartChunkSizeStr)
+		cpFlag.partSize, err = utils.ParseByteSize(cpFlag.partSizeStr)
 		if err != nil {
 			return err
 		}

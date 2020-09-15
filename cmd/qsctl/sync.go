@@ -81,8 +81,8 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	t.SetRecursive(syncFlag.recursive)
 	t.SetUpdate(syncFlag.update)
 	t.SetPartThreshold(syncFlag.multipartThreshold)
-	if syncFlag.multipartChunkSize != 0 {
-		t.SetPartSize(syncFlag.multipartChunkSize)
+	if syncFlag.partSize != 0 {
+		t.SetPartSize(syncFlag.partSize)
 	}
 	if syncFlag.dryRun {
 		t.SetDryRunFunc(func(o *types.Object) {
@@ -124,7 +124,7 @@ func initSyncFlag() {
 		i18n.Sprintf(`skip files that are newer in dest dirs`))
 	SyncCommand.Flags().StringVar(&syncFlag.multipartThresholdStr, constants.MultipartThresholdFlag, "",
 		i18n.Sprintf("set threshold to enable multipart upload"))
-	SyncCommand.Flags().StringVar(&syncFlag.multipartChunkSizeStr, constants.MultipartChunksizeFlag, "",
+	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartsizeFlag, "",
 		i18n.Sprintf("set chunk size of multipart upload"))
 }
 
@@ -137,9 +137,9 @@ func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {
 
 func parseSyncFlag() (err error) {
 	// parse multipart chunk size
-	if syncFlag.multipartChunkSizeStr != "" {
+	if syncFlag.partSizeStr != "" {
 		// do not set chunk size default value, we need to check it when task init
-		syncFlag.multipartChunkSize, err = utils.ParseByteSize(syncFlag.multipartChunkSizeStr)
+		syncFlag.partSize, err = utils.ParseByteSize(syncFlag.partSizeStr)
 		if err != nil {
 			return err
 		}
