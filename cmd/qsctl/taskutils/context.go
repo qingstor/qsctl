@@ -13,7 +13,7 @@ func ContextWithHandler(ctx context.Context, handler *PbHandler) context.Context
 	if handler == nil {
 		return ctx
 	}
-	return context.WithValue(ctx, ctx, handler)
+	return context.WithValue(ctx, ctxKey, handler)
 }
 
 // HandlerFromContext get handler from ctx, if not exist, return nil
