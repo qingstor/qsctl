@@ -303,6 +303,9 @@ github.com/qingstor/go-mime v0.1.0 h1:FhTJtM7TRm9pfgCXpjGUxqwbumGojrgE9ecRz5PXvf
 github.com/qingstor/go-mime v0.1.0/go.mod h1:EDwWgaMufg74m7futsF0ZGkdA52ajjAycY+XDeV8M88=
 github.com/qingstor/log v0.0.0-20200804082313-615256cccabc h1:633tgwvkk8O26HZD/upVtDzWcrMoCiffZAVDtEtFW9E=
 github.com/qingstor/log v0.0.0-20200804082313-615256cccabc/go.mod h1:XfNhERXtkg/S9MWaMOk/m7mrmj4vcWDvhw17hmH4JGQ=
+github.com/qingstor/noah v0.0.0-20200818065357-d4fb9f0815ce/go.mod h1:M2Bgr1pvu8inz14qDYba3yemzCIr43Q52P85z+FKxtw=
+github.com/qingstor/noah v0.0.0-20200914035210-84436afcd494 h1:wXs5GE5ADM+WT3OAcIs5Ullrny4llW1Y/mGrmvm4AzE=
+github.com/qingstor/noah v0.0.0-20200914035210-84436afcd494/go.mod h1:M2Bgr1pvu8inz14qDYba3yemzCIr43Q52P85z+FKxtw=
 github.com/qingstor/qingstor-sdk-go/v4 v4.0.0 h1:9j+4MhIxhZr3bHkYhVfAVjvsvtwI0I6gB5Xsx6XMPNs=
 github.com/qingstor/qingstor-sdk-go/v4 v4.0.0/go.mod h1:WM7DpsJxaOLCAX1K7R4KOBvzEpM4gfAjyN45IIV6rZ0=
 github.com/qingstor/qingstor-sdk-go/v4 v4.1.0 h1:0cMf+xHbT+1IeXtVEWnBMZcWoNyU8GQvcmpClho6vww=
