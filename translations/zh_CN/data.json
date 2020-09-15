@@ -103,6 +103,8 @@
   "\"recursively list subdirectories encountered\"": "\"递归列出遇到的子目录\"",
   "\"remove a remote object\"": "\"删除远程对象\"",
   "\"segment id <%s>, path <%s> removed\\n\"": "\"ID <%s>, 路径 <%s> 的分段已删除\\n\"",
+  "\"set part size for multipart upload\"": "\"set part size for multipart upload\"",
+  "\"set threshold to enable multipart upload\"": "\"set threshold to enable multipart upload\"",
   "\"src should be a directory while -r is set\"": "\"当 -r 参数设置时，源路径需要是一个目录\"",
   "\"start an interactive shell of qsctl\"": "\"启动一个 qsctl 的交互式 shell\"",
   "\"stat a remote object\"": "\"查看远程对象的信息\"",
