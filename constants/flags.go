@@ -6,6 +6,8 @@ const (
 	BenchFlag = "bench"
 	// DeleteFlag represents the flag delete
 	DeleteFlag = "delete"
+	// DryRunFlag represents the flag dry-run
+	DryRunFlag = "dry-run"
 	// ExistingFlag represents the flag existing
 	ExistingFlag = "existing"
 	// ExpectSizeFlag represents the flag expect-size
@@ -18,12 +20,18 @@ const (
 	FormatFlag = "format"
 	// HumanReadableFlag represents the flag human-readable
 	HumanReadableFlag = "human-readable"
+	// IgnoreExistingFlag represents the flag ignore-existing
+	IgnoreExistingFlag = "ignore-existing"
 	// LongFormatFlag represents the flag long-format
 	LongFormatFlag = "long-format"
 	// MaximumMemoryContentFlag represents the flag maximum-memory-content
 	MaximumMemoryContentFlag = "maximum-memory-content"
 	// NoProgressFlag represents the flag no-progress
 	NoProgressFlag = "no-progress"
+	// PartThresholdFlag represents the flag part-threshold
+	PartThresholdFlag = "part-threshold"
+	// PartSizeFlag represents the flag part-size
+	PartSizeFlag = "part-size"
 	// RecursiveFlag represents the flag recursive
 	RecursiveFlag = "recursive"
 	// ReverseFlag represents the flag reverse

@@ -19,6 +19,7 @@ type cpFlags struct {
 	expectSize           string
 	maximumMemoryContent string
 	recursive            bool
+	multipartFlags
 }
 
 var cpFlag = cpFlags{}
@@ -36,6 +37,12 @@ var CpCommand = &cobra.Command{
 		i18n.Sprintf("Write to stdout: qsctl cp qs://prefix/b - > /path/to/file"),
 	),
 	Args: cobra.ExactArgs(2),
+	PreRunE: func(c *cobra.Command, args []string) error {
+		if err := parseCpFlag(); err != nil {
+			return err
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cpRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "cp", err.Error())
@@ -66,6 +73,16 @@ accept: 100MB, 1.8G
 		false,
 		i18n.Sprintf("copy directory recursively"),
 	)
+	CpCommand.Flags().StringVar(&cpFlag.partThresholdStr,
+		constants.PartThresholdFlag,
+		"",
+		i18n.Sprintf("set threshold to enable multipart upload"),
+	)
+	CpCommand.Flags().StringVar(&cpFlag.partSizeStr,
+		constants.PartSizeFlag,
+		"",
+		i18n.Sprintf("set part size for multipart upload"),
+	)
 }
 
 func cpRun(c *cobra.Command, args []string) (err error) {
@@ -92,6 +109,10 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	if cpFlag.recursive {
 		t := task.NewCopyDir(rootTask)
 		t.SetCheckMD5(cpFlag.checkMD5)
+		t.SetPartThreshold(cpFlag.partThreshold)
+		if cpFlag.partSize != 0 {
+			t.SetPartSize(cpFlag.partSize)
+		}
 		t.SetHandleObjCallback(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> copied\n", o.Name)
 		})
@@ -113,6 +134,10 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewCopyFile(rootTask)
 	t.SetCheckMD5(cpFlag.checkMD5)
+	t.SetPartThreshold(cpFlag.partThreshold)
+	if cpFlag.partSize != 0 {
+		t.SetPartSize(cpFlag.partSize)
+	}
 	t.SetCheckTasks(nil)
 	t.Run(c.Context())
 
@@ -127,4 +152,26 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> copied to <%s>.\n",
 		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return
+}
+
+func parseCpFlag() (err error) {
+	// parse multipart chunk size
+	if cpFlag.partSizeStr != "" {
+		// do not set chunk size default value, we need to check it when task init
+		cpFlag.partSize, err = utils.ParseByteSize(cpFlag.partSizeStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse multipart partThreshold
+	if cpFlag.partThresholdStr == "" {
+		cpFlag.partThreshold = constants.MaximumAutoMultipartSize
+	} else {
+		cpFlag.partThreshold, err = utils.ParseByteSize(cpFlag.partThresholdStr)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

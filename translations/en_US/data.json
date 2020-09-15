@@ -103,6 +103,8 @@
   "\"recursively list subdirectories encountered\"": "\"recursively list subdirectories encountered\"",
   "\"remove a remote object\"": "\"remove a remote object\"",
   "\"segment id \u003c%s\u003e, path \u003c%s\u003e removed\\n\"": "\"segment id \u003c%s\u003e, path \u003c%s\u003e removed\\n\"",
+  "\"set part size for multipart upload\"": "\"set part size for multipart upload\"",
+  "\"set threshold to enable multipart upload\"": "\"set threshold to enable multipart upload\"",
   "\"src should be a directory while -r is set\"": "\"src should be a directory while -r is set\"",
   "\"start an interactive shell of qsctl\"": "\"start an interactive shell of qsctl\"",
   "\"stat a remote object\"": "\"stat a remote object\"",

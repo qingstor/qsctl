@@ -29,6 +29,14 @@ type globalFlags struct {
 	zone string
 }
 
+// multipartFlags embedded in flags which call multipart upload
+type multipartFlags struct {
+	partThresholdStr string
+	partThreshold    int64
+	partSizeStr      string
+	partSize         int64
+}
+
 // rootCmd is the main command of qsctl
 var rootCmd = &cobra.Command{
 	Use:     constants.Name,
@@ -141,7 +149,7 @@ func initGlobalFlag() {
 	rootCmd.PersistentFlags().StringVarP(&globalFlag.configPath, "config", "c",
 		"", i18n.Sprintf("assign config path manually"))
 	// Add zone flag which can be used in all sub commands.
-	rootCmd.PersistentFlags().StringVarP(&globalFlag.zone, constants.ConfigZone, "z",
+	rootCmd.PersistentFlags().StringVarP(&globalFlag.zone, constants.ZoneFlag, "z",
 		"", i18n.Sprintf("in which zone to do the operation"))
 	// Add config flag which can be used in all sub commands.
 	rootCmd.PersistentFlags().BoolVar(&globalFlag.bench, constants.BenchFlag,

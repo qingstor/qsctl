@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
+	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
@@ -20,6 +21,7 @@ type syncFlags struct {
 	ignoreExisting bool
 	recursive      bool
 	update         bool
+	multipartFlags
 }
 
 var syncFlag = syncFlags{}
@@ -40,6 +42,15 @@ is the source directory and second the destination directory.`),
 		i18n.Sprintf("Show files that would sync (but not really do): qsctl sync . qs://bucket-name/dir/ --dry-run"),
 	),
 	Args: cobra.ExactArgs(2),
+	PreRunE: func(c *cobra.Command, args []string) error {
+		if err := validateSyncFlag(c, args); err != nil {
+			return err
+		}
+		if err := parseSyncFlag(); err != nil {
+			return err
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := syncRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "sync", err.Error())
@@ -62,10 +73,6 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("both source and destination should be directories"))
 	}
 
-	if syncFlag.existing && syncFlag.ignoreExisting {
-		return fmt.Errorf(i18n.Sprintf("both --existing and --ignore-existing are set, no files would be synced"))
-	}
-
 	t := task.NewSync(rootTask)
 	t.SetDryRun(syncFlag.dryRun)
 	t.SetExisting(syncFlag.existing)
@@ -73,6 +80,10 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	t.SetCheckMD5(syncFlag.checkMD5)
 	t.SetRecursive(syncFlag.recursive)
 	t.SetUpdate(syncFlag.update)
+	t.SetPartThreshold(syncFlag.partThreshold)
+	if syncFlag.partSize != 0 {
+		t.SetPartSize(syncFlag.partSize)
+	}
 	if syncFlag.dryRun {
 		t.SetDryRunFunc(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
@@ -101,15 +112,47 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 }
 
 func initSyncFlag() {
-	SyncCommand.Flags().BoolVarP(&syncFlag.dryRun, "dry-run", "n", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.dryRun, constants.DryRunFlag, "n", false,
 		i18n.Sprintf(`show what would have been transferred`))
-	SyncCommand.Flags().BoolVar(&syncFlag.existing, "existing", false,
+	SyncCommand.Flags().BoolVar(&syncFlag.existing, constants.ExistingFlag, false,
 		i18n.Sprintf(`skip creating new files in dest dirs`))
-	SyncCommand.Flags().BoolVar(&syncFlag.ignoreExisting, "ignore-existing", false,
+	SyncCommand.Flags().BoolVar(&syncFlag.ignoreExisting, constants.IgnoreExistingFlag, false,
 		i18n.Sprintf(`skip updating files in dest dirs, only copy those not exist`))
-	SyncCommand.Flags().BoolVarP(&syncFlag.recursive, "recursive", "r", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.recursive, constants.RecursiveFlag, "r", false,
 		i18n.Sprintf(`recurse into sub directories`))
-	SyncCommand.Flags().BoolVarP(&syncFlag.update, "update", "u", false,
+	SyncCommand.Flags().BoolVarP(&syncFlag.update, constants.UpdateFlag, "u", false,
 		i18n.Sprintf(`skip files that are newer in dest dirs`))
+	SyncCommand.Flags().StringVar(&syncFlag.partThresholdStr, constants.PartThresholdFlag, "",
+		i18n.Sprintf("set threshold to enable multipart upload"))
+	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartSizeFlag, "",
+		i18n.Sprintf("set part size for multipart upload"))
+}
 
+func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {
+	if syncFlag.existing && syncFlag.ignoreExisting {
+		return fmt.Errorf(i18n.Sprintf("both --existing and --ignore-existing are set, no files would be synced"))
+	}
+	return nil
+}
+
+func parseSyncFlag() (err error) {
+	// parse multipart chunk size
+	if syncFlag.partSizeStr != "" {
+		// do not set chunk size default value, we need to check it when task init
+		syncFlag.partSize, err = utils.ParseByteSize(syncFlag.partSizeStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse multipart partThreshold
+	if syncFlag.partThresholdStr == "" {
+		syncFlag.partThreshold = constants.MaximumAutoMultipartSize
+	} else {
+		syncFlag.partThreshold, err = utils.ParseByteSize(syncFlag.partThresholdStr)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
