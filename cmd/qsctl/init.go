@@ -31,10 +31,10 @@ type globalFlags struct {
 
 // multipartFlags embedded in flags which call multipart upload
 type multipartFlags struct {
-	multipartThresholdStr string
-	multipartThreshold    int64
-	partSizeStr           string
-	partSize              int64
+	partThresholdStr string
+	partThreshold    int64
+	partSizeStr      string
+	partSize         int64
 }
 
 // rootCmd is the main command of qsctl

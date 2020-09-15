@@ -55,13 +55,13 @@ func initMvFlag() {
 		"r",
 		false,
 		i18n.Sprintf("move directory recursively"))
-	MvCommand.Flags().StringVar(&mvFlag.multipartThresholdStr,
-		constants.MultipartThresholdFlag,
+	MvCommand.Flags().StringVar(&mvFlag.partThresholdStr,
+		constants.PartThresholdFlag,
 		"",
 		i18n.Sprintf("set threshold to enable multipart upload"),
 	)
 	MvCommand.Flags().StringVar(&mvFlag.partSizeStr,
-		constants.PartsizeFlag,
+		constants.PartSizeFlag,
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
 	)
@@ -94,7 +94,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
 		})
 		t.SetCheckMD5(mvFlag.checkMD5)
-		t.SetPartThreshold(mvFlag.multipartThreshold)
+		t.SetPartThreshold(mvFlag.partThreshold)
 		if mvFlag.partSize != 0 {
 			t.SetPartSize(mvFlag.partSize)
 		}
@@ -115,7 +115,7 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewMoveFile(rootTask)
 	t.SetCheckMD5(mvFlag.checkMD5)
-	t.SetPartThreshold(mvFlag.multipartThreshold)
+	t.SetPartThreshold(mvFlag.partThreshold)
 	if mvFlag.partSize != 0 {
 		t.SetPartSize(mvFlag.partSize)
 	}
@@ -143,11 +143,11 @@ func parseMvFlag() (err error) {
 		}
 	}
 
-	// parse multipart threshold
-	if mvFlag.multipartThresholdStr == "" {
-		mvFlag.multipartThreshold = constants.MaximumAutoMultipartSize
+	// parse multipart partThreshold
+	if mvFlag.partThresholdStr == "" {
+		mvFlag.partThreshold = constants.MaximumAutoMultipartSize
 	} else {
-		mvFlag.multipartThreshold, err = utils.ParseByteSize(mvFlag.multipartThresholdStr)
+		mvFlag.partThreshold, err = utils.ParseByteSize(mvFlag.partThresholdStr)
 		if err != nil {
 			return err
 		}

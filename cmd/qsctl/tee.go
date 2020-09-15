@@ -86,7 +86,7 @@ func initTeeFlag() {
 			"(only used for input from stdin)"),
 	)
 	TeeCommand.Flags().StringVar(&teeFlag.partSizeStr,
-		constants.PartsizeFlag,
+		constants.PartSizeFlag,
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
 	)

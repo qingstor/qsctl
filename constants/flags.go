@@ -26,12 +26,12 @@ const (
 	LongFormatFlag = "long-format"
 	// MaximumMemoryContentFlag represents the flag maximum-memory-content
 	MaximumMemoryContentFlag = "maximum-memory-content"
-	// MultipartThresholdFlag represents the flag multipart-threshold
-	MultipartThresholdFlag = "multipart-threshold"
 	// NoProgressFlag represents the flag no-progress
 	NoProgressFlag = "no-progress"
-	// PartsizeFlag represents the flag partsize
-	PartsizeFlag = "partsize"
+	// PartThresholdFlag represents the flag part-threshold
+	PartThresholdFlag = "part-threshold"
+	// PartSizeFlag represents the flag part-size
+	PartSizeFlag = "part-size"
 	// RecursiveFlag represents the flag recursive
 	RecursiveFlag = "recursive"
 	// ReverseFlag represents the flag reverse

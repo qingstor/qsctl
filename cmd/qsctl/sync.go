@@ -80,7 +80,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	t.SetCheckMD5(syncFlag.checkMD5)
 	t.SetRecursive(syncFlag.recursive)
 	t.SetUpdate(syncFlag.update)
-	t.SetPartThreshold(syncFlag.multipartThreshold)
+	t.SetPartThreshold(syncFlag.partThreshold)
 	if syncFlag.partSize != 0 {
 		t.SetPartSize(syncFlag.partSize)
 	}
@@ -122,9 +122,9 @@ func initSyncFlag() {
 		i18n.Sprintf(`recurse into sub directories`))
 	SyncCommand.Flags().BoolVarP(&syncFlag.update, constants.UpdateFlag, "u", false,
 		i18n.Sprintf(`skip files that are newer in dest dirs`))
-	SyncCommand.Flags().StringVar(&syncFlag.multipartThresholdStr, constants.MultipartThresholdFlag, "",
+	SyncCommand.Flags().StringVar(&syncFlag.partThresholdStr, constants.PartThresholdFlag, "",
 		i18n.Sprintf("set threshold to enable multipart upload"))
-	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartsizeFlag, "",
+	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartSizeFlag, "",
 		i18n.Sprintf("set part size for multipart upload"))
 }
 
@@ -145,11 +145,11 @@ func parseSyncFlag() (err error) {
 		}
 	}
 
-	// parse multipart threshold
-	if syncFlag.multipartThresholdStr == "" {
-		syncFlag.multipartThreshold = constants.MaximumAutoMultipartSize
+	// parse multipart partThreshold
+	if syncFlag.partThresholdStr == "" {
+		syncFlag.partThreshold = constants.MaximumAutoMultipartSize
 	} else {
-		syncFlag.multipartThreshold, err = utils.ParseByteSize(syncFlag.multipartThresholdStr)
+		syncFlag.partThreshold, err = utils.ParseByteSize(syncFlag.partThresholdStr)
 		if err != nil {
 			return err
 		}
