@@ -125,7 +125,7 @@ func initSyncFlag() {
 	SyncCommand.Flags().StringVar(&syncFlag.multipartThresholdStr, constants.MultipartThresholdFlag, "",
 		i18n.Sprintf("set threshold to enable multipart upload"))
 	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartsizeFlag, "",
-		i18n.Sprintf("set chunk size of multipart upload"))
+		i18n.Sprintf("set part size for multipart upload"))
 }
 
 func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {

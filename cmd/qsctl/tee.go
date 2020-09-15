@@ -88,7 +88,7 @@ func initTeeFlag() {
 	TeeCommand.Flags().StringVar(&teeFlag.partSizeStr,
 		constants.PartsizeFlag,
 		"",
-		i18n.Sprintf("set chunk size of multipart upload"),
+		i18n.Sprintf("set part size for multipart upload"),
 	)
 }
 
