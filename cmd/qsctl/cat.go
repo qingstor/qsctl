@@ -35,6 +35,8 @@ func catRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewCopyFile(rootTask)
 	t.SetCheckMD5(false)
 	t.SetCheckTasks(nil)
+	// cat copy file into local fs, always call CopySmallFile, just set threshold any value to pass validate check
+	t.SetPartThreshold(0)
 	t.Run(c.Context())
 	if t.GetFault().HasError() {
 		return t.GetFault()
