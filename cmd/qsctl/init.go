@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"regexp"
 
 	"github.com/qingstor/log"
 	"github.com/spf13/cobra"
@@ -11,6 +12,7 @@ import (
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/internal/pkg/ilog"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 //go:generate go run ../../internal/cmd/generator/i18nextract
@@ -35,6 +37,14 @@ type multipartFlags struct {
 	partThreshold    int64
 	partSizeStr      string
 	partSize         int64
+}
+
+// inExcludeFlags embedded in flags which use include and exclude regexps
+type inExcludeFlags struct {
+	includeRegxStr string
+	includeRegx    *regexp.Regexp
+	excludeRegxStr string
+	excludeRegx    *regexp.Regexp
 }
 
 // rootCmd is the main command of qsctl
@@ -173,4 +183,48 @@ func configuredByEnv() bool {
 // to avoid flags from last call is still working
 func resetGlobalFlags() {
 	globalFlag = globalFlags{}
+}
+
+// parse multipart flags
+func (f *multipartFlags) parse() (err error) {
+	// parse multipart chunk size
+	if f.partSizeStr != "" {
+		// do not set chunk size default value, we need to check it when task init
+		f.partSize, err = utils.ParseByteSize(f.partSizeStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse multipart partThreshold
+	if f.partThresholdStr == "" {
+		f.partThreshold = constants.MaximumAutoMultipartSize
+	} else {
+		f.partThreshold, err = utils.ParseByteSize(f.partThresholdStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// parse include and exclude flags
+func (f *inExcludeFlags) parse() (err error) {
+	// parse exclude regexp
+	if f.excludeRegxStr != "" {
+		f.excludeRegx, err = regexp.Compile(f.excludeRegxStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse include regexp
+	if f.includeRegxStr != "" {
+		f.includeRegx, err = regexp.Compile(f.includeRegxStr)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

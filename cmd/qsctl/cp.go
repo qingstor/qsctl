@@ -154,24 +154,9 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	return
 }
 
-func parseCpFlag() (err error) {
-	// parse multipart chunk size
-	if cpFlag.partSizeStr != "" {
-		// do not set chunk size default value, we need to check it when task init
-		cpFlag.partSize, err = utils.ParseByteSize(cpFlag.partSizeStr)
-		if err != nil {
-			return err
-		}
-	}
-
-	// parse multipart partThreshold
-	if cpFlag.partThresholdStr == "" {
-		cpFlag.partThreshold = constants.MaximumAutoMultipartSize
-	} else {
-		cpFlag.partThreshold, err = utils.ParseByteSize(cpFlag.partThresholdStr)
-		if err != nil {
-			return err
-		}
+func parseCpFlag() error {
+	if err := cpFlag.multipartFlags.parse(); err != nil {
+		return err
 	}
 	return nil
 }

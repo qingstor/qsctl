@@ -19,7 +19,7 @@ require (
 	github.com/mattn/go-tty v0.0.3 // indirect
 	github.com/pkg/term v0.0.0-20200520122047-c3ffed290a03 // indirect
 	github.com/qingstor/log v0.0.0-20200804082313-615256cccabc
-	github.com/qingstor/noah v0.0.0-20200914035210-84436afcd494
+	github.com/qingstor/noah v0.0.0-20200916093414-ebb25e7b1b33
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5

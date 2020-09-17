@@ -113,7 +113,7 @@ func validateTeeFlag(_ *cobra.Command, _ []string) (err error) {
 }
 
 func parseTeeFlag() (err error) {
-	// parse multipart chunk size
+	// tee cmd needs default part size, so do not call parse() method
 	if teeFlag.partSizeStr != "" {
 		teeFlag.partSize, err = utils.ParseByteSize(teeFlag.partSizeStr)
 		if err != nil {
