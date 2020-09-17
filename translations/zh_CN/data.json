@@ -101,6 +101,8 @@
   "\"qsctl stat show the detailed info of this object\"": "\"qsctl stat 将显示此对象的详细信息\"",
   "\"recursively delete keys under a specific prefix\"": "\"递归删除指定前缀下的对象\"",
   "\"recursively list subdirectories encountered\"": "\"递归列出遇到的子目录\"",
+  "\"regular expression for files to exclude\"": "\"regular expression for files to exclude\"",
+  "\"regular expression for files to include (not work if exclude-regx not set)\"": "\"regular expression for files to include (not work if exclude-regx not set)\"",
   "\"remove a remote object\"": "\"删除远程对象\"",
   "\"segment id <%s>, path <%s> removed\\n\"": "\"ID <%s>, 路径 <%s> 的分段已删除\\n\"",
   "\"set part size for multipart upload\"": "\"设置分段上传的片段大小\"",
