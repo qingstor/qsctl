@@ -133,24 +133,9 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	return
 }
 
-func parseMvFlag() (err error) {
-	// parse multipart chunk size
-	if mvFlag.partSizeStr != "" {
-		// do not set chunk size default value, we need to check it when task init
-		mvFlag.partSize, err = utils.ParseByteSize(mvFlag.partSizeStr)
-		if err != nil {
-			return err
-		}
-	}
-
-	// parse multipart partThreshold
-	if mvFlag.partThresholdStr == "" {
-		mvFlag.partThreshold = constants.MaximumAutoMultipartSize
-	} else {
-		mvFlag.partThreshold, err = utils.ParseByteSize(mvFlag.partThresholdStr)
-		if err != nil {
-			return err
-		}
+func parseMvFlag() error {
+	if err := mvFlag.multipartFlags.parse(); err != nil {
+		return err
 	}
 	return nil
 }

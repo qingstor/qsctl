@@ -12,6 +12,7 @@ import (
 	"github.com/qingstor/qsctl/v2/constants"
 	"github.com/qingstor/qsctl/v2/internal/pkg/ilog"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
+	"github.com/qingstor/qsctl/v2/utils"
 )
 
 //go:generate go run ../../internal/cmd/generator/i18nextract
@@ -182,6 +183,30 @@ func configuredByEnv() bool {
 // to avoid flags from last call is still working
 func resetGlobalFlags() {
 	globalFlag = globalFlags{}
+}
+
+// parse multipart flags
+func (f *multipartFlags) parse() (err error) {
+	// parse multipart chunk size
+	if f.partSizeStr != "" {
+		// do not set chunk size default value, we need to check it when task init
+		f.partSize, err = utils.ParseByteSize(f.partSizeStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse multipart partThreshold
+	if f.partThresholdStr == "" {
+		f.partThreshold = constants.MaximumAutoMultipartSize
+	} else {
+		f.partThreshold, err = utils.ParseByteSize(f.partThresholdStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // parse include and exclude flags

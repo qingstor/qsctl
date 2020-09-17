@@ -159,19 +159,13 @@ func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {
 	return nil
 }
 
-func parseSyncFlag() (err error) {
-	// parse multipart chunk size
-	if syncFlag.partSizeStr != "" {
-		// do not set chunk size default value, we need to check it when task init
-		syncFlag.partSize, err = utils.ParseByteSize(syncFlag.partSizeStr)
-		if err != nil {
-			return err
-		}
+func parseSyncFlag() error {
+	if err := syncFlag.multipartFlags.parse(); err != nil {
+		return err
 	}
 
 	if err := syncFlag.inExcludeFlags.parse(); err != nil {
 		return err
 	}
-
 	return nil
 }
