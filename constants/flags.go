@@ -8,6 +8,8 @@ const (
 	DeleteFlag = "delete"
 	// DryRunFlag represents the flag dry-run
 	DryRunFlag = "dry-run"
+	// ExcludeRegexp represents the flag exclude-regexp
+	ExcludeRegexp = "exclude-regexp"
 	// ExistingFlag represents the flag existing
 	ExistingFlag = "existing"
 	// ExpectSizeFlag represents the flag expect-size
@@ -22,6 +24,8 @@ const (
 	HumanReadableFlag = "human-readable"
 	// IgnoreExistingFlag represents the flag ignore-existing
 	IgnoreExistingFlag = "ignore-existing"
+	// IncludeRegexp represents the flag include-regx
+	IncludeRegexp = "include-regexp"
 	// LongFormatFlag represents the flag long-format
 	LongFormatFlag = "long-format"
 	// MaximumMemoryContentFlag represents the flag maximum-memory-content

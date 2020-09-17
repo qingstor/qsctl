@@ -109,6 +109,8 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "qsctl stat show the detailed info of this object", "qsctl stat show the detailed info of this object")
 	_ = message.SetString(tag, "recursively delete keys under a specific prefix", "recursively delete keys under a specific prefix")
 	_ = message.SetString(tag, "recursively list subdirectories encountered", "recursively list subdirectories encountered")
+	_ = message.SetString(tag, "regular expression for files to exclude", "regular expression for files to exclude")
+	_ = message.SetString(tag, "regular expression for files to include (not work if exclude-regx not set)", "regular expression for files to include (not work if exclude-regx not set)")
 	_ = message.SetString(tag, "remove a remote object", "remove a remote object")
 	_ = message.SetString(tag, "segment id <%s>, path <%s> removed\n", "segment id <%s>, path <%s> removed\n")
 	_ = message.SetString(tag, "set part size for multipart upload", "set part size for multipart upload")

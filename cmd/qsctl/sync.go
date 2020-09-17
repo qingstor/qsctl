@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/Xuanwo/navvy"
 	"github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -22,6 +23,7 @@ type syncFlags struct {
 	recursive      bool
 	update         bool
 	multipartFlags
+	inExcludeFlags
 }
 
 var syncFlag = syncFlags{}
@@ -74,16 +76,34 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewSync(rootTask)
-	t.SetDryRun(syncFlag.dryRun)
-	t.SetExisting(syncFlag.existing)
-	t.SetIgnoreExisting(syncFlag.ignoreExisting)
 	t.SetCheckMD5(syncFlag.checkMD5)
 	t.SetRecursive(syncFlag.recursive)
-	t.SetUpdate(syncFlag.update)
 	t.SetPartThreshold(syncFlag.partThreshold)
 	if syncFlag.partSize != 0 {
 		t.SetPartSize(syncFlag.partSize)
 	}
+
+	// set check functions
+	var fn []func(task navvy.Task) navvy.Task
+	if syncFlag.existing {
+		fn = append(fn, task.NewIsDestinationObjectExistTask)
+	}
+	if syncFlag.ignoreExisting {
+		fn = append(fn, task.NewIsDestinationObjectNotExistTask)
+	}
+	if syncFlag.update {
+		fn = append(fn, task.NewIsUpdateAtGreaterTask)
+	}
+	if syncFlag.excludeRegx != nil {
+		fn = append(fn, func(tt navvy.Task) navvy.Task {
+			st := task.NewIsSourcePathExcludeInclude(tt)
+			st.SetExcludeRegexp(syncFlag.excludeRegx)
+			st.SetIncludeRegexp(syncFlag.includeRegx)
+			return st
+		})
+	}
+	t.SetCheckTasks(fn)
+
 	if syncFlag.dryRun {
 		t.SetDryRunFunc(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
@@ -126,6 +146,10 @@ func initSyncFlag() {
 		i18n.Sprintf("set threshold to enable multipart upload"))
 	SyncCommand.Flags().StringVar(&syncFlag.partSizeStr, constants.PartSizeFlag, "",
 		i18n.Sprintf("set part size for multipart upload"))
+	SyncCommand.Flags().StringVar(&syncFlag.excludeRegxStr, constants.ExcludeRegexp, "",
+		i18n.Sprintf("regular expression for files to exclude"))
+	SyncCommand.Flags().StringVar(&syncFlag.includeRegxStr, constants.IncludeRegexp, "",
+		i18n.Sprintf("regular expression for files to include (not work if exclude-regx not set)"))
 }
 
 func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {
@@ -145,14 +169,9 @@ func parseSyncFlag() (err error) {
 		}
 	}
 
-	// parse multipart partThreshold
-	if syncFlag.partThresholdStr == "" {
-		syncFlag.partThreshold = constants.MaximumAutoMultipartSize
-	} else {
-		syncFlag.partThreshold, err = utils.ParseByteSize(syncFlag.partThresholdStr)
-		if err != nil {
-			return err
-		}
+	if err := syncFlag.inExcludeFlags.parse(); err != nil {
+		return err
 	}
+
 	return nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"regexp"
 
 	"github.com/qingstor/log"
 	"github.com/spf13/cobra"
@@ -35,6 +36,14 @@ type multipartFlags struct {
 	partThreshold    int64
 	partSizeStr      string
 	partSize         int64
+}
+
+// inExcludeFlags embedded in flags which use include and exclude regexps
+type inExcludeFlags struct {
+	includeRegxStr string
+	includeRegx    *regexp.Regexp
+	excludeRegxStr string
+	excludeRegx    *regexp.Regexp
 }
 
 // rootCmd is the main command of qsctl
@@ -173,4 +182,24 @@ func configuredByEnv() bool {
 // to avoid flags from last call is still working
 func resetGlobalFlags() {
 	globalFlag = globalFlags{}
+}
+
+// parse include and exclude flags
+func (f *inExcludeFlags) parse() (err error) {
+	// parse exclude regexp
+	if f.excludeRegxStr != "" {
+		f.excludeRegx, err = regexp.Compile(f.excludeRegxStr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// parse include regexp
+	if f.includeRegxStr != "" {
+		f.includeRegx, err = regexp.Compile(f.includeRegxStr)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
