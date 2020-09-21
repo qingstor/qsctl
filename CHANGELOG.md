@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.0] - 2020-09-21
+
+### Added
+
+- cmd: Support include-regexp and exclude-regexp in sync command (#343)
+- cmd: Support custom part size and threshold for multipart upload (#341)
+
+### Fixed
+
+- taskutils: Fix progress handler not wait as expected (#340)
+
 ## [2.3.0] - 2020-08-19
 
 ### Added
@@ -498,6 +509,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.0]: https://github.com/qingstor/qsctl/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/qingstor/qsctl/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/qingstor/qsctl/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/qingstor/qsctl/compare/v2.1.1...v2.1.2
