@@ -8,14 +8,12 @@ require (
 	github.com/Xuanwo/go-locale v0.3.0
 	github.com/Xuanwo/navvy v0.0.0-20191010141320-12f3cfcb6a27
 	github.com/Xuanwo/storage v1.2.1
-	github.com/c-bata/go-prompt v0.2.3
+	github.com/c-bata/go-prompt v0.2.5
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/cosiner/argv v0.1.0
 	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/mattn/go-tty v0.0.3 // indirect
-	github.com/pkg/term v0.0.0-20200520122047-c3ffed290a03 // indirect
 	github.com/qingstor/noah v0.0.0-20200730024920-441c96f1a9cc
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.7
