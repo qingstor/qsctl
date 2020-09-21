@@ -47,13 +47,30 @@ connection_retries: 3
 zone: 'zone_name'
 ```
 
-You can also run qsctl command without config file, it will try to
+~~You can also run qsctl command without config file, it will try to
 find config file in specific directories, and if none of them contain
 a config file, there will be an interactive setup to help you create
 the config file, which will be created at `{$HOME}/.qingstor/config.yaml`.
 (PS: The specific config file path depends on your os, usually
 `~/.qingstor/config.yaml` in unix-like os, and
-`C:\User\{username}\.qingstor\config.yaml` in Windows.)
+`C:\User\{username}\.qingstor\config.yaml` in Windows.)~~
+```
+interactive setup was removed from v2.2.0, and may be added in the future with an independent command.
+```
+
+Since v2.2.0, we moved all interactive operation into `qsctl shell`, in order that you can call commands in your
+script without any interactive interruption.
+We also removed progress bar rendering from all commands and added it into `qsctl shell`.
+
+## Qsctl Shell
+
+We introduced interactive shell from v2.2.0, which contains more instruction and tips. It is highly recommended
+for those who just start to use qsctl. You can just execute `qsctl shell` to enter the shell interface and run commands
+according to the tips. We also support commands history and show tips and auto completion for:
+- available commands at the beginning of new line.
+- buckets after inputting `qs://`.
+- local files after inputting space.
+- available flags for current command.
 
 ## Available Commands
 
@@ -67,6 +84,7 @@ Commands supported by qsctl are listed below:
 - `presign`: Get the pre-signed URL by given object key.
 - `rb`: Delete a bucket.
 - `rm`: Remove remote object(s).
+- `shell`: start an interactive shell of qsctl.
 - `stat`: Stat a remote object.
 - `sync`: Sync between local directory and QS-Directory.
 - `tee`: Tee from stdin to a remote object. (NOTICE: qsctl will not tee the content to stdout like linux tee command does.)
