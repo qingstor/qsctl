@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/qingstor/noah v0.0.0-20200730024920-441c96f1a9cc
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
