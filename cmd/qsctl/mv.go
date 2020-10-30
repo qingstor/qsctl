@@ -90,14 +90,15 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 
 	if mvFlag.recursive {
 		t := task.NewMoveDir(rootTask)
-		t.SetHandleObjCallback(func(o *types.Object) {
-			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
-		})
 		t.SetCheckMD5(mvFlag.checkMD5)
 		t.SetPartThreshold(mvFlag.partThreshold)
 		if mvFlag.partSize != 0 {
 			t.SetPartSize(mvFlag.partSize)
 		}
+		t.SetHandleObjCallback(func(o *types.Object) {
+			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
+		})
+		t.SetCheckTasks(nil)
 		t.Run(c.Context())
 
 		if t.GetFault().HasError() {
@@ -119,7 +120,9 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if mvFlag.partSize != 0 {
 		t.SetPartSize(mvFlag.partSize)
 	}
+	t.SetCheckTasks(nil)
 	t.Run(c.Context())
+
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
