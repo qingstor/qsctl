@@ -53,7 +53,7 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 
 func teeRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	_, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, "-", args[0])
 	if err != nil {
 		return
@@ -62,11 +62,10 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 	t := task.NewCopyStream(rootTask)
 	t.SetCheckMD5(false)
 	t.SetPartSize(teeFlag.partSize)
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
+
 	i18n.Fprintf(c.OutOrStdout(), "Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
 	return nil
 }

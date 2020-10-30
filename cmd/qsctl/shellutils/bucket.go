@@ -2,10 +2,11 @@ package shellutils
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 
-	"github.com/aos-dev/go-storage/v2"
-	"github.com/qingstor/log"
+	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
 
 	"github.com/qingstor/qsctl/v2/cmd/qsctl/taskutils"
@@ -17,27 +18,33 @@ var mu = new(sync.Mutex)
 var bucketList = make([]string, 0, 10)
 
 // InitBucketList init bucket list as cache
-func InitBucketList(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	rootTask := taskutils.NewAtServiceTask(10)
+func InitBucketList(ctx context.Context) error {
+	rootTask := taskutils.NewAtServiceTask()
 	err := utils.ParseAtServiceInput(rootTask)
 	if err != nil {
-		logger.Error(
-			log.String("action", "get service"),
-			log.String("err", err.Error()),
-		)
-		return
+		return fmt.Errorf("get service failed: [%w]", err)
 	}
 
 	t := task.NewListStorage(rootTask)
-	t.SetZone("")
-	t.SetStoragerFunc(func(stor storage.Storager) {
-		sm, _ := stor.Metadata()
+	if err := t.Run(ctx); err != nil {
+		return fmt.Errorf("list storage failed: [%w]", err)
+	}
+
+	it := t.GetStorageIter()
+	for {
+		obj, err := it.Next()
+		if err != nil {
+			if errors.Is(err, typ.IterateDone) {
+				break
+			}
+			return fmt.Errorf("iterate storage failed: [%w]", err)
+		}
+
+		sm, _ := obj.Metadata()
 		AddBucketIntoList(sm.Name)
-	})
-	t.Run(ctx)
-	return
+	}
+
+	return nil
 }
 
 // GetBucketList copy list from cache to avoid data race

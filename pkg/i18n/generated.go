@@ -89,6 +89,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "help for this command", "help for this command")
 	_ = message.SetString(tag, "in which zone to do the operation", "in which zone to do the operation")
 	_ = message.SetString(tag, "input bucket name <%s> to confirm: ", "input bucket name <%s> to confirm: ")
+	_ = message.SetString(tag, "invalid object <%s> type: %v\n", "invalid object <%s> type: %v\n")
 	_ = message.SetString(tag, "list objects or buckets", "list objects or buckets")
 	_ = message.SetString(tag, "make a new bucket", "make a new bucket")
 	_ = message.SetString(tag, "move directory recursively", "move directory recursively")

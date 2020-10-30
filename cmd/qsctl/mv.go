@@ -69,7 +69,7 @@ func initMvFlag() {
 
 func mvRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -90,19 +90,16 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 
 	if mvFlag.recursive {
 		t := task.NewMoveDir(rootTask)
+		t.SetHandleObjCallbackFunc(func(o *types.Object) {
+			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
+		})
 		t.SetCheckMD5(mvFlag.checkMD5)
 		t.SetPartThreshold(mvFlag.partThreshold)
 		if mvFlag.partSize != 0 {
 			t.SetPartSize(mvFlag.partSize)
 		}
-		t.SetHandleObjCallback(func(o *types.Object) {
-			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
-		})
-		t.SetCheckTasks(nil)
-		t.Run(c.Context())
-
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 
 		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
@@ -120,11 +117,8 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if mvFlag.partSize != 0 {
 		t.SetPartSize(mvFlag.partSize)
 	}
-	t.SetCheckTasks(nil)
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	if h := taskutils.HandlerFromContext(c.Context()); h != nil {

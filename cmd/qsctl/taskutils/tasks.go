@@ -1,34 +1,27 @@
 package taskutils
 
 import (
-	"github.com/Xuanwo/navvy"
+	"github.com/qingstor/noah/pkg/task"
 
-	"github.com/qingstor/noah/pkg/fault"
 	"github.com/qingstor/noah/pkg/types"
 )
 
 // AtServiceTask is the root task for service only task.
 type AtServiceTask struct {
-	navvy.Task
-	types.Pool
-	types.Fault
+	task.Task
 
 	types.Service
 }
 
 // NewAtServiceTask will create a new between storage task.
-func NewAtServiceTask(poolSize int) *AtServiceTask {
+func NewAtServiceTask() *AtServiceTask {
 	t := &AtServiceTask{}
-	t.SetPool(navvy.NewPool(poolSize))
-	t.SetFault(fault.New())
 	return t
 }
 
 // AtStorageTask is the root task for single storage task.
 type AtStorageTask struct {
-	navvy.Task
-	types.Pool
-	types.Fault
+	task.Task
 
 	types.Path
 	types.Storage
@@ -36,18 +29,14 @@ type AtStorageTask struct {
 }
 
 // NewAtStorageTask will create a new between storage task.
-func NewAtStorageTask(poolSize int) *AtStorageTask {
+func NewAtStorageTask() *AtStorageTask {
 	t := &AtStorageTask{}
-	t.SetPool(navvy.NewPool(poolSize))
-	t.SetFault(fault.New())
 	return t
 }
 
 // BetweenStorageTask is the root task for tasks operate between two storager.
 type BetweenStorageTask struct {
-	navvy.Task
-	types.Pool
-	types.Fault
+	task.Task
 
 	types.SourcePath
 	types.SourceStorage
@@ -58,9 +47,7 @@ type BetweenStorageTask struct {
 }
 
 // NewBetweenStorageTask will create a new between storage task.
-func NewBetweenStorageTask(poolSize int) *BetweenStorageTask {
+func NewBetweenStorageTask() *BetweenStorageTask {
 	t := &BetweenStorageTask{}
-	t.SetPool(navvy.NewPool(poolSize))
-	t.SetFault(fault.New())
 	return t
 }

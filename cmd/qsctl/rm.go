@@ -49,7 +49,7 @@ func initRmFlag() {
 
 func rmRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewAtStorageTask(10)
+	rootTask := taskutils.NewAtStorageTask()
 	workDir, err := utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
@@ -66,12 +66,11 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 	key := filepath.Join(workDir, rootTask.GetPath())
 	if rmFlag.recursive {
 		t := task.NewDeleteDir(rootTask)
-		t.SetHandleObjCallback(func(o *typ.Object) {
+		t.SetHandleObjCallbackFunc(func(o *typ.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 		})
-		t.Run(c.Context())
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 
 		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> removed.\n", key)
@@ -79,9 +78,8 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewDeleteFile(rootTask)
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> removed.\n", key)

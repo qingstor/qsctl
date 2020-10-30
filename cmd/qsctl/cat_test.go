@@ -8,7 +8,7 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/google/uuid"
-	"github.com/qingstor/noah/pkg/fault"
+	"github.com/qingstor/noah/pkg/schedule"
 	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
 	"github.com/stretchr/testify/assert"
@@ -65,7 +65,7 @@ func TestCatRun(t *testing.T) {
 			if tt.runErr != nil {
 				task.TriggerFault(tmpErr)
 			} else {
-				task.SetFault(fault.New())
+				task.SetScheduler(schedule.NewScheduler())
 			}
 		})
 		gotErr := catRun(CatCommand, []string{tt.input})

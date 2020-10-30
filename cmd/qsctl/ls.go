@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
-	"github.com/aos-dev/go-storage/v2"
 	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c2h5oh/datasize"
 	"github.com/jedib0t/go-pretty/text"
-	"github.com/qingstor/log"
 	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
@@ -57,7 +57,7 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
 	// if no args, handle as list buckets
 	if len(args) == 0 {
-		rootTask := taskutils.NewAtServiceTask(10)
+		rootTask := taskutils.NewAtServiceTask()
 		err = utils.ParseAtServiceInput(rootTask)
 		if err != nil {
 			return
@@ -65,68 +65,35 @@ func lsRun(c *cobra.Command, args []string) (err error) {
 
 		t := task.NewListStorage(rootTask)
 		t.SetZone(globalFlag.zone)
-		if lsFlag.longFormat {
-			t.SetStoragerFunc(func(s storage.Storager) {
-				listBucketLongOutput(c.Context(), c.OutOrStdout(), s, t)
-			})
-		} else {
-			t.SetStoragerFunc(func(s storage.Storager) {
-				listBucketOutput(c.Context(), c.OutOrStdout(), s)
-			})
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 
-		t.Run(c.Context())
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := listStorageFunc(c.Context(), t, c.OutOrStdout()); err != nil {
+			return err
 		}
-		return
+		return nil
 	}
 
-	rootTask := taskutils.NewAtStorageTask(10)
+	rootTask := taskutils.NewAtStorageTask()
 	_, err = utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
 	}
 
+	// conduct the init listDirTask
 	t := task.NewListDir(rootTask)
-	lister, ok := rootTask.GetStorage().(storage.DirLister)
+	lister, ok := rootTask.GetStorage().(typ.DirLister)
 	if !ok {
 		return types.NewErrStorageInsufficientAbility(nil)
 	}
 	t.SetDirLister(lister)
-
-	t.SetFileFunc(func(o *typ.Object) {
-		listFileOutput(c.Context(), c.OutOrStdout(), o)
-	})
-	if lsFlag.recursive {
-		t.SetDirFunc(func(o *typ.Object) {
-			listDirFunc(c.Context(), c.OutOrStdout(), t, o)
-		})
-	} else {
-		t.SetDirFunc(func(o *typ.Object) {
-			listFileOutput(c.Context(), c.OutOrStdout(), o)
-		})
+	// list dir recursively
+	if err := listDirFunc(c.Context(), c.OutOrStdout(), t, t.GetPath()); err != nil {
+		return err
 	}
-	t.Run(c.Context())
 
-	// but we have to get fault after output, otherwise fault will not be triggered
-	if t.GetFault().HasError() {
-		return t.GetFault()
-	}
-	return
-}
-
-func listDirFunc(ctx context.Context, w io.Writer, t *task.ListDirTask, o *typ.Object) {
-	listFileOutput(ctx, w, o)
-	st := task.NewListDir(t)
-	st.SetPath(o.Name)
-	st.SetFileFunc(func(oo *typ.Object) {
-		listFileOutput(ctx, w, oo)
-	})
-	st.SetDirFunc(func(oo *typ.Object) {
-		listDirFunc(ctx, w, st, oo)
-	})
-	t.GetScheduler().Sync(ctx, st)
+	return nil
 }
 
 func initLsFlag() {
@@ -144,95 +111,159 @@ output on a line before the long listing`))
 	// 	i18n.Sprintf("in which zone to do the operation"))
 }
 
+// listDirFunc handle list dir task recursively
+func listDirFunc(ctx context.Context, w io.Writer, t *task.ListDirTask, path string) error {
+	st := task.NewListDir(t)
+	st.SetPath(path)
+	if err := t.Sync(ctx, st); err != nil {
+		return err
+	}
+
+	it := st.GetObjectIter()
+	for {
+		s, err := it.Next()
+		if err != nil {
+			if errors.Is(err, typ.IterateDone) {
+				break
+			}
+			return err
+		}
+
+		switch s.Type {
+		case typ.ObjectTypeDir:
+			// always print dir as file first
+			if err := listFileOutput(ctx, w, s); err != nil {
+				return err
+			}
+			// if recursive flag not set, do not list dir recursively
+			if !lsFlag.recursive {
+				continue
+			}
+			// else list dir recursively
+			if err := listDirFunc(ctx, w, st, s.Name); err != nil {
+				return err
+			}
+		case typ.ObjectTypeFile:
+			if err := listFileOutput(ctx, w, s); err != nil {
+				return err
+			}
+		default: // print tip for other type object
+			i18n.Fprintf(w, "invalid object <%s> type: %v\n", s.Name, s.Type)
+			continue
+		}
+	}
+	return nil
+}
+
+// listStorageFunc handle storage iter with different output func
+func listStorageFunc(ctx context.Context, t types.StorageIterGetter, w io.Writer) error {
+	it := t.GetStorageIter()
+	for {
+		s, err := it.Next()
+		if err != nil {
+			if errors.Is(err, typ.IterateDone) {
+				break
+			}
+			return err
+		}
+
+		if lsFlag.longFormat {
+			err = listBucketLongOutput(ctx, w, s)
+		} else {
+			err = listBucketOutput(ctx, w, s)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // listBucketOutput list buckets with normal slice
-func listBucketOutput(ctx context.Context, w io.Writer, s storage.Storager) {
-	logger := log.FromContext(ctx)
+func listBucketOutput(_ context.Context, w io.Writer, s typ.Storager) error {
 	m, err := s.Metadata()
 	if err != nil {
-		logger.Debug(
-			log.String("action", "get metadata in listBucketOutput"),
-			log.String("err", err.Error()),
-		)
 		i18n.Fprintf(w, "get metadata failed: %v\n", err)
-		return
+		return err
 	}
 	i18n.Fprintf(w, "%s\n", m.Name)
+	return nil
 }
 
 // listBucketLongOutput list buckets with long format
-func listBucketLongOutput(ctx context.Context, w io.Writer, s storage.Storager, t types.SchedulerGetter) {
-	logger := log.FromContext(ctx)
-	rt := taskutils.NewAtStorageTask(10)
-	rt.SetStorage(s)
-	sst := task.NewStatStorage(rt)
-	t.GetScheduler().Sync(ctx, sst)
-	m, err := s.Metadata()
+func listBucketLongOutput(ctx context.Context, w io.Writer, s typ.Storager) error {
+	t := taskutils.NewAtStorageTask()
+	st := task.NewStatStorage(t)
+	st.SetStorage(s)
+	if err := st.Run(ctx); err != nil {
+		return err
+	}
+	m, err := s.MetadataWithContext(ctx)
 	if err != nil {
-		logger.Debug(
-			log.String("action", "get metadata in listBucketLongOutput"),
-			log.String("err", err.Error()),
-		)
 		i18n.Fprintf(w, "get metadata failed: %v\n", err)
-		return
+		return err
 	}
 
 	// handle size separately from stat output for -h
+	// because we want to reuse statStorageOutput(), which cannot handle size with humanReadable,
+	// so transfer size into string here and conduct the format to call statStorageOutput()
 	var size string
-	if v, ok := sst.GetStorageInfo().GetSize(); ok {
+	if v, ok := st.GetStorageInfo().GetSize(); ok {
 		if lsFlag.humanReadable {
 			size, err = utils.UnixReadableSize(datasize.ByteSize(v).HR())
 			if err != nil {
-				logger.Debug(
-					log.String("action", "parse size in listBucketLongOutput"),
-					log.Int("size", v),
-					log.String("err", err.Error()),
-				)
 				i18n.Fprintf(w, "parse size <%v> failed [%v]\n", v, err)
-				return
+				return err
 			}
 		} else {
 			size = datasize.ByteSize(v).String()
 		}
 	}
-	statStorageOutput(w, m, sst.GetStorageInfo(), fmt.Sprintf("%%n %%l %s %%c", size))
+
+	// conduct format for stat storage output
+	format := fmt.Sprintf("%%n %%l %s %%c", size) // %n %l size %c
+	statStorageOutput(w, m, st.GetStorageInfo(), format)
+	return nil
 }
 
-func listFileOutput(ctx context.Context, w io.Writer, o *typ.Object) {
-	logger := log.FromContext(ctx)
+// listFileOutput print object with given flags, such as long format, human readable
+func listFileOutput(_ context.Context, w io.Writer, o *typ.Object) (err error) {
 	if !lsFlag.longFormat {
 		i18n.Fprintf(w, "%s\n", o.Name)
-		return
+		return nil
 	}
-
-	var err error
 
 	objACL := constants.ACLObject
 	if o.Type == typ.ObjectTypeDir {
 		objACL = constants.ACLDirectory
 	}
 
-	// default print size by bytes
-	readableSize := strconv.FormatInt(o.Size, 10)
+	// default print size by bytes, if object size not valid, set size to 0
+	var size int64
+	if v, ok := o.GetSize(); ok {
+		size = v
+	}
+	readableSize := strconv.FormatInt(size, 10)
+	// if human readable flag true, print size as human readable format
 	if lsFlag.humanReadable {
-		// if human readable flag true, print size as human readable format
-		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(o.Size).HR())
+		readableSize, err = utils.UnixReadableSize(datasize.ByteSize(size).HR())
 		if err != nil {
-			logger.Debug(
-				log.String("action", "parse size in listFileOutput"),
-				log.Int("size", o.Size),
-				log.String("key", o.Name),
-				log.String("err", err.Error()),
-			)
-			i18n.Fprintf(w, "parse size <%v> failed [%v], key: <%s>\n", o.Size, err, o.Name)
-			return
+			i18n.Fprintf(w, "parse size <%v> failed [%v], key: <%s>\n", size, err, o.Name)
+			return err
 		}
 		// 7 is the widest size of readable-size, like 1023.9K
 		readableSize = text.AlignRight.Apply(readableSize, 7)
 	}
 
-	// if modified not exists (like dir), init str with blank
-	modifiedStr := o.UpdatedAt.Format(constants.LsDefaultFormat)
+	// if updatedAt not exists (like dir), init with blank time (Jan 01 00:00)
+	var updatedAt time.Time
+	if v, ok := o.GetUpdatedAt(); ok {
+		updatedAt = v
+	}
+	modifiedStr := updatedAt.Format(constants.LsDefaultFormat)
 	// output order: acl  size  lastModified  key
 	// join with two space
 	i18n.Fprintf(w, "%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
+	return nil
 }

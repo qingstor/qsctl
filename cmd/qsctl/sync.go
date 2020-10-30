@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/Xuanwo/navvy"
 	"github.com/aos-dev/go-storage/v2/types"
+	tsk "github.com/qingstor/noah/pkg/task"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -65,7 +65,7 @@ is the source directory and second the destination directory.`),
 
 func syncRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -84,7 +84,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	// set check functions
-	var fn []func(task navvy.Task) navvy.Task
+	var fn []func(task tsk.Task) tsk.Task
 	if syncFlag.existing {
 		fn = append(fn, task.NewIsDestinationObjectExistTask)
 	}
@@ -95,7 +95,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		fn = append(fn, task.NewIsUpdateAtGreaterTask)
 	}
 	if syncFlag.excludeRegx != nil {
-		fn = append(fn, func(tt navvy.Task) navvy.Task {
+		fn = append(fn, func(tt tsk.Task) tsk.Task {
 			st := task.NewIsSourcePathExcludeInclude(tt)
 			st.SetExcludeRegexp(syncFlag.excludeRegx)
 			st.SetIncludeRegexp(syncFlag.includeRegx)
@@ -109,16 +109,13 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
 		})
 	} else {
-		t.SetDryRunFunc(nil)
-		t.SetHandleObjCallback(func(o *types.Object) {
+		t.SetHandleObjCallbackFunc(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> synced\n", o.Name)
 		})
 	}
 
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	if h := taskutils.HandlerFromContext(c.Context()); h != nil {

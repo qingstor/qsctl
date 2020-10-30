@@ -81,6 +81,7 @@
   "\"help for this command\"": "\"help for this command\"",
   "\"in which zone to do the operation\"": "\"in which zone to do the operation\"",
   "\"input bucket name \u003c%s\u003e to confirm: \"": "\"input bucket name \u003c%s\u003e to confirm: \"",
+  "\"invalid object \u003c%s\u003e type: %v\\n\"": "\"invalid object \u003c%s\u003e type: %v\\n\"",
   "\"list objects or buckets\"": "\"list objects or buckets\"",
   "\"make a new bucket\"": "\"make a new bucket\"",
   "\"move directory recursively\"": "\"move directory recursively\"",

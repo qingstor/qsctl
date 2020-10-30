@@ -87,7 +87,7 @@ accept: 100MB, 1.8G
 
 func cpRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -113,14 +113,11 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		if cpFlag.partSize != 0 {
 			t.SetPartSize(cpFlag.partSize)
 		}
-		t.SetHandleObjCallback(func(o *types.Object) {
+		t.SetHandleObjCallbackFunc(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> copied\n", o.Name)
 		})
-		t.SetCheckTasks(nil)
-		t.Run(c.Context())
-
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 
 		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
@@ -139,10 +136,8 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		t.SetPartSize(cpFlag.partSize)
 	}
 	t.SetCheckTasks(nil)
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
