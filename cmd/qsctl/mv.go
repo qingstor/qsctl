@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/aos-dev/go-storage/v2/types"
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -15,8 +16,9 @@ import (
 )
 
 type mvFlags struct {
-	checkMD5  bool
-	recursive bool
+	checkMD5        bool
+	concurrentLimit int
+	recursive       bool
 	multipartFlags
 }
 
@@ -65,6 +67,11 @@ func initMvFlag() {
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
 	)
+	MvCommand.Flags().IntVar(&mvFlag.concurrentLimit,
+		constants.ConcurrentLimitFlag,
+		0,
+		i18n.Sprintf("set concurrent task limit for move"),
+	)
 }
 
 func mvRun(c *cobra.Command, args []string) (err error) {
@@ -86,6 +93,12 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if rootTask.GetSourceType() == types.ObjectTypeDir &&
 		rootTask.GetDestinationType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
+	}
+
+	if mvFlag.concurrentLimit > 0 {
+		p := token.NewPool(mvFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
 	}
 
 	if mvFlag.recursive {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/aos-dev/go-storage/v2/types"
 	tsk "github.com/qingstor/noah/pkg/task"
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -16,12 +17,13 @@ import (
 )
 
 type syncFlags struct {
-	checkMD5       bool
-	dryRun         bool
-	existing       bool
-	ignoreExisting bool
-	recursive      bool
-	update         bool
+	checkMD5        bool
+	concurrentLimit int
+	dryRun          bool
+	existing        bool
+	ignoreExisting  bool
+	recursive       bool
+	update          bool
 	multipartFlags
 	inExcludeFlags
 }
@@ -73,6 +75,12 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 
 	if rootTask.GetSourceType() != types.ObjectTypeDir || rootTask.GetDestinationType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("both source and destination should be directories"))
+	}
+
+	if syncFlag.concurrentLimit > 0 {
+		p := token.NewPool(syncFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
 	}
 
 	t := task.NewSync(rootTask)
@@ -147,6 +155,8 @@ func initSyncFlag() {
 		i18n.Sprintf("regular expression for files to exclude"))
 	SyncCommand.Flags().StringVar(&syncFlag.includeRegxStr, constants.IncludeRegexp, "",
 		i18n.Sprintf("regular expression for files to include (not work if exclude-regx not set)"))
+	SyncCommand.Flags().IntVar(&syncFlag.concurrentLimit, constants.ConcurrentLimitFlag, 0,
+		i18n.Sprintf("set concurrent task limit for sync"))
 }
 
 func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {

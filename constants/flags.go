@@ -4,6 +4,8 @@ package constants
 const (
 	// BenchFlag represents the flag bench
 	BenchFlag = "bench"
+	// ConcurrentLimitFlag represents the flag concurrent-limit
+	ConcurrentLimitFlag = "concurrent-limit"
 	// DeleteFlag represents the flag delete
 	DeleteFlag = "delete"
 	// DryRunFlag represents the flag dry-run

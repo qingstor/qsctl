@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/aos-dev/go-storage/v2/types"
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -19,6 +20,7 @@ type cpFlags struct {
 	expectSize           string
 	maximumMemoryContent string
 	recursive            bool
+	concurrentLimit      int
 	multipartFlags
 }
 
@@ -83,6 +85,11 @@ accept: 100MB, 1.8G
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
 	)
+	CpCommand.Flags().IntVar(&cpFlag.concurrentLimit,
+		constants.ConcurrentLimitFlag,
+		0,
+		i18n.Sprintf("set concurrent task limit for copy"),
+	)
 }
 
 func cpRun(c *cobra.Command, args []string) (err error) {
@@ -104,6 +111,12 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	if rootTask.GetSourceType() == types.ObjectTypeDir &&
 		rootTask.GetDestinationType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("cannot copy a directory to a non-directory dest"))
+	}
+
+	if cpFlag.concurrentLimit > 0 {
+		p := token.NewPool(cpFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
 	}
 
 	if cpFlag.recursive {

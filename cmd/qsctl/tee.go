@@ -3,6 +3,7 @@ package main
 import (
 	"path/filepath"
 
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -13,8 +14,9 @@ import (
 )
 
 type teeFlags struct {
-	expectSize string
-	maxMemory  string
+	concurrentLimit int
+	expectSize      string
+	maxMemory       string
 	multipartFlags
 }
 
@@ -59,6 +61,12 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 		return
 	}
 
+	if teeFlag.concurrentLimit > 0 {
+		p := token.NewPool(teeFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
+	}
+
 	t := task.NewCopyStream(rootTask)
 	t.SetCheckMD5(false)
 	t.SetPartSize(teeFlag.partSize)
@@ -88,6 +96,11 @@ func initTeeFlag() {
 		constants.PartSizeFlag,
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
+	)
+	TeeCommand.Flags().IntVar(&teeFlag.concurrentLimit,
+		constants.ConcurrentLimitFlag,
+		0,
+		i18n.Sprintf("set concurrent task limit for tee"),
 	)
 }
 

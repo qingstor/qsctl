@@ -65,7 +65,7 @@ func TestCatRun(t *testing.T) {
 			if tt.runErr != nil {
 				task.TriggerFault(tmpErr)
 			} else {
-				task.SetScheduler(schedule.NewScheduler())
+				task.SetScheduler(schedule.New())
 			}
 		})
 		gotErr := catRun(CatCommand, []string{tt.input})
