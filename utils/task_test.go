@@ -8,7 +8,6 @@ import (
 	"bou.ke/monkey"
 	"github.com/aos-dev/go-service-fs"
 	"github.com/aos-dev/go-service-qingstor"
-	"github.com/aos-dev/go-storage/v2"
 	"github.com/aos-dev/go-storage/v2/pkg/endpoint"
 	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/google/uuid"
@@ -193,7 +192,7 @@ func TestParseStorageInputQingstor(t *testing.T) {
 				})
 			}
 
-			monkey.Patch(NewQingStorStorage, func(...*typ.Pair) (stor storage.Storager, err error) {
+			monkey.Patch(NewQingStorStorage, func(...*typ.Pair) (stor typ.Storager, err error) {
 				if v.srvErr != nil {
 					err = v.srvErr
 				} else {
@@ -282,7 +281,7 @@ func TestParseStorageInputFs(t *testing.T) {
 				})
 			}
 			if v.fsNewErr != nil {
-				monkey.Patch(fs.NewStorager, func(pairs ...*typ.Pair) (_ storage.Storager, err error) {
+				monkey.Patch(fs.NewStorager, func(pairs ...*typ.Pair) (_ typ.Storager, err error) {
 					err = v.fsNewErr
 					return
 				})
@@ -329,7 +328,7 @@ func TestParseServiceInput(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			if v.err == errTmp {
-				monkey.Patch(NewQingStorService, func() (_ storage.Servicer, err error) {
+				monkey.Patch(NewQingStorService, func() (_ typ.Servicer, err error) {
 					err = errTmp
 					return
 				})
@@ -362,7 +361,7 @@ func TestParseAtServiceInput(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
-			monkey.Patch(ParseServiceInput, func(serviceType StoragerType) (service storage.Servicer, err error) {
+			monkey.Patch(ParseServiceInput, func(serviceType StoragerType) (service typ.Servicer, err error) {
 				assert.Equal(t, qingstor.Type, serviceType, tt.name)
 				if tt.wantErr {
 					err = errTmp
@@ -407,7 +406,7 @@ func TestParseAtStorageInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			monkey.Patch(ParseStorageInput, func(input string, storageType StoragerType) (
-				workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
+				workDir, path string, objectType typ.ObjectType, store typ.Storager, err error) {
 				assert.Equal(t, qingstor.Type, storageType, tt.name)
 				assert.Equal(t, tt.input, input, tt.name)
 				_, _, key, _ := ParseQsPath(input)
@@ -511,7 +510,7 @@ func TestParseBetweenStorageInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			monkey.Patch(ParseStorageInput, func(input string, storageType StoragerType) (
-				workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
+				workDir, path string, objectType typ.ObjectType, store typ.Storager, err error) {
 				switch storageType {
 				case fs.Type:
 					workDir, path, _ = ParseFsWorkDir(input)
@@ -542,7 +541,7 @@ func TestSetupDestinationStorage(t *testing.T) {
 		name      string
 		path      string
 		storeType typ.ObjectType
-		stor      storage.Storager
+		stor      typ.Storager
 	}{
 		{
 			name:      "fs",
@@ -574,7 +573,7 @@ func TestSetupStorage(t *testing.T) {
 		name      string
 		path      string
 		storeType typ.ObjectType
-		stor      storage.Storager
+		stor      typ.Storager
 	}{
 		{
 			name:      "fs",
@@ -604,7 +603,7 @@ func TestSetupStorage(t *testing.T) {
 func TestSetupService(t *testing.T) {
 	cases := []struct {
 		name string
-		stor storage.Servicer
+		stor typ.Servicer
 	}{
 		{
 			name: "qingstor",
@@ -626,7 +625,7 @@ func TestSetupSourceStorage(t *testing.T) {
 		name      string
 		path      string
 		storeType typ.ObjectType
-		stor      storage.Storager
+		stor      typ.Storager
 	}{
 		{
 			name:      "fs",
@@ -703,7 +702,7 @@ func TestNewQingStorStorage(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
-			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
+			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (typ.Storager, error) {
 				assert.Equal(t, 2, len(pairs), tt.name)
 				return &qingstor.Storage{}, nil
 			})

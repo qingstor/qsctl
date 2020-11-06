@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/aos-dev/go-storage/v2/pkg/segment"
 	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c-bata/go-prompt"
 	"github.com/qingstor/noah/task"
@@ -50,7 +49,7 @@ func initRbFlag() {
 
 func rbRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewAtServiceTask(10)
+	rootTask := taskutils.NewAtServiceTask()
 	err = utils.ParseAtServiceInput(rootTask)
 	if err != nil {
 		return
@@ -63,18 +62,19 @@ func rbRun(c *cobra.Command, args []string) (err error) {
 
 	t := task.NewDeleteStorage(rootTask)
 	t.SetStorageName(bucketName)
-	t.SetZone(globalFlag.zone)
 	t.SetForce(rbFlag.force)
-	t.SetHandleObjCallback(func(o *typ.Object) {
+	if globalFlag.zone != "" {
+		t.SetZone(globalFlag.zone)
+	}
+	t.SetHandleObjCallbackFunc(func(o *typ.Object) {
 		i18n.Fprintf(c.OutOrStdout(), "<%s> removed\n", o.Name)
 	})
-	t.SetHandleSegmentCallback(func(seg segment.Segment) {
+	t.SetHandleSegmentCallbackFunc(func(seg typ.Segment) {
 		i18n.Fprintf(c.OutOrStdout(), "segment id <%s>, path <%s> removed\n", seg.ID(), seg.Path())
 	})
 
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> removed.\n", t.GetStorageName())

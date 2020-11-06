@@ -7,7 +7,6 @@ import (
 
 	"github.com/aos-dev/go-service-qingstor"
 	typ "github.com/aos-dev/go-storage/v2/types"
-	"github.com/aos-dev/go-storage/v2/types/info"
 	"github.com/c2h5oh/datasize"
 	"github.com/qingstor/noah/pkg/types"
 	"github.com/qingstor/noah/task"
@@ -47,7 +46,7 @@ var StatCommand = &cobra.Command{
 
 func statRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewAtStorageTask(10)
+	rootTask := taskutils.NewAtStorageTask()
 	workDir, err := utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
@@ -56,9 +55,8 @@ func statRun(c *cobra.Command, args []string) (err error) {
 	// work dir is root path and path blank, handle it as stat bucket
 	if workDir == "/" && rootTask.GetPath() == "" {
 		t := task.NewStatStorage(rootTask)
-		t.Run(c.Context())
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 		sm, err := t.GetStorage().Metadata()
 		if err != nil {
@@ -70,9 +68,8 @@ func statRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	t := task.NewStatFile(rootTask)
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	statFileOutput(c.OutOrStdout(), t.GetObject(), statFlag.format)
@@ -103,6 +100,7 @@ The valid format sequences for buckets:
 	)
 }
 
+// statFileFormat replace format placeholder into relevant object's attr
 func statFileFormat(input string, om *typ.Object) string {
 	input = strings.ReplaceAll(input, "%n", om.ID)
 
@@ -112,14 +110,18 @@ func statFileFormat(input string, om *typ.Object) string {
 	if v, ok := om.GetETag(); ok {
 		input = strings.ReplaceAll(input, "%h", v)
 	}
-	input = strings.ReplaceAll(input, "%s", strconv.FormatInt(om.Size, 10))
-	input = strings.ReplaceAll(input, "%y", om.UpdatedAt.String())
-	input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(om.UpdatedAt.Unix(), 10))
-
+	if v, ok := om.GetSize(); ok {
+		input = strings.ReplaceAll(input, "%s", strconv.FormatInt(v, 10))
+	}
+	if v, ok := om.GetUpdatedAt(); ok {
+		input = strings.ReplaceAll(input, "%y", v.String())
+		input = strings.ReplaceAll(input, "%Y", strconv.FormatInt(v.Unix(), 10))
+	}
 	return input
 }
 
-func statStorageFormat(input string, sm info.StorageMeta, ss info.StorageStatistic) string {
+// statStorageFormat replace format placeholder into relevant storage's attr
+func statStorageFormat(input string, sm typ.StorageMeta, ss typ.StorageStatistic) string {
 	input = strings.ReplaceAll(input, "%n", sm.Name)
 
 	if v, ok := sm.GetLocation(); ok {
@@ -134,6 +136,7 @@ func statStorageFormat(input string, sm info.StorageMeta, ss info.StorageStatist
 	return input
 }
 
+// statFileOutput print object info to writer with given format
 func statFileOutput(w io.Writer, om *typ.Object, format string) {
 	// if format string was set, print result as format string
 	if format != "" {
@@ -144,7 +147,9 @@ func statFileOutput(w io.Writer, om *typ.Object, format string) {
 	var content []string
 
 	content = append(content, i18n.Sprintf("Key: %s", om.ID))
-	content = append(content, i18n.Sprintf("Size: %s", datasize.ByteSize(om.Size).String()))
+	if v, ok := om.GetSize(); ok {
+		content = append(content, i18n.Sprintf("Size: %s", datasize.ByteSize(v).String()))
+	}
 	if v, ok := om.GetContentType(); ok {
 		content = append(content, i18n.Sprintf("Type: %s", v))
 	}
@@ -154,12 +159,15 @@ func statFileOutput(w io.Writer, om *typ.Object, format string) {
 	if v, ok := om.ObjectMeta.Get(qingstor.InfoObjectMetaStorageClass); ok {
 		content = append(content, i18n.Sprintf("StorageClass: %s", v))
 	}
-	content = append(content, i18n.Sprintf("UpdatedAt: %s", om.UpdatedAt.String()))
+	if v, ok := om.GetUpdatedAt(); ok {
+		content = append(content, i18n.Sprintf("UpdatedAt: %s", v.String()))
+	}
 
 	i18n.Fprintf(w, "%s\n", utils.AlignPrintWithColon(content...))
 }
 
-func statStorageOutput(w io.Writer, sm info.StorageMeta, ss info.StorageStatistic, format string) {
+// statStorageOutput print stat storage info to writer with given StorageMeta, StorageStatistic and format
+func statStorageOutput(w io.Writer, sm typ.StorageMeta, ss typ.StorageStatistic, format string) {
 	if format != "" {
 		i18n.Fprintf(w, "%s\n", statStorageFormat(format, sm, ss))
 		return

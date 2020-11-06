@@ -38,7 +38,7 @@ bucket name should follow DNS name rule with:
 
 func mbRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewAtServiceTask(10)
+	rootTask := taskutils.NewAtServiceTask()
 	err = utils.ParseAtServiceInput(rootTask)
 	if err != nil {
 		return
@@ -53,9 +53,8 @@ func mbRun(c *cobra.Command, args []string) (err error) {
 	t.SetStorageName(bucketName)
 	t.SetZone(globalFlag.zone)
 
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "Bucket <%s> created.\n", t.GetStorageName())

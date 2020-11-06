@@ -12,6 +12,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/c-bata/go-prompt/completer"
 	"github.com/cosiner/argv"
+	"github.com/qingstor/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -132,7 +133,13 @@ To execute command, directly type command without "qsctl" at the beginning.
 Version %s
 `, constants.Version)
 
-	go shellutils.InitBucketList(c.Context())
+	go func() {
+		if err := shellutils.InitBucketList(c.Context()); err != nil {
+			log.FromContext(c.Context()).Error(
+				log.String("init bucket list failed", err.Error()),
+			)
+		}
+	}()
 
 	p := prompt.New(executor, completeFunc,
 		prompt.OptionPrefix(constants.Name+"> "),

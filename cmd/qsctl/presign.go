@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/aos-dev/go-storage/v2"
+	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -43,19 +43,18 @@ this URL can always retrieve the object with an HTTP GET request.`),
 
 func presignRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewAtStorageTask(10)
+	rootTask := taskutils.NewAtStorageTask()
 	_, err = utils.ParseAtStorageInput(rootTask, args[0])
 	if err != nil {
 		return
 	}
 
 	t := task.NewReachFile(rootTask)
-	t.SetReacher(rootTask.GetStorage().(storage.Reacher))
+	t.SetReacher(rootTask.GetStorage().(typ.Reacher))
 	t.SetExpire(presignFlag.expire)
 
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "%s\n", t.GetURL())

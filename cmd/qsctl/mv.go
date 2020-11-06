@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/aos-dev/go-storage/v2/types"
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -15,8 +16,9 @@ import (
 )
 
 type mvFlags struct {
-	checkMD5  bool
-	recursive bool
+	checkMD5        bool
+	concurrentLimit int
+	recursive       bool
 	multipartFlags
 }
 
@@ -65,11 +67,16 @@ func initMvFlag() {
 		"",
 		i18n.Sprintf("set part size for multipart upload"),
 	)
+	MvCommand.Flags().IntVar(&mvFlag.concurrentLimit,
+		constants.ConcurrentLimitFlag,
+		0,
+		i18n.Sprintf("set concurrent task limit for move"),
+	)
 }
 
 func mvRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -88,21 +95,24 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("cannot move a directory to a non-directory dest"))
 	}
 
+	if mvFlag.concurrentLimit > 0 {
+		p := token.NewPool(mvFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
+	}
+
 	if mvFlag.recursive {
 		t := task.NewMoveDir(rootTask)
+		t.SetHandleObjCallbackFunc(func(o *types.Object) {
+			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
+		})
 		t.SetCheckMD5(mvFlag.checkMD5)
 		t.SetPartThreshold(mvFlag.partThreshold)
 		if mvFlag.partSize != 0 {
 			t.SetPartSize(mvFlag.partSize)
 		}
-		t.SetHandleObjCallback(func(o *types.Object) {
-			i18n.Fprintf(c.OutOrStdout(), "<%s> moved\n", o.Name)
-		})
-		t.SetCheckTasks(nil)
-		t.Run(c.Context())
-
-		if t.GetFault().HasError() {
-			return t.GetFault()
+		if err := t.Run(c.Context()); err != nil {
+			return err
 		}
 
 		if h := taskutils.HandlerFromContext(c.Context()); h != nil {
@@ -120,11 +130,8 @@ func mvRun(c *cobra.Command, args []string) (err error) {
 	if mvFlag.partSize != 0 {
 		t.SetPartSize(mvFlag.partSize)
 	}
-	t.SetCheckTasks(nil)
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	if h := taskutils.HandlerFromContext(c.Context()); h != nil {

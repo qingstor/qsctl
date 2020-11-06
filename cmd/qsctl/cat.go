@@ -28,19 +28,14 @@ var CatCommand = &cobra.Command{
 
 func catRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	_, _, err = utils.ParseBetweenStorageInput(rootTask, args[0], "-")
 	if err != nil {
 		return
 	}
 	t := task.NewCopyFile(rootTask)
 	t.SetCheckMD5(false)
-	t.SetCheckTasks(nil)
 	// cat copy file into local fs, always call CopySmallFile, just set threshold any value to pass validate check
 	t.SetPartThreshold(math.MaxInt64)
-	t.Run(c.Context())
-	if t.GetFault().HasError() {
-		return t.GetFault()
-	}
-	return nil
+	return t.Run(c.Context())
 }

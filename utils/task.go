@@ -8,11 +8,10 @@ import (
 
 	"github.com/aos-dev/go-service-fs"
 	"github.com/aos-dev/go-service-qingstor"
-	"github.com/aos-dev/go-storage/v2"
+	"github.com/aos-dev/go-storage/v2/pairs"
 	"github.com/aos-dev/go-storage/v2/pkg/credential"
 	"github.com/aos-dev/go-storage/v2/pkg/endpoint"
 	typ "github.com/aos-dev/go-storage/v2/types"
-	"github.com/aos-dev/go-storage/v2/types/pairs"
 	"github.com/qingstor/noah/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -94,7 +93,7 @@ func ParseQsPath(p string) (keyType typ.ObjectType, bucketName, objectKey string
 
 // ParseStorageInput will parse storage input and return a initiated storager.
 func ParseStorageInput(input string, storageType StoragerType) (
-	workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
+	workDir, path string, objectType typ.ObjectType, store typ.Storager, err error) {
 	switch storageType {
 	case fs.Type:
 		objectType, err = ParseLocalPath(input)
@@ -130,7 +129,7 @@ func ParseStorageInput(input string, storageType StoragerType) (
 }
 
 // ParseServiceInput will parse service input.
-func ParseServiceInput(serviceType StoragerType) (service storage.Servicer, err error) {
+func ParseServiceInput(serviceType StoragerType) (service typ.Servicer, err error) {
 	switch serviceType {
 	case qingstor.Type:
 		service, err = NewQingStorService()
@@ -170,7 +169,7 @@ func ParseAtStorageInput(t interface {
 	var (
 		dstPath  string
 		dstType  typ.ObjectType
-		dstStore storage.Storager
+		dstStore typ.Storager
 	)
 	dstWorkDir, dstPath, dstType, dstStore, err = ParseStorageInput(input, qingstor.Type)
 	if err != nil {
@@ -193,7 +192,7 @@ func ParseBetweenStorageInput(t interface {
 	var (
 		srcPath, dstPath   string
 		srcType, dstType   typ.ObjectType
-		srcStore, dstStore storage.Storager
+		srcStore, dstStore typ.Storager
 	)
 
 	switch flow {
@@ -235,7 +234,7 @@ func setupSourceStorage(t interface {
 	types.SourcePathSetter
 	types.SourceStorageSetter
 	types.SourceTypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, path string, objectType typ.ObjectType, store typ.Storager) {
 	t.SetSourcePath(path)
 	t.SetSourceType(objectType)
 	t.SetSourceStorage(store)
@@ -245,7 +244,7 @@ func setupDestinationStorage(t interface {
 	types.DestinationPathSetter
 	types.DestinationStorageSetter
 	types.DestinationTypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, path string, objectType typ.ObjectType, store typ.Storager) {
 	t.SetDestinationPath(path)
 	t.SetDestinationType(objectType)
 	t.SetDestinationStorage(store)
@@ -255,7 +254,7 @@ func setupStorage(t interface {
 	types.PathSetter
 	types.StorageSetter
 	types.TypeSetter
-}, path string, objectType typ.ObjectType, store storage.Storager) {
+}, path string, objectType typ.ObjectType, store typ.Storager) {
 	t.SetPath(path)
 	t.SetType(objectType)
 	t.SetStorage(store)
@@ -263,17 +262,17 @@ func setupStorage(t interface {
 
 func setupService(t interface {
 	types.ServiceSetter
-}, store storage.Servicer) {
+}, store typ.Servicer) {
 	t.SetService(store)
 }
 
 // NewQingStorService will create a new qingstor service.
-func NewQingStorService() (storage.Servicer, error) {
+func NewQingStorService() (typ.Servicer, error) {
 	return qingstor.NewServicer(getQsServicePairs()...)
 }
 
 // NewQingStorStorage will create a new qingstor storage.
-func NewQingStorStorage(pairs ...*typ.Pair) (storage.Storager, error) {
+func NewQingStorStorage(pairs ...*typ.Pair) (typ.Storager, error) {
 	srvPairs := getQsServicePairs()
 	srvPairs = append(srvPairs, pairs...)
 	return qingstor.NewStorager(srvPairs...)

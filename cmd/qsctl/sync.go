@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/Xuanwo/navvy"
 	"github.com/aos-dev/go-storage/v2/types"
+	tsk "github.com/qingstor/noah/pkg/task"
+	"github.com/qingstor/noah/pkg/token"
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -16,12 +17,13 @@ import (
 )
 
 type syncFlags struct {
-	checkMD5       bool
-	dryRun         bool
-	existing       bool
-	ignoreExisting bool
-	recursive      bool
-	update         bool
+	checkMD5        bool
+	concurrentLimit int
+	dryRun          bool
+	existing        bool
+	ignoreExisting  bool
+	recursive       bool
+	update          bool
 	multipartFlags
 	inExcludeFlags
 }
@@ -65,7 +67,7 @@ is the source directory and second the destination directory.`),
 
 func syncRun(c *cobra.Command, args []string) (err error) {
 	silenceUsage(c) // silence usage when handled error returns
-	rootTask := taskutils.NewBetweenStorageTask(10)
+	rootTask := taskutils.NewBetweenStorageTask()
 	srcWorkDir, dstWorkDir, err := utils.ParseBetweenStorageInput(rootTask, args[0], args[1])
 	if err != nil {
 		return
@@ -73,6 +75,12 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 
 	if rootTask.GetSourceType() != types.ObjectTypeDir || rootTask.GetDestinationType() != types.ObjectTypeDir {
 		return fmt.Errorf(i18n.Sprintf("both source and destination should be directories"))
+	}
+
+	if syncFlag.concurrentLimit > 0 {
+		p := token.NewPool(syncFlag.concurrentLimit)
+		c.SetContext(token.ContextWithTokener(c.Context(), p))
+		defer p.Close()
 	}
 
 	t := task.NewSync(rootTask)
@@ -84,7 +92,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	// set check functions
-	var fn []func(task navvy.Task) navvy.Task
+	var fn []func(task tsk.Task) tsk.Task
 	if syncFlag.existing {
 		fn = append(fn, task.NewIsDestinationObjectExistTask)
 	}
@@ -95,7 +103,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 		fn = append(fn, task.NewIsUpdateAtGreaterTask)
 	}
 	if syncFlag.excludeRegx != nil {
-		fn = append(fn, func(tt navvy.Task) navvy.Task {
+		fn = append(fn, func(tt tsk.Task) tsk.Task {
 			st := task.NewIsSourcePathExcludeInclude(tt)
 			st.SetExcludeRegexp(syncFlag.excludeRegx)
 			st.SetIncludeRegexp(syncFlag.includeRegx)
@@ -109,16 +117,13 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 			i18n.Fprintf(c.OutOrStdout(), "%s\n", o.Name)
 		})
 	} else {
-		t.SetDryRunFunc(nil)
-		t.SetHandleObjCallback(func(o *types.Object) {
+		t.SetHandleObjCallbackFunc(func(o *types.Object) {
 			i18n.Fprintf(c.OutOrStdout(), "<%s> synced\n", o.Name)
 		})
 	}
 
-	t.Run(c.Context())
-
-	if t.GetFault().HasError() {
-		return t.GetFault()
+	if err := t.Run(c.Context()); err != nil {
+		return err
 	}
 
 	if h := taskutils.HandlerFromContext(c.Context()); h != nil {
@@ -150,6 +155,8 @@ func initSyncFlag() {
 		i18n.Sprintf("regular expression for files to exclude"))
 	SyncCommand.Flags().StringVar(&syncFlag.includeRegxStr, constants.IncludeRegexp, "",
 		i18n.Sprintf("regular expression for files to include (not work if exclude-regx not set)"))
+	SyncCommand.Flags().IntVar(&syncFlag.concurrentLimit, constants.ConcurrentLimitFlag, 0,
+		i18n.Sprintf("set concurrent task limit for sync"))
 }
 
 func validateSyncFlag(_ *cobra.Command, _ []string) (err error) {
