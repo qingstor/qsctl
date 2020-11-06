@@ -3,7 +3,7 @@ CMD_PKG := github.com/qingstor/qsctl/v2/cmd/qsctl
 VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 
-.PHONY: all check format vet lint build install uninstall release clean test generate build-linux package
+.PHONY: all check format vet build install uninstall release clean test generate build-linux package
 
 # nfpm: go get -u github.com/goreleaser/nfpm/cmd/nfpm
 tools := nfpm
@@ -13,7 +13,7 @@ $(tools):
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
-	@echo "  check      to format, vet and lint "
+	@echo "  check      to format and vet"
 	@echo "  build      to create bin directory and build qsctl"
 	@echo "  install    to install qsctl to /usr/local/bin/qsctl"
 	@echo "  uninstall  to uninstall qsctl"
@@ -22,7 +22,7 @@ help:
 	@echo "  test       to run test"
 	@echo "  package    to make deb and rpm package for linux distribution"
 
-check: format vet lint
+check: format vet
 
 format:
 	@echo "go fmt"
@@ -32,11 +32,6 @@ format:
 vet:
 	@echo "go vet"
 	@go vet ./...
-	@echo "ok"
-
-lint:
-	@echo "golint"
-	@golint ./...
 	@echo "ok"
 
 generate:
