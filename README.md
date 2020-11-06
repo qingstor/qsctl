@@ -1,12 +1,12 @@
 # qsctl
 
-[![Build Status](https://travis-ci.com/qingstor/qsctl.svg?branch=master)](https://travis-ci.com/qingstor/qsctl)
+[![Build Status](https://github.com/qingstor/qsctl/workflows/Unit%20Test/badge.svg?branch=master)](https://github.com/qingstor/qsctl/actions?query=workflow%3A%22Unit+Test%22)
 [![GoDoc](https://godoc.org/github.com/qingstor/qsctl?status.svg)](https://godoc.org/github.com/qingstor/qsctl)
 [![Go Report Card](https://goreportcard.com/badge/github.com/qingstor/qsctl)](https://goreportcard.com/report/github.com/qingstor/qsctl)
 [![codecov](https://codecov.io/gh/qingstor/qsctl/branch/master/graph/badge.svg)](https://codecov.io/gh/qingstor/qsctl)
 [![localized](https://badges.crowdin.net/qsctl/localized.svg)](https://crowdin.com/project/qsctl)
 [![License](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/qingstor/qsctl/blob/master/LICENSE)
-[![Join the Chat](https://img.shields.io/badge/chat-online-blue?style=flat&logo=mattermost)](https://chat.qingstor.dev/signup_user_complete/?id=1gjyqjsfo7dq7yfgomsjjg7h7o)
+[![Join the Chat](https://img.shields.io/badge/chat-online-blue?style=flat&logo=zulip)](https://qingstor.zulipchat.com/join/wiqqtnvhnux73i3q2qvep7ak/)
 
 [中文文档](./docs/README-zh_CN.md)
 
