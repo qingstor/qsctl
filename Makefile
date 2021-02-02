@@ -48,7 +48,7 @@ build: tidy generate check
 build-linux: tidy generate check
 	@echo "build qsctl for linux amd64"
 	@mkdir -p ./bin/linux
-	@GOOS=linux GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/linux/qsctl ${CMD_PKG}
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build ${GO_BUILD_OPTION} -o ./bin/linux/qsctl ${CMD_PKG}
 	@echo "ok"
 
 install: build
@@ -67,15 +67,15 @@ release:
 	@mkdir -p ./release
 
 	@echo "build for linux"
-	@GOOS=linux GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/linux/qsctl_v${VERSION}_linux_amd64 ${CMD_PKG}
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build ${GO_BUILD_OPTION} -o ./bin/linux/qsctl_v${VERSION}_linux_amd64 ${CMD_PKG}
 	@tar -C ./bin/linux/ -czf ./release/qsctl_v${VERSION}_linux_amd64.tar.gz qsctl_v${VERSION}_linux_amd64
 
 	@echo "build for macOS"
-	@GOOS=darwin GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/macos/qsctl_v${VERSION}_macos_amd64 ${CMD_PKG}
+	@GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build ${GO_BUILD_OPTION} -o ./bin/macos/qsctl_v${VERSION}_macos_amd64 ${CMD_PKG}
 	@tar -C ./bin/macos/ -czf ./release/qsctl_v${VERSION}_macos_amd64.tar.gz qsctl_v${VERSION}_macos_amd64
 
 	@echo "build for windows"
-	@GOOS=windows GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/windows/qsctl_v${VERSION}_windows_amd64.exe ${CMD_PKG}
+	@GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build ${GO_BUILD_OPTION} -o ./bin/windows/qsctl_v${VERSION}_windows_amd64.exe ${CMD_PKG}
 	@tar -C ./bin/windows/ -czf ./release/qsctl_v${VERSION}_windows_amd64.tar.gz qsctl_v${VERSION}_windows_amd64.exe
 
 	@echo "build deb and rpm"
