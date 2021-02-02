@@ -22,6 +22,7 @@
   "\"Dir <%s> moved to <%s>.\\n\"": "\"文件夹 <%s> 已移动到 <%s>.\\n\"",
   "\"Dir <%s> removed.\\n\"": "\"文件夹 <%s> 已删除。\\n\"",
   "\"ETag: %s\"": "\"ETag: %s\"",
+  "\"Error: at least one arg is needed for %s\"": "\"Error: at least one arg is needed for %s\"",
   "\"Execute %s command error: %s\\n\"": "\"执行 %s 命令错误: %s\\n\"",
   "\"File <%s> copied to <%s>.\\n\"": "\"文件 <%s> 已复制到 <%s>.\\n\"",
   "\"File <%s> moved to <%s>.\\n\"": "\"文件 <%s> 已移动到 <%s>.\\n\"",
