@@ -32,13 +32,13 @@ var RmCommand = &cobra.Command{
 		i18n.Sprintf("Remove objects with prefix: qsctl rm qs://bucket-name/prefix -r"),
 	),
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := rmRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "rm", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		rmFlag = rmFlags{}
+		return nil
 	},
 }
 
@@ -96,6 +96,9 @@ func (r rmShellHandler) preRunE(args []string) error {
 	if err != nil {
 		return err
 	}
+	if len(RmCommand.Flags().Args()) <= 0 {
+		return fmt.Errorf(i18n.Sprintf("Error: at least one arg is needed for %s", "rm"))
+	}
 	_, _, key, err := utils.ParseQsPath(RmCommand.Flags().Args()[0])
 	if err != nil {
 		return err
@@ -111,5 +114,10 @@ func (r rmShellHandler) preRunE(args []string) error {
 }
 
 func (r rmShellHandler) postRun(_ error) {
+	resetRmFlag()
 	return
+}
+
+func resetRmFlag() {
+	rmFlag = rmFlags{}
 }

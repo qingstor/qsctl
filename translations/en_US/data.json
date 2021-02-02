@@ -22,6 +22,7 @@
   "\"Dir \u003c%s\u003e moved to \u003c%s\u003e.\\n\"": "\"Dir \u003c%s\u003e moved to \u003c%s\u003e.\\n\"",
   "\"Dir \u003c%s\u003e removed.\\n\"": "\"Dir \u003c%s\u003e removed.\\n\"",
   "\"ETag: %s\"": "\"ETag: %s\"",
+  "\"Error: at least one arg is needed for %s\"": "\"Error: at least one arg is needed for %s\"",
   "\"Execute %s command error: %s\\n\"": "\"Execute %s command error: %s\\n\"",
   "\"File \u003c%s\u003e copied to \u003c%s\u003e.\\n\"": "\"File \u003c%s\u003e copied to \u003c%s\u003e.\\n\"",
   "\"File \u003c%s\u003e moved to \u003c%s\u003e.\\n\"": "\"File \u003c%s\u003e moved to \u003c%s\u003e.\\n\"",

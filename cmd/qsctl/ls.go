@@ -43,13 +43,13 @@ var LsCommand = &cobra.Command{
 		i18n.Sprintf("List objects by long format: qsctl ls qs://bucket-name -l"),
 	),
 	Args: cobra.MaximumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := lsRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "ls", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		lsFlag = lsFlags{}
+		return nil
 	},
 }
 
@@ -235,4 +235,16 @@ func listFileOutput(ctx context.Context, w io.Writer, o *typ.Object) {
 	// output order: acl  size  lastModified  key
 	// join with two space
 	i18n.Fprintf(w, "%s  %s  %s  %s\n", objACL, readableSize, modifiedStr, o.Name)
+}
+
+func resetLsFlag() {
+	lsFlag = lsFlags{}
+}
+
+type lsShellHandler struct {
+	blankShellHandler
+}
+
+func (h lsShellHandler) postRun(_ error) {
+	resetLsFlag()
 }

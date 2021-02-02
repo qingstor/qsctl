@@ -38,18 +38,19 @@ var CpCommand = &cobra.Command{
 	),
 	Args: cobra.ExactArgs(2),
 	PreRunE: func(c *cobra.Command, args []string) error {
+		c.SilenceErrors = false // reset runtime error show in preRun
 		if err := parseCpFlag(); err != nil {
 			return err
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := cpRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "cp", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		cpFlag = cpFlags{}
+		return nil
 	},
 }
 
@@ -156,7 +157,20 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 
 func parseCpFlag() error {
 	if err := cpFlag.multipartFlags.parse(); err != nil {
+		resetCpFlag()
 		return err
 	}
 	return nil
+}
+
+func resetCpFlag() {
+	cpFlag = cpFlags{}
+}
+
+type cpShellHandler struct {
+	blankShellHandler
+}
+
+func (h cpShellHandler) postRun(_ error) {
+	resetCpFlag()
 }

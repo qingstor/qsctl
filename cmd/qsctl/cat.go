@@ -19,10 +19,13 @@ var CatCommand = &cobra.Command{
 		i18n.Sprintf("Cat object: qsctl cat qs://prefix/a"),
 	),
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := catRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "cat", err.Error())
+			return err
 		}
+		return nil
 	},
 }
 

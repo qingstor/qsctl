@@ -35,13 +35,13 @@ var StatCommand = &cobra.Command{
 		i18n.Sprintf("Stat bucket: qsctl stat qs://bucket-name"),
 	),
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := statRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "stat", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		statFlag = statFlags{}
+		return nil
 	},
 }
 
@@ -178,4 +178,16 @@ func statStorageOutput(w io.Writer, sm info.StorageMeta, ss info.StorageStatisti
 	}
 
 	i18n.Fprintf(w, "%s\n", utils.AlignPrintWithColon(content...))
+}
+
+func resetStatFlag() {
+	statFlag = statFlags{}
+}
+
+type statShellHandler struct {
+	blankShellHandler
+}
+
+func (h statShellHandler) postRun(_ error) {
+	resetStatFlag()
 }
