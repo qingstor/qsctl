@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/qingstor/qsctl/v2/constants"
-	"github.com/qingstor/qsctl/v2/internal/pkg/ilog"
 	"github.com/qingstor/qsctl/v2/pkg/i18n"
 	"github.com/qingstor/qsctl/v2/utils"
 )
@@ -70,10 +69,7 @@ func init() {
 
 	// init config before command run
 	rootCmd.PersistentPreRunE = func(c *cobra.Command, args []string) error {
-		logger := ilog.InitLoggerWithDebug(globalFlag.debug)
-		ctx := log.ContextWithLogger(c.Context(), logger)
-		c.SetContext(ctx)
-		return initConfig(ctx)
+		return initConfig(c.Context())
 	}
 
 	rootCmd.AddCommand(ShellCommand)

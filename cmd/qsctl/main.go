@@ -4,15 +4,18 @@ import (
 	"context"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/qingstor/log"
+
+	"github.com/qingstor/qsctl/v2/internal/pkg/ilog"
 )
 
 func main() {
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
+	ctx := context.Background()
 
-	err := rootCmd.ExecuteContext(context.Background())
+	logger := ilog.InitLoggerWithDebug(globalFlag.debug)
+	ctx = log.ContextWithLogger(ctx, logger)
+
+	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
 	}
