@@ -32,13 +32,13 @@ var RbCommand = &cobra.Command{
 		i18n.Sprintf("forcely delete a nonempty bucket: qsctl rb qs://bucket-name -f"),
 	),
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := rbRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "rb", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		rbFlag = rbFlags{}
+		return nil
 	},
 }
 
@@ -91,6 +91,9 @@ func (r *rbShellHandler) preRunE(args []string) error {
 	if err != nil {
 		return err
 	}
+	if len(RbCommand.Flags().Args()) <= 0 {
+		return fmt.Errorf(i18n.Sprintf("Error: at least one arg is needed for %s", "rb"))
+	}
 	_, bucketName, _, err := utils.ParseQsPath(RbCommand.Flags().Args()[0])
 	if err != nil {
 		return err
@@ -109,7 +112,12 @@ func (r *rbShellHandler) preRunE(args []string) error {
 
 // postRun remove bucket from cache list if no error while run
 func (r rbShellHandler) postRun(err error) {
+	resetRbFlag()
 	if err == nil {
 		shellutils.RemoveBucketFromList(r.bucketName)
 	}
+}
+
+func resetRbFlag() {
+	rbFlag = rbFlags{}
 }

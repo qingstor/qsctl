@@ -44,6 +44,7 @@ var ShellCommand = &cobra.Command{
 // executor handle sub-command call logic
 // parse args --> package handler --> pre-run check --> run --> post-run
 func executor(t string) {
+	var err error
 	if t == "" {
 		return
 	}
@@ -63,7 +64,9 @@ func executor(t string) {
 		i18n.Printf("%s\n", err)
 		return
 	}
-	if err = sh.preRunE(args[1:]); err != nil {
+	defer sh.postRun(err)
+	err = sh.preRunE(args[1:])
+	if err != nil {
 		i18n.Printf("%s\n", err)
 		return
 	}
@@ -85,11 +88,7 @@ func executor(t string) {
 	go handler.StartProgress(time.Second)
 	ctx = taskutils.ContextWithHandler(ctx, handler)
 
-	if err = rootCmd.ExecuteContext(ctx); err != nil {
-		return
-	}
-
-	sh.postRun(err)
+	_ = rootCmd.ExecuteContext(ctx)
 	return
 }
 
@@ -153,15 +152,26 @@ type shellHandler interface {
 // shellHandlerFactory create shellHandler by factory pattern
 func shellHandlerFactory(cmd string) (shellHandler, error) {
 	switch cmd {
+	case CpCommand.Name():
+		return cpShellHandler{}, nil
+	case LsCommand.Name():
+		return lsShellHandler{}, nil
 	case MbCommand.Name():
 		return &mbShellHandler{}, nil
+	case MvCommand.Name():
+		return mvShellHandler{}, nil
+	case PresignCommand.Name():
+		return presignShellHandler{}, nil
 	case RbCommand.Name():
 		return &rbShellHandler{}, nil
 	case RmCommand.Name():
 		return rmShellHandler{}, nil
+	case StatCommand.Name():
+		return statShellHandler{}, nil
+	case SyncCommand.Name():
+		return syncShellHandler{}, nil
 	// remove cat and tee command support
-	case "help", CpCommand.Name(), LsCommand.Name(), MvCommand.Name(),
-		PresignCommand.Name(), StatCommand.Name(), SyncCommand.Name():
+	case "help":
 		return blankShellHandler{}, nil
 	default:
 		return nil, constants.ErrCmdNotSupport
