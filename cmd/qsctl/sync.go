@@ -53,13 +53,13 @@ is the source directory and second the destination directory.`),
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := syncRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "sync", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		syncFlag = syncFlags{}
+		return nil
 	},
 }
 
@@ -168,4 +168,16 @@ func parseSyncFlag() error {
 		return err
 	}
 	return nil
+}
+
+func resetSyncFlag() {
+	syncFlag = syncFlags{}
+}
+
+type syncShellHandler struct {
+	blankShellHandler
+}
+
+func (h syncShellHandler) postRun(_ error) {
+	resetSyncFlag()
 }

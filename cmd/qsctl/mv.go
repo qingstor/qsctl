@@ -39,13 +39,13 @@ var MvCommand = &cobra.Command{
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := mvRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mv", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		mvFlag = mvFlags{}
+		return nil
 	},
 }
 
@@ -141,4 +141,16 @@ func parseMvFlag() error {
 		return err
 	}
 	return nil
+}
+
+func resetMvFlag() {
+	mvFlag = mvFlags{}
+}
+
+type mvShellHandler struct {
+	blankShellHandler
+}
+
+func (h mvShellHandler) postRun(_ error) {
+	resetMvFlag()
 }

@@ -41,13 +41,13 @@ NOTICE: qsctl will not tee the content to stdout like linux tee command does.
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := teeRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "tee", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		teeFlag = teeFlags{}
+		return nil
 	},
 }
 
@@ -123,4 +123,8 @@ func parseTeeFlag() (err error) {
 		teeFlag.partSize = constants.DefaultPartSize
 	}
 	return nil
+}
+
+func resetTeeFlag() {
+	teeFlag = teeFlags{}
 }

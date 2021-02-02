@@ -31,13 +31,13 @@ this URL can always retrieve the object with an HTTP GET request.`),
 	),
 	Args:   cobra.ExactArgs(1),
 	PreRun: validatePresignFlag,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := presignRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "presign", err.Error())
+			return err
 		}
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
-		presignFlag = presignFlags{}
+		return nil
 	},
 }
 
@@ -72,4 +72,16 @@ func validatePresignFlag(_ *cobra.Command, _ []string) {
 	if presignFlag.expire <= 0 {
 		presignFlag.expire = constants.DefaultPresignExpire
 	}
+}
+
+func resetPresignFlag() {
+	presignFlag = presignFlags{}
+}
+
+type presignShellHandler struct {
+	blankShellHandler
+}
+
+func (h presignShellHandler) postRun(_ error) {
+	resetPresignFlag()
 }

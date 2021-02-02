@@ -29,10 +29,13 @@ bucket name should follow DNS name rule with:
 	),
 	Args:    cobra.ExactArgs(1),
 	PreRunE: validateMbFlag,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceErrors = true // handle runtime errors with i18n, do not show error
 		if err := mbRun(cmd, args); err != nil {
 			i18n.Fprintf(cmd.OutOrStderr(), "Execute %s command error: %s\n", "mb", err.Error())
+			return err
 		}
+		return nil
 	},
 }
 
@@ -81,6 +84,9 @@ func (h *mbShellHandler) preRunE(args []string) error {
 	err := MbCommand.Flags().Parse(args)
 	if err != nil {
 		return err
+	}
+	if len(MbCommand.Flags().Args()) <= 0 {
+		return fmt.Errorf(i18n.Sprintf("Error: at least one arg is needed for %s", "mb"))
 	}
 	_, bucketName, _, err := utils.ParseQsPath(MbCommand.Flags().Args()[0])
 	if err != nil {

@@ -30,6 +30,7 @@ func initEnUS(tag language.Tag) {
 	_ = message.SetString(tag, "Dir <%s> moved to <%s>.\n", "Dir <%s> moved to <%s>.\n")
 	_ = message.SetString(tag, "Dir <%s> removed.\n", "Dir <%s> removed.\n")
 	_ = message.SetString(tag, "ETag: %s", "ETag: %s")
+	_ = message.SetString(tag, "Error: at least one arg is needed for %s", "Error: at least one arg is needed for %s")
 	_ = message.SetString(tag, "Execute %s command error: %s\n", "Execute %s command error: %s\n")
 	_ = message.SetString(tag, "File <%s> copied to <%s>.\n", "File <%s> copied to <%s>.\n")
 	_ = message.SetString(tag, "File <%s> moved to <%s>.\n", "File <%s> moved to <%s>.\n")
