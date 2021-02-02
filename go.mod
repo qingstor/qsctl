@@ -19,13 +19,13 @@ require (
 	github.com/qingstor/log v0.0.0-20200804082313-615256cccabc
 	github.com/qingstor/noah v0.0.0-20200916093414-ebb25e7b1b33
 	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
 	github.com/vbauerster/mpb/v5 v5.4.0
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
-	golang.org/x/text v0.3.3
+	golang.org/x/text v0.3.5
 	gopkg.in/yaml.v2 v2.4.0
 )
 
