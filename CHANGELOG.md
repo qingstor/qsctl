@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.3] - 2021-05-12
+
+### Changed
+
+- build: Use static build via cgo disabled (#371)
+
 ## [2.4.2] - 2021-02-02
 
 ### Changed
@@ -525,6 +531,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.3]: https://github.com/qingstor/qsctl/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/qingstor/qsctl/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/qingstor/qsctl/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/qingstor/qsctl/compare/v2.3.0...v2.4.0
