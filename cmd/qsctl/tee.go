@@ -122,6 +122,19 @@ func parseTeeFlag() (err error) {
 	} else {
 		teeFlag.partSize = constants.DefaultPartSize
 	}
+
+	if teeFlag.expectSize != "" {
+		expectSize, err := utils.ParseByteSize(teeFlag.expectSize)
+		if err != nil {
+			return err
+		}
+
+		teeFlag.partSize, err = utils.CalculatePartSize(expectSize)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
