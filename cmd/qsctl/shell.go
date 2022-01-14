@@ -277,7 +277,7 @@ func noSuggests(_ prompt.Document) []prompt.Suggest {
 
 // monitorSignal check specific to call cancelFunc of passing context
 func monitorSignal(ctx context.Context, cancelFunc context.CancelFunc, sigs ...os.Signal) {
-	sigChan := make(chan os.Signal)
+	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, sigs...)
 	select {
 	case <-sigChan:
