@@ -1,6 +1,6 @@
 module github.com/qingstor/qsctl/v2
 
-go 1.14
+go 1.16
 
 require (
 	bou.ke/monkey v1.0.2
