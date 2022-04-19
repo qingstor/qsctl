@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.5] - 2022-04-19
+
+### Changed
+
+- ci: Update go to recent two versions (#379)
+
 ## [2.4.4] - 2022-01-06
 
 ### Fixed
@@ -537,6 +543,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.5]: https://github.com/qingstor/qsctl/compare/v2.4.4...v2.4.5
 [2.4.4]: https://github.com/qingstor/qsctl/compare/v2.4.3...v2.4.4
 [2.4.3]: https://github.com/qingstor/qsctl/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/qingstor/qsctl/compare/v2.4.1...v2.4.2
