@@ -448,7 +448,7 @@ func TestNewQingStorStorage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
-				assert.Equal(t, 2, len(pairs), tt.name)
+				assert.Equal(t, 3, len(pairs), tt.name)
 				return &qingstor.Storage{}, nil
 			})
 
