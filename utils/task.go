@@ -287,6 +287,8 @@ func getQsServicePairs() []*typ.Pair {
 		viper.GetString(constants.ConfigSecretAccessKey),
 	)))
 
+	ps = append(ps, qingstor.WithEnableVirtualStyle(viper.GetBool(constants.ConfigEnableVirtualStyle)))
+
 	if zone := viper.GetString(constants.ConfigZone); zone != "" {
 		ps = append(ps, pairs.WithLocation(zone))
 	}
