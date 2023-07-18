@@ -2,7 +2,7 @@
 name:        "qsctl"
 arch:        "amd64"
 platform:    "linux"
-version:     "2.4.5"
+version:     "2.4.6"
 section:     "default"
 priority:    "extra"
 maintainer:  "QingStor <qingstor@yunify.com>"

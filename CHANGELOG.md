@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.6] - 2023-07-18
+
+### Added
+
+- feat: Added support for virtual host style (#390)
+
+
 ## [2.4.5] - 2022-04-19
 
 ### Changed
@@ -543,6 +550,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.6]: https://github.com/qingstor/qsctl/compare/v2.4.5...v2.4.6
 [2.4.5]: https://github.com/qingstor/qsctl/compare/v2.4.4...v2.4.5
 [2.4.4]: https://github.com/qingstor/qsctl/compare/v2.4.3...v2.4.4
 [2.4.3]: https://github.com/qingstor/qsctl/compare/v2.4.2...v2.4.3
