@@ -3,10 +3,11 @@ package constants
 // Available config.
 const (
 	// Optional config.
-	ConfigHost     = "host"
-	ConfigPort     = "port"
-	ConfigProtocol = "protocol"
-	ConfigLogLevel = "log_level"
+	ConfigHost               = "host"
+	ConfigPort               = "port"
+	ConfigProtocol           = "protocol"
+	ConfigLogLevel           = "log_level"
+	ConfigEnableVirtualStyle = "enable_virtual_style"
 
 	// Required config.
 	ConfigAccessKeyID     = "access_key_id"
@@ -18,8 +19,9 @@ const (
 
 // Default config values.
 const (
-	DefaultHost     = "qingstor.com"
-	DefaultPort     = "443"
-	DefaultProtocol = "https"
-	DefaultLogLevel = "info"
+	DefaultHost               = "qingstor.com"
+	DefaultPort               = "443"
+	DefaultProtocol           = "https"
+	DefaultLogLevel           = "info"
+	DefaultEnableVirtualStyle = false
 )

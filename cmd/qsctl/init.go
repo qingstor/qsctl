@@ -106,6 +106,7 @@ func initConfig(ctx context.Context) (err error) {
 	viper.SetDefault(constants.ConfigHost, constants.DefaultHost)
 	viper.SetDefault(constants.ConfigPort, constants.DefaultPort)
 	viper.SetDefault(constants.ConfigProtocol, constants.DefaultProtocol)
+	viper.SetDefault(constants.ConfigEnableVirtualStyle, constants.DefaultEnableVirtualStyle)
 
 	// Load config from config file.
 	if globalFlag.configPath != "" {
