@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.7] - 2023-08-21
+
+### Fixes
+
+- fix(deps): Update qingstor lib to fix listDir behavior (#392)
+
 ## [2.4.6] - 2023-07-18
 
 ### Added
@@ -550,6 +556,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.7]: https://github.com/qingstor/qsctl/compare/v2.4.6...v2.4.7
 [2.4.6]: https://github.com/qingstor/qsctl/compare/v2.4.5...v2.4.6
 [2.4.5]: https://github.com/qingstor/qsctl/compare/v2.4.4...v2.4.5
 [2.4.4]: https://github.com/qingstor/qsctl/compare/v2.4.3...v2.4.4
