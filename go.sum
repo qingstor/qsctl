@@ -70,8 +70,8 @@ github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRF
 github.com/aliyun/aliyun-oss-go-sdk v2.1.2+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/aos-dev/go-service-fs v0.0.0-20200701083751-3d91f2781716 h1:NLu9mpk9sbX5mjQnX4E1v2EI+Mxr6a4D2kZDFVH7hIE=
 github.com/aos-dev/go-service-fs v0.0.0-20200701083751-3d91f2781716/go.mod h1:3p4qSYKmS4CPu+n0E8bsT43j6nLdIorMaG4nGwgjrtk=
-github.com/aos-dev/go-service-qingstor v0.0.0-20230706062320-92ca07484e42 h1:TWZbgpH3sbl22zeIfxDkmB31I7mw0ZB4L4bxUw0/lns=
-github.com/aos-dev/go-service-qingstor v0.0.0-20230706062320-92ca07484e42/go.mod h1:nkDeDqFc46xRs4Jo4hpY1COEe9Kyt/1kxN8GLHepGlc=
+github.com/aos-dev/go-service-qingstor v0.0.0-20230821085726-fd91c121fbaf h1:vqMLRHKBc6Nxeh5GzNgeqCXNZoIkGGMt9gJqSHoQJec=
+github.com/aos-dev/go-service-qingstor v0.0.0-20230821085726-fd91c121fbaf/go.mod h1:nkDeDqFc46xRs4Jo4hpY1COEe9Kyt/1kxN8GLHepGlc=
 github.com/aos-dev/go-storage/v2 v2.0.0-20200701075520-2a704cc6e299/go.mod h1:TVLcBruQEYqmOzj9zaIVfW3sg0vEiD5an6CoMXhQkoI=
 github.com/aos-dev/go-storage/v2 v2.0.0-20200701095044-534f1fbfb062 h1:GerKn/8KCo9CkUpJUjEYJGQFsQcAavqDoZBn3pLx+WE=
 github.com/aos-dev/go-storage/v2 v2.0.0-20200701095044-534f1fbfb062/go.mod h1:fdonF870IKNAqZMHnHr3gs/RImEqx9kjyJ33k4LtBEI=
