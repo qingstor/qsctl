@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"bou.ke/monkey"
+	"github.com/agiledragon/gomonkey/v2"
 	fs "github.com/aos-dev/go-service-fs"
 	qingstor "github.com/aos-dev/go-service-qingstor"
 	"github.com/aos-dev/go-storage/v2"
@@ -65,12 +65,13 @@ func TestParseLocalPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			patches := gomonkey.NewPatches()
 			if tt.wantErr != nil {
-				monkey.Patch(os.Stat, func(path string) (os.FileInfo, error) {
+				patches.ApplyFunc(os.Stat, func(path string) (os.FileInfo, error) {
 					assert.Equal(t, tt.path, path, tt.name)
 					return nil, tt.wantErr
 				})
-				defer monkey.UnpatchAll()
+				defer patches.Reset()
 			}
 			gotPathType, err := ParseLocalPath(tt.path)
 			if tt.wantErr != nil {
@@ -136,23 +137,24 @@ func TestParseStorageInputFs(t *testing.T) {
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
 			if v.pathErr != nil {
-				monkey.Patch(ParseLocalPath, func(p string) (_ typ.ObjectType, err error) {
+				patches.ApplyFunc(ParseLocalPath, func(p string) (_ typ.ObjectType, err error) {
 					assert.Equal(t, v.input, p, v.name)
 					err = v.pathErr
 					return
 				})
 			}
 			if v.wdErr != nil {
-				monkey.Patch(ParseFsWorkDir, func(p string) (_, _ string, err error) {
+				patches.ApplyFunc(ParseFsWorkDir, func(p string) (_, _ string, err error) {
 					assert.Equal(t, v.input, p, v.name)
 					err = v.wdErr
 					return
 				})
 			}
 			if v.fsNewErr != nil {
-				monkey.Patch(fs.NewStorager, func(pairs ...*typ.Pair) (_ storage.Storager, err error) {
+				patches.ApplyFunc(fs.NewStorager, func(pairs ...*typ.Pair) (_ storage.Storager, err error) {
 					err = v.fsNewErr
 					return
 				})
@@ -247,8 +249,9 @@ func TestParseBetweenStorageInput(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(ParseStorageInput, func(input string, storageType StoragerType) (
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(ParseStorageInput, func(input string, storageType StoragerType) (
 				workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
 				switch storageType {
 				case fs.Type:

@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"testing"
 
-	"bou.ke/monkey"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/agiledragon/gomonkey/v2"
 )
 
 func TestSurvey_DoubleCheckString(t *testing.T) {
@@ -53,8 +53,9 @@ func TestSurvey_DoubleCheckString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(survey.AskOne, func(p survey.Prompt, response interface{}, opts ...survey.AskOpt) error {
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(survey.AskOne, func(p survey.Prompt, response interface{}, opts ...survey.AskOpt) error {
 				if tt.wantErr {
 					return errTmp
 				}
@@ -133,8 +134,9 @@ func TestConfirmCheck_CheckConfirm(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(survey.AskOne, func(p survey.Prompt, response interface{}, opts ...survey.AskOpt) error {
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(survey.AskOne, func(p survey.Prompt, response interface{}, opts ...survey.AskOpt) error {
 				if tt.wantErr {
 					return errTmp
 				}

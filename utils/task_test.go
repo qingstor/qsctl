@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"bou.ke/monkey"
+	"github.com/agiledragon/gomonkey/v2"
 	fs "github.com/aos-dev/go-service-fs"
 	qingstor "github.com/aos-dev/go-service-qingstor"
 	"github.com/aos-dev/go-storage/v2"
@@ -117,15 +117,16 @@ func TestParseStorageInputQingstor(t *testing.T) {
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
 			if v.pathErr != nil {
-				monkey.Patch(ParseQsPath, func(p string) (_ typ.ObjectType, _, _ string, err error) {
+				patches.ApplyFunc(ParseQsPath, func(p string) (_ typ.ObjectType, _, _ string, err error) {
 					err = v.pathErr
 					return
 				})
 			}
 
-			monkey.Patch(NewQingStorStorage, func(...*typ.Pair) (stor storage.Storager, err error) {
+			patches.ApplyFunc(NewQingStorStorage, func(...*typ.Pair) (stor storage.Storager, err error) {
 				if v.srvErr != nil {
 					err = v.srvErr
 				} else {
@@ -173,9 +174,10 @@ func TestParseServiceInput(t *testing.T) {
 
 	for _, v := range cases {
 		t.Run(v.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
 			if v.err == errTmp {
-				monkey.Patch(NewQingStorService, func() (_ storage.Servicer, err error) {
+				patches.ApplyFunc(NewQingStorService, func() (_ storage.Servicer, err error) {
 					err = errTmp
 					return
 				})
@@ -207,8 +209,9 @@ func TestParseAtServiceInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(ParseServiceInput, func(serviceType StoragerType) (service storage.Servicer, err error) {
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(ParseServiceInput, func(serviceType StoragerType) (service storage.Servicer, err error) {
 				assert.Equal(t, qingstor.Type, serviceType, tt.name)
 				if tt.wantErr {
 					err = errTmp
@@ -251,8 +254,9 @@ func TestParseAtStorageInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(ParseStorageInput, func(input string, storageType StoragerType) (
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(ParseStorageInput, func(input string, storageType StoragerType) (
 				workDir, path string, objectType typ.ObjectType, store storage.Storager, err error) {
 				assert.Equal(t, qingstor.Type, storageType, tt.name)
 				assert.Equal(t, tt.input, input, tt.name)
@@ -265,7 +269,7 @@ func TestParseAtStorageInput(t *testing.T) {
 			})
 
 			if tt.err == ErrInvalidFlow {
-				monkey.Patch(ParseFlow, func(_, _ string) constants.FlowType {
+				patches.ApplyFunc(ParseFlow, func(_, _ string) constants.FlowType {
 					return constants.FlowInvalid
 				})
 			}
@@ -446,8 +450,9 @@ func TestNewQingStorStorage(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			defer monkey.UnpatchAll()
-			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
+			patches := gomonkey.NewPatches()
+			defer patches.Reset()
+			patches.ApplyFunc(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
 				assert.Equal(t, 4, len(pairs), tt.name)
 				return &qingstor.Storage{}, nil
 			})

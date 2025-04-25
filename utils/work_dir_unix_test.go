@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"bou.ke/monkey"
+	"github.com/agiledragon/gomonkey/v2"
 )
 
 func ExampleParseFsWorkDir() {
@@ -119,8 +119,9 @@ func TestParseWd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			patches := gomonkey.NewPatches()
 			if tt.wantErr {
-				monkey.Patch(filepath.Abs, func(string) (string, error) {
+				patches.ApplyFunc(filepath.Abs, func(string) (string, error) {
 					return "", filepath.ErrBadPattern
 				})
 			}
@@ -135,7 +136,7 @@ func TestParseWd(t *testing.T) {
 			if gotFile != tt.wantFile {
 				t.Errorf("ParseWorkDir() gotFile = %v, want %v", gotFile, tt.wantFile)
 			}
-			monkey.Unpatch(filepath.Abs)
+			patches.Reset()
 		})
 	}
 }

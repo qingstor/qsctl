@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"bou.ke/monkey"
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/google/uuid"
 	"github.com/qingstor/noah/pkg/fault"
 	"github.com/qingstor/noah/pkg/types"
@@ -45,7 +45,8 @@ func TestCatRun(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		monkey.Patch(utils.ParseBetweenStorageInput, func(_ interface {
+		patches := gomonkey.NewPatches()
+		patches.ApplyFunc(utils.ParseBetweenStorageInput, func(_ interface {
 			types.SourcePathSetter
 			types.SourceStorageSetter
 			types.SourceTypeSetter
@@ -61,7 +62,7 @@ func TestCatRun(t *testing.T) {
 			return
 		})
 		var tk *task.CopyFileTask
-		monkey.PatchInstanceMethod(reflect.TypeOf(tk), "Run", func(task *task.CopyFileTask, ctx context.Context) {
+		patches.ApplyMethod(reflect.TypeOf(tk), "Run", func(task *task.CopyFileTask, ctx context.Context) {
 			if tt.runErr != nil {
 				task.TriggerFault(tmpErr)
 			} else {
@@ -74,6 +75,6 @@ func TestCatRun(t *testing.T) {
 		} else {
 			assert.True(t, errors.Is(gotErr, tt.runErr), tt.name)
 		}
-		monkey.UnpatchAll()
+		patches.Reset()
 	}
 }
