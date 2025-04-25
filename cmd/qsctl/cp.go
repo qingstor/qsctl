@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/aos-dev/go-storage/v2/types"
 	"github.com/qingstor/noah/task"
@@ -129,7 +128,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 		}
 
 		i18n.Fprintf(c.OutOrStdout(), "Dir <%s> copied to <%s>.\n",
-			filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
+			srcWorkDir+t.GetSourcePath(), dstWorkDir+t.GetDestinationPath())
 		return nil
 	}
 
@@ -151,7 +150,7 @@ func cpRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "File <%s> copied to <%s>.\n",
-		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
+		srcWorkDir+t.GetSourcePath(), dstWorkDir+t.GetDestinationPath())
 	return
 }
 

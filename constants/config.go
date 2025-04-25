@@ -8,6 +8,7 @@ const (
 	ConfigProtocol           = "protocol"
 	ConfigLogLevel           = "log_level"
 	ConfigEnableVirtualStyle = "enable_virtual_style"
+	ConfigDisableURICleaning = "disable_uri_cleaning"
 
 	// Required config.
 	ConfigAccessKeyID     = "access_key_id"

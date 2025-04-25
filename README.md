@@ -45,6 +45,10 @@ port: 443
 protocol: 'https'
 connection_retries: 3
 zone: 'zone_name'
+
+# By default, extra slashes in object key will be stripped from the path,
+# like `/a//b` become `a/b`, this option disable that behavior.
+# disable_uri_cleaning: true
 ```
 
 ~~You can also run qsctl command without config file, it will try to

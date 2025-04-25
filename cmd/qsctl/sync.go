@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/Xuanwo/navvy"
 	"github.com/aos-dev/go-storage/v2/types"
@@ -126,7 +125,7 @@ func syncRun(c *cobra.Command, args []string) (err error) {
 	}
 
 	i18n.Fprintf(c.OutOrStdout(), "Dir <%s> and <%s> synced.\n",
-		filepath.Join(srcWorkDir, t.GetSourcePath()), filepath.Join(dstWorkDir, t.GetDestinationPath()))
+		srcWorkDir+t.GetSourcePath(), dstWorkDir+t.GetDestinationPath())
 	return nil
 
 }
