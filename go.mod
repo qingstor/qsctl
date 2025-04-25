@@ -3,10 +3,10 @@ module github.com/qingstor/qsctl/v2
 go 1.16
 
 require (
-	bou.ke/monkey v1.0.2
 	github.com/AlecAivazis/survey/v2 v2.2.7
 	github.com/Xuanwo/go-locale v0.3.0
 	github.com/Xuanwo/navvy v0.0.0-20200811093125-d2896821f0d2
+	github.com/agiledragon/gomonkey/v2 v2.13.0
 	github.com/aos-dev/go-service-fs v0.0.0-20200701083751-3d91f2781716
 	github.com/aos-dev/go-service-qingstor v0.0.0
 	github.com/aos-dev/go-storage/v2 v2.0.0-20200701095044-534f1fbfb062
