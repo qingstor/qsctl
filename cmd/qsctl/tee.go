@@ -1,8 +1,6 @@
 package main
 
 import (
-	"path/filepath"
-
 	"github.com/qingstor/noah/task"
 	"github.com/spf13/cobra"
 
@@ -67,7 +65,7 @@ func teeRun(c *cobra.Command, args []string) (err error) {
 	if t.GetFault().HasError() {
 		return t.GetFault()
 	}
-	i18n.Fprintf(c.OutOrStdout(), "Stdin copied to <%s>.\n", filepath.Join(dstWorkDir, t.GetDestinationPath()))
+	i18n.Fprintf(c.OutOrStdout(), "Stdin copied to <%s>.\n", dstWorkDir+t.GetDestinationPath())
 	return nil
 }
 

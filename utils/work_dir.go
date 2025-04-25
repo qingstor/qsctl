@@ -4,6 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/qingstor/qsctl/v2/constants"
+	"github.com/spf13/viper"
 )
 
 // ParseFsWorkDir get a path as input, split the work dir and file by following rules
@@ -35,16 +38,20 @@ func ParseFsWorkDir(path string) (wd, file string, err error) {
 // What's difference is ParseQsWorkDir use '/' as separator, which is defined by qingstor service.
 func ParseQsWorkDir(path string) (wd, file string) {
 	// always treat qs path as abs path, so add "/" before
-	separator := "/"
-	path = separator + path
-	parts := strings.SplitAfter(path, separator)
-	// because path always start with "/", so parts' len will always longer than 2
-	// trim redundant "/" in the middle of path (not the first one)
-	for i := 1; i < len(parts); i++ {
-		if parts[i] == separator {
-			parts[i] = ""
+	const qsSeparator = "/"
+	path = qsSeparator + path
+	parts := strings.SplitAfter(path, qsSeparator)
+
+	if !viper.GetBool(constants.ConfigDisableURICleaning) {
+		// because path always start with "/", so parts' len will always longer than 2
+		// trim redundant "/" in the middle of path (not the first one)
+		for i := 1; i < len(parts); i++ {
+			if parts[i] == qsSeparator {
+				parts[i] = ""
+			}
 		}
 	}
+
 	wd = strings.Join(parts[0:len(parts)-1], "")
 	file = parts[len(parts)-1]
 	return

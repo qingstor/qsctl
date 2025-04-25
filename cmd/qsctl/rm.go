@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 
 	typ "github.com/aos-dev/go-storage/v2/types"
 	"github.com/c-bata/go-prompt"
@@ -63,7 +62,7 @@ func rmRun(c *cobra.Command, args []string) (err error) {
 		return fmt.Errorf(i18n.Sprintf("path should be a directory while -r is set"))
 	}
 
-	key := filepath.Join(workDir, rootTask.GetPath())
+	key := workDir + rootTask.GetPath()
 	if rmFlag.recursive {
 		t := task.NewDeleteDir(rootTask)
 		t.SetHandleObjCallback(func(o *typ.Object) {

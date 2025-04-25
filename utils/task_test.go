@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/aos-dev/go-service-fs"
-	"github.com/aos-dev/go-service-qingstor"
+	fs "github.com/aos-dev/go-service-fs"
+	qingstor "github.com/aos-dev/go-service-qingstor"
 	"github.com/aos-dev/go-storage/v2"
 	"github.com/aos-dev/go-storage/v2/pkg/endpoint"
 	typ "github.com/aos-dev/go-storage/v2/types"
@@ -448,7 +448,7 @@ func TestNewQingStorStorage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			monkey.Patch(qingstor.NewStorager, func(pairs ...*typ.Pair) (storage.Storager, error) {
-				assert.Equal(t, 3, len(pairs), tt.name)
+				assert.Equal(t, 4, len(pairs), tt.name)
 				return &qingstor.Storage{}, nil
 			})
 

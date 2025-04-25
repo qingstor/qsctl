@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aos-dev/go-service-fs"
-	"github.com/aos-dev/go-service-qingstor"
+	fs "github.com/aos-dev/go-service-fs"
+	qingstor "github.com/aos-dev/go-service-qingstor"
 	"github.com/aos-dev/go-storage/v2"
 	"github.com/aos-dev/go-storage/v2/pkg/credential"
 	"github.com/aos-dev/go-storage/v2/pkg/endpoint"
@@ -288,6 +288,7 @@ func getQsServicePairs() []*typ.Pair {
 	)))
 
 	ps = append(ps, qingstor.WithEnableVirtualStyle(viper.GetBool(constants.ConfigEnableVirtualStyle)))
+	ps = append(ps, qingstor.WithDisableURICleaning(viper.GetBool(constants.ConfigDisableURICleaning)))
 
 	if zone := viper.GetString(constants.ConfigZone); zone != "" {
 		ps = append(ps, pairs.WithLocation(zone))

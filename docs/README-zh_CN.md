@@ -37,6 +37,10 @@ port: 443
 protocol: 'https'
 connection_retries: 3
 zone: 'zone_name'
+
+# 默认情况下，对象键中的多余斜杠会被从路径中移除，
+# 例如 `/a//b` 会变成 `a/b`，这个选项用于禁用该行为。
+# disable_uri_cleaning: true
 ```
 
 ~~您也可以在没有配置文件的情况下执行 qsctl 指令，它首先会自动在特定的目录下寻找配置文件，
