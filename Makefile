@@ -3,6 +3,15 @@ CMD_PKG := github.com/qingstor/qsctl/v2/cmd/qsctl
 VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 
+OS := $(shell go env GOOS)
+
+RACE_FLAG :=
+ifeq ($(OS),windows)
+    RACE_FLAG :=
+else
+    RACE_FLAG := -race
+endif
+
 .PHONY: all check format vet build install uninstall release clean test generate build-linux package
 
 # nfpm: go get -u github.com/goreleaser/nfpm/cmd/nfpm
@@ -42,7 +51,7 @@ generate:
 build: tidy generate check
 	@echo "build qsctl"
 	@mkdir -p ./bin
-	@go build ${GO_BUILD_OPTION} -race -o ./bin/qsctl ${CMD_PKG}
+	@go build ${GO_BUILD_OPTION} $(RACE_FLAG) -o ./bin/qsctl ${CMD_PKG}
 	@echo "ok"
 
 build-linux: tidy generate check
@@ -94,7 +103,7 @@ clean:
 
 test:
 	@echo "run test"
-	@go test -gcflags=all=-l -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+	@go test -gcflags=all=-l $(RACE_FLAG) -coverprofile=coverage.txt -covermode=atomic -v ./...
 	@go tool cover -html="coverage.txt" -o "coverage.html"
 	@echo "ok"
 
