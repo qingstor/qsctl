@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.8] - 2025-04-27
+
+### Added
+
+- feat: feat: Allow object keys include multiple slashes if configured (#396)
+
 ## [2.4.7] - 2023-08-21
 
 ### Fixes
@@ -556,6 +562,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.8]: https://github.com/qingstor/qsctl/compare/v2.4.7...v2.4.8
 [2.4.7]: https://github.com/qingstor/qsctl/compare/v2.4.6...v2.4.7
 [2.4.6]: https://github.com/qingstor/qsctl/compare/v2.4.5...v2.4.6
 [2.4.5]: https://github.com/qingstor/qsctl/compare/v2.4.4...v2.4.5
