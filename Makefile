@@ -31,7 +31,7 @@ help:
 	@echo "  test       to run test"
 	@echo "  package    to make deb and rpm package for linux distribution"
 
-check: format vet
+check: tidy generate format vet
 
 format:
 	@echo "go fmt"
@@ -100,6 +100,7 @@ clean:
 	@rm -rf ./bin
 	@rm -rf ./release
 	@rm -rf ./coverage
+	@rm -rf ./dist
 
 test:
 	@echo "run test"
