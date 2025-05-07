@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.9] - 2025-05-07
+
+### Added
+
+- goreleaser: Add goreleaser to build and publish binary (#398)
+
 ## [2.4.8] - 2025-04-27
 
 ### Added
@@ -562,6 +568,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Hello, qsctl.
 
+[2.4.8]: https://github.com/qingstor/qsctl/compare/v2.4.8...v2.4.9
 [2.4.8]: https://github.com/qingstor/qsctl/compare/v2.4.7...v2.4.8
 [2.4.7]: https://github.com/qingstor/qsctl/compare/v2.4.6...v2.4.7
 [2.4.6]: https://github.com/qingstor/qsctl/compare/v2.4.5...v2.4.6
