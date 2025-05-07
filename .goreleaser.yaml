@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+project_name: qsctl
+release:
+  github:
+    owner: qingstor
+    name: qsctl
+
+before:
+  hooks:
+    - make clean
+    - make check
+
+builds:
+  - main: ./cmd/qsctl  # adjust if main package is in another path
+    goos: [linux, windows, darwin]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64  # Skip windows/arm64 during release
+    tags:
+      - netgo
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/qingstor/qsctl/v2/constants.Version={{.Version}}
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  -
+  # name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    formats: ['tar.gz']
+    format_overrides:
+      - goos: windows
+        formats: ['zip']
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ .Tag }}"
+
+changelog:
+  sort: asc
+
+nfpms:
+  - id: default
+    package_name: qsctl
+    formats: [deb, rpm]
+    vendor: QingStor
+    maintainer: QingStor <support@qingcloud.com>
+    description: "A command-line tool to interact with QingStor object storage."
+    license: Apache-2.0
+    homepage: https://github.com/qingstor/qsctl
+    bindir: /usr/bin
